@@ -132,6 +132,46 @@ body.dark-mode .text-azure .iconpark-icon {
     fill: #7aa5df !important;
 }
 
+/* User Info Card 深色模式适配 */
+body.dark-mode .user-info-card {
+    background-color: #2a2a2a !important;
+    color: #eee !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-mode .userinfo_avatar_card_img {
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16) !important;
+}
+
+body.dark-mode .userinfo_card_nickname {
+    color: #fff !important;
+}
+
+body.dark-mode .userinfo_card_intro {
+    color: #bbb !important;
+}
+
+body.dark-mode .userinfo_card_pro {
+    color: #68a6ff !important;
+}
+
+body.dark-mode .btn-user-info {
+    background-color: rgba(104, 166, 255, 0.15) !important;
+    color: #68a6ff !important;
+}
+
+body.dark-mode .btn-user-info:hover,
+body.dark-mode .btn-user-info:focus {
+    background-color: rgba(104, 166, 255, 0.25) !important;
+    color: #68a6ff !important;
+}
+
+body.dark-mode .btn-user-info:active {
+    background-color: rgba(104, 166, 255, 0.35) !important;
+}
+
 @media (prefers-color-scheme: dark) {
 
     /* 自动深色模式 - 仅在未手动设置时生效 */
@@ -139,6 +179,46 @@ body.dark-mode .text-azure .iconpark-icon {
         --icon-color: #ffffff !important;
         --text-primary: #ffffff !important;
         --text-secondary: #b3b2b2 !important;
+    }
+
+    /* User Info Card 自动深色模式 */
+    body:not(.theme-manual) .user-info-card {
+        background-color: #2a2a2a !important;
+        color: #eee !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    body:not(.theme-manual) .userinfo_avatar_card_img {
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16) !important;
+    }
+
+    body:not(.theme-manual) .userinfo_card_nickname {
+        color: #fff !important;
+    }
+
+    body:not(.theme-manual) .userinfo_card_intro {
+        color: #bbb !important;
+    }
+
+    body:not(.theme-manual) .userinfo_card_pro {
+        color: #68a6ff !important;
+    }
+
+    body:not(.theme-manual) .btn-user-info {
+        background-color: rgba(104, 166, 255, 0.15) !important;
+        color: #68a6ff !important;
+    }
+
+    body:not(.theme-manual) .btn-user-info:hover,
+    body:not(.theme-manual) .btn-user-info:focus {
+        background-color: rgba(104, 166, 255, 0.25) !important;
+        color: #68a6ff !important;
+    }
+
+    body:not(.theme-manual) .btn-user-info:active {
+        background-color: rgba(104, 166, 255, 0.35) !important;
     }
 
     .logo_bar_img {

@@ -285,3 +285,404 @@
         text-align: right !important;
     }
 }
+
+/* Dark mode overrides for modern auth */
+@media (prefers-color-scheme: dark) and (min-width: 768px) {
+    /* Dark mode card styling */
+    .form-sp .card {
+        background: rgba(31, 41, 55, 0.95) !important;
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* Dark mode form controls */
+    .form-sp .form-control {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        color: #ffffff !important;
+    }
+
+    .form-sp .form-control:focus {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border-color: rgba(99, 102, 241, 0.5) !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+        color: #ffffff !important;
+    }
+
+    .form-sp .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    /* Dark mode modal content */
+    .modal-content {
+        background: rgba(31, 41, 55, 0.95) !important;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .modal-body li {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+    }
+
+    .modal-body li:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    /* Fix specific user modal elements */
+    .modal #user_logo_file,
+    #userModal #user_logo_file,
+    .modal input#user_logo_file,
+    #userModal input#user_logo_file,
+    .form-sp #user_logo_file,
+    .form-sp input#user_logo_file,
+    .form-sp .form-control#user_logo_file[type="file"],
+    .form-sp input.form-control#user_logo_file[type="file"],
+    .form-sp .custom-file-input#user_logo_file {
+        background: #2d3748 !important;
+        background-color: #2d3748 !important;
+        border: 2px solid #4a5568 !important;
+        border-color: #4a5568 !important;
+        color: #ffffff !important;
+        padding: 8px 12px !important;
+        border-radius: 8px !important;
+        font-size: 14px !important;
+        cursor: pointer !important;
+        -webkit-text-fill-color: #ffffff !important;
+        text-shadow: none !important;
+    }
+
+    .modal #user_logo_file:focus,
+    #userModal #user_logo_file:focus,
+    .modal input#user_logo_file:focus,
+    #userModal input#user_logo_file:focus,
+    .form-sp #user_logo_file:focus,
+    .form-sp input#user_logo_file:focus,
+    .form-sp .form-control#user_logo_file:focus {
+        background: #2d3748 !important;
+        background-color: #2d3748 !important;
+        border-color: #718096 !important;
+        box-shadow: 0 0 0 3px rgba(113, 128, 150, 0.3) !important;
+        color: #ffffff !important;
+    }
+
+    /* Auto dark mode file upload button styling */
+    .form-sp input#user_logo_file[type="file"]::-webkit-file-upload-button,
+    .form-sp .form-control#user_logo_file[type="file"]::-webkit-file-upload-button,
+    .modal .form-sp input#user_logo_file[type="file"]::-webkit-file-upload-button {
+        background: #4a5568 !important;
+        background-color: #4a5568 !important;
+        border: 1px solid #718096 !important;
+        border-radius: 6px !important;
+        color: #ffffff !important;
+        padding: 6px 12px !important;
+        margin-right: 8px !important;
+        font-size: 14px !important;
+        cursor: pointer !important;
+        -webkit-appearance: button !important;
+        -webkit-text-fill-color: #ffffff !important;
+    }
+
+    .form-sp input#user_logo_file[type="file"]::-webkit-file-upload-button:hover,
+    .form-sp .form-control#user_logo_file[type="file"]::-webkit-file-upload-button:hover,
+    .modal .form-sp input#user_logo_file[type="file"]::-webkit-file-upload-button:hover {
+        background: #718096 !important;
+        background-color: #718096 !important;
+    }
+
+    /* Auto dark mode Firefox file input button */
+    .form-sp input#user_logo_file[type="file"]::file-selector-button,
+    .form-sp .form-control#user_logo_file[type="file"]::file-selector-button,
+    .modal .form-sp input#user_logo_file[type="file"]::file-selector-button {
+        background: #4a5568 !important;
+        background-color: #4a5568 !important;
+        border: 1px solid #718096 !important;
+        border-radius: 6px !important;
+        color: #ffffff !important;
+        padding: 6px 12px !important;
+        margin-right: 8px !important;
+        font-size: 14px !important;
+        cursor: pointer !important;
+    }
+
+    .form-sp input#user_logo_file[type="file"]::file-selector-button:hover,
+    .form-sp .form-control#user_logo_file[type="file"]::file-selector-button:hover,
+    .modal .form-sp input#user_logo_file[type="file"]::file-selector-button:hover {
+        background: #718096 !important;
+        background-color: #718096 !important;
+    }
+
+    /* Fix the actual visible element - custom-file-label for auto dark mode */
+    .custom-file-label,
+    .custom-file-label.user_logo_postmsg,
+    label.custom-file-label,
+    label.custom-file-label.user_logo_postmsg,
+    .form-sp .custom-file-label,
+    .modal .custom-file-label,
+    #userModal .custom-file-label {
+        background: #2d3748 !important;
+        background-color: #2d3748 !important;
+        border: 2px solid #4a5568 !important;
+        border-color: #4a5568 !important;
+        color: #ffffff !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+    }
+
+    .custom-file-label:hover,
+    .custom-file-label.user_logo_postmsg:hover,
+    label.custom-file-label:hover,
+    .form-sp .custom-file-label:hover,
+    .modal .custom-file-label:hover,
+    #userModal .custom-file-label:hover {
+        background: #4a5568 !important;
+        background-color: #4a5568 !important;
+        border-color: #718096 !important;
+    }
+
+    .modal #user_review_tos_1,
+    .modal #user_review_tos_2,
+    #userModal #user_review_tos_1,
+    #userModal #user_review_tos_2 {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        color: #ffffff !important;
+    }
+
+    .modal #user_review_tos_1::placeholder,
+    .modal #user_review_tos_2::placeholder,
+    #userModal #user_review_tos_1::placeholder,
+    #userModal #user_review_tos_2::placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    /* Fix any white background elements in userModal */
+    #userModal .bg-white,
+    #userModal .bg-light {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    #userModal .text-dark,
+    #userModal .text-muted {
+        color: #d1d5db !important;
+    }
+}
+
+/* Manual dark mode overrides */
+body.dark-mode .form-sp .card {
+    background: rgba(31, 41, 55, 0.95) !important;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .form-sp .form-control {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .form-sp .form-control:focus {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(99, 102, 241, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .form-sp .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+body.dark-mode .modal-content {
+    background: rgba(31, 41, 55, 0.95) !important;
+}
+
+body.dark-mode .modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .modal-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .modal-body li {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .modal-body li:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Fix specific user modal elements */
+body.dark-mode .modal #user_logo_file,
+body.dark-mode #userModal #user_logo_file,
+body.dark-mode .modal input#user_logo_file,
+body.dark-mode #userModal input#user_logo_file,
+body.dark-mode .form-sp #user_logo_file,
+body.dark-mode .form-sp input#user_logo_file {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+body.dark-mode .modal #user_logo_file:focus,
+body.dark-mode #userModal #user_logo_file:focus,
+body.dark-mode .modal input#user_logo_file:focus,
+body.dark-mode #userModal input#user_logo_file:focus,
+body.dark-mode .form-sp #user_logo_file:focus,
+body.dark-mode .form-sp input#user_logo_file:focus {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(99, 102, 241, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .modal #user_review_tos_1,
+body.dark-mode .modal #user_review_tos_2,
+body.dark-mode #userModal #user_review_tos_1,
+body.dark-mode #userModal #user_review_tos_2 {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .modal #user_review_tos_1::placeholder,
+body.dark-mode .modal #user_review_tos_2::placeholder,
+body.dark-mode #userModal #user_review_tos_1::placeholder,
+body.dark-mode #userModal #user_review_tos_2::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Fix any white background elements in userModal */
+body.dark-mode #userModal .bg-white,
+body.dark-mode #userModal .bg-light {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode #userModal .text-dark,
+body.dark-mode #userModal .text-muted {
+    color: #d1d5db !important;
+}
+
+/* Ultra-specific file input styling for modern-auth - highest priority */
+body.dark-mode .form-sp .form-control#user_logo_file[type="file"],
+body.dark-mode .form-sp input.form-control#user_logo_file[type="file"],
+body.dark-mode .form-sp .custom-file-input#user_logo_file,
+body.dark-mode .modal .form-sp #user_logo_file[type="file"],
+body.dark-mode #userModal .form-sp #user_logo_file[type="file"],
+body.dark-mode .form-sp input#user_logo_file,
+body.dark-mode .form-sp #user_logo_file {
+    background: #2d3748 !important;
+    background-color: #2d3748 !important;
+    border: 2px solid #4a5568 !important;
+    border-color: #4a5568 !important;
+    color: #ffffff !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    -webkit-text-fill-color: #ffffff !important;
+    text-shadow: none !important;
+}
+
+/* Override the modern-auth form control styles specifically */
+body.dark-mode .form-sp .form-control#user_logo_file {
+    background: #2d3748 !important;
+    background-color: #2d3748 !important;
+    border: 2px solid #4a5568 !important;
+    border-color: #4a5568 !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .form-sp .form-control#user_logo_file:focus {
+    background: #2d3748 !important;
+    background-color: #2d3748 !important;
+    border-color: #718096 !important;
+    box-shadow: 0 0 0 3px rgba(113, 128, 150, 0.3) !important;
+    color: #ffffff !important;
+}
+
+/* File upload button styling for modern-auth */
+body.dark-mode .form-sp input#user_logo_file[type="file"]::-webkit-file-upload-button,
+body.dark-mode .form-sp .form-control#user_logo_file[type="file"]::-webkit-file-upload-button,
+body.dark-mode .modal .form-sp input#user_logo_file[type="file"]::-webkit-file-upload-button {
+    background: #4a5568 !important;
+    background-color: #4a5568 !important;
+    border: 1px solid #718096 !important;
+    border-radius: 6px !important;
+    color: #ffffff !important;
+    padding: 6px 12px !important;
+    margin-right: 8px !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    -webkit-appearance: button !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+body.dark-mode .form-sp input#user_logo_file[type="file"]::-webkit-file-upload-button:hover,
+body.dark-mode .form-sp .form-control#user_logo_file[type="file"]::-webkit-file-upload-button:hover,
+body.dark-mode .modal .form-sp input#user_logo_file[type="file"]::-webkit-file-upload-button:hover {
+    background: #718096 !important;
+    background-color: #718096 !important;
+}
+
+/* Firefox file input button for modern-auth */
+body.dark-mode .form-sp input#user_logo_file[type="file"]::file-selector-button,
+body.dark-mode .form-sp .form-control#user_logo_file[type="file"]::file-selector-button,
+body.dark-mode .modal .form-sp input#user_logo_file[type="file"]::file-selector-button {
+    background: #4a5568 !important;
+    background-color: #4a5568 !important;
+    border: 1px solid #718096 !important;
+    border-radius: 6px !important;
+    color: #ffffff !important;
+    padding: 6px 12px !important;
+    margin-right: 8px !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+}
+
+body.dark-mode .form-sp input#user_logo_file[type="file"]::file-selector-button:hover,
+body.dark-mode .form-sp .form-control#user_logo_file[type="file"]::file-selector-button:hover,
+body.dark-mode .modal .form-sp input#user_logo_file[type="file"]::file-selector-button:hover {
+    background: #718096 !important;
+    background-color: #718096 !important;
+}
+
+/* Fix the actual visible element - custom-file-label */
+body.dark-mode .custom-file-label,
+body.dark-mode .custom-file-label.user_logo_postmsg,
+body.dark-mode label.custom-file-label,
+body.dark-mode label.custom-file-label.user_logo_postmsg,
+body.dark-mode .form-sp .custom-file-label,
+body.dark-mode .modal .custom-file-label,
+body.dark-mode #userModal .custom-file-label {
+    background: #2d3748 !important;
+    background-color: #2d3748 !important;
+    border: 2px solid #4a5568 !important;
+    border-color: #4a5568 !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+}
+
+body.dark-mode .custom-file-label:hover,
+body.dark-mode .custom-file-label.user_logo_postmsg:hover,
+body.dark-mode label.custom-file-label:hover,
+body.dark-mode .form-sp .custom-file-label:hover,
+body.dark-mode .modal .custom-file-label:hover,
+body.dark-mode #userModal .custom-file-label:hover {
+    background: #4a5568 !important;
+    background-color: #4a5568 !important;
+    border-color: #718096 !important;
+}

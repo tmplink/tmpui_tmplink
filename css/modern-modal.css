@@ -1,0 +1,902 @@
+/* Modern Modal Styles - Override existing modal styles */
+
+/* Enhanced backdrop with subtle blur effect */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+}
+
+/* Modern modal dialog with enhanced spacing and transitions */
+.modal-dialog {
+    transform: scale(0.9) !important;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    margin: 2rem auto !important;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1) !important;
+}
+
+/* Modern modal content with glassmorphism effect */
+.modal-content {
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    overflow: hidden !important;
+}
+
+/* Modern modal header */
+.modal-header {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+    padding: 24px 32px 20px !important;
+    position: relative !important;
+}
+
+.modal-title {
+    font-weight: 600 !important;
+    font-size: 1.25rem !important;
+    color: #1f2937 !important;
+    margin: 0 !important;
+}
+
+/* Modern close button */
+.modal-header .close {
+    position: absolute !important;
+    top: 20px !important;
+    right: 24px !important;
+    padding: 8px !important;
+    margin: 0 !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+    font-size: 18px !important;
+    opacity: 0.7 !important;
+}
+
+.modal-header .close:hover {
+    background: rgba(0, 0, 0, 0.1) !important;
+    opacity: 1 !important;
+    transform: scale(1.05) !important;
+}
+
+.modal-header .close span {
+    font-weight: 300 !important;
+    line-height: 1 !important;
+}
+
+/* Modern modal body */
+.modal-body {
+    padding: 24px 32px !important;
+    color: #374151 !important;
+    line-height: 1.6 !important;
+}
+
+/* Modern modal footer */
+.modal-footer {
+    background: transparent !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+    padding: 20px 32px 24px !important;
+    gap: 12px !important;
+}
+
+/* Enhanced button styles in modal */
+.modal-footer .btn {
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    padding: 10px 20px !important;
+    transition: all 0.2s ease !important;
+    border: none !important;
+}
+
+.modal-footer .btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+}
+
+.modal-footer .btn-primary:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4) !important;
+}
+
+.modal-footer .btn-secondary {
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: #6b7280 !important;
+}
+
+.modal-footer .btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.1) !important;
+    color: #374151 !important;
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+    .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.8) !important;
+    }
+
+    .modal-content {
+        background-color: rgba(31, 41, 55, 0.95) !important;
+        box-shadow: 
+            0 25px 50px -12px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .modal-title {
+        color: #f9fafb !important;
+    }
+
+    .modal-header .close {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: #d1d5db !important;
+    }
+
+    .modal-header .close:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .modal-body {
+        color: #d1d5db !important;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .modal-footer .btn-secondary {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: #d1d5db !important;
+    }
+
+    .modal-footer .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: #f9fafb !important;
+    }
+
+    /* Fix form controls in dark mode modals */
+    .modal .form-control,
+    .modal input[type="text"],
+    .modal input[type="email"],
+    .modal input[type="password"],
+    .modal input[type="file"],
+    .modal textarea,
+    .modal select {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #ffffff !important;
+    }
+
+    .modal .form-control:focus,
+    .modal input[type="text"]:focus,
+    .modal input[type="email"]:focus,
+    .modal input[type="password"]:focus,
+    .modal textarea:focus,
+    .modal select:focus {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        border-color: rgba(99, 102, 241, 0.5) !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+        color: #ffffff !important;
+    }
+
+    .modal .form-control::placeholder,
+    .modal input::placeholder,
+    .modal textarea::placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    /* Fix file input styling */
+    .modal input[type="file"],
+    .modal #user_logo_file,
+    #userModal #user_logo_file,
+    .form-sp #user_logo_file,
+    input#user_logo_file {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+        border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .modal input[type="file"]::-webkit-file-upload-button {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        color: #ffffff !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+        margin-right: 12px !important;
+        cursor: pointer !important;
+    }
+
+    .modal input[type="file"]::-webkit-file-upload-button:hover {
+        background-color: rgba(255, 255, 255, 0.3) !important;
+    }
+
+    /* Fix checkbox and radio button styling */
+    .modal .form-check-input,
+    .modal input[type="checkbox"],
+    .modal input[type="radio"] {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    }
+
+    .modal .form-check-input:checked,
+    .modal input[type="checkbox"]:checked,
+    .modal input[type="radio"]:checked {
+        background-color: #6366f1 !important;
+        border-color: #6366f1 !important;
+    }
+
+    .modal .form-check-label,
+    .modal label {
+        color: #d1d5db !important;
+    }
+
+    /* Fix button groups and toggle buttons */
+    .modal .btn-group .btn,
+    .modal .btn-outline-light,
+    .modal .btn-light {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        color: #d1d5db !important;
+    }
+
+    .modal .btn-group .btn:hover,
+    .modal .btn-outline-light:hover,
+    .modal .btn-light:hover {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        color: #f9fafb !important;
+    }
+
+    .modal .btn-group .btn.active,
+    .modal .btn-outline-light.active,
+    .modal .btn-light.active {
+        background-color: #6366f1 !important;
+        border-color: #6366f1 !important;
+        color: #ffffff !important;
+    }
+
+    /* Fix dropdown menus in modals */
+    .modal .dropdown-menu {
+        background-color: rgba(31, 41, 55, 0.95) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(20px) !important;
+    }
+
+    .modal .dropdown-item {
+        color: #d1d5db !important;
+    }
+
+    .modal .dropdown-item:hover,
+    .modal .dropdown-item:focus {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #f9fafb !important;
+    }
+
+    /* Fix alert styling in modals */
+    .modal .alert {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        color: #d1d5db !important;
+    }
+
+    .modal .alert-info {
+        background-color: rgba(59, 130, 246, 0.2) !important;
+        border-color: rgba(59, 130, 246, 0.3) !important;
+    }
+
+    .modal .alert-warning {
+        background-color: rgba(245, 158, 11, 0.2) !important;
+        border-color: rgba(245, 158, 11, 0.3) !important;
+    }
+
+    .modal .alert-danger {
+        background-color: rgba(239, 68, 68, 0.2) !important;
+        border-color: rgba(239, 68, 68, 0.3) !important;
+    }
+
+    .modal .alert-success {
+        background-color: rgba(34, 197, 94, 0.2) !important;
+        border-color: rgba(34, 197, 94, 0.3) !important;
+    }
+
+    /* Fix specific user elements */
+    .modal #user_logo_file,
+    #userModal #user_logo_file {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .modal #user_review_tos_1,
+    .modal #user_review_tos_2,
+    #userModal #user_review_tos_1,
+    #userModal #user_review_tos_2 {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .modal #user_review_tos_1::placeholder,
+    .modal #user_review_tos_2::placeholder,
+    #userModal #user_review_tos_1::placeholder,
+    #userModal #user_review_tos_2::placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    /* Additional userModal specific fixes */
+    #userModal .form-control,
+    #userModal input[type="text"],
+    #userModal input[type="email"],
+    #userModal input[type="password"],
+    #userModal input[type="file"],
+    #userModal textarea,
+    #userModal select {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #ffffff !important;
+    }
+
+    #userModal .form-control::placeholder,
+    #userModal input::placeholder,
+    #userModal textarea::placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    /* Fix any white background elements in userModal */
+    #userModal .bg-white,
+    #userModal .bg-light {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    #userModal .text-dark,
+    #userModal .text-muted {
+        color: #d1d5db !important;
+    }
+}
+
+/* Manual dark mode - for body.dark-mode */
+body.dark-mode .modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+body.dark-mode .modal-content {
+    background-color: rgba(31, 41, 55, 0.95) !important;
+    box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .modal-title {
+    color: #f9fafb !important;
+}
+
+body.dark-mode .modal-header .close {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #d1d5db !important;
+}
+
+body.dark-mode .modal-header .close:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+body.dark-mode .modal-body {
+    color: #d1d5db !important;
+}
+
+body.dark-mode .modal-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .modal-footer .btn-secondary {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #d1d5db !important;
+}
+
+body.dark-mode .modal-footer .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #f9fafb !important;
+}
+
+/* Fix form controls in dark mode modals */
+body.dark-mode .modal .form-control,
+body.dark-mode .modal input[type="text"],
+body.dark-mode .modal input[type="email"],
+body.dark-mode .modal input[type="password"],
+body.dark-mode .modal input[type="file"],
+body.dark-mode .modal textarea,
+body.dark-mode .modal select {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .modal .form-control:focus,
+body.dark-mode .modal input[type="text"]:focus,
+body.dark-mode .modal input[type="email"]:focus,
+body.dark-mode .modal input[type="password"]:focus,
+body.dark-mode .modal textarea:focus,
+body.dark-mode .modal select:focus {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(99, 102, 241, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .modal .form-control::placeholder,
+body.dark-mode .modal input::placeholder,
+body.dark-mode .modal textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Fix file input styling */
+body.dark-mode .modal input[type="file"],
+body.dark-mode .modal #user_logo_file,
+body.dark-mode #userModal #user_logo_file,
+body.dark-mode .form-sp #user_logo_file,
+body.dark-mode input#user_logo_file {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+body.dark-mode .modal input[type="file"]::-webkit-file-upload-button {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #ffffff !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    margin-right: 12px !important;
+    cursor: pointer !important;
+}
+
+body.dark-mode .modal input[type="file"]::-webkit-file-upload-button:hover {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Fix checkbox and radio button styling */
+body.dark-mode .modal .form-check-input,
+body.dark-mode .modal input[type="checkbox"],
+body.dark-mode .modal input[type="radio"] {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+body.dark-mode .modal .form-check-input:checked,
+body.dark-mode .modal input[type="checkbox"]:checked,
+body.dark-mode .modal input[type="radio"]:checked {
+    background-color: #6366f1 !important;
+    border-color: #6366f1 !important;
+}
+
+body.dark-mode .modal .form-check-label,
+body.dark-mode .modal label {
+    color: #d1d5db !important;
+}
+
+/* Fix button groups and toggle buttons */
+body.dark-mode .modal .btn-group .btn,
+body.dark-mode .modal .btn-outline-light,
+body.dark-mode .modal .btn-light {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #d1d5db !important;
+}
+
+body.dark-mode .modal .btn-group .btn:hover,
+body.dark-mode .modal .btn-outline-light:hover,
+body.dark-mode .modal .btn-light:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: #f9fafb !important;
+}
+
+body.dark-mode .modal .btn-group .btn.active,
+body.dark-mode .modal .btn-outline-light.active,
+body.dark-mode .modal .btn-light.active {
+    background-color: #6366f1 !important;
+    border-color: #6366f1 !important;
+    color: #ffffff !important;
+}
+
+/* Fix dropdown menus in modals */
+body.dark-mode .modal .dropdown-menu {
+    background-color: rgba(31, 41, 55, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(20px) !important;
+}
+
+body.dark-mode .modal .dropdown-item {
+    color: #d1d5db !important;
+}
+
+body.dark-mode .modal .dropdown-item:hover,
+body.dark-mode .modal .dropdown-item:focus {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #f9fafb !important;
+}
+
+/* Fix alert styling in modals */
+body.dark-mode .modal .alert {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #d1d5db !important;
+}
+
+body.dark-mode .modal .alert-info {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+body.dark-mode .modal .alert-warning {
+    background-color: rgba(245, 158, 11, 0.2) !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+body.dark-mode .modal .alert-danger {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+body.dark-mode .modal .alert-success {
+    background-color: rgba(34, 197, 94, 0.2) !important;
+    border-color: rgba(34, 197, 94, 0.3) !important;
+}
+
+/* Fix specific user elements */
+body.dark-mode .modal #user_logo_file,
+body.dark-mode #userModal #user_logo_file {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+body.dark-mode .modal #user_review_tos_1,
+body.dark-mode .modal #user_review_tos_2,
+body.dark-mode #userModal #user_review_tos_1,
+body.dark-mode #userModal #user_review_tos_2 {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+body.dark-mode .modal #user_review_tos_1::placeholder,
+body.dark-mode .modal #user_review_tos_2::placeholder,
+body.dark-mode #userModal #user_review_tos_1::placeholder,
+body.dark-mode #userModal #user_review_tos_2::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Additional userModal specific fixes */
+body.dark-mode #userModal .form-control,
+body.dark-mode #userModal input[type="text"],
+body.dark-mode #userModal input[type="email"],
+body.dark-mode #userModal input[type="password"],
+body.dark-mode #userModal input[type="file"],
+body.dark-mode #userModal textarea,
+body.dark-mode #userModal select {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode #userModal .form-control::placeholder,
+body.dark-mode #userModal input::placeholder,
+body.dark-mode #userModal textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Fix any white background elements in userModal */
+body.dark-mode #userModal .bg-white,
+body.dark-mode #userModal .bg-light {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode #userModal .text-dark,
+body.dark-mode #userModal .text-muted {
+    color: #d1d5db !important;
+}
+
+/* Ultra-specific fix for user_logo_file - comprehensive file input styling */
+body.dark-mode .modal-content #user_logo_file,
+body.dark-mode #userModal .modal-body #user_logo_file,
+body.dark-mode .form-sp .card #user_logo_file,
+body.dark-mode .modal .form-control#user_logo_file,
+body.dark-mode #userModal .form-control#user_logo_file,
+body.dark-mode .form-sp .form-control#user_logo_file,
+body.dark-mode input#user_logo_file[type="file"],
+body.dark-mode .custom-file-input#user_logo_file {
+    /* Base styling */
+    background: #2d3748 !important;
+    background-color: #2d3748 !important;
+    border: 2px solid #4a5568 !important;
+    border-color: #4a5568 !important;
+    color: #ffffff !important;
+    
+    /* File input specific styling */
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    
+    /* Force text color for file input */
+    -webkit-text-fill-color: #ffffff !important;
+    text-shadow: none !important;
+}
+
+/* Webkit file upload button styling */
+body.dark-mode input#user_logo_file[type="file"]::-webkit-file-upload-button,
+body.dark-mode .modal input#user_logo_file[type="file"]::-webkit-file-upload-button,
+body.dark-mode #userModal input#user_logo_file[type="file"]::-webkit-file-upload-button {
+    background: #4a5568 !important;
+    background-color: #4a5568 !important;
+    border: 1px solid #718096 !important;
+    border-radius: 6px !important;
+    color: #ffffff !important;
+    padding: 6px 12px !important;
+    margin-right: 8px !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    -webkit-appearance: button !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+body.dark-mode input#user_logo_file[type="file"]::-webkit-file-upload-button:hover,
+body.dark-mode .modal input#user_logo_file[type="file"]::-webkit-file-upload-button:hover,
+body.dark-mode #userModal input#user_logo_file[type="file"]::-webkit-file-upload-button:hover {
+    background: #718096 !important;
+    background-color: #718096 !important;
+}
+
+/* Firefox file input button styling */
+body.dark-mode input#user_logo_file[type="file"]::file-selector-button,
+body.dark-mode .modal input#user_logo_file[type="file"]::file-selector-button,
+body.dark-mode #userModal input#user_logo_file[type="file"]::file-selector-button {
+    background: #4a5568 !important;
+    background-color: #4a5568 !important;
+    border: 1px solid #718096 !important;
+    border-radius: 6px !important;
+    color: #ffffff !important;
+    padding: 6px 12px !important;
+    margin-right: 8px !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+}
+
+body.dark-mode input#user_logo_file[type="file"]::file-selector-button:hover,
+body.dark-mode .modal input#user_logo_file[type="file"]::file-selector-button:hover,
+body.dark-mode #userModal input#user_logo_file[type="file"]::file-selector-button:hover {
+    background: #718096 !important;
+    background-color: #718096 !important;
+}
+
+/* Force text color in file input - additional methods */
+body.dark-mode input#user_logo_file[type="file"]::-webkit-input-placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+body.dark-mode input#user_logo_file[type="file"]::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Fix the actual visible element - custom-file-label in modal */
+body.dark-mode .custom-file-label,
+body.dark-mode .custom-file-label.user_logo_postmsg,
+body.dark-mode label.custom-file-label,
+body.dark-mode label.custom-file-label.user_logo_postmsg,
+body.dark-mode .modal .custom-file-label,
+body.dark-mode #userModal .custom-file-label {
+    background: #2d3748 !important;
+    background-color: #2d3748 !important;
+    border: 2px solid #4a5568 !important;
+    border-color: #4a5568 !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+}
+
+body.dark-mode .custom-file-label:hover,
+body.dark-mode .custom-file-label.user_logo_postmsg:hover,
+body.dark-mode label.custom-file-label:hover,
+body.dark-mode .modal .custom-file-label:hover,
+body.dark-mode #userModal .custom-file-label:hover {
+    background: #4a5568 !important;
+    background-color: #4a5568 !important;
+    border-color: #718096 !important;
+}
+
+/* Auto dark mode ultra-specific fix */
+@media (prefers-color-scheme: dark) {
+    .modal-content #user_logo_file,
+    #userModal .modal-body #user_logo_file,
+    .form-sp .card #user_logo_file,
+    .modal .form-control#user_logo_file,
+    #userModal .form-control#user_logo_file,
+    .form-sp .form-control#user_logo_file,
+    input#user_logo_file[type="file"],
+    .custom-file-input#user_logo_file {
+        background: #2d3748 !important;
+        background-color: #2d3748 !important;
+        border: 2px solid #4a5568 !important;
+        border-color: #4a5568 !important;
+        color: #ffffff !important;
+        padding: 8px 12px !important;
+        border-radius: 8px !important;
+        font-size: 14px !important;
+        cursor: pointer !important;
+        -webkit-text-fill-color: #ffffff !important;
+        text-shadow: none !important;
+    }
+
+    /* Auto dark mode webkit file upload button */
+    input#user_logo_file[type="file"]::-webkit-file-upload-button,
+    .modal input#user_logo_file[type="file"]::-webkit-file-upload-button,
+    #userModal input#user_logo_file[type="file"]::-webkit-file-upload-button {
+        background: #4a5568 !important;
+        background-color: #4a5568 !important;
+        border: 1px solid #718096 !important;
+        border-radius: 6px !important;
+        color: #ffffff !important;
+        padding: 6px 12px !important;
+        margin-right: 8px !important;
+        font-size: 14px !important;
+        cursor: pointer !important;
+        -webkit-appearance: button !important;
+        -webkit-text-fill-color: #ffffff !important;
+    }
+
+    input#user_logo_file[type="file"]::-webkit-file-upload-button:hover,
+    .modal input#user_logo_file[type="file"]::-webkit-file-upload-button:hover,
+    #userModal input#user_logo_file[type="file"]::-webkit-file-upload-button:hover {
+        background: #718096 !important;
+        background-color: #718096 !important;
+    }
+
+    /* Auto dark mode Firefox file input button */
+    input#user_logo_file[type="file"]::file-selector-button,
+    .modal input#user_logo_file[type="file"]::file-selector-button,
+    #userModal input#user_logo_file[type="file"]::file-selector-button {
+        background: #4a5568 !important;
+        background-color: #4a5568 !important;
+        border: 1px solid #718096 !important;
+        border-radius: 6px !important;
+        color: #ffffff !important;
+        padding: 6px 12px !important;
+        margin-right: 8px !important;
+        font-size: 14px !important;
+        cursor: pointer !important;
+    }
+
+    input#user_logo_file[type="file"]::file-selector-button:hover,
+    .modal input#user_logo_file[type="file"]::file-selector-button:hover,
+    #userModal input#user_logo_file[type="file"]::file-selector-button:hover {
+        background: #718096 !important;
+        background-color: #718096 !important;
+    }
+
+    /* Fix the actual visible element - custom-file-label for auto dark mode */
+    .custom-file-label,
+    .custom-file-label.user_logo_postmsg,
+    label.custom-file-label,
+    label.custom-file-label.user_logo_postmsg,
+    .modal .custom-file-label,
+    #userModal .custom-file-label {
+        background: #2d3748 !important;
+        background-color: #2d3748 !important;
+        border: 2px solid #4a5568 !important;
+        border-color: #4a5568 !important;
+        color: #ffffff !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+    }
+
+    .custom-file-label:hover,
+    .custom-file-label.user_logo_postmsg:hover,
+    label.custom-file-label:hover,
+    .modal .custom-file-label:hover,
+    #userModal .custom-file-label:hover {
+        background: #4a5568 !important;
+        background-color: #4a5568 !important;
+        border-color: #718096 !important;
+    }
+}
+
+/* Responsive enhancements */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 1rem !important;
+    }
+
+    .modal-content {
+        border-radius: 12px !important;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+
+    .modal-header .close {
+        right: 16px !important;
+    }
+}
+
+/* Animation improvements */
+.modal.fade .modal-dialog {
+    transform: scale(0.9) translate3d(0, -50px, 0) !important;
+    transition: 
+        transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.3s ease !important;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1) translate3d(0, 0, 0) !important;
+}
+
+/* Enhanced focus styles for accessibility */
+.modal-header .close:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3) !important;
+}
+
+body.dark-mode .modal-header .close:focus {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3) !important;
+}
+
+/* Scrollable modal improvements */
+.modal-dialog-scrollable .modal-content {
+    border-radius: 16px !important;
+}
+
+.modal-dialog-scrollable .modal-header,
+.modal-dialog-scrollable .modal-footer {
+    flex-shrink: 0 !important;
+}
+
+.modal-dialog-scrollable .modal-body {
+    overflow-y: auto !important;
+    scrollbar-width: thin !important;
+}
+
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar {
+    width: 6px !important;
+}
+
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1) !important;
+    border-radius: 3px !important;
+}
+
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border-radius: 3px !important;
+}
+
+body.dark-mode .modal-dialog-scrollable .modal-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3) !important;
+}
