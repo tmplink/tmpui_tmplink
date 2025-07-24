@@ -21,20 +21,13 @@
             window.location.href = '/version.html';
         }
 
-        if (true) {
-            //禁用
-            if ("serviceWorker" in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function (registrations) {
-                    for (let registration of registrations) {
-                        registration.unregister()
-                    }
-                })
-            }
-        } else {
-            //启用
-            if ("serviceWorker" in navigator) {
-                navigator.serviceWorker.register('/pwa_sw.js');
-            }
+        // 卸载所有已注册的 Service Worker
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
+            });
         }
 
         // 检查，如果域名开头不是 www. 跳转到 www. 127.0.0.1 时跳过
