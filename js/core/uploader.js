@@ -97,7 +97,7 @@ class uploader {
             } else if (textStatus) {
                 errorMessage = `配置获取失败: ${textStatus}`;
             }
-            this.parent_op.alert(errorMessage);
+            alert(errorMessage);
         });
         //初始化上传服务器列表
         this.parent_op.recaptcha_do('upload_request_select2', (captcha) => {
@@ -401,7 +401,7 @@ class uploader {
             $('#uploadCliModal').modal('show');
             $('#upload_cli_token').html(this.parent_op.api_token);
         } else {
-            this.parent_op.alert(app.languageData.status_need_login);
+            alert(app.languageData.status_need_login);
             app.open('/app&listview=login');
         }
     }
@@ -411,7 +411,7 @@ class uploader {
         this.mr_id = mr_id;
 
         if (!this.parent_op.logined) {
-            this.parent_op.alert(app.languageData.status_need_login);
+            alert(app.languageData.status_need_login);
             return false;
         }
 
@@ -518,14 +518,14 @@ class uploader {
         let model = file_res.model;
         let mrid = file_res.mrid;
         if (file.size > this.single_file_size) {
-            this.parent_op.alert(app.languageData.upload_limit_size);
+            alert(app.languageData.upload_limit_size);
             $('#uq_' + id).fadeOut();
             this.upload_queue--;
             return false;
         }
 
         if (file.size > (this.storage - this.storage_used) && (model == 99)) {
-            this.parent_op.alert(app.languageData.upload_fail_storage);
+            alert(app.languageData.upload_fail_storage);
             $('#uq_' + id).fadeOut();
             this.upload_queue--;
             return false;
@@ -743,7 +743,7 @@ class uploader {
                     this.worker_slice(api_sync, rsp.data.utoken, sha1, file, id, filename, 0);
                 } else {
                     //无法获得可用的上传服务器
-                    this.parent_op.alert('上传失败，无法获得可用的服务器。');
+                    alert('上传失败，无法获得可用的服务器。');
                 }
             });
         });
@@ -985,7 +985,7 @@ class uploader {
                 errorMessage = `请求失败: ${textStatus}`;
             }
 
-            this.parent_op.alert(errorMessage);
+            alert(errorMessage);
             $('#uqnn_' + id).html(`<span class="text-red">${errorMessage}</span>`);
 
             // 重试逻辑
@@ -1346,7 +1346,7 @@ class uploader {
     upload_failed(evt, id) {
         clearInterval(this.upload_progressbar_counter[id]);
         this.upload_progressbar_counter[id] = null;
-        this.parent_op.alert(app.languageData.upload_fail);
+        alert(app.languageData.upload_fail);
         this.upload_queue--;
         $('#uq_' + id).fadeOut();
     }
@@ -1354,7 +1354,7 @@ class uploader {
     upload_canceled(evt, id) {
         clearInterval(this.upload_progressbar_counter[id]);
         this.upload_progressbar_counter[id] = null;
-        this.parent_op.alert(app.languageData.upload_cancel);
+        alert(app.languageData.upload_cancel);
         this.upload_queue--;
         $('#uq_' + id).fadeOut();
     }
