@@ -189,19 +189,45 @@ class dir {
         });
     }
 
-    setModel(type) {
-        let room_key = 'app_room_view_' + this.room.mr_id;
-        switch (type) {
-            case 'photo':
-                localStorage.setItem(room_key, 'photo');
-                break;
-            case 'list':
-                localStorage.setItem(room_key, 'list');
-                break;
-            default:
-                localStorage.setItem(room_key, 'list');
+    setViewModel(type) {
+        if (type !== 'photo' && type !== 'list') {
+            debug('dir.setViewModel() received unsupported type', type);
+            return;
         }
+
+        const room_key = 'app_room_view_' + this.room.mr_id;
+        localStorage.setItem(room_key, type);
         this.filelist(0);
+    }
+
+    setModel(type) {
+        if (type === 'photo' || type === 'list') {
+            debug('dir.setModel() legacy view call detected, please use dir.setViewModel()', type);
+            this.setViewModel(type);
+            return;
+        }
+
+        if (type === 'private' || type === 'public') {
+            const model = type === 'private' ? 'private' : 'public';
+
+            $.post(this.parent_op.api_mr, {
+                action: 'set_model',
+                token: this.parent_op.api_token,
+                mr_id: this.room.mr_id,
+                model: model
+            }, () => {
+                if (model === 'private') {
+                    $('.room_protection_unlock').hide();
+                    $('.room_protection_lock').show();
+                } else {
+                    $('.room_protection_unlock').show();
+                    $('.room_protection_lock').hide();
+                }
+            });
+            return;
+        }
+
+        debug('dir.setModel() received unsupported type', type);
     }
 
     listModel(data, page, room_id) {
@@ -506,29 +532,6 @@ class dir {
         if(status==='private'){
             $('#dir_status').attr('name', 'folder-lock-one');
         }
-    }
-
-    setModel(type) {
-        if (type !== 'private') {
-            type = 'public';
-        }else{
-            type = 'private';
-        }
-
-        $.post(this.parent_op.api_mr, {
-            action: 'set_model',
-            token: this.parent_op.api_token,
-            mr_id: this.room.mr_id,
-            model: type
-        }, (rsp) => {
-            if (type === 'private') {
-                $('.room_protection_unlock').hide();
-                $('.room_protection_lock').show();
-            }else{
-                $('.room_protection_unlock').show();
-                $('.room_protection_lock').hide();
-            }
-        });
     }
 
     getIcons(room){
