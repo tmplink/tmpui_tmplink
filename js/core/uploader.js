@@ -126,7 +126,7 @@ class uploader {
                     }
 
                     let server_text = $('#upload_servers option:selected').text();
-                    $('#seleted_server').html(', ' + app.languageData.seleted_server + ' : ' + server_text);
+                    $('#seleted_server').html(server_text);
 
                     //是否是赞助者？
                     if (this.parent_op.isSponsor === false) {
@@ -248,7 +248,7 @@ class uploader {
         localStorage.setItem('app_upload_server', val);
 
         let server_text = $('#upload_servers option:selected').text();
-        $('#seleted_server').html(', ' + app.languageData.seleted_server + ' : ' + server_text);
+        $('#seleted_server').html(server_text);
     }
 
     auto_set_upload_pf(dom) {
@@ -639,14 +639,14 @@ class uploader {
         let quick = localStorage.getItem('app_upload_quick');
         if (quick !== undefined) {
             if (quick === '1') {
-                model_text += '，' + app.languageData.model_title_quick_upload + '：' + app.languageData.btn_enable;
+                model_text += ' • ' + app.languageData.model_title_quick_upload;
             }
         }
 
         //获取设置: 是否跳过上传
         let skip = this.skip_upload;
         if (skip === true) {
-            model_text += '，' + app.languageData.model_title_skip + '：' + app.languageData.btn_enable;
+            model_text += ' • ' + app.languageData.model_title_skip;
         }
 
         $('#select_model_list').hide();

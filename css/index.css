@@ -433,3 +433,148 @@ body.dark-mode .point-red,
     font-size: 30px;
     vertical-align: baseline;
 }
+
+/* Upload Settings Card Styles */
+.upload-settings-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.upload-settings-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+.upload-settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.upload-settings-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.upload-settings-title iconpark-icon {
+    font-size: 1.25rem;
+}
+
+.upload-settings-body {
+    padding: 0;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    gap: 1rem;
+}
+
+.setting-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    border-radius: 10px;
+    font-size: 1.25rem;
+}
+
+.setting-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.setting-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #64748b;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.25rem;
+}
+
+.setting-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.setting-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e2e8f0 20%, #e2e8f0 80%, transparent);
+    margin: 0 1.25rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .upload-settings-card {
+        background: #1e293b;
+        border-color: #334155;
+    }
+
+    .upload-settings-header {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border-bottom-color: #334155;
+    }
+
+    .upload-settings-title {
+        color: #f1f5f9;
+    }
+
+    .setting-icon {
+        background: #334155;
+    }
+
+    .setting-label {
+        color: #94a3b8;
+    }
+
+    .setting-value {
+        color: #f1f5f9;
+    }
+
+    .setting-divider {
+        background: linear-gradient(90deg, transparent, #334155 20%, #334155 80%, transparent);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .upload-settings-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .setting-item {
+        padding: 0.875rem 1rem;
+    }
+
+    .setting-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+    }
+
+    .setting-value {
+        font-size: 0.875rem;
+    }
+}

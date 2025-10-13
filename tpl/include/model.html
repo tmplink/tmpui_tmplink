@@ -362,11 +362,41 @@
 
 
                 <div id="upload_select_file" style="display: none;">
-                    <div class="select-box-all p-2" id="selected_model_box" style="display: none;">
-                        <button type="button" class="btn btn-primary btn-sm text-right"
-                            onclick="TL.uploader.model_reset()" i18n="modal_settings_upload_model_reset">.</button>
-                        <span id="seleted_model"></span>
-                        <span id="seleted_server"></span>
+                    <div id="selected_model_box" style="display: none;">
+                        <div class="upload-settings-card">
+                            <div class="upload-settings-header">
+                                <h5 class="upload-settings-title">
+                                    <iconpark-icon name="circle-check" class="text-success"></iconpark-icon>
+                                    <span i18n="upload_settings_current">当前设置</span>
+                                </h5>
+                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                    onclick="TL.uploader.model_reset()">
+                                    <iconpark-icon name="sliders-simple"></iconpark-icon>
+                                    <span i18n="modal_settings_upload_model_reset">重新设定</span>
+                                </button>
+                            </div>
+                            <div class="upload-settings-body">
+                                <div class="setting-item">
+                                    <div class="setting-icon">
+                                        <iconpark-icon name="rectangle-vertical-history" class="text-primary"></iconpark-icon>
+                                    </div>
+                                    <div class="setting-content">
+                                        <div class="setting-label" i18n="upload_settings_validity">有效期</div>
+                                        <div class="setting-value" id="seleted_model">-</div>
+                                    </div>
+                                </div>
+                                <div class="setting-divider"></div>
+                                <div class="setting-item">
+                                    <div class="setting-icon">
+                                        <iconpark-icon name="server" class="text-info"></iconpark-icon>
+                                    </div>
+                                    <div class="setting-content">
+                                        <div class="setting-label" i18n="upload_settings_server">服务器</div>
+                                        <div class="setting-value" id="seleted_server">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mb-2">
