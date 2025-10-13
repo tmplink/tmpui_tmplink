@@ -559,9 +559,26 @@ body.dark-mode .point-red,
 /* Responsive adjustments */
 @media (max-width: 576px) {
     .upload-settings-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+    }
+
+    .upload-settings-title {
+        font-size: 0.9rem;
+        gap: 0.4rem;
+    }
+
+    .upload-settings-title iconpark-icon {
+        font-size: 1.1rem;
+    }
+
+    .upload-settings-header .btn {
+        font-size: 0.8rem;
+        padding: 0.375rem 0.625rem;
+        white-space: nowrap;
+    }
+
+    .upload-settings-header .btn iconpark-icon {
+        font-size: 0.9rem;
     }
 
     .setting-item {
@@ -574,7 +591,11 @@ body.dark-mode .point-red,
         font-size: 1.1rem;
     }
 
+    .setting-label {
+        font-size: 0.7rem;
+    }
+
     .setting-value {
-        font-size: 0.875rem;
+        font-size: 0.85rem;
     }
 }
