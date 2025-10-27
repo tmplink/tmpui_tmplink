@@ -39,14 +39,16 @@ _:-moz-tree-row(hover), .msie, .win { display:none; }
 }
 
 /* Detect Chrome 28+ */
-@media screen and (-webkit-min-device-pixel-ratio:0) { @supports (background-attachment:local) {
-  .chrome { display:block; }
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    @supports (background-attachment:local) {
+        .chrome { display:block; }
+    }
 }
-    
+
 /* Detect Mac Safari 6.1 or newer, hide any straggling Chrome references */
 @media screen and (-webkit-max-device-pixel-ratio:1) and (min-color-index:0) {
-    .mac, .safari {(; display:block; );} 
-    .chrome {(; display:none; );} 
+    .mac, .safari { display:block; }
+    .chrome { display:none; }
 }
 
 /* For PowerPC People who have Internet Explorer for Mac... */  
@@ -427,6 +429,27 @@ body.dark-mode .point-red,
 /* 针对IE和Edge */
 .upload-box-content {
     -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
+.upload-validity-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: rgba(255, 138, 0, 0.14);
+    color: #ad5a00;
+    border: 1px solid rgba(255, 138, 0, 0.4);
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+body.dark-mode .upload-validity-label,
+[data-bs-theme="dark"] .upload-validity-label {
+    background-color: rgba(255, 184, 108, 0.18);
+    color: #ffdda7;
+    border-color: rgba(255, 184, 108, 0.4);
 }
 
 .iconpark-icon-title {
