@@ -266,8 +266,11 @@
 
                 <script type="text/template" id="upload_list_wait_tpl">
                     <div class="row p-2 mb-2 mx-0 select-box" id="uq_<% obj.id %>">
-                        <div class="col-12 col-md-8 col-lg-9 my-1 d-flex align-items-center listfontweight filename">
-                            <% obj.name %>
+                        <div class="col-12 col-md-8 col-lg-9 my-1 d-flex align-items-center flex-wrap listfontweight filename">
+                            <span class="mr-2"><% obj.name %></span>
+                            <% if (obj.validityLabel) { %>
+                                <span class="upload-validity-label ml-0 ml-md-2 mt-1 mt-md-0" <% if (obj.validityTitle) { %>title="<% obj.validityTitle %>" <% } %>><% obj.validityLabel %></span>
+                            <% } %>
                         </div>
                         <div class="col-12 col-md-4 col-lg-3 text-muted my-1 listfontweight d-flex align-items-center justify-content-end">
                             <% obj.size %>
@@ -288,9 +291,12 @@
 
                 <script type="text/template" id="upload_list_ok_tpl">
                     <div class="row p-2 mb-2 mx-0 select-box uploaded_<% obj.ukey %>">
-                        <div class="col-8 my-1">
+                        <div class="col-8 my-1 d-flex align-items-center flex-wrap">
                             <iconpark-icon name="circle-check" class="fa-fw text-green"></iconpark-icon>
-                            <% obj.name %> <% obj.size %>
+                            <span class="ml-2"><% obj.name %> <% obj.size %></span>
+                            <% if (obj.validityLabel) { %>
+                                <span class="upload-validity-label ml-2 mt-1 mt-sm-0" <% if (obj.validityTitle) { %>title="<% obj.validityTitle %>" <% } %>><% obj.validityLabel %></span>
+                            <% } %>
                         </div>
                         <div class="col-4  my-1 d-flex align-items-center justify-content-end">
                             <a href="https://<% TL.site_domain %>/f/<% obj.ukey %>" target="_blank" class="text-azure btn btn-sm btn-light mx-1">

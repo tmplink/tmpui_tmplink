@@ -39,6 +39,7 @@ class uploader {
     upload_slice_process = [] //当前处理进度
 
     upload_file_progress = {}; // 格式: { id: { total: 文件总大小, uploaded: 已上传字节数 } }
+    upload_file_meta = {};
 
     storage = 0;
     storage_used = 0;
@@ -370,6 +371,7 @@ class uploader {
 
     upload_queue_clean() {
         $('.upload_file_ok').remove();
+        this.upload_file_meta = {};
         if (this.upload_queue_file.length > 0) {
             for (let x in this.upload_queue_file) {
                 $('#uq_' + id).remove();
@@ -506,6 +508,7 @@ class uploader {
             }
         }
 
+        delete this.upload_file_meta[id];
         $('#uq_' + id).hide();
     }
 
@@ -711,6 +714,37 @@ class uploader {
         }
 
         $('#upload_model_description').html(html);
+    }
+
+    getUploadValidityInfo(model) {
+        const normalized = this.normalizeModelValue(model);
+        const keyMap = {
+            0: 'modal_settings_upload_model1',
+            1: 'modal_settings_upload_model2',
+            2: 'modal_settings_upload_model3',
+            99: 'modal_settings_upload_model99'
+        };
+        const fallbackMap = {
+            0: '24 hours',
+            1: '3 days',
+            2: '7 days',
+            99: 'Permanent'
+        };
+        const hasApp = typeof app !== 'undefined' && app.languageData;
+        const key = Object.prototype.hasOwnProperty.call(keyMap, normalized) ? keyMap[normalized] : keyMap[0];
+        const title = hasApp && app.languageData.upload_settings_validity ? app.languageData.upload_settings_validity : 'File Validity';
+        let label = '';
+        if (hasApp && app.languageData[key]) {
+            label = app.languageData[key];
+        } else {
+            label = Object.prototype.hasOwnProperty.call(fallbackMap, normalized) ? fallbackMap[normalized] : fallbackMap[0];
+        }
+        return {
+            model: normalized,
+            key,
+            label,
+            title
+        };
     }
 
 
@@ -1346,6 +1380,8 @@ class uploader {
             f.model = this.upload_model_get();
             f.mrid = this.upload_mrid_get();
             f.id = this.upload_queue_id;
+            const validityInfo = this.getUploadValidityInfo(f.model);
+            this.upload_file_meta[f.id] = validityInfo;
 
             //检查是否超出了可用的私有存储空间
             if (this.upload_model_get() == 99) {
@@ -1361,7 +1397,9 @@ class uploader {
             $(target).append(app.tpl('upload_list_wait_tpl', {
                 name: file.name,
                 size: bytetoconver(file.size, true),
-                id: this.upload_queue_id
+                id: this.upload_queue_id,
+                validityLabel: validityInfo.label,
+                validityTitle: validityInfo.title
             }));
             $(target).show();
             this.upload_queue_id++;
@@ -1399,6 +1437,7 @@ class uploader {
         this.upload_progressbar_counter[id] = null;
         alert(app.languageData.upload_fail);
         this.upload_queue--;
+        delete this.upload_file_meta[id];
         $('#uq_' + id).fadeOut();
     }
 
@@ -1407,6 +1446,7 @@ class uploader {
         this.upload_progressbar_counter[id] = null;
         alert(app.languageData.upload_cancel);
         this.upload_queue--;
+        delete this.upload_file_meta[id];
         $('#uq_' + id).fadeOut();
     }
 
@@ -1415,6 +1455,10 @@ class uploader {
         if (this.upload_file_progress[id]) {
             delete this.upload_file_progress[id];
         }
+
+        const validityInfo = this.upload_file_meta[id] || this.getUploadValidityInfo(this.upload_model_get());
+        const validityLabel = validityInfo && validityInfo.label ? validityInfo.label : '';
+        const validityTitle = validityInfo && validityInfo.title ? validityInfo.title : '';
 
         this.handleUploadCompletion(id);
         this.upload_queue--;
@@ -1465,7 +1509,9 @@ class uploader {
                     $('#upload_model_box_finish').append(app.tpl('upload_list_ok_tpl', {
                         name: file.name,
                         size: bytetoconver(file.size, true),
-                        ukey: rsp.data.ukey
+                        ukey: rsp.data.ukey,
+                        validityLabel,
+                        validityTitle
                     }));
                     this.parent_op.btn_copy_bind();
                 }
@@ -1477,7 +1523,9 @@ class uploader {
                 $('#upload_index_box_finish').append(app.tpl('upload_list_ok_tpl', {
                     name: file.name,
                     size: bytetoconver(file.size, true),
-                    ukey: rsp.data.ukey
+                    ukey: rsp.data.ukey,
+                    validityLabel,
+                    validityTitle
                 }));
                 this.parent_op.btn_copy_bind();
             }
@@ -1531,6 +1579,7 @@ class uploader {
             $('.uqinfo_' + id).remove();
         }
 
+        delete this.upload_file_meta[id];
         //更新上传统计
         this.upload_count++;
     }
