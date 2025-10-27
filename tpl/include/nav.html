@@ -19,6 +19,16 @@
                 <li class="nav-item">
                     <a class="nav-link js-scroll-trigger" href="javascript:void(0)" onclick="$('#uploadModal').modal('show');" i18n="nav_upload">.</a>
                 </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="javascript:void(0)" id="navbarMoreDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" i18n="nav_more">.</a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarMoreDropdown">
+                        <a class="dropdown-item" href="javascript:void(0)" onclick="TL.uploader.openEfficiencyModal();"
+                            i18n="nav_more_efficiency">.</a>
+                        <a class="dropdown-item" href="javascript:void(0)" onclick="TL.uploader.upload_cli();"
+                            i18n="nav_more_cli">.</a>
+                    </div>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link js-scroll-trigger" href="javascript:void(0)" i18n="nav_about">.</a>
                 </li>

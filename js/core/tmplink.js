@@ -1735,26 +1735,38 @@ class tmplink {
         });
     }
 
-    cli_uploader_generator2() {
-        //如果有设定文件夹
+    async cli_uploader_generator() {
+        if (this.logined === 0) {
+            this.alert(app.languageData.status_need_login);
+            return false;
+        }
+
+        let path = $('#cli_upload_path').val();
+        if (!path) {
+            path = '/root/test.zip';
+        }
+
+        let model = $('#cli_upload_model').val();
+        if (model === undefined || model === null || model === '') {
+            model = localStorage.getItem('app_upload_model') || 0;
+        }
+
         let mrid = get_page_mrid();
         let text_mr = '';
-        if (mrid != undefined) {
-            text_mr = `-F "mrid=${mrid}"`;
+        if (mrid !== undefined) {
+            text_mr = `-F "mr_id=${mrid}"`;
         }
-        let model = localStorage.getItem('app_upload_model');
 
-        let text_path = '-F "file=@ your file path (etc.. @/root/test.bin)"';
-        let text_model = `-F "model=${model}"`;
-        let text_token = `-F "token=${this.api_token}"`;
-
-        let text = `curl -k ${text_path} ${text_token} ${text_model} ${text_mr} -X POST "https://tmp-cli.vx-cdn.com/app/upload_cli"`;
+        const text_path = `-F "file=@${path}"`;
+        const text_model = `-F "model=${model}"`;
+        const text_token = `-F "token=${this.api_token}"`;
+        const command = `curl -k ${text_path} ${text_token} ${text_model} ${text_mr} -X POST "https://tmp-cli.vx-cdn.com/app/upload_cli"`;
 
         $('#cliuploader').show();
-        $('#cliuploader_show').html(text);
-        
-        // Use TL.directCopy instead of the clipboard.js approach
-        $('#cliuploader_copy').attr('onclick', `TL.directCopy(this, '${text.replace(/'/g, "\\'")}', false)`);
+        $('#cliuploader_show').text(command);
+
+        await this.directCopy($('#cli_generate_btn')[0], command, false);
+        return true;
     }
 
     media_buy_modal(type) {
@@ -2252,6 +2264,9 @@ class tmplink {
         this.currentLanguage = lang;
         this.languageBtnSet();
         app.languageSet(lang);
+        if (this.uploader && typeof this.uploader.updatePermanentOptionLabel === 'function') {
+            this.uploader.updatePermanentOptionLabel();
+        }
         //重新初始化导航，目前有一个小问题，无法刷新导航，暂时不管。
         this.navbar.init(this);
         //debug('navbar reinit');
@@ -2456,6 +2471,14 @@ class tmplink {
         $('.private_storage_used').html(data.private_storage_used_text);
         $('.private_storage_used_percent').css('width', data.private_storage_used_percent + '%');
         // $('#upload_storage_status').html(app.tpl('upload_storage_status_tpl', data));
+
+        if (this.uploader && typeof this.uploader.setStorageUsage === 'function') {
+            this.uploader.setStorageUsage({
+                storage: this.storage,
+                storage_used: this.storage_used,
+                private_storage_used: this.private_storage_used
+            });
+        }
     }
 
     btn_copy_bind() {

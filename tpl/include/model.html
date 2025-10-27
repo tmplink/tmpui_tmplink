@@ -84,321 +84,43 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- <div class="h4 text-center">
-                    系统维护中，暂停提供上传服务。    
-                </div> -->
-                <!--[新设计]-->
-                <div id="select_model_list">
-                    <div>
-                        <div class="text-center mb-3">
-                            <div class="font-weight-light" style="font-size: 30px;"
-                                i18n="modal_settings_upload_model_unlimited">.</div>
-                        </div>
-                        <div class="select-box p-2 btn-point" onclick="TL.uploader.model_selected(0)">
-                            <div class="d-flex align-items-center">
-                                <span class="stamp-md mr-3">
-                                    <iconpark-icon name="rectangle-vertical-history"
-                                        class="fa-fw fa-2x text-blue"></iconpark-icon>
-                                </span>
-                                <div>
-                                    <h4 class="m-0" i18n="modal_settings_upload_model1">
-                                        .
-                                    </h4>
-                                    <small class="text-muted" i18n="modal_settings_upload_model1_des">
-                                        .
-                                    </small>
-                                </div>
+                <div class="upload-settings-card select-box p-3 mb-3">
+                    <h5 class="upload-settings-title mb-3">
+                        <iconpark-icon name="circle-check" class="text-success"></iconpark-icon>
+                        <span class="ml-2" i18n="upload_settings_current">.</span>
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-md-0">
+                                <label for="upload_model_select" i18n="upload_settings_validity">.</label>
+                                <select class="form-control" id="upload_model_select"
+                                    onchange="TL.uploader.model_selected(Number(this.value));">
+                                    <option value="0" i18n-only="html" i18n="modal_settings_upload_model1">.</option>
+                                    <option value="1" i18n-only="html" i18n="modal_settings_upload_model2">.</option>
+                                    <option value="2" i18n-only="html" i18n="modal_settings_upload_model3">.</option>
+                                    <option value="3" i18n-only="html" i18n="modal_settings_upload_model4">.</option>
+                                    <option value="99" i18n-only="html" i18n="modal_settings_upload_model99">.</option>
+                                </select>
+                                <small class="form-text text-muted" id="upload_model_description"></small>
                             </div>
                         </div>
-                        <div class="select-box p-2 btn-point" onclick="TL.uploader.model_selected(1)">
-                            <div class="d-flex align-items-center">
-                                <span class="stamp-md mr-3">
-                                    <iconpark-icon name="rectangle-vertical-history"
-                                        class="fa-fw fa-2x text-blue"></iconpark-icon>
-                                </span>
-                                <div>
-                                    <h4 class="m-0" i18n="modal_settings_upload_model2">
-                                        .
-                                    </h4>
-                                    <small class="text-muted" i18n="modal_settings_upload_model2_des">
-                                        .
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="select-box p-2 btn-point" onclick="TL.uploader.model_selected(2)">
-                            <div class="d-flex align-items-center">
-                                <span class="stamp-md mr-3">
-                                    <iconpark-icon name="rectangle-vertical-history"
-                                        class="fa-fw fa-2x text-blue"></iconpark-icon>
-                                </span>
-                                <div>
-                                    <h4 class="m-0" i18n="modal_settings_upload_model3">
-                                        .
-                                    </h4>
-                                    <small class="text-muted" i18n="modal_settings_upload_model3_des">
-                                        .
-                                    </small>
-                                </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-0">
+                                <label for="upload_servers" i18n="upload_settings_server">.</label>
+                                <select class="form-control" id="upload_servers"
+                                    onchange="TL.uploader.auto_set_upload_server(this)"></select>
+                                <small class="form-text text-muted" id="upload_server_hint"
+                                    i18n="model_title_upload_servers_des">.</small>
                             </div>
                         </div>
                     </div>
-                    <hr>
-                    <div>
-                        <div class="text-center mb-3">
-                            <div class="font-weight-light" style="font-size: 30px;" i18n="model_title_buy_storage">.
-                            </div>
-                            <div id="upload_storage_status"></div>
-                        </div>
-                        <div class="select-box p-2 btn-point storage_needs" onclick="TL.uploader.model_selected(99)">
-                            <div class="d-flex align-items-center">
-                                <span class="stamp-md mr-3">
-                                    <iconpark-icon name="infinity" class="fa-fw fa-2x text-blue"></iconpark-icon>
-                                </span>
-                                <div>
-                                    <h4 class="m-0" i18n="modal_settings_upload_model99">
-                                        .
-                                    </h4>
-                                    <small class="text-muted" i18n="modal_settings_upload_model99_des">
-                                        .
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="select-box p-2 btn-point" onclick="TL.buy.openStorage();">
-                            <div class="d-flex align-items-center">
-                                <span class="stamp-md mr-3">
-                                    <iconpark-icon name="layer-plus" class="fa-fw fa-2x text-blue"></iconpark-icon>
-                                </span>
-                                <div>
-                                    <h4 class="m-0" i18n="modal_settings_upload_buy_storage">
-                                        .
-                                    </h4>
-                                    <small class="text-muted" i18n="modal_settings_upload_buy_storage_des">
-                                        .
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="text-center mb-3">
-                        <div class="font-weight-light" style="font-size: 30px;" i18n="navbar_profile">.</div>
-                    </div>
-                    <div class="select-box p-2 btn-point uploader_opt">
-                        <div class="d-flex align-items-center">
-                            <span class="stamp-md mr-3">
-                                <iconpark-icon name="server" class="fa-fw fa-2x text-blue"></iconpark-icon>
-                            </span>
-                            <div>
-                                <h4 class="m-0" i18n="model_title_upload_servers">
-                                    选择上传服务器
-                                </h4>
-                                <small class="text-muted" i18n="model_title_upload_servers_des">
-                                    赞助者专用功能
-                                </small>
-                            </div>
-                        </div>
-                        <div>
-                            <!-- 设定项目：上传服务器 -->
-                            <div class="form-group" id="upload_servers_opt"></div>
-                        </div>
-                        <!-- 服务器列表模板 -->
-                        <script type="text/template" id="upload_servers_opt_tpl">
-                            <select class="form-control mt-2" id="upload_servers" onchange="TL.uploader.auto_set_upload_server(this)">
-                                <% for (var i = 0; i < obj.length; i++) { %>
-                                    <option value="<% obj[i].url %>"><% obj[i].title %></option>
-                                <% } %>
-                            </select>
-                        </script>
-                    </div>
-                    <div class="select-box p-2 btn-point uploader_opt">
-                        <div class="d-flex align-items-center" onclick="$('#upload_slice_settings').toggle();">
-                            <span class="stamp-md mr-3">
-                                <iconpark-icon name="gauge-circle-bolt" class="fa-fw fa-2x text-blue"></iconpark-icon>
-                            </span>
-                            <div>
-                                <h4 class="m-0" i18n="model_title_upload_slice">
-                                    效率设定
-                                </h4>
-                                <small class="text-muted" i18n="model_title_upload_slice_des">
-                                    更改分片大小，增加线程数，赞助者专用功能
-                                </small>
-                            </div>
-                        </div>
-                        <div id="upload_slice_settings" style="display: none;">
-                            <!-- 设定项目：分片大小 -->
-                            <div class="form-group">
-                                <label for="upload_slice_size" i18n="model_title_upload_slice_size">分片大小(MB)</label>
-                                <input type="number" class="form-control" id="upload_slice_size" min="1" max="80"
-                                    onchange="TL.uploader.auto_set_upload_pf(this)"
-                                    onkeyup="TL.uploader.auto_set_upload_pf(this)">
-                            </div>
-                            <!-- 设定项目：线程数 -->
-                            <div class="form-group">
-                                <label for="upload_slice_thread_max"
-                                    i18n="model_title_upload_slice_thread">最大线程数</label>
-                                <input type="number" class="form-control" id="upload_slice_thread_max" min="1" max="100"
-                                    onchange="TL.uploader.auto_set_upload_pf(this)"
-                                    onkeyup="TL.uploader.auto_set_upload_pf(this)">
-                            </div>
-                            <!-- 设定项目：同时上传的任务数量 -->
-                            <div class="form-group">
-                                <label for="upload_slice_queue_max"
-                                    i18n="model_title_upload_slice_task">同时上传的任务数量</label>
-                                <input type="number" class="form-control" id="upload_slice_queue_max" min="1" max="100"
-                                    onchange="TL.uploader.auto_set_upload_pf(this)"
-                                    onkeyup="TL.uploader.auto_set_upload_pf(this)">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="select-box p-2 btn-point uploader_opt">
-                        <div class="d-flex align-items-center">
-                            <span class="stamp-md mr-3">
-                                <iconpark-icon name="forward" class="fa-fw fa-2x text-blue"></iconpark-icon>
-                            </span>
-                            <div>
-                                <h4 class="m-0" i18n="model_title_quick_upload">
-                                    .
-                                </h4>
-                                <small class="text-muted" i18n="model_title_quick_upload_des">
-                                    .
-                                </small>
-                            </div>
-                            <span style="min-width: 40px;margin-left:auto;margin-right:0;">
-                                <small class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="quick_upload"
-                                        onclick="TL.uploader.quickUpload()">
-                                </small>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="select-box p-2 btn-point uploader_opt">
-                        <div class="d-flex align-items-center">
-                            <span class="stamp-md mr-3">
-                                <iconpark-icon name="forward" class="fa-fw fa-2x text-blue"></iconpark-icon>
-                            </span>
-                            <div>
-                                <h4 class="m-0" i18n="model_title_skip">
-                                    .
-                                </h4>
-                                <small class="text-muted" i18n="model_title_skip_des">
-                                    .
-                                </small>
-                            </div>
-                            <span style="min-width: 40px;margin-left:auto;margin-right:0;">
-                                <small class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="skip_upload"
-                                        onclick="TL.uploader.skipUpload()">
-                                </small>
-                            </span>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="text-center mb-3">
-                        <div class="font-weight-light" style="font-size: 30px;" i18n="model_btn_upload_cli">.</div>
-                    </div>
-                    <div class="select-box p-2 btn-point uploader_opt" onclick="TL.uploader.tmpupGenerator();">
-                        <div class="d-flex align-items-center">
-                            <span class="stamp-md mr-3">
-                                <iconpark-icon name="rectangle-terminal" class="fa-fw fa-2x text-blue"></iconpark-icon>
-                            </span>
-                            <div>
-                                <h4 class="m-0" i18n="model_title_upload_cli">
-                                    使用 CLI 上传
-                                </h4>
-                                <small class="text-muted" i18n="model_title_upload_cli_des">
-                                    .
-                                </small>
-                            </div>
-                        </div>
-                        <div id="tmpup" style="display: none;">
-                            <hr>
-                            <!-- Security Warning -->
-                            <div class="alert alert-warning mt-2 mb-3" role="alert">
-                                <iconpark-icon name="circle-exclamation" class="fa-fw"></iconpark-icon>
-                                <strong i18n="model_cli_security_title">安全提醒：</strong><br>
-                                <span i18n="model_cli_security_warning1">• Token 与此浏览器关联，在此浏览器退出账号登录后，Token 上的用户信息也会被清除</span><br>
-                                <span i18n="model_cli_security_warning2">• 不要将 Token 告诉任何第三方，或用于任何第三方软件</span>
-                            </div>
-                            <div class="mb-2 text-center">
-                                <a href="https://github.com/tmplink/tmplink_uploader" target="_blank"
-                                    i18n="model_title_upload_tmpup_des2">.</a>
-                            </div>
-                            <div class="text-center mb-2">
-                                <span>
-                                    <button type="button" class="btn btn-primary" id="tmpup_copy_token"
-                                        data-clipboard-text="#">
-                                        Token <span class="badge badge-success" id="tmpup_token"></span>
-                                        <iconpark-icon name="copy" class="fa-fw"></iconpark-icon>
-                                    </button>
-                                </span>
-                                <span id="tmpup_mrid_view">
-                                    <button type="button" class="btn btn-primary" id="tmpup_copy_mrid"
-                                        data-clipboard-text="#">
-                                        MRID <span class="badge badge-success" id="tmpup_mrid"></span>
-                                        <iconpark-icon name="copy" class="fa-fw"></iconpark-icon>
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="select-box p-2 uploader_opt">
-                        <div class="d-flex align-items-center">
-                            <span class="stamp-md mr-3">
-                                <iconpark-icon name="file-zipper" class="fa-fw fa-2x text-blue"></iconpark-icon>
-                            </span>
-                            <div>
-                                <h4 class="m-0" i18n="model_title_upload_max">
-                                    .
-                                </h4>
-                                <small class="text-muted" i18n="model_title_upload_max_des">
-                                    .
-                                </small>
-                            </div>
-                        </div>
+                    <div class="alert alert-light mt-3 mb-0" role="alert">
+                        <iconpark-icon name="gauge-circle-bolt" class="fa-fw text-blue mr-2"></iconpark-icon>
+                        <span i18n="upload_settings_more_hint">.</span>
                     </div>
                 </div>
 
-
-                <div id="upload_select_file" style="display: none;">
-                    <div id="selected_model_box" style="display: none;">
-                        <div class="upload-settings-card">
-                            <div class="upload-settings-header">
-                                <h5 class="upload-settings-title">
-                                    <iconpark-icon name="circle-check" class="text-success"></iconpark-icon>
-                                    <span i18n="upload_settings_current">当前设置</span>
-                                </h5>
-                                <button type="button" class="btn btn-sm btn-outline-primary"
-                                    onclick="TL.uploader.model_reset()">
-                                    <iconpark-icon name="sliders-simple"></iconpark-icon>
-                                    <span i18n="modal_settings_upload_model_reset">重新设定</span>
-                                </button>
-                            </div>
-                            <div class="upload-settings-body">
-                                <div class="setting-item">
-                                    <div class="setting-icon">
-                                        <iconpark-icon name="rectangle-vertical-history" class="text-primary"></iconpark-icon>
-                                    </div>
-                                    <div class="setting-content">
-                                        <div class="setting-label" i18n="upload_settings_validity">有效期</div>
-                                        <div class="setting-value" id="seleted_model">-</div>
-                                    </div>
-                                </div>
-                                <div class="setting-divider"></div>
-                                <div class="setting-item">
-                                    <div class="setting-icon">
-                                        <iconpark-icon name="server" class="text-info"></iconpark-icon>
-                                    </div>
-                                    <div class="setting-content">
-                                        <div class="setting-label" i18n="upload_settings_server">服务器</div>
-                                        <div class="setting-value" id="seleted_server">-</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                <div id="upload_select_file">
                     <div class="mb-2">
                         <style>
                             .upload-area {
@@ -497,6 +219,7 @@
                                                 <span i18n="upload_dirs">选择文件夹</span>
                                             </label>
                                         </span>
+                                        <div class="upload-limit mt-3 text-muted small" i18n="model_title_upload_max_des">单个文件最大支持 50 GB。</div>
                                     </div>
                                 </label>
                             </div>
@@ -512,6 +235,12 @@
                 </div>
 
                 <input type="hidden" id="upload_model" value="0" />
+
+                <script type="text/template" id="upload_servers_opt_tpl">
+                    <% for (var i = 0; i < obj.length; i++) { %>
+                        <option value="<% obj[i].url %>"><% obj[i].title %></option>
+                    <% } %>
+                </script>
 
                 <script type="text/template" id="upload_storage_status_tpl">
                     <div class="progress mb-4" style="height: 2rem;background-color: #343a40;">
@@ -1007,6 +736,39 @@
             </div>
             <div class="modal-body">
 
+                <div class="alert alert-warning" role="alert">
+                    <iconpark-icon name="circle-exclamation" class="fa-fw"></iconpark-icon>
+                    <strong i18n="model_cli_security_title">.</strong>
+                    <div class="mb-1" i18n="model_cli_security_warning1">.</div>
+                    <div i18n="model_cli_security_warning2">.</div>
+                </div>
+
+                <div class="text-center mb-3">
+                    <span class="mx-1 d-inline-block">
+                        <button type="button" class="btn btn-primary" id="tmpup_copy_token" data-clipboard-text="#">
+                            Token <span class="badge badge-success" id="tmpup_token"></span>
+                            <iconpark-icon name="copy" class="fa-fw"></iconpark-icon>
+                        </button>
+                    </span>
+                    <span class="mx-1 d-inline-block" id="tmpup_copy_model_wrap">
+                        <button type="button" class="btn btn-primary" id="tmpup_copy_model" data-clipboard-text="#">
+                            Model <span class="badge badge-success" id="tmpup_model"></span>
+                            <iconpark-icon name="copy" class="fa-fw"></iconpark-icon>
+                        </button>
+                    </span>
+                    <span class="mx-1 d-inline-block" id="tmpup_mrid_view">
+                        <button type="button" class="btn btn-primary" id="tmpup_copy_mrid" data-clipboard-text="#">
+                            MRID <span class="badge badge-success" id="tmpup_mrid"></span>
+                            <iconpark-icon name="copy" class="fa-fw"></iconpark-icon>
+                        </button>
+                    </span>
+                </div>
+
+                <div class="text-center mb-3">
+                    <a href="https://github.com/tmplink/tmplink_uploader" target="_blank"
+                        i18n="model_title_upload_tmpup_des2">.</a>
+                </div>
+
                 <div class="form-group">
                     <label for="cli_upload_path" i18n="model_upload_cli_path">.</label>
                     <input type="text" class="form-control" id="cli_upload_path" value="/root/test.zip">
@@ -1015,22 +777,84 @@
                 <div class="form-group">
                     <label for="cli_upload_model" i18n="modal_settings_title">.</label>
                     <select class="form-control" id="cli_upload_model">
-                        <option value="0" i18n-only="html" i18n="modal_settings_upload_model1" selected>.</option>
+                        <option value="0" i18n-only="html" i18n="modal_settings_upload_model1">.</option>
                         <option value="1" i18n-only="html" i18n="modal_settings_upload_model2">.</option>
+                        <option value="2" i18n-only="html" i18n="modal_settings_upload_model3">.</option>
+                        <option value="3" i18n-only="html" i18n="modal_settings_upload_model4">.</option>
                         <option value="99" i18n-only="html" i18n="modal_settings_upload_model99">.</option>
                     </select>
                 </div>
-                <div id="cliuploader_request_list">
 
+                <div id="cliuploader_request_list"></div>
+
+                <div id="cliuploader" class="mt-3" style="display:none;">
+                    <pre class="bg-light rounded p-3 text-monospace small mb-0" id="cliuploader_show"></pre>
                 </div>
+
                 <hr />
                 <p i18n="model_upload_cli_note1">.</p>
                 <p i18n="model_upload_cli_note2">.</p>
                 <p i18n="model_upload_cli_note3">.</p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-success mr-4" data-clipboard-text="not ready" id="cli_copy"
+                <button type="button" class="btn btn-success mr-4" id="cli_generate_btn"
                     i18n="model_upload_cli_copy" onclick="TL.cli_uploader_generator();">.</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" i18n="model_btn_cancel">.</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="uploadEfficiencyModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h4 class="modal-title" i18n="model_title_upload_slice">.</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted" i18n="model_title_upload_slice_des">.</p>
+                <div class="form-group">
+                    <label for="upload_slice_size" i18n="model_title_upload_slice_size">.</label>
+                    <input type="number" class="form-control" id="upload_slice_size" min="1" max="80"
+                        onchange="TL.uploader.auto_set_upload_pf(this)"
+                        onkeyup="TL.uploader.auto_set_upload_pf(this)">
+                </div>
+                <div class="form-group">
+                    <label for="upload_slice_thread_max" i18n="model_title_upload_slice_thread">.</label>
+                    <input type="number" class="form-control" id="upload_slice_thread_max" min="1" max="100"
+                        onchange="TL.uploader.auto_set_upload_pf(this)"
+                        onkeyup="TL.uploader.auto_set_upload_pf(this)">
+                </div>
+                <div class="form-group">
+                    <label for="upload_slice_queue_max" i18n="model_title_upload_slice_task">.</label>
+                    <input type="number" class="form-control" id="upload_slice_queue_max" min="1" max="100"
+                        onchange="TL.uploader.auto_set_upload_pf(this)"
+                        onkeyup="TL.uploader.auto_set_upload_pf(this)">
+                </div>
+                <hr>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h5 class="mb-1" i18n="model_title_quick_upload">.</h5>
+                        <small class="text-muted" i18n="model_title_quick_upload_des">.</small>
+                    </div>
+                    <div class="form-check form-switch m-0">
+                        <input class="form-check-input" type="checkbox" id="quick_upload"
+                            onclick="TL.uploader.quickUpload()">
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="mb-1" i18n="model_title_skip">.</h5>
+                        <small class="text-muted" i18n="model_title_skip_des">.</small>
+                    </div>
+                    <div class="form-check form-switch m-0">
+                        <input class="form-check-input" type="checkbox" id="skip_upload"
+                            onclick="TL.uploader.skipUpload()">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal" i18n="model_btn_cancel">.</button>
             </div>
         </div>

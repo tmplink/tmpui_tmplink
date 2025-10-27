@@ -40,6 +40,11 @@ class uploader {
 
     upload_file_progress = {}; // 格式: { id: { total: 文件总大小, uploaded: 已上传字节数 } }
 
+    storage = 0;
+    storage_used = 0;
+    private_storage_used = 0;
+    storage_initialized = false;
+
     init(parent_op) {
         this.check_upload_clean_btn_status();
         this.parent_op = parent_op;
@@ -88,7 +93,11 @@ class uploader {
                 $('#upload_slice_thread_max').val(rsp.data.upload_slice_thread_max);
                 //更新设定
                 this.quickUploadInit();
-                this.model_selected(0);
+                let storedModel = localStorage.getItem('app_upload_model');
+                if (storedModel === null) {
+                    storedModel = 0;
+                }
+                this.model_selected(Number(storedModel));
             }
         }, 'json').fail((xhr, textStatus, errorThrown) => {
             let errorMessage = '获取上传配置失败';
@@ -109,7 +118,7 @@ class uploader {
             }, (rsp) => {
                 if (rsp.status === 1) {
                     server_list = rsp.data.servers;
-                    $('#upload_servers_opt').html(app.tpl('upload_servers_opt_tpl', server_list));
+                    $('#upload_servers').html(app.tpl('upload_servers_opt_tpl', server_list));
 
                     //检查是否有本地存储的上传服务器
                     let server = localStorage.getItem('app_upload_server');
@@ -125,9 +134,6 @@ class uploader {
                         $('#upload_servers').val(server_list[0].url);
                     }
 
-                    let server_text = $('#upload_servers option:selected').text();
-                    $('#seleted_server').html(server_text);
-
                     //是否是赞助者？
                     if (this.parent_op.isSponsor === false) {
                         $('#upload_servers').attr('disabled', 'disabled');
@@ -140,6 +146,7 @@ class uploader {
             $('#upload_slice_size').attr('disabled', 'disabled');
             $('#upload_slice_queue_max').attr('disabled', 'disabled');
             $('#upload_slice_thread_max').attr('disabled', 'disabled');
+            $('#upload_server_hint').addClass('text-muted');
         }
     }
 
@@ -246,9 +253,6 @@ class uploader {
     auto_set_upload_server(dom) {
         let val = $(dom).val();
         localStorage.setItem('app_upload_server', val);
-
-        let server_text = $('#upload_servers option:selected').text();
-        $('#seleted_server').html(server_text);
     }
 
     auto_set_upload_pf(dom) {
@@ -302,41 +306,20 @@ class uploader {
         }, 'json');
     }
 
-    tmpupGenerator() {
-        // Show the CLI uploader interface
-        $('#tmpup').show();
-        
-        // Get model information
-        let model = localStorage.getItem('app_upload_model');
-        let mrid = get_page_mrid();
-        let text_mr = mrid ? `-F "mr_id=${mrid}"` : '';
-        
-        // Build the command with proper parameters
-        let text_path = '-F "file=@ your file path (etc.. @/root/test.bin)"';
-        let text_model = `-F "model=${model}"`;
-        let text_token = `-F "token=${this.parent_op.api_token}"`;
-        
-        // Complete command text
-        let text = `curl -k ${text_path} ${text_token} ${text_model} ${text_mr} -X POST "https://tmp-cli.vx-cdn.com/app/upload_cli"`;
-        
-        // Update the CLI command display
-        $('#cliuploader').show();
-        $('#cliuploader_show').html(text);
-        
-        // Use TL.directCopy instead of the clipboard.js approach
-        $('#cliuploader_copy').attr('onclick', `TL.directCopy(this, '${text.replace(/'/g, "\\'")}', false)`);
-    }
-
     tmpupGeneratorView() {
         //如果有设定文件夹
         let mrid = get_page_mrid();
         let model = localStorage.getItem('app_upload_model');
         let token = this.parent_op.api_token;
 
-        //显示 Token
-        $('#tmpup_mrid_view').hide();
+        //显示 Token 与模型
         $('#tmpup_token').html(token);
         $('#tmpup_copy_token').attr('onclick', `TL.directCopy(this,'${token}')`);
+
+        if (model === null) {
+            model = '0';
+        }
+        $('#tmpup_copy_model_wrap').show();
         $('#tmpup_model').html(model);
         $('#tmpup_copy_model').attr('onclick', `TL.directCopy(this,'${model}')`);
 
@@ -398,8 +381,25 @@ class uploader {
 
     upload_cli() {
         if (this.parent_op.logined === 1) {
+            this.tmpupGeneratorView();
+            $('#cliuploader').hide();
+            let storedModel = localStorage.getItem('app_upload_model');
+            if (storedModel !== null) {
+                $('#cli_upload_model').val(String(storedModel));
+            }
+            this.updatePermanentOptionLabel();
             $('#uploadCliModal').modal('show');
-            $('#upload_cli_token').html(this.parent_op.api_token);
+        } else {
+            alert(app.languageData.status_need_login);
+            app.open('/app&listview=login');
+        }
+    }
+
+    openEfficiencyModal() {
+        if (this.parent_op.logined === 1) {
+            this.quickUploadInit();
+            $('#skip_upload').prop('checked', this.skip_upload);
+            $('#uploadEfficiencyModal').modal('show');
         } else {
             alert(app.languageData.status_need_login);
             app.open('/app&listview=login');
@@ -426,7 +426,9 @@ class uploader {
 
         //如果可用的私有空间不足，则隐藏选项
         if (this.storage_used >= this.storage) {
-            $('.storage_needs').hide();
+            $('#upload_model_select option[value="99"]').attr('disabled', 'disabled');
+        } else {
+            $('#upload_model_select option[value="99"]').removeAttr('disabled');
         }
 
         //skip upload
@@ -434,8 +436,9 @@ class uploader {
             $('#skip_upload').attr('checked', 'checked');
         }
 
-        $('#uploadModal').modal('show');
-        this.tmpupGeneratorView();
+        this.updatePermanentOptionLabel();
+
+    $('#uploadModal').modal('show');
 
         document.addEventListener('paste', this.handlePaste.bind(this));
 
@@ -600,66 +603,100 @@ class uploader {
         });
     }
 
-    model_selected(model) {
-        //检查账号是否有足够可用的空间
-        if (model == 99) {
-            if (this.storage_used >= this.storage) {
-                alert('私有空间已经用完，请考虑购买私有空间扩展包。');
-                return false;
-            }
-        }
-
-        //构建说明文本
-        let model_text = '';
-
-        switch (model) {
-            case 0:
-                model_text = app.languageData.modal_settings_upload_model1;
-                $('#upload_model').val(0);
-                break;
-            case 1:
-                model_text = app.languageData.modal_settings_upload_model2;
-                $('#upload_model').val(1);
-                break;
-            case 2:
-                model_text = app.languageData.modal_settings_upload_model3;
-                $('#upload_model').val(2);
-                break;
-            case 3:
-                model_text = app.languageData.modal_settings_upload_model4;
-                $('#upload_model').val(3);
-                break;
-            case 99:
-                model_text = app.languageData.modal_settings_upload_model99;
-                $('#upload_model').val(99);
-                break;
-        }
-
-        //获取设置：是否启用秒传
-        let quick = localStorage.getItem('app_upload_quick');
-        if (quick !== undefined) {
-            if (quick === '1') {
-                model_text += ' • ' + app.languageData.model_title_quick_upload;
-            }
-        }
-
-        //获取设置: 是否跳过上传
-        let skip = this.skip_upload;
-        if (skip === true) {
-            model_text += ' • ' + app.languageData.model_title_skip;
-        }
-
-        $('#select_model_list').hide();
-        $('#upload_select_file').show();
-        $('#selected_model_box').show();
-        $('#seleted_model').html(model_text);
-        localStorage.setItem('app_upload_model', model);
+    setStorageUsage({ storage, storage_used, private_storage_used }) {
+        this.storage = Number(storage) || 0;
+        this.storage_used = Number(storage_used) || 0;
+        this.private_storage_used = Number(private_storage_used) || 0;
+        this.storage_initialized = true;
+        this.updatePermanentOptionLabel();
     }
 
-    model_reset() {
-        $('#select_model_list').show();
-        $('#upload_select_file').hide();
-        $('#selected_model_box').hide();
+    updatePermanentOptionLabel() {
+        const optionSelectors = ['#upload_model_select', '#cli_upload_model'];
+        const storageTotal = Number(this.storage) || 0;
+        const privateUsed = Number(this.private_storage_used) || 0;
+        const remainingBytes = Math.max(storageTotal - privateUsed, 0);
+        const baseTranslation = app.languageData ? (app.languageData.modal_settings_upload_model99 || '') : '';
+        const prefix = app.languageData ? (app.languageData.upload_settings_private_left || '') : '';
+        optionSelectors.forEach((selector) => {
+            const option = $(`${selector} option[value="99"]`);
+            if (option.length === 0) {
+                return;
+            }
+
+            let baseLabel = baseTranslation;
+            if (baseLabel === '') {
+                const storedBase = option.data('base-label');
+                if (storedBase) {
+                    baseLabel = storedBase;
+                } else {
+                    baseLabel = option.text();
+                }
+            }
+
+            option.data('base-label', baseLabel);
+
+            if (!this.storage_initialized) {
+                option.text(baseLabel);
+                return;
+            }
+
+            const remainingText = bytetoconver(remainingBytes, true);
+            if (prefix !== '') {
+                option.text(`${baseLabel} (${prefix} ${remainingText})`);
+            } else {
+                option.text(`${baseLabel} (${remainingText})`);
+            }
+        });
+    }
+
+    model_selected(model) {
+        model = Number(model);
+
+        if (this.storage_used >= this.storage) {
+            $('#upload_model_select option[value="99"]').attr('disabled', 'disabled');
+        } else {
+            $('#upload_model_select option[value="99"]').removeAttr('disabled');
+        }
+
+        if (model === 99 && this.storage_used >= this.storage) {
+            alert('私有空间已经用完，请考虑购买私有空间扩展包。');
+            $('#upload_model_select').val(String($('#upload_model').val() || 0));
+            return false;
+        }
+
+        $('#upload_model').val(model);
+        $('#upload_model_select').val(String(model));
+        $('#cli_upload_model').val(String(model));
+        localStorage.setItem('app_upload_model', model);
+
+        this.updatePermanentOptionLabel();
+        this.updateModelSummary(model);
+        return true;
+    }
+
+    updateModelSummary(model) {
+        const mapping = {
+            0: { title: 'modal_settings_upload_model1', des: 'modal_settings_upload_model1_des' },
+            1: { title: 'modal_settings_upload_model2', des: 'modal_settings_upload_model2_des' },
+            2: { title: 'modal_settings_upload_model3', des: 'modal_settings_upload_model3_des' },
+            3: { title: 'modal_settings_upload_model4', des: 'modal_settings_upload_model4_des' },
+            99: { title: 'modal_settings_upload_model99', des: 'modal_settings_upload_model99_des' }
+        };
+
+        const config = mapping[model] || mapping[0];
+        const title = app.languageData[config.title] || '';
+        const description = app.languageData[config.des] || '';
+
+        let html = '';
+        if (title !== '') {
+            html += `<strong>${title}</strong>`;
+        }
+        if (description !== '') {
+            html += (html !== '' ? '<br>' : '') + `<span class="text-muted">${description}</span>`;
+        }
+
+        $('#upload_model_description').html(html);
     }
 
 
