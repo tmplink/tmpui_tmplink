@@ -383,6 +383,12 @@ body.dark-mode .btn-user-info:active {
         background-color: #363434 !important;
     }
 
+    .card.upload-settings-card {
+        background-color: #1e293b !important;
+        border: 1px solid #334155 !important;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.4) !important;
+    }
+
     .table {
         color: #d0cfcf !important;
     }
