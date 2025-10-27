@@ -706,9 +706,6 @@ class uploader {
         const description = app.languageData[config.des] || '';
 
         let html = '';
-        if (title !== '') {
-            html += `<strong>${title}</strong>`;
-        }
         if (description !== '') {
             html += (html !== '' ? '<br>' : '') + `<span class="text-muted">${description}</span>`;
         }
