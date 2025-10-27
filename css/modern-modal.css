@@ -822,17 +822,36 @@ body.dark-mode #userModal .custom-file-label:hover {
 
 /* Responsive enhancements */
 @media (max-width: 576px) {
+    .modal {
+        padding: 0 !important;
+    }
+
     .modal-dialog {
-        margin: 1rem !important;
+        margin: 0 !important;
+        width: 100% !important;
+        min-height: 100vh !important;
+        display: flex !important;
+        align-items: stretch !important;
     }
 
     .modal-content {
-        border-radius: 12px !important;
+        border-radius: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
     }
 
     .modal-header,
-    .modal-body,
     .modal-footer {
+        flex-shrink: 0 !important;
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+
+    .modal-body {
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
         padding-left: 20px !important;
         padding-right: 20px !important;
     }
