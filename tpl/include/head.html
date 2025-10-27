@@ -142,6 +142,15 @@
                         <span i18n="navbar_analytics">.</span>
                     </a>
 
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="TL.uploader.openEfficiencyModal();">
+                        <iconpark-icon name="gauge-circle-bolt" class="fa-fw"></iconpark-icon>
+                        <span i18n="nav_more_efficiency">.</span>
+                    </a>
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="TL.uploader.upload_cli();">
+                        <iconpark-icon name="rectangle-terminal" class="fa-fw"></iconpark-icon>
+                        <span i18n="nav_more_cli">.</span>
+                    </a>
+
                     <a class="dropdown-item lang-not-cn" href="https://bbs.tmp.link" target="_blank">
                         <iconpark-icon name="comments" class="fa-fw"></iconpark-icon>
                         <span>
@@ -156,15 +165,6 @@
                     <a class="dropdown-item" href="/app&listview=direct" tmpui-action="dynamicView.direct();">
                         <iconpark-icon name="share-nodes" class="fa-fw"></iconpark-icon>
                         <span i18n="navbar_direct">.</span>
-                    </a>
-
-                    <a class="dropdown-item" href="javascript:void(0)" onclick="TL.uploader.openEfficiencyModal();">
-                        <iconpark-icon name="gauge-circle-bolt" class="fa-fw"></iconpark-icon>
-                        <span i18n="nav_more_efficiency">.</span>
-                    </a>
-                    <a class="dropdown-item" href="javascript:void(0)" onclick="TL.uploader.upload_cli();">
-                        <iconpark-icon name="rectangle-terminal" class="fa-fw"></iconpark-icon>
-                        <span i18n="nav_more_cli">.</span>
                     </a>
 
                     <!-- 笔记功能 -->
@@ -346,15 +346,38 @@
                     </div>
                 </button>
                 <div class="dropdown-menu shadow">
+                    <!-- 兑换礼物 -->
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="TL.giftcard.active();">
+                        <iconpark-icon name="gift-card" class="fa-fw"></iconpark-icon>
+                        <span i18n="user_giftcard">.</span>
+                    </a>
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="$('#shopModal').modal('show');" style="position: relative;">
+                        <iconpark-icon name="bag-shopping" class="fa-fw"></iconpark-icon>
+                        <span>
+                            <span i18n="navbar_buy">.</span>
+                            <span id="shopBadge" class="point-red" style="display: none;"></span>
+                        </span>
+                    </a>
                     <!-- 数据分析 -->
                     <a class="dropdown-item" href="javascript:void(0)" onclick="TL.chart.openAnalytics()">
                         <iconpark-icon name="chart-line" class="fa-fw"></iconpark-icon>
                         <span i18n="navbar_analytics">.</span>
                     </a>
-                    <!-- 兑换礼物 -->
-                    <a class="dropdown-item" href="javascript:void(0)" onclick="TL.giftcard.active();">
-                        <iconpark-icon name="gift-card" class="fa-fw"></iconpark-icon>
-                        <span i18n="user_giftcard">.</span>
+                    <!-- 上传效率与 CLI -->
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="TL.uploader.openEfficiencyModal();">
+                        <iconpark-icon name="gauge-circle-bolt" class="fa-fw"></iconpark-icon>
+                        <span i18n="nav_more_efficiency">.</span>
+                    </a>
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="TL.uploader.upload_cli();">
+                        <iconpark-icon name="rectangle-terminal" class="fa-fw"></iconpark-icon>
+                        <span i18n="nav_more_cli">.</span>
+                    </a>
+                    <a class="dropdown-item lang-not-cn" href="https://bbs.tmp.link" target="_blank">
+                        <iconpark-icon name="comments" class="fa-fw"></iconpark-icon>
+                        <span>
+                            <span i18n="navbar_discuz">.</span>
+                            <!-- <span class="point-red"></span> -->
+                        </span>
                     </a>
                     <a class="dropdown-item" href="javascript:void(0)" onclick="$('#myModal').modal('show');">
                         <iconpark-icon name="user" class="fa-fw"></iconpark-icon>
@@ -382,21 +405,6 @@
                         <iconpark-icon name="user" class="fa-fw"></iconpark-icon>
                         <span>
                             <span i18n="user_modal_title">.</span>
-                            <!-- <span class="point-red"></span> -->
-                        </span>
-                    </a>
-                    <a class="dropdown-item" href="javascript:void(0)" onclick="$('#shopModal').modal('show');" style="position: relative;">
-                        <iconpark-icon name="bag-shopping" class="fa-fw"></iconpark-icon>
-                        <span>
-                            <span i18n="navbar_buy">.</span>
-                            <span id="shopBadge" class="point-red" style="display: none;"></span>
-                        </span>
-                    </a>
-
-                    <a class="dropdown-item lang-not-cn" href="https://bbs.tmp.link" target="_blank">
-                        <iconpark-icon name="comments" class="fa-fw"></iconpark-icon>
-                        <span>
-                            <span i18n="navbar_discuz">.</span>
                             <!-- <span class="point-red"></span> -->
                         </span>
                     </a>

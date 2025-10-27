@@ -309,18 +309,17 @@ class uploader {
     tmpupGeneratorView() {
         //如果有设定文件夹
         let mrid = get_page_mrid();
-        let model = localStorage.getItem('app_upload_model');
+        let storedModel = localStorage.getItem('app_upload_model');
+        let model = this.normalizeModelValue(storedModel);
+        localStorage.setItem('app_upload_model', model);
         let token = this.parent_op.api_token;
 
         //显示 Token 与模型
         $('#tmpup_token').html(token);
         $('#tmpup_copy_token').attr('onclick', `TL.directCopy(this,'${token}')`);
 
-        if (model === null) {
-            model = '0';
-        }
         $('#tmpup_copy_model_wrap').show();
-        $('#tmpup_model').html(model);
+        $('#tmpup_model').html(String(model));
         $('#tmpup_copy_model').attr('onclick', `TL.directCopy(this,'${model}')`);
 
         if (mrid !== undefined) {
@@ -385,7 +384,11 @@ class uploader {
             $('#cliuploader').hide();
             let storedModel = localStorage.getItem('app_upload_model');
             if (storedModel !== null) {
-                $('#cli_upload_model').val(String(storedModel));
+                const normalizedModel = this.normalizeModelValue(storedModel);
+                localStorage.setItem('app_upload_model', normalizedModel);
+                $('#cli_upload_model').val(String(normalizedModel));
+            } else {
+                $('#cli_upload_model').val('0');
             }
             this.updatePermanentOptionLabel();
             $('#uploadCliModal').modal('show');
@@ -507,7 +510,9 @@ class uploader {
     }
 
     upload_model_get() {
-        return $("#upload_model").val();
+        const normalized = this.normalizeModelValue($("#upload_model").val());
+        $('#upload_model').val(String(normalized));
+        return normalized;
     }
 
     upload_mrid_get() {
@@ -650,8 +655,20 @@ class uploader {
         });
     }
 
+    normalizeModelValue(model) {
+        const parsed = Number(model);
+        if (parsed === 3) {
+            return 2;
+        }
+        const validModels = [0, 1, 2, 99];
+        if (validModels.includes(parsed)) {
+            return parsed;
+        }
+        return 0;
+    }
+
     model_selected(model) {
-        model = Number(model);
+        model = this.normalizeModelValue(model);
 
         if (this.storage_used >= this.storage) {
             $('#upload_model_select option[value="99"]').attr('disabled', 'disabled');
@@ -676,15 +693,15 @@ class uploader {
     }
 
     updateModelSummary(model) {
+        const safeModel = this.normalizeModelValue(model);
         const mapping = {
             0: { title: 'modal_settings_upload_model1', des: 'modal_settings_upload_model1_des' },
             1: { title: 'modal_settings_upload_model2', des: 'modal_settings_upload_model2_des' },
             2: { title: 'modal_settings_upload_model3', des: 'modal_settings_upload_model3_des' },
-            3: { title: 'modal_settings_upload_model4', des: 'modal_settings_upload_model4_des' },
             99: { title: 'modal_settings_upload_model99', des: 'modal_settings_upload_model99_des' }
         };
 
-        const config = mapping[model] || mapping[0];
+        const config = mapping[safeModel] || mapping[0];
         const title = app.languageData[config.title] || '';
         const description = app.languageData[config.des] || '';
 

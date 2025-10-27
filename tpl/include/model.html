@@ -98,7 +98,6 @@
                                     <option value="0" i18n-only="html" i18n="modal_settings_upload_model1">.</option>
                                     <option value="1" i18n-only="html" i18n="modal_settings_upload_model2">.</option>
                                     <option value="2" i18n-only="html" i18n="modal_settings_upload_model3">.</option>
-                                    <option value="3" i18n-only="html" i18n="modal_settings_upload_model4">.</option>
                                     <option value="99" i18n-only="html" i18n="modal_settings_upload_model99">.</option>
                                 </select>
                                 <small class="form-text text-muted" id="upload_model_description"></small>
@@ -482,14 +481,14 @@
                 <h3 i18n="pay_times_title">.</h3>
                 <div class="row">
                     <div class="col-6" onclick="TL.buy.selectTime('a')">
-                        <div class="card shadow-sm pay_times_a">
+                        <div class="card upload-settings-card shadow-sm pay_times_a">
                             <div class="card-body">
                                 <h4 i18n="pay_times_a">.</h4>
                             </div>
                         </div>
                     </div>
                     <div class="col-6" onclick="TL.buy.selectTime('b')">
-                        <div class="card shadow-sm pay_times_b">
+                        <div class="card upload-settings-card shadow-sm pay_times_b">
                             <div class="card-body">
                                 <h4 i18n="pay_times_b">.</h4>
                             </div>
@@ -499,7 +498,7 @@
                 <h3 i18n="model_title_buy_select">.</h3>
                 <div class="row">
                     <div class="col-6 buy_payment_cny" onclick="TL.buy.selectPayment('cny')">
-                        <div class="card shadow-sm">
+                        <div class="card upload-settings-card shadow-sm">
                             <div class="card-body">
                                 <h4>
                                     <iconpark-icon name="alipay" class="fa-fw"></iconpark-icon>
@@ -509,7 +508,7 @@
                         </div>
                     </div>
                     <div class="col-6 buy_payment_usd" onclick="TL.buy.selectPayment('usd')">
-                        <div class="card shadow-sm">
+                        <div class="card upload-settings-card shadow-sm">
                             <div class="card-body">
                                 <h4>
                                     <iconpark-icon name="cc-paypal" class="fa-fw"></iconpark-icon>
@@ -551,7 +550,7 @@
                 <h3 i18n="direct_quota_type">.</h3>
                 <div class="row">
                     <div class="col-12 col-md-6" onclick="TL.buy.selectCode('#buy_direct_quota_1','D20',6)">
-                        <div class="card shadow-sm" id="buy_direct_quota_1">
+                        <div class="card upload-settings-card shadow-sm" id="buy_direct_quota_1">
                             <div class="card-body">
                                 <h4>20GB</h4>
                                 <!-- <small class="text-success">+ 20GB</small> -->
@@ -559,7 +558,7 @@
                         </div>
                     </div>
                     <div class="col-12 col-md-6" onclick="TL.buy.selectCode('#buy_direct_quota_2','D100',18)">
-                        <div class="card shadow-sm" id="buy_direct_quota_2">
+                        <div class="card upload-settings-card shadow-sm" id="buy_direct_quota_2">
                             <div class="card-body">
                                 <h4>100GB</h4>
                                 <!-- <small class="text-success">+ 50GB</small> -->
@@ -567,7 +566,7 @@
                         </div>
                     </div>
                     <div class="col-12 col-md-6" onclick="TL.buy.selectCode('#buy_direct_quota_3','D600',60)">
-                        <div class="card shadow-sm" id="buy_direct_quota_3">
+                        <div class="card upload-settings-card shadow-sm" id="buy_direct_quota_3">
                             <div class="card-body">
                                 <h4>600GB</h4>
                                 <!-- <small class="text-success">+ 180GB</small> -->
@@ -575,7 +574,7 @@
                         </div>
                     </div>
                     <div class="col-12 col-md-6" onclick="TL.buy.selectCode('#buy_direct_quota_4','D1024',90)">
-                        <div class="card shadow-sm" id="buy_direct_quota_4">
+                        <div class="card upload-settings-card shadow-sm" id="buy_direct_quota_4">
                             <div class="card-body">
                                 <h4>1TB</h4>
                                 <!-- <small class="text-success">+ 200GB</small> -->
@@ -591,7 +590,7 @@
                 <h3 i18n="model_title_buy_select">.</h3>
                 <div class="row">
                     <div class="col-6 buy_payment_cny" onclick="TL.buy.selectPayment('cny')">
-                        <div class="card shadow-sm">
+                        <div class="card upload-settings-card shadow-sm">
                             <div class="card-body">
                                 <h4>
                                     <iconpark-icon name="alipay" class="fa-fw"></iconpark-icon>
@@ -601,7 +600,7 @@
                         </div>
                     </div>
                     <div class="col-6 buy_payment_usd" onclick="TL.buy.selectPayment('usd')">
-                        <div class="card shadow-sm">
+                        <div class="card upload-settings-card shadow-sm">
                             <div class="card-body">
                                 <h4>
                                     <iconpark-icon name="cc-paypal" class="fa-fw"></iconpark-icon>
@@ -642,28 +641,28 @@
                 <h3 i18n="storage_type">.</h3>
                 <div class="row">
                     <div class="col-12 col-sm-6" onclick="TL.buy.selectCode('#buy_storage_256','256GB',6)">
-                        <div class="card shadow-sm" id="buy_storage_256">
+                        <div class="card upload-settings-card shadow-sm" id="buy_storage_256">
                             <div class="card-body">
                                 <h4>256 GB</h4>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-sm-6" onclick="TL.buy.selectCode('#buy_storage_1024','1TB',18)">
-                        <div class="card shadow-sm" id="buy_storage_1024">
+                        <div class="card upload-settings-card shadow-sm" id="buy_storage_1024">
                             <div class="card-body">
                                 <h4>1 TB</h4>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-sm-6" onclick="TL.buy.selectCode('#buy_storage_3072','3TB',66)">
-                        <div class="card shadow-sm" id="buy_storage_3072">
+                        <div class="card upload-settings-card shadow-sm" id="buy_storage_3072">
                             <div class="card-body">
                                 <h4>3 TB</h4>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-sm-6" onclick="TL.buy.selectCode('#buy_storage_5120','5TB',120)">
-                        <div class="card shadow-sm" id="buy_storage_5120">
+                        <div class="card upload-settings-card shadow-sm" id="buy_storage_5120">
                             <div class="card-body">
                                 <h4>5 TB</h4>
                             </div>
@@ -673,14 +672,14 @@
                 <h3 i18n="pay_times_title">.</h3>
                 <div class="row">
                     <div class="col-6" onclick="TL.buy.selectTime('a')">
-                        <div class="card shadow-sm pay_times_a">
+                        <div class="card upload-settings-card shadow-sm pay_times_a">
                             <div class="card-body">
                                 <h4 i18n="pay_times_a">.</h4>
                             </div>
                         </div>
                     </div>
                     <div class="col-6" onclick="TL.buy.selectTime('b')">
-                        <div class="card shadow-sm pay_times_b">
+                        <div class="card upload-settings-card shadow-sm pay_times_b">
                             <div class="card-body">
                                 <h4 i18n="pay_times_b">.</h4>
                             </div>
@@ -690,7 +689,7 @@
                 <h3 i18n="model_title_buy_select">.</h3>
                 <div class="row">
                     <div class="col-6 buy_payment_cny" onclick="TL.buy.selectPayment('cny')">
-                        <div class="card shadow-sm">
+                        <div class="card upload-settings-card shadow-sm">
                             <div class="card-body">
                                 <h4>
                                     <iconpark-icon name="alipay" class="fa-fw"></iconpark-icon>
@@ -700,7 +699,7 @@
                         </div>
                     </div>
                     <div class="col-6 buy_payment_usd" onclick="TL.buy.selectPayment('usd')">
-                        <div class="card shadow-sm">
+                        <div class="card upload-settings-card shadow-sm">
                             <div class="card-body">
                                 <h4>
                                     <iconpark-icon name="cc-paypal" class="fa-fw"></iconpark-icon>
@@ -780,7 +779,6 @@
                         <option value="0" i18n-only="html" i18n="modal_settings_upload_model1">.</option>
                         <option value="1" i18n-only="html" i18n="modal_settings_upload_model2">.</option>
                         <option value="2" i18n-only="html" i18n="modal_settings_upload_model3">.</option>
-                        <option value="3" i18n-only="html" i18n="modal_settings_upload_model4">.</option>
                         <option value="99" i18n-only="html" i18n="modal_settings_upload_model99">.</option>
                     </select>
                 </div>
@@ -879,7 +877,7 @@
                 </div>
                 <script type="text/template" id="order_list_tpl">
                     <% for (var x in obj) { %>
-                        <div class="row p-2 filelist-card shadow-sm mb-2 mx-1">
+                        <div class="row p-2 filelist-card upload-settings-card shadow-sm mb-2 mx-1">
                             <div class="col-12">
                                 <div class="card-p3">
                                     <div class="d-flex align-items-center mb-2">
@@ -1265,7 +1263,7 @@
             </div>
             <div class="modal-body">
                 <!--[初次赞助特典]-->
-                <div id="firstTimeSponsorOption" class="row p-4 filelist-card shadow-sm mb-2 mx-1 btn-point" onclick="TL.buy.buyFirstTimeSponsor();" style="display: none; background: linear-gradient(135deg, #c9a96e, #f4e99c, #d4af37, #b8860b); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3); color: #2c1810; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);">
+                <div id="firstTimeSponsorOption" class="row p-4 filelist-card upload-settings-card shadow-sm mb-2 mx-1 btn-point" onclick="TL.buy.buyFirstTimeSponsor();" style="display: none; background: linear-gradient(135deg, #c9a96e, #f4e99c, #d4af37, #b8860b); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3); color: #2c1810; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);">
                     <div class="col-12">
                         <div class="card-p3">
                             <div class="d-flex align-items-center">
@@ -1297,7 +1295,7 @@
                     </div>
                 </div>
                 <!--[成为赞助者]-->
-                <div class="row p-4 filelist-card shadow-sm mb-2 mx-1 btn-point" onclick="TL.buy.openSponsor();">
+                <div class="row p-4 filelist-card upload-settings-card shadow-sm mb-2 mx-1 btn-point" onclick="TL.buy.openSponsor();">
                     <div class="col-12">
                         <div class="card-p3">
                             <div class="d-flex align-items-center">
@@ -1320,7 +1318,7 @@
                     </div>
                 </div>
                 <!-- 存储 -->
-                <div class="row p-4 filelist-card shadow-sm mb-2 mx-1 btn-point" onclick="TL.buy.openStorage();">
+                <div class="row p-4 filelist-card upload-settings-card shadow-sm mb-2 mx-1 btn-point" onclick="TL.buy.openStorage();">
                     <div class="col-12">
                         <div class="card-p3">
                             <div class="d-flex align-items-center">
@@ -1344,7 +1342,7 @@
                     </div>
                 </div>
                 <!-- 直链 -->
-                <div class="row p-4 filelist-card shadow-sm mb-2 mx-1 btn-point ready_to_buy_quato"
+                <div class="row p-4 filelist-card upload-settings-card shadow-sm mb-2 mx-1 btn-point ready_to_buy_quato"
                     onclick="TL.buy.openQuato();">
                     <div class="col-12">
                         <div class="card-p3">
@@ -1605,7 +1603,7 @@
             </div>
             <div class="modal-body">
                 <!--[已存储的用户个人信息]-->
-                <div class="card shadow-sm mb-2" id="user_saved">
+                <div class="card upload-settings-card shadow-sm mb-2" id="user_saved">
                     <div class="d-flex align-items-center">
                         <span class="p-3 user_saved_logo">
                             <img src="/img/loading.svg" class="img-circle" alt="User Image"
@@ -1855,7 +1853,7 @@
                 <h3 i18n="model_title_buy_select">.</h3>
                 <div class="row">
                     <div class="col-6 buy_payment_cny" onclick="TL.buy.selectPayment('cny')">
-                        <div class="card shadow-sm">
+                        <div class="card upload-settings-card shadow-sm">
                             <div class="card-body">
                                 <h4>
                                     <iconpark-icon name="alipay" class="fa-fw"></iconpark-icon>
@@ -1865,7 +1863,7 @@
                         </div>
                     </div>
                     <div class="col-6 buy_payment_usd" onclick="TL.buy.selectPayment('usd')">
-                        <div class="card shadow-sm">
+                        <div class="card upload-settings-card shadow-sm">
                             <div class="card-body">
                                 <h4>
                                     <iconpark-icon name="cc-paypal" class="fa-fw"></iconpark-icon>
