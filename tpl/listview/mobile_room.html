@@ -524,7 +524,7 @@
                                         <iconpark-icon name="ellipsis" class="fa-fw"></iconpark-icon>
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-right shadow">
-                                        <% if(TL.dir.room.model=='public'){ %>
+                                        <% if(obj[x].publish === 'yes' || obj[x].model === 'public'){ %>
                                             <button onclick="TL.bulkCopy(this,'<% Base64Encode(`https://${TL.site_domain}/room/${obj[x].mr_id}`) %>',true)" class="in-public-dir dropdown-item">
                                                 <iconpark-icon name="share-from-square" class="fa-fw"></iconpark-icon>
                                                 <span i18n="menu_addlink"><% app.languageData.model_copy %></span>

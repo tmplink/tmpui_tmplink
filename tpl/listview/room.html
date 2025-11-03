@@ -611,7 +611,7 @@
                             <span class="mr-2">
                                 <% app.languageData.filelist_dir %>
                             </span>
-                            <% if(TL.dir.room.model=='public'){ %>
+                            <% if(obj[x].publish === 'yes' || obj[x].model === 'public'){ %>
                                 <button onclick="TL.bulkCopy(this,'<% Base64Encode(`https://${TL.site_domain}/room/${obj[x].mr_id}`) %>',true)" class="in-public-dir text-azure btn btn-sm btn-light mr-2">
                                     <iconpark-icon name="share-from-square" class="fa-fw"></iconpark-icon>
                                 </button>

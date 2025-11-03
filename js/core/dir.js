@@ -437,12 +437,15 @@ class dir {
             }
 
             //如果是私有文件夹
-            if (this.room.model == 'private') {
+            const isDesktopRoot = String(this.room.mr_id) === '0';
+            if (this.room.model == 'private' && !isDesktopRoot) {
                 $('.in-private-dir').hide();
                 this.setDirIcon('private');
             } else {
                 $('.in-private-dir').show();
-                this.setDirIcon('public');
+                if (this.room.model !== 'private') {
+                    this.setDirIcon('public');
+                }
             }
 
             //如果文件夹允许其他人上传文件
