@@ -479,6 +479,23 @@ body.dark-mode .upload-validity-label,
     box-shadow: 0 25px 50px -24px rgba(15, 23, 42, 0.6), 0 12px 28px -14px rgba(15, 23, 42, 0.4);
 }
 
+/* Enhanced hover for clickable cards (payment/duration selection) */
+[onclick] > .card.upload-settings-card,
+.btn-point > .card.upload-settings-card,
+[onclick*="selectPayment"] .card.upload-settings-card,
+[onclick*="selectTime"] .card.upload-settings-card {
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+[onclick] > .card.upload-settings-card:hover,
+.btn-point > .card.upload-settings-card:hover,
+[onclick*="selectPayment"] .card.upload-settings-card:hover,
+[onclick*="selectTime"] .card.upload-settings-card:hover {
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1), 0 25px 50px -24px rgba(15, 23, 42, 0.6);
+}
+
 .upload-settings-header {
     display: flex;
     justify-content: space-between;

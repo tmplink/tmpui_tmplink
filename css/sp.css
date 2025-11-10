@@ -63,8 +63,36 @@
   cursor: pointer;
 }
 
-.card-selected {
-  border: 2px solid #007bff;
+.card.card-selected,
+.card-selected.upload-settings-card,
+.upload-settings-card.card-selected,
+.card.upload-settings-card.card-selected,
+.pay_times_a.card-selected,
+.pay_times_b.card-selected {
+  border: 3px solid #007bff !important;
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.12), rgba(0, 123, 255, 0.18)) !important;
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2), 0 0 15px rgba(0, 123, 255, 0.3), 0 4px 12px rgba(0, 123, 255, 0.25) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+}
+
+/* Ensure selected state overrides hover */
+.card.card-selected:hover,
+.card-selected.upload-settings-card:hover,
+.card.upload-settings-card.card-selected:hover,
+.pay_times_a.card-selected:hover,
+.pay_times_b.card-selected:hover {
+  border: 3px solid #007bff !important;
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.12), rgba(0, 123, 255, 0.18)) !important;
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2), 0 0 15px rgba(0, 123, 255, 0.3), 0 4px 12px rgba(0, 123, 255, 0.25) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+}
+
+/* Focus visible for keyboard navigation */
+[onclick]:focus-visible,
+[onclick] > .card:focus-visible,
+.card.upload-settings-card:focus-visible {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
 }
 
 .nav-units {
