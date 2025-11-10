@@ -65,6 +65,7 @@ class tmplink {
     bulkCopyStatus = false
     bulkCopyTmp = ''
     bulkCopyTimer = 0
+    clipboardInstance = null
     mybg_light = 0
     mybg_dark = 0
     mybg_light_key = 0
@@ -2482,14 +2483,29 @@ class tmplink {
     }
 
     btn_copy_bind() {
-        var clipboard = new Clipboard('.btn_copy');
-        clipboard.on('success', (e) => {
-            let tmp = $(e.trigger).html();
-            $(e.trigger).html(app.languageData.copied);
-            setTimeout(() => {
-                $(e.trigger).html(tmp);
-            }, 3000);
-        });
+        // 只在第一次调用时初始化 clipboard 实例
+        if (!this.clipboardInstance) {
+            // 创建 clipboard 实例，使用 body 作为容器以支持动态添加的元素
+            this.clipboardInstance = new Clipboard('.btn_copy', {
+                container: document.body
+            });
+            
+            this.clipboardInstance.on('success', (e) => {
+                let tmp = $(e.trigger).html();
+                $(e.trigger).html(app.languageData.copied);
+                setTimeout(() => {
+                    $(e.trigger).html(tmp);
+                }, 3000);
+                e.clearSelection();
+            });
+            
+            this.clipboardInstance.on('error', (e) => {
+                console.error('Copy action failed:', e.action);
+                console.error('Trigger:', e.trigger);
+            });
+        }
+        // 如果已经初始化过，则不需要重复初始化
+        // ClipboardJS 会自动处理动态添加的具有 .btn_copy 类的元素
     }
 
 
