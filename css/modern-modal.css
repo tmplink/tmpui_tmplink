@@ -270,6 +270,71 @@
         color: #ffffff !important;
     }
 
+    /* Enhanced select dropdown styling in modals for dark mode */
+    .modal select.form-control,
+    .modal .form-select {
+        background-color: rgba(31, 41, 55, 0.95) !important;
+        color: #f9fafb !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        /* Custom dropdown arrow */
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23f9fafb' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 16px 12px !important;
+        padding-right: 2.5rem !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+    }
+
+    .modal select.form-control:hover,
+    .modal .form-select:hover {
+        background-color: rgba(31, 41, 55, 1) !important;
+        border-color: rgba(255, 255, 255, 0.3) !important;
+    }
+
+    .modal select.form-control:focus,
+    .modal .form-select:focus {
+        background-color: rgba(31, 41, 55, 1) !important;
+        color: #ffffff !important;
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25) !important;
+    }
+
+    /* Option styling in modals */
+    .modal select.form-control option,
+    .modal .form-select option {
+        background-color: rgba(31, 41, 55, 0.98) !important;
+        color: #f9fafb !important;
+        padding: 10px 12px !important;
+    }
+
+    .modal select.form-control option:hover,
+    .modal select.form-control option:focus,
+    .modal select.form-control option:checked,
+    .modal .form-select option:hover,
+    .modal .form-select option:focus,
+    .modal .form-select option:checked {
+        background-color: #6366f1 !important;
+        color: #ffffff !important;
+        background-image: linear-gradient(0deg, #6366f1 0%, #6366f1 100%) !important;
+    }
+
+    .modal select.form-control option:disabled,
+    .modal .form-select option:disabled {
+        background-color: rgba(31, 41, 55, 0.5) !important;
+        color: rgba(249, 250, 251, 0.4) !important;
+    }
+
+    /* Disabled select in modals */
+    .modal select.form-control:disabled,
+    .modal .form-select:disabled {
+        background-color: rgba(31, 41, 55, 0.5) !important;
+        color: rgba(249, 250, 251, 0.5) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        opacity: 0.6 !important;
+    }
+
     /* Fix dropdown menus in modals */
     .modal .dropdown-menu {
         background-color: rgba(31, 41, 55, 0.95) !important;
