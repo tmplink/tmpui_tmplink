@@ -3,16 +3,16 @@ class tmplink {
     // api_url = 'https://tmp-api.vx-cdn.com/api_v2'
     api_url = 'https://tmplink-sec.vxtrans.com/api_v2'
     api_url_sec = 'https://tmplink-sec.vxtrans.com/api_v2'
-    api_url_upload = this.api_url + '/file'
-    api_file = this.api_url + '/file'
-    api_pay = this.api_url + '/pay'
-    api_user = this.api_url + '/user'
-    api_direct = this.api_url + '/direct'
-    api_media = this.api_url + '/media'
-    api_mr = this.api_url + '/meetingroom'
-    api_notes = this.api_url + '/notes'
-    api_toks = this.api_url_sec + '/token'
-    api_tokx = this.api_url + '/token'
+    api_url_upload = null
+    api_file = null
+    api_pay = null
+    api_user = null
+    api_direct = null
+    api_media = null
+    api_mr = null
+    api_notes = null
+    api_toks = null
+    api_tokx = null
     api_token = null
     current_file_details = null // 当前文件详情
     current_file_download_url = null // 当前文件下载链接
@@ -81,6 +81,7 @@ class tmplink {
     ga_processing = false
 
     constructor() {
+        this.init_api();
         this.setArea();
         this.setDomain();
         // this.api_init();
@@ -188,6 +189,25 @@ class tmplink {
                 e.preventDefault();
             }
         });
+    }
+
+    init_api(){
+        let hostname = window.location.hostname;
+        if (hostname === 'www.ttttt.link' || hostname === '127.0.0.1') {
+            this.api_url = 'https://tmplink-sec.vxtrans.com/api_v2'
+        }
+        
+        // 更新所有依赖的 API 地址
+        this.api_url_upload = this.api_url + '/file'
+        this.api_file = this.api_url + '/file'
+        this.api_pay = this.api_url + '/pay'
+        this.api_user = this.api_url + '/user'
+        this.api_direct = this.api_url + '/direct'
+        this.api_media = this.api_url + '/media'
+        this.api_mr = this.api_url + '/meetingroom'
+        this.api_notes = this.api_url + '/notes'
+        this.api_toks = this.api_url_sec + '/token'
+        this.api_tokx = this.api_url + '/token'
     }
 
     matchNightModel() {

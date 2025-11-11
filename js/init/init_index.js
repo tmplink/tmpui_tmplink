@@ -4,10 +4,15 @@
  */
 
 setThemeColor();
+let hostname = window.location.hostname;
 
-// API endpoints
-const TMPLINK_API_USER = 'https://tmp-api.vx-cdn.com/api_v2/user';
-const TMPLINK_API_TOKEN = 'https://tmp-api.vx-cdn.com/api_v2/token';
+if (hostname === 'www.ttttt.link' || hostname === '127.0.0.1') {
+    var TMPLINK_API_USER = 'https://tmplink-sec.vxtrans.com/api_v2/user';
+    var TMPLINK_API_TOKEN = 'https://tmplink-sec.vxtrans.com/api_v2/token';
+} else {
+    var TMPLINK_API_USER = 'https://tmp-api.vx-cdn.com/api_v2/user';
+    var TMPLINK_API_TOKEN = 'https://tmp-api.vx-cdn.com/api_v2/token';
+}
 
 // Track current button state for language switching
 let currentButtonState = 'login'; // 'login' or 'continue'
@@ -27,11 +32,11 @@ function initializeHomepage() {
     const lang = app.languageSetting;
     langset(lang);
     app.languageBuild();
-    
+
     // Update page metadata
     document.title = app.languageData.title_index;
     document.querySelector('meta[name=description]').setAttribute('content', app.languageData.des_index);
-    
+
     // Initialize components
     initNativeDropdown();
     initThemeToggle();
@@ -41,7 +46,7 @@ function initializeHomepage() {
     initMobileVideoDisable();
     autoLogin();
     sendAnalytics();
-    
+
     // Ensure all sections are visible
     ensureSectionsVisible();
 }
@@ -52,13 +57,13 @@ function initializeHomepage() {
 function initThemeToggle() {
     const themeToggle = document.getElementById('theme-toggle');
     const body = document.body;
-    
+
     if (!themeToggle) return;
-    
+
     // Check local storage theme preference
     const savedTheme = localStorage.getItem('theme-preference');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
+
     // Initialize theme
     if (savedTheme) {
         // User has manually set theme
@@ -70,11 +75,11 @@ function initThemeToggle() {
         // No manual setting, but system prefers dark mode
         body.classList.add('dark-mode');
     }
-    
+
     // Toggle theme
     themeToggle.addEventListener('click', () => {
         const isDarkMode = body.classList.contains('dark-mode');
-        
+
         if (isDarkMode) {
             // Switch to light mode
             body.classList.remove('dark-mode');
@@ -88,14 +93,14 @@ function initThemeToggle() {
             localStorage.setItem('theme-preference', 'dark');
             updateThemeColor('#1f2937');
         }
-        
+
         // Add toggle animation effect
         themeToggle.style.transform = 'scale(0.9)';
         setTimeout(() => {
             themeToggle.style.transform = 'scale(1)';
         }, 150);
     });
-    
+
     // Listen for system theme changes (only effective when no manual setting)
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     function handleSystemThemeChange(e) {
@@ -109,15 +114,15 @@ function initThemeToggle() {
             }
         }
     }
-    
+
     if (mediaQuery.addEventListener) {
         mediaQuery.addEventListener('change', handleSystemThemeChange);
     } else if (mediaQuery.addListener) {
         mediaQuery.addListener(handleSystemThemeChange);
     }
-    
+
     // Reset theme preference function (optional)
-    window.resetThemePreference = function() {
+    window.resetThemePreference = function () {
         localStorage.removeItem('theme-preference');
         body.classList.remove('theme-manual', 'dark-mode');
         // Recheck system preference
@@ -147,29 +152,29 @@ function initNativeDropdown() {
     const languageToggle = document.getElementById('language-toggle');
     const languageSelector = document.querySelector('.language-selector');
     const dropdown = document.getElementById('language-dropdown');
-    
+
     if (!languageToggle || !languageSelector || !dropdown) return;
-    
+
     // Toggle dropdown on button click
     languageToggle.addEventListener('click', (e) => {
         e.stopPropagation();
         languageSelector.classList.toggle('active');
     });
-    
+
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
         if (!languageSelector.contains(e.target)) {
             languageSelector.classList.remove('active');
         }
     });
-    
+
     // Close dropdown when pressing Escape
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             languageSelector.classList.remove('active');
         }
     });
-    
+
     // Close dropdown after selecting language
     const dropdownItems = dropdown.querySelectorAll('.dropdown-item');
     dropdownItems.forEach(item => {
@@ -186,7 +191,7 @@ function initAreaDetection() {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', TMPLINK_API_TOKEN, true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    
+
     xhr.onreadystatechange = () => {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 200) {
@@ -197,7 +202,7 @@ function initAreaDetection() {
             }
         }
     };
-    
+
     const params = new URLSearchParams();
     params.append('action', 'set_area');
     xhr.send(params.toString());
@@ -218,10 +223,10 @@ function handleChinaMainlandRedirect() {
  */
 function initScrollEffects() {
     let ticking = false;
-    
+
     function updateScrollEffects() {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        
+
         // Hide/show language selector based on scroll position
         const languageBtn = document.getElementById('translater-btn');
         if (languageBtn) {
@@ -231,24 +236,24 @@ function initScrollEffects() {
                 languageBtn.style.display = 'block';
             }
         }
-        
+
         // Parallax effect for hero section
         const hero = document.getElementById('hero');
         if (hero && scrollTop < window.innerHeight) {
             const parallaxSpeed = 0.5;
             hero.style.transform = `translateY(${scrollTop * parallaxSpeed}px)`;
         }
-        
+
         ticking = false;
     }
-    
+
     function requestTick() {
         if (!ticking) {
             requestAnimationFrame(updateScrollEffects);
             ticking = true;
         }
     }
-    
+
     window.addEventListener('scroll', requestTick, { passive: true });
 }
 
@@ -260,23 +265,23 @@ function initIntersectionObserver() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         return;
     }
-    
+
     // Skip if IntersectionObserver is not supported
     if (!window.IntersectionObserver) {
         return;
     }
-    
+
     const observerOptions = {
         root: null,
         rootMargin: '0px 0px -100px 0px',
         threshold: 0.1
     };
-    
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('animate-in');
-                
+
                 // Add staggered animation for feature boxes
                 if (entry.target.classList.contains('feature-box')) {
                     const siblings = Array.from(entry.target.parentElement.children);
@@ -286,7 +291,7 @@ function initIntersectionObserver() {
             }
         });
     }, observerOptions);
-    
+
     // Observe elements that should animate in
     const animateElements = document.querySelectorAll('.feature-box, .about-content, .feature-row');
     animateElements.forEach(el => {
@@ -301,7 +306,7 @@ function initMenubarXTracking() {
     if (localStorage.getItem('from_menubarx') === null) {
         const url = new URL(location.href);
         const s = url.searchParams.get('s');
-        
+
         if (s === 'mx') {
             localStorage.setItem('from_menubarx', '1');
         } else {
@@ -321,14 +326,14 @@ function langset(lang) {
         'hk': '繁体中文',
         'jp': '日本語'
     };
-    
+
     const selectedLangElement = document.querySelector('.selected_lang');
     if (selectedLangElement) {
         selectedLangElement.textContent = langMap[lang] || 'English';
     }
-    
+
     app.languageSet(lang);
-    
+
     // Wait for language data to be loaded, then update button text
     setTimeout(() => {
         updateButtonLanguage();
@@ -342,7 +347,7 @@ function Login() {
     // Add smooth transition effect
     document.body.style.opacity = '0.7';
     document.body.style.transition = 'opacity 0.3s ease';
-    
+
     setTimeout(() => {
         const url = '/?tmpui_page=/app&listview=preload';
         location.href = url;
@@ -355,12 +360,12 @@ function Login() {
 async function autoLogin() {
     const apiToken = localStorage.getItem('app_token');
     const startButton = document.querySelector('#index_start');
-    
+
     if (!startButton) return;
-    
+
     // Show modern loading state
     showLoadingState(startButton);
-    
+
     if (apiToken) {
         try {
             const response = await fetch(TMPLINK_API_USER, {
@@ -373,7 +378,7 @@ async function autoLogin() {
                     token: apiToken
                 })
             });
-            
+
             if (response.ok) {
                 const responseData = await response.json();
                 if (responseData.status === 1) {
@@ -475,7 +480,7 @@ function ensureSectionsVisible() {
             console.warn(`Section ${selector} not found`);
         }
     });
-    
+
     // Additional check for main element
     const main = document.querySelector('#main');
     if (main) {
@@ -515,7 +520,7 @@ function sendAnalytics() {
 function setThemeColor() {
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     if (!themeColorMeta) return;
-    
+
     // Check if there's a saved theme preference
     const savedTheme = localStorage.getItem('theme-preference');
     if (savedTheme) {
@@ -577,27 +582,27 @@ if (document.readyState === 'loading') {
 function initMobileVideoDisable() {
     // Check if device is mobile
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-                     window.innerWidth <= 768 ||
-                     ('ontouchstart' in window);
-    
+        window.innerWidth <= 768 ||
+        ('ontouchstart' in window);
+
     if (isMobile) {
         const videoElement = document.querySelector('.hero-video');
         const videoBackground = document.querySelector('.hero-video-background');
-        
+
         if (videoElement && videoBackground) {
             // Remove the video element
             videoElement.remove();
-            
+
             // Add mobile-specific class for styling
             videoBackground.classList.add('mobile-no-video');
-            
+
             // Ensure fallback background is visible
             const fallback = videoBackground.querySelector('.video-fallback');
             if (fallback) {
                 fallback.style.display = 'block';
                 fallback.style.opacity = '1';
             }
-            
+
             console.log('Video disabled for mobile device');
         }
     }
