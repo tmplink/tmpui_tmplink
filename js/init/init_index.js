@@ -7,8 +7,8 @@ setThemeColor();
 let hostname = window.location.hostname;
 
 if (hostname === 'www.ttttt.link' || hostname === '127.0.0.1') {
-    var TMPLINK_API_USER = 'https://tmplink-sec.vxtrans.com/api_v2/user';
-    var TMPLINK_API_TOKEN = 'https://tmplink-sec.vxtrans.com/api_v2/token';
+    var TMPLINK_API_USER = 'https://connect.cntmp.link/api_v2/user';
+    var TMPLINK_API_TOKEN = 'https://connect.cntmp.link/api_v2/token';
 } else {
     var TMPLINK_API_USER = 'https://tmp-api.vx-cdn.com/api_v2/user';
     var TMPLINK_API_TOKEN = 'https://tmp-api.vx-cdn.com/api_v2/token';

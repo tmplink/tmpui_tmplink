@@ -194,7 +194,7 @@ class tmplink {
     init_api(){
         let hostname = window.location.hostname;
         if (hostname === 'www.ttttt.link' || hostname === '127.0.0.1') {
-            this.api_url = 'https://tmplink-sec.vxtrans.com/api_v2'
+            this.api_url = 'https://connect.cntmp.link/api_v2'
         }
         
         // 更新所有依赖的 API 地址
