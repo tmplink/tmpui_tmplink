@@ -7,15 +7,19 @@ class BingWallpaperManager {
         this.cacheKey = 'bing_wallpaper_cache';
         this.lastUpdateKey = 'bing_wallpaper_last_update';
         this.updateInterval = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
+        // this.localWallpapers = [
+        //     '/img/bimg/wallpaper_1.jpg',
+        //     '/img/bimg/wallpaper_2.jpg',
+        //     '/img/bimg/wallpaper_3.jpg',
+        //     '/img/bimg/wallpaper_4.jpg',
+        //     '/img/bimg/wallpaper_5.jpg',
+        //     '/img/bimg/wallpaper_6.jpg',
+        //     '/img/bimg/wallpaper_7.jpg',
+        //     '/img/bimg/wallpaper_8.jpg'
+        // ];
         this.localWallpapers = [
-            '/img/bimg/wallpaper_1.jpg',
-            '/img/bimg/wallpaper_2.jpg',
-            '/img/bimg/wallpaper_3.jpg',
-            '/img/bimg/wallpaper_4.jpg',
-            '/img/bimg/wallpaper_5.jpg',
-            '/img/bimg/wallpaper_6.jpg',
-            '/img/bimg/wallpaper_7.jpg',
-            '/img/bimg/wallpaper_8.jpg'
+            '/img/bg/wallpaper_1.jpg',
+            '/img/bg/wallpaper_2.jpg'
         ];
         this.currentWallpaperIndexKey = 'bing_wallpaper_current_index';
     }

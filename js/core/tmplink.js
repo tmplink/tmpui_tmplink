@@ -71,8 +71,8 @@ class tmplink {
     mybg_light_key = 0
     mybg_dark_key = 0
     system_background = {
-        'light': ['/img/bg/light.svg'],
-        'dark': ['/img/bg/dark.svg']
+        'light': ['/img/bg/new-bg-light.svg'],
+        'dark': ['/img/bg/new-bg-dark.svg']
     }
 
     //GA title
@@ -351,26 +351,8 @@ class tmplink {
             this.matchNightModelListener((night) => {
                 this.bgLoadImg1(night);
             });
-            
-            // After loading original background, immediately check for Bing wallpaper
-            this.checkAndLoadBingWallpaper();
         }
         this.bgLoaded = true;
-    }
-    
-    checkAndLoadBingWallpaper() {
-        // Check if user has custom wallpaper set
-        if (this.mybg_light !== 0 || this.mybg_dark !== 0) {
-            console.log('User has custom wallpaper, skipping Bing wallpaper');
-            return;
-        }
-        
-        // Initialize Bing wallpaper manager if available and not initialized
-        if (window.bingWallpaperManager && !window.bingWallpaperManager._initialized) {
-            console.log('Initializing Bing wallpaper manager...');
-            window.bingWallpaperManager.init();
-            window.bingWallpaperManager._initialized = true;
-        }
     }
 
     bgLoadImg1(night) {
