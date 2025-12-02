@@ -593,6 +593,7 @@
     "filepage_publicby_0": "このフォルダは",
     "filepage_publicby_1": "このファイルは",
     "filepage_publicby_2": "によって共有されています",
+    "filepage_sharer_badge": "共有者",
     "init_fail": "初期化に失敗しました<br>ネットワークを確認してください",
     "product_name": "タイディスク",
     "sort_title": "ソート",

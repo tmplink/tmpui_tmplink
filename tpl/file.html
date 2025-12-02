@@ -1,12 +1,28 @@
-<div style="height: 40px;"></div>
-<!-- <div class="loading-box" id="loading_box" style="display: none;">
-    <div class="text-center" style="border-radius: 10px;padding: 10px;">
-        <img src="/img/loading.svg" height="80" />
-    </div>
-</div> -->
+<style>
+/* 覆盖全局背景，包括 body 和 footer */
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%) !important;
+}
 
-<div class="container d-flex flex-grow-1">
-    <div class="align-self-center w-100" id="file-view">
+.light-file-page {
+    min-height: 100vh;
+    background: transparent;
+}
+
+/* Footer 透明化处理 */
+#tpl_footer {
+    background: transparent !important;
+}
+
+#tpl_footer * {
+    background: transparent !important;
+}
+</style>
+
+<div class="light-file-page">
+    <div class="container d-flex flex-grow-1">
+        <div class="align-self-center w-100" id="file-view">
+        </div>
     </div>
 </div>
 <div id="tpl_footer"></div>
