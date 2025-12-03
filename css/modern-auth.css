@@ -232,25 +232,42 @@
         padding: 1.5rem 2rem !important;
     }
     
-    .modal-body ul {
+    /* Email domain list specific styling */
+    .modal-body .area_global ul,
+    .modal-body .area_cn ul,
+    .modal-body ul.email-domain-list {
         display: grid !important;
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
         gap: 8px !important;
         list-style: none !important;
         padding: 0 !important;
+        margin: 0 !important;
     }
     
-    .modal-body li {
+    .modal-body .area_global li,
+    .modal-body .area_cn li,
+    .modal-body ul.email-domain-list li {
         padding: 8px 12px !important;
         background: #f8f9fb !important;
         border-radius: 8px !important;
         font-family: monospace !important;
         font-size: 14px !important;
         text-align: center !important;
+        border: none !important;
+        box-shadow: none !important;
     }
     
-    .modal-body li:hover {
+    .modal-body .area_global li::before,
+    .modal-body .area_cn li::before,
+    .modal-body ul.email-domain-list li::before {
+        display: none !important;
+    }
+    
+    .modal-body .area_global li:hover,
+    .modal-body .area_cn li:hover,
+    .modal-body ul.email-domain-list li:hover {
         background: #e8ecf4 !important;
+        transform: none !important;
     }
     
     /* Area specific styling */

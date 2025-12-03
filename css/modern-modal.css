@@ -84,6 +84,102 @@
     line-height: 1.6 !important;
 }
 
+/* Beautiful list styles for modal - Card-style grid layout */
+.modal-body ul,
+.modal-body ol {
+    margin: 16px 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+    gap: 12px !important;
+}
+
+.modal-body ul li,
+.modal-body ol li {
+    position: relative !important;
+    padding: 16px 16px 16px 44px !important;
+    margin: 0 !important;
+    color: #374151 !important;
+    line-height: 1.5 !important;
+    font-size: 14px !important;
+    background: #f8fafc !important;
+    border-radius: 12px !important;
+    border: 1px solid #e2e8f0 !important;
+    transition: all 0.2s ease !important;
+    min-height: 56px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.modal-body ul li:hover,
+.modal-body ol li:hover {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+}
+
+/* Custom bullet points for unordered lists - always vertically centered */
+.modal-body ul li::before {
+    content: '' !important;
+    position: absolute !important;
+    left: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 10px !important;
+    height: 10px !important;
+    background: #6366f1 !important;
+    border-radius: 50% !important;
+    box-shadow: none !important;
+}
+
+/* Custom numbers for ordered lists */
+.modal-body ol {
+    counter-reset: modal-list !important;
+}
+
+.modal-body ol li {
+    counter-increment: modal-list !important;
+}
+
+.modal-body ol li::before {
+    content: counter(modal-list) !important;
+    position: absolute !important;
+    left: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 22px !important;
+    height: 22px !important;
+    background: #6366f1 !important;
+    border-radius: 50% !important;
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: none !important;
+}
+
+/* Single column layout for fewer items or specific modals */
+.modal-body ul.list-vertical,
+.modal-body ol.list-vertical {
+    grid-template-columns: 1fr !important;
+}
+
+/* Responsive: single column on small screens */
+@media (max-width: 576px) {
+    .modal-body ul,
+    .modal-body ol {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .modal-body ul li,
+    .modal-body ol li {
+        padding: 14px 14px 14px 40px !important;
+        min-height: 48px !important;
+    }
+}
+
 /* Modern modal footer */
 .modal-footer {
     background: transparent !important;
@@ -154,6 +250,28 @@
 
     .modal-body {
         color: #d1d5db !important;
+    }
+
+    /* List styles for dark mode */
+    .modal-body ul li,
+    .modal-body ol li {
+        color: #e5e7eb !important;
+        background: #374151 !important;
+        border-color: #4b5563 !important;
+    }
+
+    .modal-body ul li:hover,
+    .modal-body ol li:hover {
+        background: #4b5563 !important;
+        border-color: #6b7280 !important;
+    }
+
+    .modal-body ul li::before {
+        background: #818cf8 !important;
+    }
+
+    .modal-body ol li::before {
+        background: #818cf8 !important;
     }
 
     .modal-footer {
