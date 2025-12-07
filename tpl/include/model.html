@@ -993,58 +993,6 @@
                     </li>
                 </script>
 
-                <style>
-                    /* 为模态框主体添加滚动条 */
-                    #movefileModal .modal-body {
-                        max-height: 90vh;
-                        /* 视窗高度的90% */
-                        overflow-y: auto;
-                        /* 垂直方向内容溢出时显示滚动条 */
-                        padding: 16px;
-                    }
-
-                    /* 确保内容不会因为滚动条而显示异常 */
-                    #movefileModal .modal-content {
-                        height: auto;
-                        max-height: 95vh;
-                        /* 整个模态框不超过视窗高度的85% */
-                    }
-
-                    .folder-item {
-                        cursor: pointer;
-                        border-radius: 4px;
-                        transition: background-color 0.2s;
-                        padding: 8px 12px !important;
-                        margin: 0;
-                    }
-
-                    .folder-item:hover {
-                        background-color: rgba(0, 123, 255, 0.1);
-                    }
-
-                    .folder-item.selected {
-                        background-color: rgba(0, 123, 255, 0.2);
-                        font-weight: 500;
-                    }
-
-                    /* 统一图标容器宽度 */
-                    .icon-wrapper {
-                        display: inline-block;
-                        width: 24px;
-                        text-align: center;
-                    }
-
-                    /* 统一子文件夹缩进 */
-                    ul[id^="mv_box_"] {
-                        padding-left: 24px;
-                    }
-
-                    /* 修复模态框内边距 */
-                    #movefileModal .modal-body {
-                        padding: 16px;
-                    }
-                </style>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal" i18n="model_btn_cancel">.</button>
