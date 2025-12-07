@@ -58,6 +58,14 @@
     list-style: none !important;
 }
 
+/* 允许 jQuery 的 slideUp/slideDown 控制显示状态 */
+#movefileModal .modal-body ul[style*="display: none"],
+#movefileModal .modal-body ul[style*="display:none"],
+#movefileModal ul[id^="mv_box_"][style*="display: none"],
+#movefileModal ul[id^="mv_box_"][style*="display:none"] {
+    display: none !important;
+}
+
 #movefileModal .modal-body ul li,
 #movefileModal .modal-body ol li,
 #movefileModal .modal-body .list-unstyled {
