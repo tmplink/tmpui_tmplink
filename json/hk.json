@@ -656,6 +656,8 @@
     "model_title_folder_title": "建立檔案夾",
     "model_title_folder_name": "請輸入檔案夾的名稱",
     "model_title_move_to": "移動到檔案夾",
+    "move_folder_search_placeholder": "搜尋檔案夾...",
+    "move_folder_no_result": "未找到符合的檔案夾",
     "model_title_alert": "提示",
     "model_title_room_mrfile": "添加檔案到檔案夾",
     "model_title_room_mrfile_loading": "正在處理",

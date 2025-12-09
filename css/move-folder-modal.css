@@ -348,3 +348,174 @@ body.dark-mode #movefileModal .modal-footer .btn-default:hover {
 #movefileModal.loading #mv_box_0 {
     display: none !important;
 }
+
+/* =============================================
+   搜索框样式
+   ============================================= */
+
+#movefileModal .mv-search-wrapper {
+    position: sticky;
+    top: 0;
+    background: inherit;
+    z-index: 10;
+    padding-bottom: 8px;
+}
+
+#movefileModal .mv-search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#movefileModal .mv-search-icon {
+    position: absolute;
+    left: 12px;
+    color: #9ca3af;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+#movefileModal .mv-search-input {
+    width: 100%;
+    padding: 10px 36px 10px 38px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #374151;
+    background-color: #f9fafb;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+#movefileModal .mv-search-input:focus {
+    border-color: #6366f1;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+#movefileModal .mv-search-input::placeholder {
+    color: #9ca3af;
+}
+
+#movefileModal .mv-search-clear {
+    position: absolute;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#movefileModal .mv-search-clear:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #6b7280;
+}
+
+/* 暗色模式搜索框 */
+body.dark-mode #movefileModal .mv-search-input {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+}
+
+body.dark-mode #movefileModal .mv-search-input:focus {
+    border-color: #818cf8;
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+}
+
+body.dark-mode #movefileModal .mv-search-input::placeholder {
+    color: #6b7280;
+}
+
+body.dark-mode #movefileModal .mv-search-icon {
+    color: #6b7280;
+}
+
+body.dark-mode #movefileModal .mv-search-clear {
+    color: #6b7280;
+}
+
+body.dark-mode #movefileModal .mv-search-clear:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #9ca3af;
+}
+
+/* =============================================
+   搜索结果样式
+   ============================================= */
+
+#movefileModal #mv_search_results {
+    display: block;
+}
+
+#movefileModal .search-result-item {
+    flex-direction: row;
+    align-items: flex-start !important;
+}
+
+#movefileModal .search-result-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+#movefileModal .search-result-item .folder-name {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+#movefileModal .search-result-item .folder-path {
+    font-size: 12px;
+    color: #9ca3af;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#movefileModal .search-result-item.selected .folder-name {
+    color: #4f46e5;
+}
+
+#movefileModal .search-result-item.selected .folder-path {
+    color: #6366f1;
+}
+
+/* 无搜索结果 */
+#movefileModal .mv-no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+/* 暗色模式搜索结果 */
+body.dark-mode #movefileModal .search-result-item .folder-name {
+    color: #e5e7eb;
+}
+
+body.dark-mode #movefileModal .search-result-item .folder-path {
+    color: #6b7280;
+}
+
+body.dark-mode #movefileModal .search-result-item.selected .folder-name {
+    color: #a5b4fc;
+}
+
+body.dark-mode #movefileModal .search-result-item.selected .folder-path {
+    color: #818cf8;
+}
+
+body.dark-mode #movefileModal .mv-no-results {
+    color: #6b7280;
+}

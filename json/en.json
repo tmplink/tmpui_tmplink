@@ -537,6 +537,8 @@
     "on_select_move": "Move to folder",
     "on_select_change_model": "Change expiration time",
     "model_title_move_to": "Move to folder",
+    "move_folder_search_placeholder": "Search folders...",
+    "move_folder_no_result": "No matching folders found",
     "status_error_12": "Please select a file.",
     "status_error_13": "Please select the destination folder.",
     "status_error_14": "Your account currently has no folders.",

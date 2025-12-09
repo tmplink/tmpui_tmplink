@@ -856,6 +856,95 @@ treeShowNew(parent) {
     }
 }
 
+    // 搜索文件夹功能
+    searchFolder(keyword) {
+        keyword = keyword.trim().toLowerCase();
+        
+        if (keyword === '') {
+            this.clearSearch();
+            return;
+        }
+        
+        // 显示清除按钮
+        $('#mv_search_clear').show();
+        
+        // 搜索匹配的文件夹
+        const results = [];
+        for (let i in this.dir_tree) {
+            const folder = this.dir_tree[i];
+            if (folder.name.toLowerCase().includes(keyword)) {
+                // 构建文件夹路径
+                const path = this.buildFolderPath(folder.id);
+                results.push({
+                    id: folder.id,
+                    name: folder.name,
+                    path: path
+                });
+            }
+        }
+        
+        // 显示搜索结果
+        this.showSearchResults(results, keyword);
+    }
+    
+    // 构建文件夹路径
+    buildFolderPath(folderId) {
+        const pathParts = [];
+        let currentId = folderId;
+        
+        // 向上遍历构建路径
+        while (currentId != 0) {
+            const folder = this.dir_tree.find(f => f.id == currentId);
+            if (!folder) break;
+            pathParts.unshift(folder.name);
+            currentId = folder.parent;
+        }
+        
+        return '/' + pathParts.join('/');
+    }
+    
+    // 显示搜索结果
+    showSearchResults(results, keyword) {
+        const $searchResults = $('#mv_search_results');
+        const $treeWrapper = $('#mv_tree_wrapper');
+        
+        // 隐藏树形结构，显示搜索结果
+        $treeWrapper.hide();
+        $searchResults.show();
+        
+        if (results.length === 0) {
+            const noResultText = app.languageData.move_folder_no_result || '未找到匹配的文件夹';
+            $searchResults.html(`<div class="mv-no-results">${noResultText}</div>`);
+            return;
+        }
+        
+        // 渲染搜索结果
+        let html = '';
+        for (let result of results) {
+            html += app.tpl('mv_search_result_tpl', result);
+        }
+        $searchResults.html(html);
+    }
+    
+    // 清除搜索
+    clearSearch() {
+        $('#mv_search_input').val('');
+        $('#mv_search_clear').hide();
+        $('#mv_search_results').hide().empty();
+        $('#mv_tree_wrapper').show();
+        
+        // 清除搜索结果中的选中状态，但保留树形结构中的选中状态
+        $('.search-result-item').removeClass('selected');
+    }
+    
+    // 搜索结果点击事件
+    searchResultClick(id) {
+        // 清除所有选中状态
+        $('.folder-item').removeClass('selected');
+        // 选中当前项
+        $(`#search_item_${id}`).addClass('selected');
+    }
+
 
     loadingON() {
         $('#loading_box').show();

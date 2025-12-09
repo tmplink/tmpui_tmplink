@@ -974,7 +974,41 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div id="mv_box_0" class="form-check pl-0"></div>
+                <!-- 搜索框 -->
+                <div class="mv-search-wrapper mb-3">
+                    <div class="mv-search-input-wrapper">
+                        <iconpark-icon name="search" class="mv-search-icon"></iconpark-icon>
+                        <input type="text" id="mv_search_input" class="mv-search-input" 
+                               placeholder="搜索文件夹..." i18n-placeholder="move_folder_search_placeholder"
+                               oninput="TL.dir.searchFolder(this.value)">
+                        <button type="button" id="mv_search_clear" class="mv-search-clear" 
+                                onclick="TL.dir.clearSearch()" style="display: none;">
+                            <iconpark-icon name="close-small"></iconpark-icon>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 搜索结果区域 -->
+                <div id="mv_search_results" style="display: none;"></div>
+                
+                <!-- 树形结构区域 -->
+                <div id="mv_tree_wrapper">
+                    <div id="mv_box_0" class="form-check pl-0"></div>
+                </div>
+
+                <!-- 搜索结果模板 -->
+                <script type="text/template" id="mv_search_result_tpl">
+                    <div id="search_item_<% obj.id %>" class="folder-item search-result-item d-flex align-items-center p-2" 
+                         data-id="<% obj.id %>" onclick="TL.dir.searchResultClick('<% obj.id %>')">
+                        <span class="icon-wrapper mr-2">
+                            <iconpark-icon name="folder" class="fa-fw"></iconpark-icon>
+                        </span>
+                        <div class="search-result-info">
+                            <span class="folder-name"><% obj.name %></span>
+                            <span class="folder-path"><% obj.path %></span>
+                        </div>
+                    </div>
+                </script>
 
                 <script type="text/template" id="mv_box_tpl">
                     <li class="list-unstyled">

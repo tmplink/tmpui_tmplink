@@ -562,6 +562,8 @@
     "index_dd2": "クライアントは必要ありません",
     "index_dd3": "5GB のストレージスペースを楽しむために登録してください",
     "model_title_move_to": "フォルダに移動",
+    "move_folder_search_placeholder": "フォルダを検索...",
+    "move_folder_no_result": "一致するフォルダが見つかりません",
     "status_error_12": "ファイルを選択してください。",
     "status_error_13": "宛先フォルダを選択してください。",
     "status_error_14": "現在,アカウントにフォルダはありません。",
