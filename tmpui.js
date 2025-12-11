@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 55
+ * version: 56
  * Github : https://github.com/tmplink/tmpUI
- * Date :2025-01-19
+ * Date :2025-12-11
  */
 
 class tmpUI {
@@ -76,9 +76,6 @@ class tmpUI {
 
         //初始化CSS
         this.cssInit();
-        
-        //设置template方法别名
-        this.template = this.tpl.bind(this);
 
         //Checking
         window.onload = () => {
@@ -114,6 +111,49 @@ class tmpUI {
      */
     setCoustomRouter(page, router) {
         this.customRouter[page] = router;
+    }
+
+    /**
+     * 清理外部元素
+     * 在页面跳转时，移除 body 下所有非 tmpUI 框架管理的元素
+     * 这包括第三方库动态添加的遮罩层、弹窗容器等
+     */
+    cleanupExternalElements() {
+        // tmpUI 框架保留的元素 ID 列表
+        const preserveIds = ['tmpui', 'tmpui_body', 'tmpui_loading_bg', 'tmpui_loading_show'];
+        
+        // 遍历 body 的直接子元素
+        const bodyChildren = Array.from(document.body.children);
+        bodyChildren.forEach(el => {
+            // 保留 script 和 style 标签
+            if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE' || el.tagName === 'NOSCRIPT') {
+                return;
+            }
+            // 保留带有 tmpui 相关 ID 的元素
+            if (el.id && preserveIds.includes(el.id)) {
+                return;
+            }
+            // 保留带有 tmpUIRes 或 tmpUIRes_once class 的元素（tmpUI 资源）
+            if (el.classList.contains('tmpUIRes') || el.classList.contains('tmpUIRes_once')) {
+                return;
+            }
+            // 移除其他非框架元素
+            el.remove();
+        });
+        
+        // 清理 body 上可能被第三方库添加的 class 和内联样式
+        // 保留 tmpUI 可能使用的 class
+        const bodyClasses = Array.from(document.body.classList);
+        bodyClasses.forEach(cls => {
+            // 移除非 tmpui 相关的 class
+            if (!cls.startsWith('tmpui')) {
+                document.body.classList.remove(cls);
+            }
+        });
+        
+        // 清理 body 的内联样式
+        document.body.style.removeProperty('overflow');
+        document.body.style.removeProperty('padding-right');
     }
 
     cssInit() {
@@ -454,6 +494,9 @@ class tmpUI {
 
         //
         this.pageReady = false;
+
+        // 清理外部元素：移除非框架添加的 DOM 结构
+        this.cleanupExternalElements();
 
         //获取参数
         let href = window.location.href;
@@ -822,11 +865,6 @@ class tmpUI {
 
         this.domSelect('[i18n]', (dom) => {
             let i18nOnly = dom.getAttribute("i18n-only");
-            if (dom.value != null && dom.value != "") {
-                if (i18nOnly == null || i18nOnly == undefined || i18nOnly == "" || i18nOnly == "value") {
-                    dom.value = i18nLang[dom.getAttribute("i18n")];
-                }
-            }
             if (dom.innerHTML != null && dom.innerHTML != "") {
                 if (i18nOnly == null || i18nOnly == undefined || i18nOnly == "" || i18nOnly == "html") {
                     dom.innerHTML = i18nLang[dom.getAttribute("i18n")];
@@ -847,7 +885,58 @@ class tmpUI {
                     dom.setAttribute('title', i18nLang[dom.getAttribute("i18n")]);
                 }
             }
+            if (dom.value != null && dom.value != "") {
+                if (i18nOnly == "value") {
+                    dom.value = i18nLang[dom.getAttribute("i18n")];
+                }
+            }
         });
+    }
+
+    /**
+     * 在返回模板内容前进行即时语言替换，避免先出现原始中文再闪烁为目标语言。
+     * 仅对带有 i18n 属性的元素按与 languageBuild 相同规则替换，不修改缓存原文。
+     * @param {string} html 原始模板 HTML
+     * @returns {string} 翻译后的 HTML
+     */
+    languageTranslateHtml(html) {
+        if (!html || !this.languageData) return html;
+        try {
+            // 使用 DOMParser 包装一层，避免影响顶级多个节点结构
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(`<div id="__tmp_lang_wrap">${html}</div>`, 'text/html');
+            const wrap = doc.getElementById('__tmp_lang_wrap');
+            const i18nLang = this.languageData;
+            wrap.querySelectorAll('[i18n]').forEach(dom => {
+                const key = dom.getAttribute('i18n');
+                if (!key || i18nLang[key] === undefined) return; // 未找到键保持原样
+                const i18nOnly = dom.getAttribute('i18n-only');
+                // innerHTML
+                if (dom.innerHTML != null && dom.innerHTML !== '' && (!i18nOnly || i18nOnly === 'html')) {
+                    dom.innerHTML = i18nLang[key];
+                }
+                // placeholder
+                if (dom.getAttribute('placeholder') && (!i18nOnly || i18nOnly === 'placeholder')) {
+                    dom.setAttribute('placeholder', i18nLang[key]);
+                }
+                // content
+                if (dom.getAttribute('content') && (!i18nOnly || i18nOnly === 'content')) {
+                    dom.setAttribute('content', i18nLang[key]);
+                }
+                // title
+                if (dom.getAttribute('title') && (!i18nOnly || i18nOnly === 'title')) {
+                    dom.setAttribute('title', i18nLang[key]);
+                }
+                // value (仅在明确指定 i18n-only="value" 时才翻译)
+                if (dom.value != null && dom.value !== '' && i18nOnly === 'value') {
+                    dom.value = i18nLang[key];
+                }
+            });
+            return wrap.innerHTML;
+        } catch (e) {
+            console.warn('languageTranslateHtml error', e);
+            return html; // 失败则返回原始内容
+        }
     }
 
     languageSetHead(langs) {
@@ -956,7 +1045,9 @@ class tmpUI {
     }
 
     getFile(url) {
-        return this.filesCache[url];
+        const raw = this.filesCache[url];
+        // 如果已有语言数据，实时翻译（不修改缓存原文，便于语言切换后重新翻译）
+        return this.languageTranslateHtml(raw);
     }
 
     tpl(id, data) {
@@ -965,37 +1056,37 @@ class tmpUI {
             console.error('templateEngine::Element not found with id: ' + id);
             return '';
         }
-        
+
         const html = element.innerHTML;
         if (!html) {
             console.error('templateEngine::Template content is empty');
             return '';
         }
-    
+
         try {
             var re = /<%(.+?)%>/g,
                 reExp = /(^( )?(var|if|for|else|switch|case|break|{|}|;))(.*)?/g,
                 code = 'try { with(obj) { var r=[];\n',
                 cursor = 0,
                 match;
-    
-            var add = function(line, js) {
+
+            var add = function (line, js) {
                 js ? (code += line.match(reExp) ? line + '\n' : 'r.push(' + line + ');\n') :
                     (code += line != '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");\n' : '');
                 return add;
             }
-    
+
             while (match = re.exec(html)) {
                 add(html.slice(cursor, match.index))(match[1], true);
                 cursor = match.index + match[0].length;
             }
             add(html.substr(cursor, html.length - cursor));
-    
+
             code = (code + 'return r.join(""); }} catch(e) { throw e; }').replace(/[\r\t\n]/g, '');
-            
+
             let result = new Function('obj', code).apply(data, [data]);
             return result;
-            
+
         } catch (e) {
             let errorMessage = `
                 <div class="template-error" style="
@@ -1013,7 +1104,7 @@ class tmpUI {
                         <strong>Message:</strong> ${e.message}<br>
                     </div>
                 </div>`;
-    
+
             console.error('Template Error in element #' + id + ':\n', e);
             return errorMessage;
         }
