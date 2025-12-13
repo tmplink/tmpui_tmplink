@@ -511,7 +511,7 @@ var PHOTO = {
     },
 
     /**
-     * Render photos
+     * Render photos with fade-in animation
      */
     renderPhotos: function(photos) {
         if (photos.length === 0) return;
@@ -868,13 +868,18 @@ var PHOTO = {
         // Reset rotation
         $('#lightbox-image').css('transform', 'rotate(0deg)');
         
-        // Show loading placeholder
+        // Show loading, clear image
+        $('#lightbox-loading').removeClass('hidden');
         $('#lightbox-image').attr('src', '');
         
         // Load image
         const img = new Image();
         img.onload = () => {
             $('#lightbox-image').attr('src', imageUrl);
+            $('#lightbox-loading').addClass('hidden');
+        };
+        img.onerror = () => {
+            $('#lightbox-loading').addClass('hidden');
         };
         img.src = imageUrl;
         
