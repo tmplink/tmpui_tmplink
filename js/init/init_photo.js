@@ -22,6 +22,7 @@ var PHOTO = {
     hasMore: true,
     isSelectMode: false,
     selectedItems: new Set(),
+    downloader: null,
     gridSize: 'normal', // 'small', 'normal', 'large'
     
     // AutoLoader for workspace mode
@@ -62,6 +63,9 @@ var PHOTO = {
         this.hasMore = true;
         this.isSelectMode = false;
         this.selectedItems.clear();
+
+        // Prepare downloader
+        this.ensureDownloader();
         
         // Clean up previous autoLoader if exists
         if (this.autoLoader) {
@@ -510,6 +514,29 @@ var PHOTO = {
         $('#album-grid').append(html);
     },
 
+    bindPhotoImageLoading: function(photos) {
+        if (!photos || photos.length === 0) return;
+
+        photos.forEach((photo) => {
+            const index = this.photoList.indexOf(photo);
+            if (index === -1) return;
+
+            const card = $(`.photo-card[data-index="${index}"]`);
+            const img = card.find('.photo-card-image');
+            if (!card.length || !img.length) return;
+
+            const markLoaded = () => card.addClass('is-loaded');
+
+            img.one('load.photoalbum', markLoaded);
+            img.one('error.photoalbum', markLoaded);
+
+            if (img[0] && img[0].complete) {
+                // If already loaded from cache, mark immediately
+                markLoaded();
+            }
+        });
+    },
+
     /**
      * Render photos with fade-in animation
      */
@@ -521,7 +548,7 @@ var PHOTO = {
         
         photos.forEach((photo, idx) => {
             const globalIndex = this.photoList.indexOf(photo);
-            const thumbnail = `https://tmp-static.vx-cdn.com/img-${photo.ukey}-400x400.jpg`;
+            const thumbnail = `https://tmp-static.vx-cdn.com/img-${photo.ukey}-800x600.jpg`;
             const size = typeof bytetoconver === 'function' ? bytetoconver(photo.fsize, true) : photo.fsize;
             
             html += tpl
@@ -533,6 +560,9 @@ var PHOTO = {
         });
         
         $('#album-grid').append(html);
+
+        // Attach loading handlers for the appended photos
+        this.bindPhotoImageLoading(photos);
     },
 
     /**
@@ -772,15 +802,92 @@ var PHOTO = {
         this.navigateTo(mrid);
     },
 
+    ensureDownloader: function() {
+        if (!this.downloader) {
+            this.downloader = new download_photo();
+            this.downloader.init(TL);
+        }
+    },
+
+    getDownloadUI: function(index) {
+        if (typeof index !== 'number') return null;
+        const card = $(`.photo-card[data-index="${index}"]`);
+        if (!card.length) return null;
+
+        return {
+            card,
+            button: card.find('.photo-card-action'),
+            overlay: card.find('.photo-download-overlay'),
+            progress: card.find('.photo-download-progress-bar'),
+            status: card.find('[data-role="download-status"]')
+        };
+    },
+
+    resetDownloadUI: function(ui) {
+        if (!ui) return;
+        ui.card.removeClass('downloading');
+        ui.overlay.removeClass('active error');
+        ui.progress.css('width', '0%');
+        ui.status.text('');
+        ui.button.prop('disabled', false).removeClass('is-downloading');
+    },
+
+    formatBytesFallback: function(bytes) {
+        if (!bytes) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.min(sizes.length - 1, Math.floor(Math.log(bytes) / Math.log(k)));
+        const val = bytes / Math.pow(k, i);
+        return `${val.toFixed(2)} ${sizes[i]}`;
+    },
+
     /**
      * Download single photo by ukey
      */
-    downloadByUkey: async function(ukey) {
-        try {
-            const downloadUrl = await TL.download.get_download_url(ukey);
-            if (downloadUrl) {
-                window.location.href = downloadUrl;
+    downloadByUkey: async function(ukey, options = {}) {
+        this.ensureDownloader();
+
+        const ui = this.getDownloadUI(options.index);
+        const formatBytes = (val) => {
+            if (typeof bytetoconver === 'function') {
+                return bytetoconver(val, true);
             }
+            return this.formatBytesFallback(val);
+        };
+
+        const uiCallbacks = ui ? {
+            onStart: () => {
+                ui.card.addClass('downloading');
+                ui.overlay.addClass('active').removeClass('error');
+                ui.progress.css('width', '8%');
+                ui.status.text(app.languageData.download_preparing || '准备下载...');
+                ui.button.prop('disabled', true).addClass('is-downloading');
+            },
+            onProgress: (loaded, total) => {
+                const percent = total ? Math.min(100, Math.round((loaded / total) * 100)) : Math.min(95, Math.round((loaded / 1024) % 95));
+                ui.progress.css('width', `${percent}%`);
+                const loadedText = formatBytes(loaded);
+                const totalText = total ? formatBytes(total) : '';
+                ui.status.text(total ? `${loadedText} / ${totalText}` : loadedText);
+            },
+            onComplete: () => {
+                ui.progress.css('width', '100%');
+                ui.status.text(app.languageData.multi_download_finish || '下载完成');
+                setTimeout(() => this.resetDownloadUI(ui), 600);
+            },
+            onError: () => {
+                ui.overlay.addClass('error');
+                ui.status.text(app.languageData.multi_download_error || '下载失败');
+                setTimeout(() => this.resetDownloadUI(ui), 1200);
+            }
+        } : null;
+
+        try {
+            await this.downloader.download({
+                ukey,
+                filename: options.filename,
+                ui: uiCallbacks
+            });
         } catch (error) {
             console.error('Download failed:', error);
             TL.alert(app.languageData.download_error_retry || '下载失败，请重试');
@@ -793,7 +900,10 @@ var PHOTO = {
     downloadPhoto: function(index) {
         const photo = this.photoList[index];
         if (photo) {
-            this.downloadByUkey(photo.ukey);
+            this.downloadByUkey(photo.ukey, {
+                index,
+                filename: photo.fname
+            });
         }
     },
 
@@ -815,9 +925,10 @@ var PHOTO = {
         
         // 逐个下载
         for (const ukey of items) {
-            await this.downloadByUkey(ukey);
-            // 延迟一下避免触发太快
-            await new Promise(resolve => setTimeout(resolve, 500));
+            const index = this.photoList.findIndex(p => p.ukey === ukey);
+            const filename = index >= 0 ? this.photoList[index].fname : undefined;
+            await this.downloadByUkey(ukey, { index, filename });
+            await new Promise(resolve => setTimeout(resolve, 300));
         }
     },
 
@@ -827,7 +938,10 @@ var PHOTO = {
     downloadCurrent: function() {
         const photo = this.photoList[this.lightboxIndex];
         if (photo) {
-            this.downloadByUkey(photo.ukey);
+            this.downloadByUkey(photo.ukey, {
+                index: this.lightboxIndex,
+                filename: photo.fname
+            });
         }
     },
 
@@ -900,7 +1014,7 @@ var PHOTO = {
         let html = '';
         
         this.photoList.forEach((photo, index) => {
-            const thumbnail = `https://tmp-static.vx-cdn.com/img-${photo.ukey}-100x100.jpg`;
+            const thumbnail = `https://tmp-static.vx-cdn.com/img-${photo.ukey}-128x128.jpg`;
             const active = index === this.lightboxIndex ? 'active' : '';
             
             html += tpl

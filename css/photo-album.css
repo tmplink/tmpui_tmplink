@@ -560,6 +560,70 @@
     border-color: var(--album-danger);
 }
 
+/* Download Overlay */
+.photo-download-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--album-transition-fast);
+}
+
+.photo-download-overlay .photo-download-progress {
+    width: 80%;
+    max-width: 220px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: var(--album-radius-full);
+    overflow: hidden;
+}
+
+.photo-download-progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--album-accent), #4ade80);
+    transition: width 0.2s ease;
+}
+
+.photo-download-status {
+    color: #fff;
+    font-size: 12px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.photo-download-spinner {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    animation: spin 1s linear infinite;
+}
+
+.photo-download-overlay.error .photo-download-progress-bar {
+    background: linear-gradient(90deg, var(--album-danger), #f97316);
+}
+
+.photo-card.downloading .photo-download-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.photo-card.downloading .photo-card-actions {
+    opacity: 0.4;
+}
+
+.photo-card-action.is-downloading {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 /* Selection Checkbox */
 .photo-card-select {
     position: absolute;
@@ -601,6 +665,11 @@
     align-items: center;
     justify-content: center;
     background: var(--album-card-bg);
+    pointer-events: none;
+    opacity: 1;
+    visibility: visible;
+    transition: var(--album-transition-fast);
+    z-index: 2;
 }
 
 .photo-card-loading iconpark-icon {
@@ -609,9 +678,29 @@
     animation: pulse 1.5s ease-in-out infinite;
 }
 
+.photo-loading-spinner {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.4);
+    border-top-color: var(--album-accent);
+    animation: spin 0.9s linear infinite;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.photo-card.is-loaded .photo-card-loading {
+    opacity: 0;
+    visibility: hidden;
+}
+
 @keyframes pulse {
     0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* NSFW Card */
@@ -635,10 +724,10 @@
 .album-folder-card {
     position: relative;
     aspect-ratio: 1;
-    border-radius: var(--album-radius);
-    background: var(--album-card-bg);
-    border: 1px solid var(--album-card-border);
-    box-shadow: var(--album-card-shadow);
+    border-radius: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -649,9 +738,7 @@
 }
 
 .album-folder-card:hover {
-    transform: translateY(-8px);
-    border-color: var(--album-accent);
-    box-shadow: 0 20px 40px var(--album-accent-glow);
+    transform: translateY(-4px);
 }
 
 .album-folder-card iconpark-icon {

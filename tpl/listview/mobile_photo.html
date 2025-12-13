@@ -164,6 +164,9 @@
 <script type="text/template" id="tpl-photo-card">
     <div class="photo-card" data-index="{index}" data-fid="{fid}" onclick="PHOTO.cardClick(event, {index})">
         <img class="photo-card-image" src="{thumbnail}" alt="{name}" loading="lazy">
+        <div class="photo-card-loading" data-role="photo-loading">
+            <div class="photo-loading-spinner"></div>
+        </div>
         <div class="photo-card-overlay">
             <div class="photo-card-info">
                 <p class="photo-card-name">{name}</p>
@@ -171,6 +174,13 @@
                     <span>{size}</span>
                 </div>
             </div>
+        </div>
+        <div class="photo-download-overlay">
+            <div class="photo-download-spinner"></div>
+            <div class="photo-download-progress">
+                <div class="photo-download-progress-bar"></div>
+            </div>
+            <div class="photo-download-status" data-role="download-status"></div>
         </div>
         <div class="photo-card-actions">
             <button class="photo-card-action" onclick="event.stopPropagation(); PHOTO.downloadPhoto({index})" title="下载">
