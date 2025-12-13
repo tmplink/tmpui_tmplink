@@ -111,6 +111,11 @@
                         <iconpark-icon name="folder-plus" class="fa-fw"></iconpark-icon>
                         <span i18n="model_title_folder_title" class="d-none d-sm-inline">.</span>
                     </button>
+                    <button id="room_btn_file_photo_desktop" class="btn btn-light btn-sm mr-2 mt-1 text-azure"
+                        onclick="TL.openPhotoAlbum();">
+                        <iconpark-icon name="images" class="fa-fw"></iconpark-icon>
+                        <span i18n="model_photo" class="d-none d-sm-inline">.</span>
+                    </button>
                     <button class="btn btn-light btn-sm  text-azure mr-2 mt-1" onclick="TL.dir.open()">
                         <iconpark-icon name="rotate" class="fa-fw mr_filelist_refresh_icon"></iconpark-icon>
                     </button>
@@ -128,7 +133,7 @@
                         <span i18n="model_list" class="d-none d-sm-inline">.</span>
                     </button>
                     <button id="room_btn_file_photo" class="btn btn-light btn-sm mr-2 mt-1 text-azure"
-                        onclick="TL.dir.setViewModel('photo');">
+                        onclick="TL.openPhotoAlbum();">
                         <iconpark-icon name="images" class="fa-fw"></iconpark-icon>
                         <span i18n="model_photo" class="d-none d-sm-inline">.</span>
                     </button>

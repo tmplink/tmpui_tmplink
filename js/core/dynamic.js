@@ -61,6 +61,10 @@ class dynamic {
                 this.ai();
                 break;
 
+            case 'photo':
+                this.photo();
+                break;
+
             default:
                 listview = 'index';
                 this.index();
@@ -262,6 +266,22 @@ class dynamic {
         this.active('ai');
         INIT_ai();
         TL.navbar.model_ai();
+    }
+
+    photo() {
+        if (isMobileScreen()) {
+            $('#home_view').html(app.getFile('/tpl/listview/mobile_photo.html'));
+        } else {
+            $('#home_view').html(app.getFile('/tpl/listview/photo.html'));
+        }
+        TL.ga('Photo Album');
+        let params = app.getUrlVars(window.location.href);
+        let mrid = params.mrid || '0';
+        let mode = params.mode || 'folder';
+        app.dynOpen('/app&listview=photo&mrid=' + mrid + '&mode=' + mode);
+        this.active('photo');
+        INIT_photo();
+        TL.navbar.disabled();
     }
 
 }

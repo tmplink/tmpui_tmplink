@@ -63,7 +63,7 @@
                                     <span i18n="model_list">.</span>
                                 </button>
                                 <button id="ws_btn_file_photo" class="dropdown-item"
-                                    onclick="TL.dir.setViewModel('photo');">
+                                    onclick="TL.openPhotoAlbum();">
                                     <iconpark-icon name="images" class="fa-fw"></iconpark-icon>
                                     <span i18n="model_photo">.</span>
                                 </button>
@@ -80,6 +80,24 @@
                                     onclick="$('#roomReportModal').modal('show')" style="display: none;">
                                     <iconpark-icon name="circle-exclamation" class="fa-fw text-danger"></iconpark-icon>
                                     <span i18n="file_btn_report">.</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Desktop/Root dropdown menu -->
+                        <div class="dropdown btn_for_desktop" style="display: none;">
+                            <span class="text-azure" id="dropdownMenuButtonDesktop" data-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false">
+                                <iconpark-icon name="gear" class="fa-fw fa-2x"></iconpark-icon>
+                            </span>
+                            <div class="dropdown-menu shadow" aria-labelledby="dropdownMenuButtonDesktop">
+                                <button class="dropdown-item not_owner" onclick="TL.dir.showCreateFolderModal();">
+                                    <iconpark-icon name="folder-plus" class="fa-fw"></iconpark-icon>
+                                    <span i18n="model_title_folder_title">.</span>
+                                </button>
+                                <button id="ws_btn_file_photo_desktop" class="dropdown-item"
+                                    onclick="TL.openPhotoAlbum();">
+                                    <iconpark-icon name="images" class="fa-fw"></iconpark-icon>
+                                    <span i18n="model_photo">.</span>
                                 </button>
                             </div>
                         </div>

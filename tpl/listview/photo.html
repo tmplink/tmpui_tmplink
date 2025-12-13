@@ -1,0 +1,233 @@
+<!-- Photo Album Module - Desktop Template -->
+<div class="photo-album-container">
+    <div class="album-layout">
+        <!-- Sidebar -->
+        <aside class="album-sidebar">
+            <div class="album-sidebar-header">
+                <a href="javascript:;" class="album-back-btn" onclick="PHOTO.goBack()">
+                    <iconpark-icon name="left-c"></iconpark-icon>
+                    <span data-tpl="album_back">返回</span>
+                </a>
+                <div class="album-folder-info">
+                    <h1 class="album-folder-name" id="album-folder-name">相册</h1>
+                    <div class="album-folder-meta">
+                        <span class="album-folder-meta-item">
+                            <iconpark-icon name="images"></iconpark-icon>
+                            <span id="album-photo-count">0</span> <span data-tpl="album_photos">张照片</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="album-sidebar-nav">
+                <div class="album-nav-section">
+                    <div class="album-nav-title" data-tpl="album_view">视图</div>
+                    <div class="album-nav-item active" onclick="PHOTO.setGridSize('normal')" id="nav-normal">
+                        <iconpark-icon name="list-radio"></iconpark-icon>
+                        <span data-tpl="album_grid_normal">标准网格</span>
+                    </div>
+                    <div class="album-nav-item" onclick="PHOTO.setGridSize('large')" id="nav-large">
+                        <iconpark-icon name="images"></iconpark-icon>
+                        <span data-tpl="album_grid_large">大图模式</span>
+                    </div>
+                    <div class="album-nav-item" onclick="PHOTO.setGridSize('small')" id="nav-small">
+                        <iconpark-icon name="list"></iconpark-icon>
+                        <span data-tpl="album_grid_small">紧凑模式</span>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="album-sidebar-actions">
+                <button class="album-action-btn primary" onclick="PHOTO.downloadSelected()">
+                    <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+                    <span data-tpl="album_download_selected">下载选中</span>
+                </button>
+                <button class="album-action-btn secondary" onclick="PHOTO.refresh()">
+                    <iconpark-icon name="rotate"></iconpark-icon>
+                    <span data-tpl="album_refresh">刷新</span>
+                </button>
+                <button class="album-action-btn tertiary" onclick="PHOTO.exitPhotoMode()">
+                    <iconpark-icon name="folder-open"></iconpark-icon>
+                    <span data-tpl="album_exit">退出相册</span>
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="album-main">
+            <!-- Mobile Header (Hidden on Desktop) -->
+            <div class="album-mobile-header">
+                <button class="album-icon-btn" id="mobile-back-btn" onclick="PHOTO.goBack()">
+                    <iconpark-icon name="left-c"></iconpark-icon>
+                </button>
+                <span class="album-mobile-title" id="album-mobile-title">相册</span>
+                <button class="album-icon-btn" onclick="PHOTO.toggleSidebar()">
+                    <iconpark-icon name="ellipsis"></iconpark-icon>
+                </button>
+            </div>
+            
+            <!-- Desktop Header -->
+            <header class="album-header">
+                <div class="album-view-controls">
+                    <button class="album-view-btn active" onclick="PHOTO.setGridSize('normal')" id="view-normal" title="标准网格">
+                        <iconpark-icon name="list-radio"></iconpark-icon>
+                    </button>
+                    <button class="album-view-btn" onclick="PHOTO.setGridSize('large')" id="view-large" title="大图模式">
+                        <iconpark-icon name="images"></iconpark-icon>
+                    </button>
+                    <button class="album-view-btn" onclick="PHOTO.setGridSize('small')" id="view-small" title="紧凑模式">
+                        <iconpark-icon name="list"></iconpark-icon>
+                    </button>
+                </div>
+                
+                <div class="album-breadcrumb" id="album-breadcrumb">
+                    <!-- Breadcrumb will be inserted here -->
+                </div>
+                
+                <div class="album-header-actions">
+                    <button class="album-icon-btn" onclick="PHOTO.toggleSelectMode()" id="btn-select" title="选择模式">
+                        <iconpark-icon name="check-square"></iconpark-icon>
+                    </button>
+                    <button class="album-icon-btn" onclick="PHOTO.refresh()" title="刷新">
+                        <iconpark-icon name="rotate"></iconpark-icon>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Content Area -->
+            <div class="album-content">
+                <div class="album-grid" id="album-grid">
+                    <!-- Photos will be inserted here -->
+                </div>
+                
+                <!-- Loading State -->
+                <div class="album-loading" id="album-loading" style="display: none;">
+                    <div class="album-spinner"></div>
+                    <span class="album-loading-text" data-tpl="album_loading">正在加载...</span>
+                </div>
+                
+                <!-- Empty State -->
+                <div class="album-empty" id="album-empty" style="display: none;">
+                    <div class="album-empty-icon">
+                        <iconpark-icon name="images"></iconpark-icon>
+                    </div>
+                    <h3 class="album-empty-title" data-tpl="album_empty_title">暂无照片</h3>
+                    <p class="album-empty-text" data-tpl="album_empty_text">此文件夹中没有图片文件</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Selection Bar -->
+    <div class="album-selection-bar" id="album-selection-bar">
+        <span class="selection-count">
+            <span id="selection-count-num">0</span> <span data-tpl="album_selected">项已选择</span>
+        </span>
+        <div class="selection-actions">
+            <button class="album-icon-btn" onclick="PHOTO.downloadSelected()" title="下载">
+                <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+            </button>
+            <button class="album-icon-btn" onclick="PHOTO.selectAll()" title="全选">
+                <iconpark-icon name="check-square"></iconpark-icon>
+            </button>
+            <button class="album-icon-btn danger" onclick="PHOTO.cancelSelection()" title="取消">
+                <iconpark-icon name="x-square"></iconpark-icon>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Mobile Bottom Bar -->
+    <div class="album-mobile-bar">
+        <button class="album-mobile-btn active" onclick="PHOTO.setGridSize('normal')">
+            <iconpark-icon name="list-radio"></iconpark-icon>
+            <span>标准</span>
+        </button>
+        <button class="album-mobile-btn" onclick="PHOTO.toggleSelectMode()">
+            <iconpark-icon name="check-square"></iconpark-icon>
+            <span>选择</span>
+        </button>
+        <button class="album-mobile-btn" onclick="PHOTO.downloadSelected()">
+            <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+            <span>下载</span>
+        </button>
+        <button class="album-mobile-btn" onclick="PHOTO.refresh()">
+            <iconpark-icon name="rotate"></iconpark-icon>
+            <span>刷新</span>
+        </button>
+    </div>
+    
+    <!-- Lightbox -->
+    <div class="album-lightbox" id="album-lightbox">
+        <header class="lightbox-header">
+            <h2 class="lightbox-title" id="lightbox-title"></h2>
+            <div class="lightbox-actions">
+                <button class="lightbox-action" onclick="PHOTO.downloadCurrent()" title="下载">
+                    <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+                </button>
+                <button class="lightbox-action" onclick="PHOTO.rotateLightbox()" title="旋转">
+                    <iconpark-icon name="rotate"></iconpark-icon>
+                </button>
+                <button class="lightbox-action" onclick="PHOTO.closeLightbox()" title="关闭">
+                    <iconpark-icon name="x-square"></iconpark-icon>
+                </button>
+            </div>
+        </header>
+        
+        <div class="lightbox-content">
+            <img class="lightbox-image" id="lightbox-image" src="" alt="">
+        </div>
+        
+        <button class="lightbox-nav prev" onclick="PHOTO.lightboxPrev()">
+            <iconpark-icon name="left-c"></iconpark-icon>
+        </button>
+        <button class="lightbox-nav next" onclick="PHOTO.lightboxNext()">
+            <iconpark-icon name="left-c" style="transform: rotate(180deg)"></iconpark-icon>
+        </button>
+        
+        <footer class="lightbox-footer">
+            <div class="lightbox-thumbnails" id="lightbox-thumbnails">
+                <!-- Thumbnails will be inserted here -->
+            </div>
+            <span class="lightbox-counter" id="lightbox-counter">1 / 10</span>
+        </footer>
+    </div>
+</div>
+
+<!-- Photo Card Template -->
+<script type="text/template" id="tpl-photo-card">
+    <div class="photo-card" data-index="{index}" data-fid="{fid}" onclick="PHOTO.cardClick(event, {index})">
+        <img class="photo-card-image" src="{thumbnail}" alt="{name}" loading="lazy">
+        <div class="photo-card-overlay">
+            <div class="photo-card-info">
+                <p class="photo-card-name">{name}</p>
+                <div class="photo-card-meta">
+                    <span>{size}</span>
+                </div>
+            </div>
+        </div>
+        <div class="photo-card-actions">
+            <button class="photo-card-action" onclick="event.stopPropagation(); PHOTO.downloadPhoto({index})" title="下载">
+                <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+            </button>
+        </div>
+        <div class="photo-card-select" onclick="event.stopPropagation(); PHOTO.toggleSelect({index})">
+            <iconpark-icon name="check"></iconpark-icon>
+        </div>
+    </div>
+</script>
+
+<!-- Folder Card Template -->
+<script type="text/template" id="tpl-folder-card">
+    <div class="album-folder-card" data-mrid="{mrid}" onclick="PHOTO.openFolder('{mrid}')">
+        <iconpark-icon name="folder-open"></iconpark-icon>
+        <span class="album-folder-card-name">{name}</span>
+        <span class="album-folder-card-count">{count} 项</span>
+    </div>
+</script>
+
+<!-- Lightbox Thumbnail Template -->
+<script type="text/template" id="tpl-lightbox-thumb">
+    <div class="lightbox-thumbnail {active}" data-index="{index}" onclick="PHOTO.goToPhoto({index})">
+        <img src="{thumbnail}" alt="">
+    </div>
+</script>

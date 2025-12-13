@@ -46,6 +46,9 @@ app.ready(() => {
         case 'ai':
             dynamicView.ai();
             break;
+        case 'photo':
+            dynamicView.photo();
+            break;
         default:
             dynamicView.index();
     }

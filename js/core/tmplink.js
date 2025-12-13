@@ -808,6 +808,14 @@ class tmplink {
         });
     }
 
+    /**
+     * Open photo album for current folder
+     */
+    openPhotoAlbum() {
+        let mrid = this.dir.room.mr_id || 0;
+        app.open('/app&listview=photo&mrid=' + mrid);
+    }
+
     previewModel(ukey, name, id) {
         let url = 'https://tmp-static.vx-cdn.com/img-' + ukey + '-0x0.jpg';
         $('#preview_img_loader').show();
