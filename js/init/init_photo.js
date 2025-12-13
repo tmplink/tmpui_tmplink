@@ -147,19 +147,8 @@ var PHOTO = {
         $('#album-mobile-title').text(title);
         document.title = title + ' - Photo Album';
         
-        // Update breadcrumb for workspace
-        let html = `
-            <span class="album-breadcrumb-item" onclick="PHOTO.exitPhotoMode()">
-                <iconpark-icon name="inbox-success"></iconpark-icon>
-                ${app.languageData.navbar_workspace || '仓库'}
-            </span>
-            <span class="album-breadcrumb-separator">/</span>
-            <span class="album-breadcrumb-item active">
-                <iconpark-icon name="images"></iconpark-icon>
-                ${app.languageData.ws_album_title || '相册模式'}
-            </span>
-        `;
-        $('#album-breadcrumb').html(html);
+        // Hide breadcrumb in workspace mode (no folder hierarchy)
+        $('#album-breadcrumb').hide();
         
         // Hide back button in sidebar (no hierarchy in workspace)
         $('.album-back-btn').hide();
@@ -428,7 +417,7 @@ var PHOTO = {
         // Current folder name
         html += `<span class="album-breadcrumb-current">${this.room.name || app.languageData.album_title || '相册'}</span>`;
         
-        $('#album-breadcrumb').html(html);
+        $('#album-breadcrumb').html(html).show();
         
         // Update back button visibility
         if (canGoBack) {
