@@ -95,6 +95,9 @@ var PHOTO = {
         
         // Apply language
         app.languageBuild();
+
+        // Toggle share button per mode
+        this.updateShareButtonVisibility();
         
         // Initialize based on mode
         if (this.isWorkspaceMode()) {
@@ -156,6 +159,9 @@ var PHOTO = {
         
         // Hide back button in sidebar (no hierarchy in workspace)
         $('.album-back-btn').hide();
+
+        // Hide share button in workspace mode
+        this.updateShareButtonVisibility();
     },
 
     /**
@@ -431,6 +437,21 @@ var PHOTO = {
             // At desktop - hide back button
             $('.album-back-btn').hide();
             $('#mobile-back-btn').hide();
+        }
+    },
+
+    /**
+     * Show/hide share button based on mode
+     */
+    updateShareButtonVisibility: function() {
+        const headerBtn = $('#album-share-btn');
+        const sideBtn = $('#album-share-btn-side');
+        const shouldShow = !this.isWorkspaceMode();
+        if (headerBtn.length) {
+            shouldShow ? headerBtn.show() : headerBtn.hide();
+        }
+        if (sideBtn.length) {
+            shouldShow ? sideBtn.show() : sideBtn.hide();
         }
     },
 
@@ -752,13 +773,31 @@ var PHOTO = {
         
         if (this.isWorkspaceMode()) {
             // Return to workspace
+            this.resetPreferredListView();
             app.open('/app&listview=workspace');
         } else {
             // Return to room view
             const mrid = this.isDesktop() ? 0 : this.room.mr_id;
             const url = '/app&listview=room&mrid=' + mrid;
             console.log('[PHOTO] Exiting photo mode:', url);
+            this.resetPreferredListView();
             app.open(url);
+        }
+    },
+
+    /**
+     * Ensure returning views default to list mode
+     */
+    resetPreferredListView: function() {
+        if (this.isWorkspaceMode()) {
+            localStorage.setItem('app_workspace_view', 'list');
+            return;
+        }
+
+        const roomId = (this.room && this.room.mr_id !== undefined) ? this.room.mr_id : this.mrid;
+        if (roomId !== undefined && roomId !== null) {
+            const roomKey = 'app_room_view_' + roomId;
+            localStorage.setItem(roomKey, 'list');
         }
     },
 
@@ -800,6 +839,110 @@ var PHOTO = {
     openFolder: function(mrid) {
         console.log('[PHOTO] Opening folder:', mrid);
         this.navigateTo(mrid);
+    },
+
+    /**
+     * Copy album URL for sharing (folder mode only)
+     */
+    shareAlbumLink: function() {
+        if (this.isWorkspaceMode()) {
+            TL.alert(app.languageData.album_share_workspace_disabled || '仓库模式暂不支持分享链接');
+            return;
+        }
+
+        const url = `${window.location.origin}/?tmpui_page=/app&listview=photo&mrid=${encodeURIComponent(this.mrid)}`;
+        const onSuccess = () => {
+            this.shareButtonFeedback('success');
+            TL.alert(app.languageData.album_share_copied || '相册链接已复制');
+        };
+        const onFail = () => {
+            this.shareButtonFeedback('error');
+            TL.alert((app.languageData.album_share_copy_failed || '复制失败，请手动复制链接') + `\n${url}`);
+        };
+
+        this.shareButtonFeedback('pending');
+        this.copyToClipboard(url, onSuccess, onFail);
+    },
+
+    shareButtonFeedback: function(state) {
+        const headerBtn = $('#album-share-btn');
+        const sideBtn = $('#album-share-btn-side');
+        const classes = 'copied share-error share-pending';
+        const apply = (btn) => {
+            if (!btn || !btn.length) return;
+            // Cache originals
+            const icon = btn.find('iconpark-icon');
+            if (icon.length && !btn.data('share-icon')) {
+                btn.data('share-icon', icon.attr('name') || 'share-from-square');
+            }
+            const label = btn.find('[data-role="album-share-text"]');
+            if (label.length && !btn.data('share-text')) {
+                btn.data('share-text', label.text());
+            }
+
+            btn.removeClass(classes);
+            if (state === 'success') {
+                btn.addClass('copied');
+                if (icon.length) icon.attr('name', 'circle-check');
+                if (label.length) label.text(app.languageData.album_share_copied || '已复制');
+            } else if (state === 'error') {
+                btn.addClass('share-error');
+                if (icon.length) icon.attr('name', 'close-one');
+                if (label.length) label.text(app.languageData.album_share_copy_failed || '复制失败');
+            } else if (state === 'pending') {
+                btn.addClass('share-pending');
+                if (icon.length) icon.attr('name', 'loading');
+                if (label.length) label.text(app.languageData.album_share_copying || '复制中...');
+            }
+
+            if (state === 'success' || state === 'error') {
+                setTimeout(() => this.restoreShareButton(btn), 1400);
+            }
+        };
+        apply(headerBtn);
+        apply(sideBtn);
+    },
+
+    restoreShareButton: function(btn) {
+        if (!btn || !btn.length) return;
+        btn.removeClass('copied share-error share-pending');
+        const icon = btn.find('iconpark-icon');
+        const label = btn.find('[data-role="album-share-text"]');
+        if (icon.length && btn.data('share-icon')) {
+            icon.attr('name', btn.data('share-icon'));
+        }
+        if (label.length && btn.data('share-text')) {
+            label.text(btn.data('share-text'));
+        }
+    },
+
+    copyToClipboard: function(text, onSuccess, onFail) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text)
+                .then(() => onSuccess && onSuccess())
+                .catch(() => this.fallbackCopy(text, onSuccess, onFail));
+            return;
+        }
+        this.fallbackCopy(text, onSuccess, onFail);
+    },
+
+    fallbackCopy: function(text, onSuccess, onFail) {
+        const input = document.createElement('input');
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        try {
+            const ok = document.execCommand('copy');
+            document.body.removeChild(input);
+            if (ok) {
+                onSuccess && onSuccess();
+            } else {
+                onFail && onFail();
+            }
+        } catch (err) {
+            document.body.removeChild(input);
+            onFail && onFail(err);
+        }
     },
 
     ensureDownloader: function() {

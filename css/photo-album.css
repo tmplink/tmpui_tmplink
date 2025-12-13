@@ -385,6 +385,18 @@
     position: relative;
 }
 
+.album-icon-btn.copied {
+    border-color: var(--album-accent);
+    color: var(--album-accent);
+    box-shadow: 0 6px 18px var(--album-accent-glow);
+}
+
+.album-icon-btn.share-error {
+    border-color: var(--album-danger);
+    color: var(--album-danger);
+    box-shadow: 0 6px 18px rgba(239, 68, 68, 0.2);
+}
+
 .album-icon-btn:hover {
     background: var(--album-surface-hover);
     color: var(--album-text);
@@ -395,6 +407,18 @@
     background: rgba(239, 68, 68, 0.15);
     border-color: rgba(239, 68, 68, 0.3);
     color: var(--album-danger);
+}
+
+.album-action-btn.copied {
+    border: 1px solid var(--album-accent);
+    color: var(--album-accent);
+    box-shadow: 0 6px 18px var(--album-accent-glow);
+}
+
+.album-action-btn.share-error {
+    border: 1px solid var(--album-danger);
+    color: var(--album-danger);
+    box-shadow: 0 6px 18px rgba(239, 68, 68, 0.2);
 }
 
 .album-icon-btn .badge {

@@ -42,6 +42,10 @@
                     <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
                     <span data-tpl="album_download_selected">下载选中</span>
                 </button>
+                <button class="album-action-btn secondary" id="album-share-btn-side" onclick="PHOTO.shareAlbumLink()">
+                    <iconpark-icon name="share-from-square"></iconpark-icon>
+                    <span data-tpl="album_share_link" data-role="album-share-text">分享链接</span>
+                </button>
                 <button class="album-action-btn secondary" onclick="PHOTO.refresh()">
                     <iconpark-icon name="rotate"></iconpark-icon>
                     <span data-tpl="album_refresh">刷新</span>
@@ -85,6 +89,9 @@
                 </div>
                 
                 <div class="album-header-actions">
+                    <button class="album-icon-btn" id="album-share-btn" onclick="PHOTO.shareAlbumLink()" title="复制相册链接">
+                        <iconpark-icon name="share-from-square"></iconpark-icon>
+                    </button>
                     <button class="album-icon-btn" onclick="PHOTO.toggleSelectMode()" id="btn-select" title="选择模式">
                         <iconpark-icon name="check-square"></iconpark-icon>
                     </button>
