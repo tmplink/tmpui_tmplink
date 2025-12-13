@@ -773,19 +773,34 @@ var PHOTO = {
     },
 
     /**
+     * Download single photo by ukey
+     */
+    downloadByUkey: async function(ukey) {
+        try {
+            const downloadUrl = await TL.download.get_download_url(ukey);
+            if (downloadUrl) {
+                window.location.href = downloadUrl;
+            }
+        } catch (error) {
+            console.error('Download failed:', error);
+            TL.alert(app.languageData.download_error_retry || '下载失败，请重试');
+        }
+    },
+
+    /**
      * Download single photo
      */
     downloadPhoto: function(index) {
         const photo = this.photoList[index];
         if (photo) {
-            TL.download_direct(photo.ukey);
+            this.downloadByUkey(photo.ukey);
         }
     },
 
     /**
      * Download selected or all photos
      */
-    downloadSelected: function() {
+    downloadSelected: async function() {
         let items = [];
         
         if (this.selectedItems.size > 0) {
@@ -798,10 +813,11 @@ var PHOTO = {
             return;
         }
         
-        if (typeof TL.downloadByListData === 'function') {
-            TL.downloadByListData(items);
-        } else {
-            items.forEach(ukey => TL.download_direct(ukey));
+        // 逐个下载
+        for (const ukey of items) {
+            await this.downloadByUkey(ukey);
+            // 延迟一下避免触发太快
+            await new Promise(resolve => setTimeout(resolve, 500));
         }
     },
 
@@ -811,7 +827,7 @@ var PHOTO = {
     downloadCurrent: function() {
         const photo = this.photoList[this.lightboxIndex];
         if (photo) {
-            TL.download_direct(photo.ukey);
+            this.downloadByUkey(photo.ukey);
         }
     },
 
@@ -1047,6 +1063,9 @@ var PHOTO = {
                 }
             }
         });
+        
+        // Handle orientation change
+        $(window).off('orientationchange.photoalbum resize.photoalbum');
     },
 
     /**

@@ -418,63 +418,39 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 24px;
+    padding: 0;
 }
 
 .album-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px;
+    gap: 0;
 }
 
 /* Large Grid */
 .album-grid.large {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    gap: 0;
 }
 
 /* Small Grid */
 .album-grid.small {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 12px;
+    gap: 0;
 }
 
 /* ==================== Photo Card ==================== */
 .photo-card {
     position: relative;
     aspect-ratio: 1;
-    border-radius: var(--album-radius);
     overflow: hidden;
     cursor: pointer;
     background: var(--album-card-bg);
-    border: 1px solid var(--album-card-border);
-    box-shadow: var(--album-card-shadow);
-    transition: var(--album-transition);
-}
-
-.photo-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: var(--album-radius);
-    padding: 1px;
-    background: linear-gradient(135deg, var(--album-glass-border), transparent);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-    opacity: 0;
     transition: var(--album-transition);
 }
 
 .photo-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: var(--album-shadow);
-}
-
-.photo-card:hover::before {
-    opacity: 1;
+    z-index: 5;
 }
 
 .photo-card-image {
@@ -488,7 +464,7 @@
 }
 
 .photo-card:hover .photo-card-image {
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 /* Photo Card Overlay */
@@ -971,12 +947,12 @@
     }
     
     .album-content {
-        padding: 16px;
+        padding: 0;
     }
     
     .album-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        gap: 0;
     }
     
     .lightbox-content {
