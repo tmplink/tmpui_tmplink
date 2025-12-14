@@ -22,6 +22,13 @@ class direct {
     list_Data = []
     autoLoader = null
 
+    // 更新导航栏下方的 padding
+    updateNavPadding() {
+        const navHeight = $('nav.fixed-top').outerHeight() || 0;
+        const paddingTop = navHeight - 35;
+        $('.mobile-head-padding-large').css('padding-top', paddingTop + 'px');
+    }
+
     init(parent_op) {
         this.parent_op = parent_op;
         this.sortSettingsInit();
@@ -55,8 +62,8 @@ class direct {
         if (page === '/app' && listview === 'direct') {
             //如果是移动设备
             if (isMobileScreen()) {
-                // 修正移动设备直链页面头部 padding
-                $('.mobile-head-padding-large').css('padding-top', '160px');
+                // 动态计算顶部导航栏的实际高度并设置 padding
+                this.updateNavPadding();
             } else {
                 //更新下载统计图
                 this.refreshUsage(2, '24H');
