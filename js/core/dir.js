@@ -574,43 +574,32 @@ class dir {
         $('#mr_parent_id').val(this.room.parent);
         $('#mr_top_id').val(this.room.top);
 
-        // 初始时隐藏按钮，等待文件列表加载完成
-        $('.btn_mobile_top').hide();
-        $('.btn_mobile_sub').hide();
-
         app.linkRebind();
         this.mobileTopabrFix(mrid);
+    }
+    
+    // 更新导航栏下方的 padding
+    updateNavPadding() {
+        const navHeight = $('nav.fixed-top').outerHeight() || 0;
+        const paddingTop = navHeight + 10;
+        $('.mobile-head-padding-large').css('padding-top', paddingTop + 'px');
     }
 
     mobileTopabrFix(mrid) {
         // 将 mrid 转换为数字进行比较
         const mridNum = parseInt(mrid);
         
+        // 动态计算顶部导航栏的实际高度并设置 padding
+        this.updateNavPadding();
+        
         if (mridNum === 0) {
-            // 根目录：只显示"创建文件夹"按钮，固定 padding
-            $('.mobile-head-padding-large').css('padding-top', '110px');
+            // 根目录：只显示"创建文件夹"按钮
             $('.btn_mobile_top').hide();
-            $('.btn_mobile_sub').fadeIn(300);
+            $('.btn_mobile_sub').show();
         } else {
             // 子目录：显示"上传文件"和"创建文件夹"两个按钮
-            $('.btn_mobile_top').fadeIn(300);
+            $('.btn_mobile_top').show();
             $('.btn_mobile_sub').hide();
-            
-            // 检查是否有内容（文件或子文件夹）
-            const hasContent = (this.file_list && this.file_list.length > 0) || 
-                              (this.subroom_data && this.subroom_data.length > 0);
-            
-            if (!hasContent) {
-                // 没有任何内容
-                $('.mobile-head-padding-large').css('padding-top', '110px');
-            } else {
-                // 有内容，根据 room_subinfo 的显示状态来设定 padding-top 的值
-                if ($('.room_subinfo').css('display') === 'none') {
-                    $('.mobile-head-padding-large').css('padding-top', '150px');
-                } else {
-                    $('.mobile-head-padding-large').css('padding-top', '180px');
-                }
-            }
         }
     }
 
@@ -670,10 +659,6 @@ class dir {
         $('.mr_filelist_refresh_icon').addClass('fa-spin');
         $('.mr_filelist_refresh_icon').attr('disabled', true);
         this.loadingON();
-        
-        // 隐藏按钮，显示加载状态
-        $('.btn_mobile_top').hide();
-        $('.btn_mobile_sub').hide();
         
         var params = get_url_params();
 
