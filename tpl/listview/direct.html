@@ -376,7 +376,7 @@
                     <div class="d-flex align-items-center justify-content-between flex-wrap">
                         <div>
                             <h5 class="card-title mb-1" i18n="direct_api_title_1">欢迎使用 API</h5>
-                            <div class="text-muted small mb-2">Manage your API access</div>
+                            <div class="small text-secondary mb-2">Manage your API access</div>
                         </div>
                         <div class="d-flex align-items-center bg-light rounded p-2">
                             <span class="badge badge-primary mr-2">KEY</span>
@@ -392,36 +392,54 @@
                 </div>
             </div>
 
+            <style>
+                .api-card-header {
+                    cursor: pointer;
+                    transition: background-color 0.2s ease;
+                }
+                .api-card-header:hover {
+                    background-color: #f8f9fa !important;
+                }
+                .api-card-header .btn {
+                    background: transparent !important;
+                    border: none !important;
+                    box-shadow: none !important;
+                }
+                .api-card-header .btn:hover,
+                .api-card-header .btn:focus,
+                .api-card-header .btn:active {
+                    background: transparent !important;
+                    box-shadow: none !important;
+                }
+            </style>
+
             <div class="accordion" id="apiAccordion">
                 <!-- Upload File -->
                 <div class="card shadow-sm mb-2 border-0">
-                    <div class="card-header bg-white border-bottom-0 p-0" id="headingUpload">
-                        <h2 class="mb-0">
-                            <button class="btn btn-block text-left d-flex align-items-center justify-content-between focus-none collapsed p-3" type="button" data-toggle="collapse" data-target="#collapseUpload" aria-expanded="false" aria-controls="collapseUpload">
-                                <div>
-                                    <span class="badge badge-success mr-2 p-1">POST</span>
-                                    <span class="font-weight-bold" i18n="direct_api_title_7">上传文件</span>
-                                    <div class="small text-muted mt-1 text-monospace">/app/upload_cli</div>
-                                </div>
-                                <iconpark-icon name="down" class="text-muted"></iconpark-icon>
-                            </button>
-                        </h2>
+                    <div class="card-header bg-white border-bottom-0 p-0 api-card-header" id="headingUpload" data-toggle="collapse" data-target="#collapseUpload" aria-expanded="false" aria-controls="collapseUpload">
+                        <div class="d-flex align-items-center justify-content-between p-3">
+                            <div>
+                                <span class="badge badge-success mr-2 p-1">POST</span>
+                                <span i18n="direct_api_title_7">上传文件</span>
+                                <div class="small text-secondary mt-1 text-monospace">/app/upload_cli</div>
+                            </div>
+                            <iconpark-icon name="down" class="text-muted"></iconpark-icon>
+                        </div>
                     </div>
                     <div id="collapseUpload" class="collapse" aria-labelledby="headingUpload" data-parent="#apiAccordion">
                         <div class="card-body border-top">
-                            <div class="mb-3">
-                                <label class="text-muted small font-weight-bold">ENDPOINT</label>
-                                <div class="input-group input-group-sm mb-2">
-                                    <input type="text" class="form-control bg-light" value="https://tmp-cli.vx-cdn.com/app/upload_cli" readonly>
+                            <div class="mb-4">
+                                <div class="text-uppercase text-muted small font-weight-bold mb-2">Endpoint</div>
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control font-monospace small" value="https://tmp-cli.vx-cdn.com/app/upload_cli" readonly>
                                 </div>
-                                <div class="small">
-                                    <span class="text-muted">Content-Type:</span> <code>application/x-www-form-urlencoded</code>
-                                </div>
+                                <div class="text-uppercase text-muted small font-weight-bold mb-1">Content-Type</div>
+                                <div class="font-monospace small">application/x-www-form-urlencoded</div>
                             </div>
                             
-                            <div class="mb-3">
-                                <label class="text-muted small font-weight-bold">DESCRIPTION</label>
-                                <p class="small text-muted" i18n="direct_api_upload_des">此接口即为 CLI 上传文件的接口...</p>
+                            <div class="mb-4">
+                                <div class="text-uppercase text-muted small font-weight-bold mb-2">Description</div>
+                                <p class="text-secondary mb-2" i18n="direct_api_upload_des">此接口即为 CLI 上传文件的接口...</p>
                                 <div class="bg-dark rounded p-2 position-relative">
                                     <code class="text-light small text-break">curl -k -F "file=@/root/test.bin" -F "key=API key" -X POST "https://tmp-cli.vx-cdn.com/app/upload_cli"</code>
                                 </div>
@@ -460,19 +478,19 @@
                                 <div class="col-md-6">
                                     <h6 class="border-bottom pb-2 mb-3" i18n="direct_api_return">返回值</h6>
                                     <div class="small">
-                                        <div class="mb-2"><strong>Status:</strong></div>
-                                        <ul class="list-unstyled text-muted pl-2">
-                                            <li i18n="direct_api_upload_status_1">1 : 上传完成，此时返回的 Data 数据为文件的 UKEY。</li>
-                                            <li i18n="direct_api_upload_status_0">0 : 上传失败，无效的请求。</li>
-                                            <li i18n="direct_api_upload_status_2">2 : 上传失败，文件大小超过限制。</li>
-                                            <li i18n="direct_api_upload_status_3">3 : 上传失败，服务器繁忙，无法处理此次请求。</li>
-                                            <li i18n="direct_api_upload_status_4">4 : 上传失败，私有空间不足，无法存储文件。</li>
-                                            <li i18n="direct_api_upload_status_5">5 : 上传失败，目前上传的文件总量已经超出了当日配额。存储至私有空间时不受限制。</li>
-                                            <li i18n="direct_api_upload_status_6">6 : 上传失败，API Key 已失效。</li>
+                                        <div class="mb-2 font-weight-bold">Status</div>
+                                        <ul class="list-unstyled pl-0 mb-3">
+                                            <li class="mb-1"><code class="text-success">1</code> : <span i18n="direct_api_upload_status_1">上传完成，此时返回的 Data 数据为文件的 UKEY。</span></li>
+                                            <li class="mb-1"><code class="text-danger">0</code> : <span i18n="direct_api_upload_status_0">上传失败，无效的请求。</span></li>
+                                            <li class="mb-1"><code class="text-danger">2</code> : <span i18n="direct_api_upload_status_2">上传失败，文件大小超过限制。</span></li>
+                                            <li class="mb-1"><code class="text-danger">3</code> : <span i18n="direct_api_upload_status_3">上传失败，服务器繁忙，无法处理此次请求。</span></li>
+                                            <li class="mb-1"><code class="text-danger">4</code> : <span i18n="direct_api_upload_status_4">上传失败，私有空间不足，无法存储文件。</span></li>
+                                            <li class="mb-1"><code class="text-danger">5</code> : <span i18n="direct_api_upload_status_5">上传失败，目前上传的文件总量已经超出了当日配额。存储至私有空间时不受限制。</span></li>
+                                            <li class="mb-1"><code class="text-danger">6</code> : <span i18n="direct_api_upload_status_6">上传失败，API Key 已失效。</span></li>
                                         </ul>
-                                        <div class="mb-2"><strong>Data : String</strong></div>
-                                        <ul class="list-unstyled text-muted pl-2">
-                                            <li><span i18n="direct_api_data_upload">上传成功时，返回的数据为文件的 UKEY。上传失败时，返回数据是错误信息。</span></li>
+                                        <div class="mb-2 font-weight-bold">Data <span class="text-muted font-weight-normal">: String</span></div>
+                                        <ul class="list-unstyled pl-0">
+                                            <li i18n="direct_api_data_upload">上传成功时，返回的数据为文件的 UKEY。上传失败时，返回数据是错误信息。</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -483,28 +501,25 @@
 
                 <!-- Get Quota -->
                 <div class="card shadow-sm mb-2 border-0">
-                    <div class="card-header bg-white border-bottom-0 p-0" id="headingQuota">
-                        <h2 class="mb-0">
-                            <button class="btn btn-block text-left d-flex align-items-center justify-content-between focus-none collapsed p-3" type="button" data-toggle="collapse" data-target="#collapseQuota" aria-expanded="false" aria-controls="collapseQuota">
-                                <div>
-                                    <span class="badge badge-success mr-2 p-1">POST</span>
-                                    <span class="font-weight-bold" i18n="direct_api_title_6">获取直链流量配额</span>
-                                    <div class="small text-muted mt-1 text-monospace">/services/direct</div>
-                                </div>
-                                <iconpark-icon name="down" class="text-muted"></iconpark-icon>
-                            </button>
-                        </h2>
+                    <div class="card-header bg-white border-bottom-0 p-0 api-card-header" id="headingQuota" data-toggle="collapse" data-target="#collapseQuota" aria-expanded="false" aria-controls="collapseQuota">
+                        <div class="d-flex align-items-center justify-content-between p-3">
+                            <div>
+                                <span class="badge badge-success mr-2 p-1">POST</span>
+                                <span i18n="direct_api_title_6">获取直链流量配额</span>
+                                <div class="small text-secondary mt-1 text-monospace">/services/direct</div>
+                            </div>
+                            <iconpark-icon name="down" class="text-muted"></iconpark-icon>
+                        </div>
                     </div>
                     <div id="collapseQuota" class="collapse" aria-labelledby="headingQuota" data-parent="#apiAccordion">
                         <div class="card-body border-top">
-                            <div class="mb-3">
-                                <label class="text-muted small font-weight-bold">ENDPOINT</label>
-                                <div class="input-group input-group-sm mb-2">
-                                    <input type="text" class="form-control bg-light" value="https://tmp-api.vx-cdn.com/services/direct" readonly>
+                            <div class="mb-4">
+                                <div class="text-uppercase text-muted small font-weight-bold mb-2">Endpoint</div>
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control font-monospace small" value="https://tmp-api.vx-cdn.com/services/direct" readonly>
                                 </div>
-                                <div class="small text-muted">
-                                    <span class="badge badge-light border mr-1">Content-Type</span> application/x-www-form-urlencoded
-                                </div>
+                                <div class="text-uppercase text-muted small font-weight-bold mb-1">Content-Type</div>
+                                <div class="font-monospace small">application/x-www-form-urlencoded</div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
@@ -519,14 +534,14 @@
                                 <div class="col-md-6">
                                     <h6 class="border-bottom pb-2 mb-3" i18n="direct_api_return">返回值</h6>
                                     <div class="small">
-                                        <div class="mb-2"><strong>Status:</strong></div>
-                                        <ul class="list-unstyled text-muted pl-2">
-                                            <li i18n="direct_api_status_1">1 : 有数据</li>
-                                            <li i18n="direct_api_status_0">0 : 没有数据</li>
+                                        <div class="mb-2 font-weight-bold">Status</div>
+                                        <ul class="list-unstyled pl-0 mb-3">
+                                            <li class="mb-1"><code class="text-success">1</code> : <span i18n="direct_api_status_1">有数据</span></li>
+                                            <li class="mb-1"><code class="text-muted">0</code> : <span i18n="direct_api_status_0">没有数据</span></li>
                                         </ul>
-                                        <div class="mb-2"><strong>Data (Array):</strong></div>
-                                        <ul class="list-unstyled text-muted pl-2">
-                                            <li><code>quota</code>: <span i18n="direct_api_data_quota">已购买的配额</span></li>
+                                        <div class="mb-2 font-weight-bold">Data <span class="text-muted font-weight-normal">(Array)</span></div>
+                                        <ul class="list-unstyled pl-0">
+                                            <li><code class="text-primary">quota</code>: <span i18n="direct_api_data_quota">已购买的配额</span></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -537,28 +552,25 @@
 
                 <!-- Get Workspace List -->
                 <div class="card shadow-sm mb-2 border-0">
-                    <div class="card-header bg-white border-bottom-0 p-0" id="headingWorkspace">
-                        <h2 class="mb-0">
-                            <button class="btn btn-block text-left d-flex align-items-center justify-content-between focus-none collapsed p-3" type="button" data-toggle="collapse" data-target="#collapseWorkspace" aria-expanded="false" aria-controls="collapseWorkspace">
-                                <div>
-                                    <span class="badge badge-success mr-2 p-1">POST</span>
-                                    <span class="font-weight-bold" i18n="direct_api_title_2">获取仓库文件列表</span>
-                                    <div class="small text-muted mt-1 text-monospace">/services/direct</div>
-                                </div>
-                                <iconpark-icon name="down" class="text-muted"></iconpark-icon>
-                            </button>
-                        </h2>
+                    <div class="card-header bg-white border-bottom-0 p-0 api-card-header" id="headingWorkspace" data-toggle="collapse" data-target="#collapseWorkspace" aria-expanded="false" aria-controls="collapseWorkspace">
+                        <div class="d-flex align-items-center justify-content-between p-3">
+                            <div>
+                                <span class="badge badge-success mr-2 p-1">POST</span>
+                                <span i18n="direct_api_title_2">获取仓库文件列表</span>
+                                <div class="small text-secondary mt-1 text-monospace">/services/direct</div>
+                            </div>
+                            <iconpark-icon name="down" class="text-muted"></iconpark-icon>
+                        </div>
                     </div>
                     <div id="collapseWorkspace" class="collapse" aria-labelledby="headingWorkspace" data-parent="#apiAccordion">
                         <div class="card-body border-top">
-                            <div class="mb-3">
-                                <label class="text-muted small font-weight-bold">ENDPOINT</label>
-                                <div class="input-group input-group-sm mb-2">
-                                    <input type="text" class="form-control bg-light" value="https://tmp-api.vx-cdn.com/services/direct" readonly>
+                            <div class="mb-4">
+                                <div class="text-uppercase text-muted small font-weight-bold mb-2">Endpoint</div>
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control font-monospace small" value="https://tmp-api.vx-cdn.com/services/direct" readonly>
                                 </div>
-                                <div class="small text-muted">
-                                    <span class="badge badge-light border mr-1">Content-Type</span> application/x-www-form-urlencoded
-                                </div>
+                                <div class="text-uppercase text-muted small font-weight-bold mb-1">Content-Type</div>
+                                <div class="font-monospace small">application/x-www-form-urlencoded</div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
@@ -574,16 +586,16 @@
                                 <div class="col-md-6">
                                     <h6 class="border-bottom pb-2 mb-3" i18n="direct_api_return">返回值</h6>
                                     <div class="small">
-                                        <div class="mb-2"><strong>Status:</strong></div>
-                                        <ul class="list-unstyled text-muted pl-2">
-                                            <li i18n="direct_api_status_1">1 : 有数据</li>
-                                            <li i18n="direct_api_status_0">0 : 没有数据</li>
+                                        <div class="mb-2 font-weight-bold">Status</div>
+                                        <ul class="list-unstyled pl-0 mb-3">
+                                            <li class="mb-1"><code class="text-success">1</code> : <span i18n="direct_api_status_1">有数据</span></li>
+                                            <li class="mb-1"><code class="text-muted">0</code> : <span i18n="direct_api_status_0">没有数据</span></li>
                                         </ul>
-                                        <div class="mb-2"><strong>Data (Array):</strong></div>
-                                        <ul class="list-unstyled text-muted pl-2">
-                                            <li><code>ukey</code>: UKEY</li>
-                                            <li><code>name</code>: 文件名</li>
-                                            <li><code>size</code>: 大小</li>
+                                        <div class="mb-2 font-weight-bold">Data <span class="text-muted font-weight-normal">(Array)</span></div>
+                                        <ul class="list-unstyled pl-0">
+                                            <li class="mb-1"><code class="text-primary">ukey</code> : UKEY</li>
+                                            <li class="mb-1"><code class="text-primary">name</code> : 文件名</li>
+                                            <li class="mb-1"><code class="text-primary">size</code> : 大小</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -594,28 +606,25 @@
 
                 <!-- Get Direct List -->
                 <div class="card shadow-sm mb-2 border-0">
-                    <div class="card-header bg-white border-bottom-0 p-0" id="headingDirectList">
-                        <h2 class="mb-0">
-                            <button class="btn btn-block text-left d-flex align-items-center justify-content-between focus-none collapsed p-3" type="button" data-toggle="collapse" data-target="#collapseDirectList" aria-expanded="false" aria-controls="collapseDirectList">
-                                <div>
-                                    <span class="badge badge-success mr-2 p-1">POST</span>
-                                    <span class="font-weight-bold" i18n="direct_api_title_3">获取直链文件列表</span>
-                                    <div class="small text-muted mt-1 text-monospace">/services/direct</div>
-                                </div>
-                                <iconpark-icon name="down" class="text-muted"></iconpark-icon>
-                            </button>
-                        </h2>
+                    <div class="card-header bg-white border-bottom-0 p-0 api-card-header" id="headingDirectList" data-toggle="collapse" data-target="#collapseDirectList" aria-expanded="false" aria-controls="collapseDirectList">
+                        <div class="d-flex align-items-center justify-content-between p-3">
+                            <div>
+                                <span class="badge badge-success mr-2 p-1">POST</span>
+                                <span i18n="direct_api_title_3">获取直链文件列表</span>
+                                <div class="small text-secondary mt-1 text-monospace">/services/direct</div>
+                            </div>
+                            <iconpark-icon name="down" class="text-muted"></iconpark-icon>
+                        </div>
                     </div>
                     <div id="collapseDirectList" class="collapse" aria-labelledby="headingDirectList" data-parent="#apiAccordion">
                         <div class="card-body border-top">
-                            <div class="mb-3">
-                                <label class="text-muted small font-weight-bold">ENDPOINT</label>
-                                <div class="input-group input-group-sm mb-2">
-                                    <input type="text" class="form-control bg-light" value="https://tmp-api.vx-cdn.com/services/direct" readonly>
+                            <div class="mb-4">
+                                <div class="text-uppercase text-muted small font-weight-bold mb-2">Endpoint</div>
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control font-monospace small" value="https://tmp-api.vx-cdn.com/services/direct" readonly>
                                 </div>
-                                <div class="small text-muted">
-                                    <span class="badge badge-light border mr-1">Content-Type</span> application/x-www-form-urlencoded
-                                </div>
+                                <div class="text-uppercase text-muted small font-weight-bold mb-1">Content-Type</div>
+                                <div class="font-monospace small">application/x-www-form-urlencoded</div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
@@ -631,18 +640,18 @@
                                 <div class="col-md-6">
                                     <h6 class="border-bottom pb-2 mb-3" i18n="direct_api_return">返回值</h6>
                                     <div class="small">
-                                        <div class="mb-2"><strong>Status:</strong></div>
-                                        <ul class="list-unstyled text-muted pl-2">
-                                            <li i18n="direct_api_status_1">1 : 有数据</li>
-                                            <li i18n="direct_api_status_0">0 : 没有数据</li>
+                                        <div class="mb-2 font-weight-bold">Status</div>
+                                        <ul class="list-unstyled pl-0 mb-3">
+                                            <li class="mb-1"><code class="text-success">1</code> : <span i18n="direct_api_status_1">有数据</span></li>
+                                            <li class="mb-1"><code class="text-muted">0</code> : <span i18n="direct_api_status_0">没有数据</span></li>
                                         </ul>
-                                        <div class="mb-2"><strong>Data (Array):</strong></div>
-                                        <ul class="list-unstyled text-muted pl-2">
-                                            <li><code>dkey</code>: DKEY</li>
-                                            <li><code>link</code>: 下载链接</li>
-                                            <li><code>name</code>: 文件名</li>
-                                            <li><code>size</code>: 大小</li>
-                                            <li><code>etime</code>: 有效期</li>
+                                        <div class="mb-2 font-weight-bold">Data <span class="text-muted font-weight-normal">(Array)</span></div>
+                                        <ul class="list-unstyled pl-0">
+                                            <li class="mb-1"><code class="text-primary">dkey</code> : DKEY</li>
+                                            <li class="mb-1"><code class="text-primary">link</code> : 下载链接</li>
+                                            <li class="mb-1"><code class="text-primary">name</code> : 文件名</li>
+                                            <li class="mb-1"><code class="text-primary">size</code> : 大小</li>
+                                            <li class="mb-1"><code class="text-primary">etime</code> : 有效期</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -653,28 +662,25 @@
 
                 <!-- Add Link -->
                 <div class="card shadow-sm mb-2 border-0">
-                    <div class="card-header bg-white border-bottom-0 p-0" id="headingAddLink">
-                        <h2 class="mb-0">
-                            <button class="btn btn-block text-left d-flex align-items-center justify-content-between focus-none collapsed p-3" type="button" data-toggle="collapse" data-target="#collapseAddLink" aria-expanded="false" aria-controls="collapseAddLink">
-                                <div>
-                                    <span class="badge badge-success mr-2 p-1">POST</span>
-                                    <span class="font-weight-bold" i18n="direct_api_title_4">添加直链</span>
-                                    <div class="small text-muted mt-1 text-monospace">/services/direct</div>
-                                </div>
-                                <iconpark-icon name="down" class="text-muted"></iconpark-icon>
-                            </button>
-                        </h2>
+                    <div class="card-header bg-white border-bottom-0 p-0 api-card-header" id="headingAddLink" data-toggle="collapse" data-target="#collapseAddLink" aria-expanded="false" aria-controls="collapseAddLink">
+                        <div class="d-flex align-items-center justify-content-between p-3">
+                            <div>
+                                <span class="badge badge-success mr-2 p-1">POST</span>
+                                <span i18n="direct_api_title_4">添加直链</span>
+                                <div class="small text-secondary mt-1 text-monospace">/services/direct</div>
+                            </div>
+                            <iconpark-icon name="down" class="text-muted"></iconpark-icon>
+                        </div>
                     </div>
                     <div id="collapseAddLink" class="collapse" aria-labelledby="headingAddLink" data-parent="#apiAccordion">
                         <div class="card-body border-top">
-                            <div class="mb-3">
-                                <label class="text-muted small font-weight-bold">ENDPOINT</label>
-                                <div class="input-group input-group-sm mb-2">
-                                    <input type="text" class="form-control bg-light" value="https://tmp-api.vx-cdn.com/services/direct" readonly>
+                            <div class="mb-4">
+                                <div class="text-uppercase text-muted small font-weight-bold mb-2">Endpoint</div>
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control font-monospace small" value="https://tmp-api.vx-cdn.com/services/direct" readonly>
                                 </div>
-                                <div class="small text-muted">
-                                    <span class="badge badge-light border mr-1">Content-Type</span> application/x-www-form-urlencoded
-                                </div>
+                                <div class="text-uppercase text-muted small font-weight-bold mb-1">Content-Type</div>
+                                <div class="font-monospace small">application/x-www-form-urlencoded</div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
@@ -692,13 +698,13 @@
                                 <div class="col-md-6">
                                     <h6 class="border-bottom pb-2 mb-3" i18n="direct_api_return">返回值</h6>
                                     <div class="small">
-                                        <div class="mb-2"><strong>Status:</strong></div>
-                                        <ul class="list-unstyled text-muted pl-2">
-                                            <li i18n="direct_api_status_1_b">1 : 完成</li>
-                                            <li i18n="direct_api_status_0_b">0 : 失败</li>
-                                            <li i18n="direct_api_status_1001">1001 : 失败，文件不存在</li>
-                                            <li i18n="direct_api_status_1002">1002 : 失败，内部错误</li>
-                                            <li i18n="direct_api_status_1005">1005 : 失败，文件尚未就绪，请稍后再添加</li>
+                                        <div class="mb-2 font-weight-bold">Status</div>
+                                        <ul class="list-unstyled pl-0 mb-3">
+                                            <li class="mb-1"><code class="text-success">1</code> : <span i18n="direct_api_status_1_b">完成</span></li>
+                                            <li class="mb-1"><code class="text-danger">0</code> : <span i18n="direct_api_status_0_b">失败</span></li>
+                                            <li class="mb-1"><code class="text-danger">1001</code> : <span i18n="direct_api_status_1001">失败，文件不存在</span></li>
+                                            <li class="mb-1"><code class="text-danger">1002</code> : <span i18n="direct_api_status_1002">失败，内部错误</span></li>
+                                            <li class="mb-1"><code class="text-danger">1005</code> : <span i18n="direct_api_status_1005">失败，文件尚未就绪，请稍后再添加</span></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -709,28 +715,25 @@
 
                 <!-- Del Link -->
                 <div class="card shadow-sm mb-2 border-0">
-                    <div class="card-header bg-white border-bottom-0 p-0" id="headingDelLink">
-                        <h2 class="mb-0">
-                            <button class="btn btn-block text-left d-flex align-items-center justify-content-between focus-none collapsed p-3" type="button" data-toggle="collapse" data-target="#collapseDelLink" aria-expanded="false" aria-controls="collapseDelLink">
-                                <div>
-                                    <span class="badge badge-success mr-2 p-1">POST</span>
-                                    <span class="font-weight-bold" i18n="direct_api_title_5">移除直链</span>
-                                    <div class="small text-muted mt-1 text-monospace">/services/direct</div>
-                                </div>
-                                <iconpark-icon name="down" class="text-muted"></iconpark-icon>
-                            </button>
-                        </h2>
+                    <div class="card-header bg-white border-bottom-0 p-0 api-card-header" id="headingDelLink" data-toggle="collapse" data-target="#collapseDelLink" aria-expanded="false" aria-controls="collapseDelLink">
+                        <div class="d-flex align-items-center justify-content-between p-3">
+                            <div>
+                                <span class="badge badge-success mr-2 p-1">POST</span>
+                                <span i18n="direct_api_title_5">移除直链</span>
+                                <div class="small text-secondary mt-1 text-monospace">/services/direct</div>
+                            </div>
+                            <iconpark-icon name="down" class="text-muted"></iconpark-icon>
+                        </div>
                     </div>
                     <div id="collapseDelLink" class="collapse" aria-labelledby="headingDelLink" data-parent="#apiAccordion">
                         <div class="card-body border-top">
-                            <div class="mb-3">
-                                <label class="text-muted small font-weight-bold">ENDPOINT</label>
-                                <div class="input-group input-group-sm mb-2">
-                                    <input type="text" class="form-control bg-light" value="https://tmp-api.vx-cdn.com/services/direct" readonly>
+                            <div class="mb-4">
+                                <div class="text-uppercase text-muted small font-weight-bold mb-2">Endpoint</div>
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control font-monospace small" value="https://tmp-api.vx-cdn.com/services/direct" readonly>
                                 </div>
-                                <div class="small text-muted">
-                                    <span class="badge badge-light border mr-1">Content-Type</span> application/x-www-form-urlencoded
-                                </div>
+                                <div class="text-uppercase text-muted small font-weight-bold mb-1">Content-Type</div>
+                                <div class="font-monospace small">application/x-www-form-urlencoded</div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
@@ -747,11 +750,11 @@
                                 <div class="col-md-6">
                                     <h6 class="border-bottom pb-2 mb-3" i18n="direct_api_return">返回值</h6>
                                     <div class="small">
-                                        <div class="mb-2"><strong>Status:</strong></div>
-                                        <ul class="list-unstyled text-muted pl-2">
-                                            <li i18n="direct_api_status_1_b">1 : 完成</li>
-                                            <li i18n="direct_api_status_0_b">0 : 失败</li>
-                                            <li i18n="direct_api_status_1003">1003 : 失败，没有找到对应的直链</li>
+                                        <div class="mb-2 font-weight-bold">Status</div>
+                                        <ul class="list-unstyled pl-0 mb-3">
+                                            <li class="mb-1"><code class="text-success">1</code> : <span i18n="direct_api_status_1_b">完成</span></li>
+                                            <li class="mb-1"><code class="text-danger">0</code> : <span i18n="direct_api_status_0_b">失败</span></li>
+                                            <li class="mb-1"><code class="text-danger">1003</code> : <span i18n="direct_api_status_1003">失败，没有找到对应的直链</span></li>
                                         </ul>
                                     </div>
                                 </div>
