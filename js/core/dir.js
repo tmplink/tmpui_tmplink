@@ -574,23 +574,42 @@ class dir {
         $('#mr_parent_id').val(this.room.parent);
         $('#mr_top_id').val(this.room.top);
 
+        // 初始时隐藏按钮，等待文件列表加载完成
+        $('.btn_mobile_top').hide();
+        $('.btn_mobile_sub').hide();
+
         app.linkRebind();
         this.mobileTopabrFix(mrid);
     }
 
     mobileTopabrFix(mrid) {
-        if (mrid === 0) {
-            $('.mobile-head-padding-large').css('padding-top', '80px');
+        // 将 mrid 转换为数字进行比较
+        const mridNum = parseInt(mrid);
+        
+        if (mridNum === 0) {
+            // 根目录：只显示"创建文件夹"按钮，固定 padding
+            $('.mobile-head-padding-large').css('padding-top', '110px');
             $('.btn_mobile_top').hide();
-            $('.btn_mobile_sub').show();
+            $('.btn_mobile_sub').fadeIn(300);
         } else {
-            $('.btn_mobile_top').show();
+            // 子目录：显示"上传文件"和"创建文件夹"两个按钮
+            $('.btn_mobile_top').fadeIn(300);
             $('.btn_mobile_sub').hide();
-            //根据 room_subinfo 的显示状态来设定 padding-top 的值
-            if ($('.room_subinfo').css('display') === 'none') {
-                $('.mobile-head-padding-large').css('padding-top', '150px');
+            
+            // 检查是否有内容（文件或子文件夹）
+            const hasContent = (this.file_list && this.file_list.length > 0) || 
+                              (this.subroom_data && this.subroom_data.length > 0);
+            
+            if (!hasContent) {
+                // 没有任何内容
+                $('.mobile-head-padding-large').css('padding-top', '110px');
             } else {
-                $('.mobile-head-padding-large').css('padding-top', '180px');
+                // 有内容，根据 room_subinfo 的显示状态来设定 padding-top 的值
+                if ($('.room_subinfo').css('display') === 'none') {
+                    $('.mobile-head-padding-large').css('padding-top', '150px');
+                } else {
+                    $('.mobile-head-padding-large').css('padding-top', '180px');
+                }
             }
         }
     }
@@ -651,6 +670,11 @@ class dir {
         $('.mr_filelist_refresh_icon').addClass('fa-spin');
         $('.mr_filelist_refresh_icon').attr('disabled', true);
         this.loadingON();
+        
+        // 隐藏按钮，显示加载状态
+        $('.btn_mobile_top').hide();
+        $('.btn_mobile_sub').hide();
+        
         var params = get_url_params();
 
 
@@ -686,6 +710,11 @@ class dir {
                 this.parent_op.autoload = false;
                 this.file_list = rsp.data;
                 this.loadingOFF();
+                
+                // 在文件列表加载完成后，重新调整移动端导航栏偏移并显示按钮
+                if (isMobileScreen()) {
+                    this.mobileTopabrFix(params.mrid);
+                }
             });
         });
     }

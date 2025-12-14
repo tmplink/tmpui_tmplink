@@ -995,6 +995,11 @@ class tmplink {
         $('#filelist_refresh_icon').attr('disabled', true);
         this.loading_box_on();
         
+        // 隐藏按钮，显示加载状态
+        if (isMobileScreen()) {
+            $('.btn-upload').hide();
+        }
+        
         let photo = 0;
         if (localStorage.getItem('app_workspace_view') == 'photo') {
             photo = 1;
@@ -1027,6 +1032,11 @@ class tmplink {
             
             $('#filelist').show();
             this.loading_box_off();
+            
+            // 在文件列表加载完成后，显示按钮
+            if (isMobileScreen()) {
+                $('.btn-upload').fadeIn(300);
+            }
             
             // 让AutoLoader处理响应
             return this.workspaceAutoLoader.handleResponse(rsp);
