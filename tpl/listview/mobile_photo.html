@@ -38,7 +38,7 @@
             </nav>
             
             <div class="album-sidebar-actions">
-                <button class="album-action-btn primary" onclick="PHOTO.downloadSelected(); PHOTO.toggleSidebar();">
+                <button class="album-action-btn primary" id="album-download-btn-m" onclick="PHOTO.downloadSelected(); PHOTO.toggleSidebar();" style="display: none;">
                     <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
                     <span data-tpl="album_download_selected">下载选中</span>
                 </button>
@@ -118,7 +118,7 @@
             <iconpark-icon name="check-square"></iconpark-icon>
             <span>选择</span>
         </button>
-        <button class="album-mobile-btn" onclick="PHOTO.downloadSelected()">
+        <button class="album-mobile-btn" id="album-mobile-download-btn-m" onclick="PHOTO.downloadSelected()" style="display: none;">
             <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
             <span>下载</span>
         </button>

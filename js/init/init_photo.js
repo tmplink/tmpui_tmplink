@@ -648,8 +648,18 @@ var PHOTO = {
         
         if (count > 0) {
             $('#album-selection-bar').addClass('active');
+            // Show download buttons when items are selected
+            $('#album-download-btn').show();
+            $('#album-mobile-download-btn').show();
+            $('#album-download-btn-m').show();
+            $('#album-mobile-download-btn-m').show();
         } else {
             $('#album-selection-bar').removeClass('active');
+            // Hide download buttons when no items are selected
+            $('#album-download-btn').hide();
+            $('#album-mobile-download-btn').hide();
+            $('#album-download-btn-m').hide();
+            $('#album-mobile-download-btn-m').hide();
         }
     },
 
