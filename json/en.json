@@ -624,6 +624,7 @@
     "model_list": "List",
     "model_grid": "Icon",
     "model_photo": "Image",
+    "photo_album_mode": "Photo Album",
     "model_addfile": "Add",
     "model_copy": "Share",
     "model_rocket": "High-speed Channel",

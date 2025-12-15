@@ -57,15 +57,10 @@
                                     <iconpark-icon name="list" class="fa-fw"></iconpark-icon>
                                     <span i18n="sort_title">.</span>
                                 </button>
-                                <button id="ws_btn_file_list" class="dropdown-item"
-                                    onclick="TL.dir.setViewModel('list');">
-                                    <iconpark-icon name="list-radio" class="fa-fw"></iconpark-icon>
-                                    <span i18n="model_list">.</span>
-                                </button>
                                 <button id="ws_btn_file_photo" class="dropdown-item"
                                     onclick="TL.openPhotoAlbum();">
                                     <iconpark-icon name="images" class="fa-fw"></iconpark-icon>
-                                    <span i18n="model_photo">.</span>
+                                    <span i18n="photo_album_mode">相册模式</span>
                                 </button>
                                 <hr>
                                 <button class="dropdown-item in-private-dir" id="mr_copy">
@@ -97,7 +92,7 @@
                                 <button id="ws_btn_file_photo_desktop" class="dropdown-item"
                                     onclick="TL.openPhotoAlbum();">
                                     <iconpark-icon name="images" class="fa-fw"></iconpark-icon>
-                                    <span i18n="model_photo">.</span>
+                                    <span i18n="photo_album_mode">相册模式</span>
                                 </button>
                             </div>
                         </div>
@@ -679,14 +674,6 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <h5 i18n="modal_performance_display">.</h5>
-                <div class="form-group">
-                    <select class="form-control" id="pf_display">
-                        <option value="list" i18n-only="html" i18n="modal_performance_display_0">.</option>
-                        <option value="photo" i18n-only="html" i18n="modal_performance_display_1">.</option>
-                    </select>
-                </div>
-
                 <h5 i18n="modal_performance_sort">.</h5>
                 <div class="form-group">
                     <select class="form-control" id="pf_sort_by" onchange="TL.dir.performancePost()">

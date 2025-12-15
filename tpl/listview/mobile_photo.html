@@ -205,6 +205,9 @@
 <!-- Lightbox Thumbnail Template -->
 <script type="text/template" id="tpl-lightbox-thumb">
     <div class="lightbox-thumbnail {active}" data-index="{index}" onclick="PHOTO.goToPhoto({index})">
-        <img src="{thumbnail}" alt="">
+        <img src="{thumbnail}" alt="" onload="this.parentElement.classList.add('loaded')">
+        <div class="lightbox-thumb-loading">
+            <div class="lightbox-thumb-spinner"></div>
+        </div>
     </div>
 </script>

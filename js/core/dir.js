@@ -190,14 +190,10 @@ class dir {
     }
 
     setViewModel(type) {
-        if (type !== 'photo' && type !== 'list') {
-            debug('dir.setViewModel() received unsupported type', type);
-            return;
-        }
-
-        const room_key = 'app_room_view_' + this.room.mr_id;
-        localStorage.setItem(room_key, type);
-        this.filelist(0);
+        // View model switching has been removed
+        // Always use list view
+        debug('dir.setViewModel() is deprecated and no longer supported');
+        return;
     }
 
     setModel(type) {
@@ -743,7 +739,6 @@ class dir {
      * 保存用户的设定   
      */
     performancePost() {
-        let pf_display = $('#pf_display').val();
         let pf_sort_by = $('#pf_sort_by').val();
         let pf_sort_type = $('#pf_sort_type').val();
         let pf_publish   = $('#pf_publish').is(':checked') ? 'yes' : 'no';
@@ -752,7 +747,6 @@ class dir {
         $.post(this.parent_op.api_mr, {
             action: 'pf_set',
             token: this.parent_op.api_token,
-            pf_display: pf_display,
             sort_by: pf_sort_by,
             sort_type: pf_sort_type,
             pf_upload: pf_allow_upload,

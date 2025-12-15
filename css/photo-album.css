@@ -950,6 +950,7 @@
 }
 
 .lightbox-thumbnail {
+    position: relative;
     flex-shrink: 0;
     width: 56px;
     height: 56px;
@@ -959,6 +960,7 @@
     cursor: pointer;
     transition: var(--album-transition);
     border: 2px solid transparent;
+    background: var(--album-card-bg);
 }
 
 .lightbox-thumbnail:hover {
@@ -975,6 +977,38 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.lightbox-thumbnail.loaded img {
+    opacity: 1;
+}
+
+.lightbox-thumb-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.lightbox-thumbnail.loaded .lightbox-thumb-loading {
+    opacity: 0;
+}
+
+.lightbox-thumb-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: var(--album-accent);
+    border-radius: 50%;
+    animation: albumSpin 0.8s linear infinite;
 }
 
 .lightbox-counter {

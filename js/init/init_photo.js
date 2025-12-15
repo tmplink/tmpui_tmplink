@@ -96,8 +96,12 @@ var PHOTO = {
         // Apply language
         app.languageBuild();
 
-        // Toggle share button per mode
-        this.updateShareButtonVisibility();
+        // Initially hide share buttons until data loads
+        $('#album-share-btn').hide();
+        $('#album-share-btn-side').hide();
+        
+        // Show loading immediately
+        this.showLoading();
         
         // Initialize based on mode
         if (this.isWorkspaceMode()) {
@@ -222,7 +226,7 @@ var PHOTO = {
         this.isLoading = true;
         
         if (page === 0) {
-            this.showLoading();
+            // Loading is already shown by init
             this.photoList = [];
             $('#album-grid').html('');
         }
@@ -325,7 +329,7 @@ var PHOTO = {
      * Load folder details
      */
     loadFolderData: function() {
-        this.showLoading();
+        // Loading is already shown by init
         
         $.post(TL.api_mr, {
             action: 'details',
@@ -381,6 +385,9 @@ var PHOTO = {
             if (rsp.data.sub_rooms && rsp.data.sub_rooms !== 0) {
                 this.folderList = rsp.data.sub_rooms;
             }
+            
+            // Update share button visibility after data is loaded
+            this.updateShareButtonVisibility();
             
             // Load photos (desktop won't have photos, only folders)
             this.loadPhotos(0);
@@ -462,7 +469,9 @@ var PHOTO = {
         if (this.isLoading) return;
         this.isLoading = true;
         
-        if (page === 0) {
+        // Loading is already shown by init or loadFolderData
+        // Only show loading for subsequent pages
+        if (page > 0) {
             this.showLoading();
         }
         
