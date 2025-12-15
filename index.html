@@ -15,6 +15,27 @@
     <script type="text/javascript">
         'use strict';
 
+        // IP 地理位置检查
+        if (window.location.hostname.indexOf('ttttt.link') === -1 && 
+            window.location.hostname !== '127.0.0.1' && 
+            window.location.hostname !== 'localhost') {
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://tmp-api.vx-cdn.com/api_v2/token', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    try {
+                        var rsp = JSON.parse(xhr.responseText);
+                        if (rsp.data === 1) {
+                            window.location.href = 'https://www.ttttt.link' + window.location.pathname + window.location.search + window.location.hash;
+                        }
+                    } catch (e) {}
+                }
+            };
+            xhr.send('action=set_area');
+        }
+
         try {
             var f = new Function("class tmpUITest{a=0}");
         } catch (e) {
