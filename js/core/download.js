@@ -522,7 +522,8 @@ class download {
 
         try {
             updateButtonClass('btn-success', 'btn-azure');
-            updateButtonText('<img src="/img/loading-outline.svg" style="width: 24px;">');
+            const loadingText = app.languageData.download_preparing || app.languageData.download_loading || 'Preparing...';
+            updateButtonText(loadingText);
             updateButtonState(true);
 
             const downloadUrl = await this.getDownloadUrl(params.ukey);
@@ -605,8 +606,12 @@ class download {
             this.initMultiThreadDownload(numberOfChunks);
     
             // 进度条初始化与可见性
-            $('#download_progress_container').show();
-            $('#download_progress_container_hr').show();
+            const $progressContainer = $('#download_progress_container');
+            const $fastButton = $('#file_download_btn_fast');
+
+            if ($fastButton.length) {
+                $fastButton.addClass('download-btn-progress-active').attr('aria-busy', 'true');
+            }
             
             // 重置进度条
             $('#progress_thread_1').css('width', '0%').removeClass('bg-warning');
@@ -840,6 +845,13 @@ class download {
         
         // 更新单一进度条
         $('#progress_thread_1').css('width', `${totalProgress}%`);
+
+        const $progressContainer = $('#download_progress_container');
+        if ($progressContainer.length && !$progressContainer.hasClass('is-active')) {
+            $progressContainer.addClass('is-active');
+            // 隐藏按钮文字，避免与进度信息重叠
+            $('#file_download_btn_fast .download-btn-label').addClass('is-hidden');
+        }
         
         // 如果当前块有错误，设置进度条为警告状态
         if (this.threads[index].hasWarning) {
@@ -912,13 +924,26 @@ class download {
     cleanupMultiThreadDownload() {
         this.multiThreadActive = false;
         this.threads.forEach(xhr => xhr && xhr.abort && xhr.abort());
-        $('#download_progress_container').hide();
-        $('#download_progress_container_hr').hide();
+        const $progressContainer = $('#download_progress_container');
+        const $fastButton = $('#file_download_btn_fast');
+
+        if ($progressContainer.length) {
+            $progressContainer.removeClass('is-active');
+        }
+
+        if ($fastButton.length) {
+            $fastButton.removeClass('download-btn-progress-active is-loading').removeAttr('aria-busy');
+        }
+
+        $('#file_download_btn_fast .download-btn-label').removeClass('is-hidden');
         
         // 重置进度条
         $('#progress_thread_1')
             .removeClass('bg-warning')
             .css('width', '0%');
+
+        $('#download_speed').text('0 KB/s');
+        $('#download_progress').text('0 MB / 0 MB');
         
         // 清空数据
         this.chunks = [];
@@ -981,7 +1006,8 @@ class download {
 
         try {
             updateButtonClass('btn-success', 'btn-azure');
-            updateButtonText('<img src="/img/loading-outline.svg" style="width: 24px;">');
+            const loadingText = app.languageData.download_preparing || app.languageData.download_loading || 'Preparing...';
+            updateButtonText(loadingText);
             updateButtonState(true);
 
             if (params.url) {

@@ -1229,14 +1229,7 @@ class tmplink {
                     $('#filename').html(rsp.data.name);
                     $('#filesize').html(rsp.data.size);
 
-                    $('#btn_add_to_workspace_mobile').on('click', () => {
-                        if (this.logined == 1) {
-                            this.workspace_add('#btn_add_to_workspace_mobile', params.ukey);
-                            $('#btn_add_to_workspace_mobile').html('<iconpark-icon name="circle-check" class="fa-fw mx-auto my-auto mb-2text-green fa-3x"></iconpark-icon>');
-                        } else {
-                            app.open('/app&listview=login');
-                        }
-                    });
+                    // Mobile workspace button is handled by mobile-file.js with onclick attribute
 
                     //如果设置了个性化图标
                     if (rsp.data.ui_publish === 'yes' && rsp.data.ui_publish_status === 'ok' && rsp.data.ui_pro === 'yes') {
@@ -1347,13 +1340,28 @@ class tmplink {
                     }
 
                     //下载按钮绑定事件，触发下载
-                    $('#file_download_btn_fast').on('click', () => {
+                    const downloadHandler = () => {
                         if (this.sponsor) {
                             this.ui_hs_change('enhanced');
                         }
 
                         const uiCallbacks = {
-                            updateButtonText: (text) => $('#file_download_btn_fast').html(text),
+                            updateButtonText: (text) => {
+                                const $fastBtn = $('#file_download_btn_fast');
+                                const $textTarget = $fastBtn.find('.download-btn-text');
+
+                                if ($textTarget.length) {
+                                    $textTarget.html(text);
+                                } else {
+                                    $fastBtn.html(text);
+                                }
+
+                                if ((typeof text === 'string') && /<img/i.test(text)) {
+                                    $fastBtn.addClass('is-loading');
+                                } else {
+                                    $fastBtn.removeClass('is-loading');
+                                }
+                            },
                             updateButtonState: (disabled) => $('#file_download_btn_fast').attr('disabled', disabled),
                             updateButtonClass: (removeClass, addClass) => {
                                 $('#file_download_btn_fast').removeClass(removeClass).addClass(addClass);
@@ -1376,34 +1384,10 @@ class tmplink {
                                 mode: 'fast'
                             }, uiCallbacks);
                         }
-                    });
+                    };
 
-                    $('#file_download_btn_normal').on('click', () => {
-                        const uiCallbacks = {
-                            updateButtonText: (text) => $('#file_download_btn_normal').html(text),
-                            updateButtonState: (disabled) => $('#file_download_btn_normal').attr('disabled', disabled),
-                            updateButtonClass: (removeClass, addClass) => {
-                                $('#file_download_btn_normal').removeClass(removeClass).addClass(addClass);
-                            },
-                            showError: (message) => this.alert(message)
-                        };
-
-                        // 如果已经预加载了下载链接，直接使用
-                        if (this.current_file_download_url) {
-                            this.download.startDirectDownload({
-                                url: this.current_file_download_url,
-                                filename: fileinfo.name,
-                                mode: 'normal'
-                            }, uiCallbacks);
-                        } else {
-                            // 否则走正常流程，通过 API 获取链接
-                            this.download.handleFileDownload({
-                                ukey: params.ukey,
-                                filename: fileinfo.name,
-                                mode: 'normal'
-                            }, uiCallbacks);
-                        }
-                    });
+                    $('#file_download_btn_fast').on('click', downloadHandler);
+                    $('#file_download_btn_normal').on('click', downloadHandler);
 
                     //扫码下载按钮绑定
                     $('#file_download_by_qrcode').on('click', () => {
@@ -1444,7 +1428,7 @@ class tmplink {
                     $('#btn_add_to_workspace').on('click', () => {
                         if (this.logined == 1) {
                             //更换图标为完成的标志
-                            $('#btn_add_to_workspace_icon').html('<iconpark-icon name="circle-check" class="fa-fw mx-auto my-auto mb-2 text-green fa-3x"></iconpark-icon>');
+                            $('#btn_add_to_workspace_icon iconpark-icon').attr('name', 'circle-check').css('color', '#22c55e');
                             this.workspace_add('#btn_add_to_workspace', params.ukey, false);
                             //移除监听
                             $('#btn_add_to_workspace').off('click');

@@ -1,266 +1,151 @@
+<link rel="stylesheet" href="/css/file-mobile-v2.css?v=2">
+<script src="/js/core/mobile-file.js?v=1"></script>
 
-    <div class="align-self-center w-100">
-        <div class="text-center">
-            <a href="/">
-                <img id="top_loggo" src="/img/loading.svg" alt="tmp.link" style="width: 64px;">
-            </a>
-            <span class="userinfo_avatar" style="display: none;">
-                <img src="/img/loading.svg" class="img-circle userinfo_avatar_img" alt="User Image"
-                    style="width:64px;height:64px;border-radius: 18px;">
-            </span>
+<div class="mobile-download-shell">
+    <!-- Header -->
+    <header class="mobile-header">
+        <div class="mobile-brand">
+            <a href="/"><img id="top_loggo" src="/img/loading.svg" alt="tmp.link"></a>
         </div>
-        <div id="file_messenger" class="align-self-center mx-auto default-filebox"
-            style="display: none;margin-top: 20px;max-width: 550px;">
-            <div style="border-radius: 24px;">
-                <div class="card-body p-5 default-filebox  d-flex flex-grow-1">
-                    <!-- 垂直居中 -->
-                    <div class="align-self-center w-100">
-                        <div class="text-center pt-2" id="file_messenger_icon"></div>
-                        <div class="text-center h3 mt-4" id="file_messenger_msg"></div>
-                        <div class="row p-5" style="display: none;" id="file_messenger_msg_login">
-                            <div class="col-md-6 col-12 text-center">
-                                <button class="btn btn-lg btn-primary btn-block workspace-nologin mb-2" type="button"
-                                    onclick="app.open('/app&listview=login');" i18n="index_b3">
-                                    .
-                                </button>
-                            </div>
-                            <div class="col-md-6 col-12 text-center">
-                                <button class="btn btn-lg btn-danger btn-block workspace-nologin" type="button"
-                                    onclick="app.open('/app&listview=reg');" i18n="index_b2">
-                                    .
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="mx-auto" id="file_box" style="display: none;max-width: 550px;">
-            <div class="default-filebox" id="file_info" style="margin-bottom: 8px;border-radius: 24px;">
-                <div class="card-body p-5">
-                    <div class="alert alert-warning display-none" id="wechat_notice" role="alert"
-                        i18n="filepage_mobile_notice">
-                        .
-                    </div>
-                    <div class="d-none" id="report_ukey"></div>
-                    <div class="row m-0 mt-2">
-                        <div class="p-0 col-12">
-                            <div class="text-center h2">
-                                <!-- <iconpark-icon name="file-lines" class="text-azure"
-                                id="file-icon"></iconpark-icon> -->
-                                <span id="filename" style="word-wrap: break-word;"></span>
-                            </div>
-                            <div class="text-center">
-                                <iconpark-icon name="compact-disc" class="fa-fw"></iconpark-icon>
-                                <span id="filesize">.</span>
-                                <span id="likes" class="ml-2 btn-point text-pink">
-                                    <iconpark-icon name="like" class="fa-fw"></iconpark-icon>
-                                    <span id="likes_count">0</span>
-                                </span>
-                                <span class="hs-model ml-2">
-                                    <iconpark-icon name="gauge-circle-bolt" class="fa-fw"></iconpark-icon>
-                                    <span class="hs-model-title" i18n="hs_title">.</span>
-                                </span>
-                                <span class="hot-flag ml-2" style="display: none;">
-                                    <iconpark-icon name="fire" class="fa-fw text-red"></iconpark-icon>
-                                </span>
-                            </div>
-
-                            <div class="text-danger text-center" id="nsfw_alert" style="display: none;">
-                                <iconpark-icon name="circle-exclamation" class="fa-fw"></iconpark-icon>
-                                <span i18n="filepage_nsfw_alert">NSFW!</span>
-                            </div>
-
-                            <div id="lefttime_show" class="text-center">
-                                <span><iconpark-icon name="timer" class="fa-fw"></iconpark-icon></span>
-                                <span id="lefttime"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="text-right userinfo text-muted mt-3 position-relative" style="display: none;font-size: 14px;">
-                        <span class="publisher-info-wrapper">
-                            <span i18n="filepage_publicby_1">.</span>
-                            <span class="publisher-name-wrapper">
-                                <span class="userinfo_nickname"></span>
-                                <span class="userinfo_sd" style="display: none;"></span>
-                                <span class="userinfo_pro text-azure" style="display: none;">
-                                    <iconpark-icon name="circle-check" class="fa-fw"></iconpark-icon>
-                                </span>
-                            </span>
-                            <span i18n="filepage_publicby_2">.</span>
-                        </span>
-                        <button class="btn btn-sm btn-light btn-user-info ml-2" aria-label="查看用户信息">
-                            <iconpark-icon name="user" class="fa-fw"></iconpark-icon>
-                        </button>
-                        
-                        <!-- 用户信息浮动层 - 现代化设计 -->
-                        <div class="user-info-card shadow" style="display: none;">
-                            <div class="d-flex align-items-center">
-                                <!-- 头像 -->
-                                <div class="user-info-avatar mr-3">
-                                    <img class="userinfo_avatar_card_img" src="/img/loading.svg" alt="用户头像">
-                                </div>
-                                
-                                <!-- 用户信息区域 -->
-                                <div class="user-info-content">
-                                    <!-- 名称和认证标识在同一行 -->
-                                    <div class="d-flex align-items-center user-info-name-row">
-                                        <span class="userinfo_card_nickname"></span>
-                                        <span class="userinfo_card_pro ml-1" style="display: none;">
-                                            <iconpark-icon name="circle-check" class="fa-fw"></iconpark-icon>
-                                        </span>
-                                    </div>
-                                    
-                                    <!-- 用户介绍 -->
-                                    <div class="user-info-intro-row">
-                                        <span class="userinfo_card_intro">个人介绍信息</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="btn-group btn-block mt-3">
-                        <button type="button" class="btn btn-success btn-lg" style="width: calc(100% - 46px)" 
-                            id="file_download_btn_normal">
-                            <iconpark-icon name="cloud-arrow-down" class="fa-fw mx-auto my-auto mb-2"></iconpark-icon>
-                            <span i18n="file_btn_download">.</span>
-                        </button>
-                        <div class="btn-group" style="width: 46px">
-                            <button type="button" class="btn btn-success btn-lg dropdown-toggle h-100" 
-                                data-toggle="dropdown"
-                                style="width: 100%; border-left: 1px solid rgba(255,255,255,0.2);">
-                                <span class="sr-only">Toggle Dropdown</span>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <button class="dropdown-item" id="file_download_btn_fast">
-                                    <iconpark-icon name="rocket" class="fa-fw"></iconpark-icon>
-                                    <span i18n="file_btn_download_fast">.</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-3">
-                        <hr id="download_progress_container_hr" style="display: none;" />
-                        <!-- 进度条组件 -->
-                        <div id="download_progress_container" class="shadow-sm p-2 rounded" style="display: none;">
-                            <div class="progress mb-2" style="height: 10px;">
-                                <div class="progress-bar bg-azure" id="progress_thread_1" role="progressbar"
-                                    style="width: 0%"></div>
-                            </div>
-                            <div class="d-flex justify-content-between text-muted">
-                                <small id="download_speed">0 KB/s</small>
-                                <small id="download_progress">0 MB / 0 MB</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 居中显示 -->
-                    <div id="file_op" class="my-auto" style="display: none;">
-                        <hr />
-
-                        <span class="dropdown btn-block btn_play" style="display: none;">
-                            <button role="button" type="button" class="btn btn-primary btn-lg btn-block"
-                                data-toggle="dropdown">
-                                <iconpark-icon name="play" class="fa-fw mx-auto my-auto mb-2"></iconpark-icon>
-                                <span i18n="file_btn_play">.</span>
-                            </button>
-                            <div class="dropdown-menu shadow w-100">
-                                <button class="dropdown-item play_on_browser" style="display: none;">
-                                    <iconpark-icon name="browser" class="fa-fw"></iconpark-icon>
-                                    <span>Browser</span>
-                                </button>
-                                <button class="dropdown-item play_on_potplayer" style="display: none;">
-                                    <iconpark-icon name="send-backward" class="fa-fw"></iconpark-icon>
-                                    <span>potplayer</span>
-                                </button>
-                                <button class="dropdown-item play_on_iina" style="display: none;">
-                                    <iconpark-icon name="send-backward" class="fa-fw"></iconpark-icon>
-                                    <span>IINA</span>
-                                </button>
-                                <button class="dropdown-item play_on_nplayer" style="display: none;">
-                                    <iconpark-icon name="send-backward" class="fa-fw"></iconpark-icon>
-                                    <span>nplayer</span>
-                                </button>
-                                <button class="dropdown-item play_copy_url" style="display: none;">
-                                    <iconpark-icon name="send-backward" class="fa-fw"></iconpark-icon>
-                                    <span>Stream URL</span>
-                                </button>
-                            </div>
-                        </span>
-
-                        <button class="btn btn-light btn-lg btn-block" id="btn_add_to_workspace_mobile">
-                            <iconpark-icon name="circle-heart" class="fa-fw mx-auto my-auto mb-2"></iconpark-icon>
-                            <span i18n="file_btn_workspace">.</span>
-                        </button>
-
-                        <button class="btn btn-light btn-lg btn-block btn_copy btn_copy_fileurl">
-                            <iconpark-icon name="link-horizontal" class="fa-fw mx-auto my-auto mb-2"></iconpark-icon>
-                            <span i18n="file_btn_copy">.</span>
-                        </button>
-
-                        <button class="btn btn-light btn-lg btn-block" onclick="$('#reportModal').modal('show')">
-                            <iconpark-icon name="circle-exclamation" class="fa-fw mx-auto my-auto mb-2"></iconpark-icon>
-                            <span i18n="file_btn_report">.</span>
-                        </button>
-
-                        <div class="clearfix"></div>
-
-                    </div>
-
-                    <!-- <div class="text-center">
-                        <span id="download_msg" class="text-green">.</span>
-                    </div> -->
-                    <hr>
-                    <div class="text-right mt-5 btn-pointer" style="font-size: 13px;display: none;" id="downloadAlert"
-                        onclick="$('#downloadAlertModal').modal('show')">
-                        <span><iconpark-icon name="triangle-exclamation-solid"
-                                style="font-size: 13px;color: #e9858e;"></iconpark-icon></span>
-                        <span i18n="da_file">此文件由第三方发布，请注意验证来源后再下载。</span>
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="row pt-5 pb-5" id="wx_notice" style="display: none;">
-                <div class="col-12 col-md-6 text-light">
-                    <h3 i18n="filepage_weixin_notice">.</h3>
-                </div>
-            </div>
-
-            <div class="text-center mt-3" id="index_lang" style="display: none;">
-
-                <!-- <div class="text-center" id="index_publish">
-                <span>🎁</span>
-                <span i18n="special_event">.</span>
-                </div> -->
-
-                <span class="btn btn-dark hs-enabled text-green" style="display: none;">
-                    <iconpark-icon name="gauge-circle-bolt" class="fa-fw"></iconpark-icon>
-                    <span i18n="hs_enabled">.</span>
-                </span>
-
-                <span class="btn btn-dark showOpenInMenubarX" onclick="TL.openInMenubarXofIndex()"
-                    style="display: none;">
-                    <img src="/img/menubarx/icon.svg" class="fa-fw my-auto" title="open in manubarX" />
-                    <span i18n="open_in_menubarx">.</span>
-                </span>
-                <span class="dropdown-toggle btn btn-dark" data-toggle="dropdown" aria-haspopup="true"
-                    aria-expanded="false">
-                    <iconpark-icon name="language" class="fa-fw"></iconpark-icon>
-                    <span class="selected_lang">.</span>
-                    <span> / Language</span>
-                </span>
-                <div class="dropdown-menu shadow-lg">
+        <div class="header-actions">
+            <div class="dropdown">
+                <button class="lang-toggle-minimal" data-toggle="dropdown">
+                    <iconpark-icon name="language"></iconpark-icon>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right shadow-lg" style="border-radius: 16px; border: none;">
                     <a class="dropdown-item" href="javascript:void(0)" onclick="TL.language('cn');">简体中文</a>
                     <a class="dropdown-item" href="javascript:void(0)" onclick="TL.language('hk');">繁体中文</a>
                     <a class="dropdown-item" href="javascript:void(0)" onclick="TL.language('en');">English</a>
                     <a class="dropdown-item" href="javascript:void(0)" onclick="TL.language('jp');">日本語</a>
                 </div>
             </div>
+        </div>
+    </header>
 
+    <!-- Messenger (Login/Error) Overlay -->
+    <div id="file_messenger" style="display: none;">
+        <div class="messenger-card">
+            <div class="messenger-icon" id="file_messenger_icon"></div>
+            <div class="messenger-msg" id="file_messenger_msg"></div>
+            <div id="file_messenger_msg_login" style="display: none; padding: 0 20px;">
+                <button class="btn btn-primary btn-lg btn-block mb-3" style="border-radius: 14px;" onclick="app.open('/app&listview=login');" i18n="index_b3">Login</button>
+                <button class="btn btn-light btn-lg btn-block" style="border-radius: 14px;" onclick="app.open('/app&listview=reg');" i18n="index_b2">Register</button>
+            </div>
         </div>
     </div>
+
+    <!-- Main Content -->
+    <main class="mobile-content" id="file_box" style="display: none;">
+        <!-- File Preview -->
+        <div class="file-preview-area" id="file_info">
+            <div class="file-icon-wrapper">
+                <iconpark-icon name="file-lines" id="file-icon"></iconpark-icon>
+            </div>
+            
+            <h1 class="file-title" id="filename">Loading...</h1>
+            
+            <div class="file-meta-row">
+                <span class="meta-item">
+                    <span id="filesize">--</span>
+                </span>
+                <span class="meta-dot"></span>
+                <span class="meta-item hs-model">
+                    <iconpark-icon name="gauge-circle-bolt"></iconpark-icon>
+                    <span class="hs-model-title" i18n="hs_title">Standard</span>
+                </span>
+                <span class="meta-dot hot-flag" style="display: none;"></span>
+                <span class="meta-item hot-flag" style="display: none;">
+                    <iconpark-icon name="fire" style="color: #ef4444;"></iconpark-icon>
+                </span>
+            </div>
+            
+            <div class="file-meta-row" id="lefttime_show" style="display: none;">
+                <iconpark-icon name="timer"></iconpark-icon>
+                <span id="lefttime">--</span>
+            </div>
+
+            <!-- NSFW Alert -->
+            <div id="nsfw_alert" style="display: none;">
+                <iconpark-icon name="circle-exclamation"></iconpark-icon>
+                <span i18n="filepage_nsfw_alert">NSFW Content</span>
+            </div>
+
+            <!-- User Info -->
+            <div class="publisher-card userinfo" style="display: none;">
+                <div class="publisher-icon">
+                    <img class="userinfo_avatar_card_img" src="/img/loading.svg" alt="Avatar">
+                </div>
+                <div class="publisher-content">
+                    <div class="publisher-name-row">
+                        <span class="userinfo_nickname userinfo_card_nickname"></span>
+                        <span class="userinfo_pro userinfo_card_pro" style="display: none;">
+                            <iconpark-icon name="circle-check"></iconpark-icon>
+                        </span>
+                        <span class="userinfo_sd" style="display: none;"></span>
+                    </div>
+                    <div class="publisher-intro">
+                        <span class="userinfo_card_intro">个人介绍信息</span>
+                    </div>
+                </div>
+                <div class="publisher-badge" i18n="filepage_sharer_badge">分享者</div>
+            </div>
+        </div>
+
+        <!-- Action Grid (Secondary Actions) -->
+        <div class="action-grid" id="file_op">
+            <button class="action-item" id="likes" onclick="mobileLikeFile()">
+                <div class="action-icon-box">
+                    <iconpark-icon name="like"></iconpark-icon>
+                </div>
+                <span class="action-label" id="likes_count">0</span>
+            </button>
+
+            <button class="action-item" id="btn_add_to_workspace_mobile" onclick="mobileAddToWorkspace()">
+                <div class="action-icon-box">
+                    <iconpark-icon name="folder-plus"></iconpark-icon>
+                </div>
+                <span class="action-label" i18n="file_btn_workspace">Save</span>
+            </button>
+
+            <button class="action-item" id="btn_copy_fileurl_mobile" onclick="mobileCopyFileUrl()">
+                <div class="action-icon-box">
+                    <iconpark-icon name="share-all"></iconpark-icon>
+                </div>
+                <span class="action-label" i18n="file_btn_copy">Copy</span>
+            </button>
+
+            <button class="action-item" id="btn_report_file" onclick="$('#reportModal').modal('show')">
+                <div class="action-icon-box" style="color: #ef4444;">
+                    <iconpark-icon name="circle-exclamation"></iconpark-icon>
+                </div>
+                <span class="action-label" i18n="file_btn_report">Report</span>
+            </button>
+        </div>
+        
+        <!-- Hidden elements for JS compatibility -->
+        <div class="d-none" id="report_ukey"></div>
+        <div class="d-none" id="wechat_notice"></div>
+        <div class="d-none" id="wx_notice"></div>
+        <div class="d-none" id="index_lang"></div>
+        <span class="d-none userinfo_avatar"></span>
+    </main>
+
+    <!-- Footer / Bottom Sheet -->
+    <footer class="mobile-footer">
+        <button type="button" id="file_download_btn_fast">
+            <span class="download-progress-fill" id="progress_thread_1"></span>
+            <span class="download-btn-label">
+                <span class="download-btn-text" i18n="file_btn_download_fast">Download</span>
+            </span>
+            <span class="download-btn-status" id="download_progress_container" aria-live="polite">
+                <span id="download_speed">0 KB/s</span>
+                <span class="status-separator">•</span>
+                <span id="download_progress">0 MB / 0 MB</span>
+            </span>
+        </button>
+        
+        <div class="legal-text" id="downloadAlert" style="display: none;" onclick="$('#downloadAlertModal').modal('show')">
+            <span i18n="da_file">Disclaimer: User generated content.</span>
+        </div>
+    </footer>
+</div>
