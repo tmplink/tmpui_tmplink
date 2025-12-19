@@ -2837,8 +2837,22 @@ class tmplink {
         const params = this.get_url_params();
         // 复制分享链接（不是下载链接）
         const shareUrl = `https://${this.site_domain}/f/${params.ukey}`;
-        // 使用简单复制，不使用批量复制
-        this.simpleCopy(event.target, shareUrl);
+        
+        // 复制到剪贴板
+        copyToClip(shareUrl).then(() => {
+            // 获取图标元素
+            const $icon = $('#btn_copy_fileurl_icon iconpark-icon');
+            // 保存原始图标名称
+            const originalName = $icon.attr('name');
+            // 更换图标为完成的标志
+            $icon.attr('name', 'circle-check').css('color', '#22c55e');
+            // 3秒后恢复原状
+            setTimeout(() => {
+                $icon.attr('name', originalName).css('color', '');
+            }, 3000);
+        }).catch(err => {
+            console.error('Copy failed:', err);
+        });
     }
     
     // 简洁版复制函数，不使用批量复制功能和通知横幅
