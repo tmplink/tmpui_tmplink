@@ -89,15 +89,21 @@ body {
     padding: 6px 14px;
     background: rgba(100, 116, 139, 0.08);
     border-radius: 12px;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
 }
 
 .light-meta-item:hover {
-    background: rgba(100, 116, 139, 0.12);
+    background: rgba(100, 116, 139, 0.15);
+    transform: translateY(-1px);
 }
 
 .light-meta-item.clickable {
     cursor: pointer;
+}
+
+.light-meta-item.clickable:hover {
+    background: rgba(91, 141, 239, 0.15);
+    color: #5b8def;
 }
 
 .light-download-btn {
@@ -118,6 +124,23 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.light-download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.45);
+    background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
+}
+
+.light-download-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3), 0 8px 24px rgba(102, 126, 234, 0.45);
+}
+
+.light-download-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
 }
 
 .light-download-btn .download-progress-fill {
@@ -192,12 +215,19 @@ body {
     background: rgba(255, 255, 255, 0.6);
     border-radius: 14px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     border: 1px solid rgba(100, 116, 139, 0.1);
 }
 
 .light-action-item:hover {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: rgba(100, 116, 139, 0.15);
+}
+
+.light-action-item:active {
+    transform: translateY(0);
 }
 
 .light-action-icon {
@@ -386,16 +416,15 @@ body {
                     <div class="light-meta-item hot-flag" style="display: none;">
                         <iconpark-icon name="fire" style="color: #ef4444;"></iconpark-icon>
                     </div>
+                    <div class="light-meta-item" id="lefttime_show" style="display: none;">
+                        <iconpark-icon name="timer"></iconpark-icon>
+                        <span id="lefttime"></span>
+                    </div>
                 </div>
 
                 <div class="text-danger text-center mb-3" id="nsfw_alert" style="display: none;">
                     <iconpark-icon name="circle-exclamation"></iconpark-icon>
                     <span i18n="filepage_nsfw_alert">NSFW!</span>
-                </div>
-
-                <div class="text-center mb-3" id="lefttime_show" style="font-size: 14px; color: #64748b;">
-                    <iconpark-icon name="timer"></iconpark-icon>
-                    <span id="lefttime"></span>
                 </div>
 
                 <button type="button" class="light-download-btn" id="file_download_btn_fast">
