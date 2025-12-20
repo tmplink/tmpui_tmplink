@@ -1190,13 +1190,16 @@ class tmplink {
     }
 
     file_details() {
+        // Ensure the home logo is available on the file download page (especially on mobile)
+        // so users can always navigate back to the homepage.
+        $('#top_loggo').attr('src', '/img/ico/logo-new.svg').show();
+
         if (this.isWeixin()) {
             $('#file_messenger_icon').html('<iconpark-icon name="cloud-arrow-down" class="fa-fw fa-4x"></iconpark-icon>');
             $('#file_messenger_msg').removeClass('display-4');
             $('#file_messenger > div').removeClass('shadow').removeClass('card');
             $('#file_messenger_msg').html('请复制链接后，在外部浏览器打开进行下载。');
             $('#file_messenger').show();
-            $('#top_loggo').hide();
             this.ga('weixinUnavailable');
             return false;
             $('#wechat_notice').show();
@@ -1214,8 +1217,8 @@ class tmplink {
                 token: this.api_token
             }, (rsp) => {
 
-                //更新 Logo
-                $('#top_loggo').attr('src', '/img/ico/logo-new.svg');
+                // 更新 Logo（冗余保护：部分流程下可能先于 DOM 渲染）
+                $('#top_loggo').attr('src', '/img/ico/logo-new.svg').show();
 
                 if (rsp.status === 1) {
                     //隐藏信息提示窗口
@@ -1234,8 +1237,12 @@ class tmplink {
                     //如果设置了个性化图标
                     if (rsp.data.ui_publish === 'yes' && rsp.data.ui_publish_status === 'ok' && rsp.data.ui_pro === 'yes') {
                         $('.userinfo_avatar').show();
-                        //hide default avatar
-                        $('#top_loggo').hide();
+                        // Only hide the logo if a dedicated header avatar slot exists.
+                        // The mobile download template doesn't provide one, so keep the logo
+                        // to allow users to return to the homepage.
+                        if ($('.userinfo_avatar_img').length > 0) {
+                            $('#top_loggo').hide();
+                        }
                         let avatarURL = `https://tmp-static.vx-cdn.com/static/avatar?id=${rsp.data.ui_avatar_id}`;
                         let img = new Image();
                         img.src = avatarURL;
@@ -1505,10 +1512,7 @@ class tmplink {
                 $('#file_messenger').show();
                 this.ga(`Unavailable-[${params.ukey}]`);
 
-                //如果在移动设备下，并且 status 不是 1 ，则隐藏 logo
-                if (isMobileScreen()) {
-                    $('#top_loggo').hide();
-                }
+                // Keep the logo visible on mobile so users can go back home.
 
             }, 'json');
         } else {
