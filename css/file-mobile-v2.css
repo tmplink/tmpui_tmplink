@@ -82,6 +82,30 @@ body {
     -webkit-overflow-scrolling: touch;
 }
 
+/* Loading state (before details loaded) */
+#file_loading_box {
+    position: fixed;
+    inset: 0;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--app-bg);
+    overflow: hidden;
+    padding: 0;
+}
+
+.mobile-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-loading-icon {
+    width: 56px;
+    height: 56px;
+}
+
 /* File Preview Section */
 .file-preview-area {
     margin-top: 20px;

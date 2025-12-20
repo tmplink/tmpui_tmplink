@@ -34,6 +34,13 @@
         </div>
     </div>
 
+    <!-- Loading (shown before file details are ready) -->
+    <div class="mobile-content" id="file_loading_box">
+        <div class="mobile-loading" role="status" aria-live="polite">
+            <img class="mobile-loading-icon" src="/img/loading.svg" alt="Loading">
+        </div>
+    </div>
+
     <!-- Main Content -->
     <main class="mobile-content" id="file_box" style="display: none;">
         <!-- File Preview -->
@@ -131,7 +138,7 @@
     </main>
 
     <!-- Footer / Bottom Sheet -->
-    <footer class="mobile-footer">
+    <footer class="mobile-footer" style="display: none;">
         <button type="button" id="file_download_btn_fast">
             <span class="download-progress-fill" id="progress_thread_1"></span>
             <span class="download-btn-label">

@@ -1194,12 +1194,19 @@ class tmplink {
         // so users can always navigate back to the homepage.
         $('#top_loggo').attr('src', '/img/ico/logo-new.svg').show();
 
+        // Mobile loading state: hide download actions until details are ready.
+        $('#file_loading_box').show();
+        $('#file_box').hide();
+        $('.mobile-footer').hide();
+
         if (this.isWeixin()) {
             $('#file_messenger_icon').html('<iconpark-icon name="cloud-arrow-down" class="fa-fw fa-4x"></iconpark-icon>');
             $('#file_messenger_msg').removeClass('display-4');
             $('#file_messenger > div').removeClass('shadow').removeClass('card');
             $('#file_messenger_msg').html('请复制链接后，在外部浏览器打开进行下载。');
             $('#file_messenger').show();
+            $('#file_loading_box').hide();
+            $('.mobile-footer').hide();
             this.ga('weixinUnavailable');
             return false;
             $('#wechat_notice').show();
@@ -1220,6 +1227,9 @@ class tmplink {
                 // 更新 Logo（冗余保护：部分流程下可能先于 DOM 渲染）
                 $('#top_loggo').attr('src', '/img/ico/logo-new.svg').show();
 
+                // Response arrived: stop showing the loading placeholder.
+                $('#file_loading_box').hide();
+
                 if (rsp.status === 1) {
                     //隐藏信息提示窗口
                     $('#file_messenger').hide();
@@ -1229,6 +1239,7 @@ class tmplink {
                     // 保存文件详情信息便于其他组件使用
                     this.current_file_details = rsp.data;
                     $('#file_box').show();
+                    $('.mobile-footer').show();
                     $('#filename').html(rsp.data.name);
                     $('#filesize').html(rsp.data.size);
 
@@ -1493,6 +1504,8 @@ class tmplink {
                     $('#file_messenger_icon').html('<iconpark-icon name="earth-asia" class="fa-fw fa-7x"></iconpark-icon>');
                     $('#file_messenger_msg').html(app.languageData.status_area);
                     $('#file_messenger').show();
+                    $('#file_box').hide();
+                    $('.mobile-footer').hide();
                     this.ga(`Area-[${params.ukey}]`);
                     return false;
                 }
@@ -1502,6 +1515,8 @@ class tmplink {
                     $('#file_messenger_icon').html('<iconpark-icon name="lock" class="fa-fw fa-7x"></iconpark-icon>');
                     $('#file_messenger_msg').html(app.languageData.file_private);
                     $('#file_messenger').show();
+                    $('#file_box').hide();
+                    $('.mobile-footer').hide();
                     this.ga(`Private-[${params.ukey}]`);
                     return false;
                 }
@@ -1510,6 +1525,8 @@ class tmplink {
                 $('#file_messenger_icon').html('<iconpark-icon name="folder-xmark" class="fa-fw fa-4x"></iconpark-icon>');
                 $('#file_messenger_msg').html(app.languageData.file_unavailable);
                 $('#file_messenger').show();
+                $('#file_box').hide();
+                $('.mobile-footer').hide();
                 this.ga(`Unavailable-[${params.ukey}]`);
 
                 // Keep the logo visible on mobile so users can go back home.
