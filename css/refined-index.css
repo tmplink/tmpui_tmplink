@@ -699,78 +699,7 @@ body.dark-mode .floating-element svg path {
     color: var(--primary-color);
 }
 
-/* 深色模式切换按钮 */
-.float-layer-theme {
-    position: fixed;
-    bottom: var(--space-xl);
-    left: var(--space-xl);
-    z-index: 1000;
-    transition: all 0.3s ease;
-}
 
-.theme-toggle {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--gray-200);
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
-    outline: none;
-}
-
-.theme-toggle:hover {
-    background: rgba(255, 255, 255, 1);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-xl);
-    border-color: var(--gray-300);
-}
-
-.theme-icon {
-    width: 20px;
-    height: 20px;
-    position: absolute;
-    transition: all 0.3s ease;
-    fill: var(--gray-600);
-}
-
-.theme-icon-light {
-    opacity: 1;
-    transform: rotate(0deg);
-}
-
-.theme-icon-dark {
-    opacity: 0;
-    transform: rotate(90deg);
-}
-
-/* 深色模式激活状态 */
-body.dark-mode .theme-icon-light {
-    opacity: 0;
-    transform: rotate(-90deg);
-}
-
-body.dark-mode .theme-icon-dark {
-    opacity: 1;
-    transform: rotate(0deg);
-    fill: var(--warning-color);
-}
-
-body.dark-mode .theme-toggle {
-    background: rgba(31, 41, 55, 0.95);
-    border-color: var(--gray-600);
-}
-
-body.dark-mode .theme-toggle:hover {
-    background: rgba(31, 41, 55, 1);
-}
 
 /* About Section - 卡片式设计 */
 #about {
@@ -1090,11 +1019,6 @@ body.dark-mode .theme-toggle:hover {
         right: var(--space-lg);
     }
     
-    .float-layer-theme {
-        bottom: var(--space-lg);
-        left: var(--space-lg);
-    }
-    
     .container {
         padding: 0 var(--space-md);
     }
@@ -1302,7 +1226,7 @@ body.dark-mode .dropdown-item:hover {
     }
 }
 
-/* Full Screen Video Hero Background */
+/* Full Screen Image Hero Background */
 #hero {
     position: relative;
     min-height: 100vh;
@@ -1311,75 +1235,41 @@ body.dark-mode .dropdown-item:hover {
     overflow: hidden;
 }
 
-.hero-video-background {
+/* Image Background */
+.hero-bg-image {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     z-index: 1;
+    background-image: url('/img/bg/new-bg-light.svg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: background-image 0.3s ease;
 }
 
-.hero-video {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
-    transform: translate(-50%, -50%);
-    object-fit: cover;
-    filter: blur(4px) brightness(0.6) saturate(1.2);
-    animation: videoZoom 20s ease-in-out infinite;
-}
-
-@keyframes videoZoom {
-    0%, 100% { 
-        transform: translate(-50%, -50%) scale(1);
-        filter: blur(4px) brightness(0.6) saturate(1.2);
-    }
-    50% { 
-        transform: translate(-50%, -50%) scale(1.05);
-        filter: blur(3px) brightness(0.5) saturate(1.3);
-    }
-}
-
-/* Video Fallback */
-.video-fallback {
+/* Background Overlay */
+.hero-bg-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
-    z-index: 0;
-}
-
-/* Video Overlay */
-.video-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-        linear-gradient(135deg, rgba(79, 70, 229, 0.3) 0%, rgba(16, 185, 129, 0.2) 100%),
-        radial-gradient(circle at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%);
     z-index: 2;
-    animation: overlayPulse 12s ease-in-out infinite;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+    pointer-events: none;
 }
 
-@keyframes overlayPulse {
-    0%, 100% { 
-        background: 
-            linear-gradient(135deg, rgba(79, 70, 229, 0.3) 0%, rgba(16, 185, 129, 0.2) 100%),
-            radial-gradient(circle at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%);
+/* Auto Dark Mode - Background Image */
+@media (prefers-color-scheme: dark) {
+    .hero-bg-image {
+        background-image: url('/img/bg/new-bg-dark.svg');
     }
-    50% { 
-        background: 
-            linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(79, 70, 229, 0.2) 100%),
-            radial-gradient(circle at center, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+    
+    .hero-bg-overlay {
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
     }
 }
 
@@ -1558,136 +1448,32 @@ body.dark-mode .dropdown-item:hover {
     letter-spacing: 0.5px;
 }
 
-/* Dark Mode Support */
-[data-theme="dark"] .hero-badge {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+/* Hero Text Colors - Light Mode (Default) */
+#hero .hero-content .hero-title {
+    color: var(--text-primary);
 }
 
-[data-theme="dark"] .video-overlay {
-    background: 
-        linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(16, 185, 129, 0.15) 100%),
-        radial-gradient(circle at center, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.8) 100%);
+#hero .hero-content .hero-subtitle {
+    color: var(--text-secondary);
 }
 
-/* Mobile Video Disable Styles - Light Mode */
-.mobile-no-video {
-    background: #ffffff !important;
+#hero .hero-content .hero-description {
+    color: var(--text-secondary);
 }
 
-.mobile-no-video .video-fallback {
-    display: block !important;
-    opacity: 1 !important;
-    z-index: 1 !important;
-    background: #ffffff !important;
-}
-
-/* Remove video overlay in light mode for mobile */
-.mobile-no-video .video-overlay {
-    display: none !important;
-}
-
-/* Mobile no video text colors - Dark text on light background */
-#hero .hero-video-background.mobile-no-video ~ .container .hero-content .hero-title {
-    color: #1f2937 !important;
-    text-shadow: none !important;
-}
-
-#hero .hero-video-background.mobile-no-video ~ .container .hero-content .hero-subtitle {
-    color: #4b5563 !important;
-    text-shadow: none !important;
-}
-
-#hero .hero-video-background.mobile-no-video ~ .container .hero-content .hero-description {
-    color: #6b7280 !important;
-    text-shadow: none !important;
-}
-
-/* Dark mode overrides for hero text */
-body.dark-mode #hero .hero-content .hero-title {
-    color: #ffffff !important;
-    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
-}
-
-body.dark-mode #hero .hero-content .hero-subtitle {
-    color: rgba(255, 255, 255, 0.9) !important;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
-}
-
-body.dark-mode #hero .hero-content .hero-description {
-    color: rgba(255, 255, 255, 0.85) !important;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* Mobile Video Disable Styles - Dark Mode */
-body.dark-mode .mobile-no-video {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%) !important;
-}
-
-body.dark-mode .mobile-no-video .video-overlay {
-    background: 
-        linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(16, 185, 129, 0.15) 100%),
-        radial-gradient(circle at center, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.6) 100%) !important;
-}
-
-/* Dark mode mobile no video text colors - Keep light text on dark background */
-body.dark-mode #hero .hero-video-background.mobile-no-video ~ .container .hero-content .hero-title {
-    color: #ffffff !important;
-    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
-}
-
-body.dark-mode #hero .hero-video-background.mobile-no-video ~ .container .hero-content .hero-subtitle {
-    color: rgba(255, 255, 255, 0.9) !important;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
-}
-
-body.dark-mode #hero .hero-video-background.mobile-no-video ~ .container .hero-content .hero-description {
-    color: rgba(255, 255, 255, 0.85) !important;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* Auto dark mode support for mobile video disable */
+/* Hero Text Colors - Dark Mode (Auto via media query) */
 @media (prefers-color-scheme: dark) {
-    body:not(.theme-manual) .mobile-no-video {
-        background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%) !important;
-    }
-
-    body:not(.theme-manual) .mobile-no-video .video-overlay {
-        background: 
-            linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(16, 185, 129, 0.15) 100%),
-            radial-gradient(circle at center, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.6) 100%) !important;
-    }
-    
-    /* Auto dark mode hero text colors */
-    body:not(.theme-manual) #hero .hero-content .hero-title {
+    #hero .hero-content .hero-title {
         color: #ffffff !important;
-        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
 
-    body:not(.theme-manual) #hero .hero-content .hero-subtitle {
+    #hero .hero-content .hero-subtitle {
         color: rgba(255, 255, 255, 0.9) !important;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
     }
 
-    body:not(.theme-manual) #hero .hero-content .hero-description {
+    #hero .hero-content .hero-description {
         color: rgba(255, 255, 255, 0.85) !important;
-        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-    }
-    
-    /* Auto dark mode mobile no video text colors - Keep light text on dark background */
-    body:not(.theme-manual) #hero .hero-video-background.mobile-no-video ~ .container .hero-content .hero-title {
-        color: #ffffff !important;
-        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
-    }
-
-    body:not(.theme-manual) #hero .hero-video-background.mobile-no-video ~ .container .hero-content .hero-subtitle {
-        color: rgba(255, 255, 255, 0.9) !important;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
-    }
-
-    body:not(.theme-manual) #hero .hero-video-background.mobile-no-video ~ .container .hero-content .hero-description {
-        color: rgba(255, 255, 255, 0.85) !important;
-        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
     }
 }
 
@@ -1737,10 +1523,6 @@ body.dark-mode #hero .hero-video-background.mobile-no-video ~ .container .hero-c
     .feature-item span {
         font-size: 0.9rem;
     }
-    
-    .hero-video {
-        filter: blur(3px) brightness(0.5) saturate(1.1);
-    }
 }
 
 @media (max-width: 480px) {
@@ -1766,8 +1548,8 @@ body.dark-mode #hero .hero-video-background.mobile-no-video ~ .container .hero-c
 }
 
 /* Performance Optimizations */
-.hero-video {
-    will-change: transform, filter;
+.hero-bg-image {
+    will-change: background-image;
 }
 
 #hero .hero-content {
@@ -1807,8 +1589,6 @@ div[style*="position: fixed"][style*="right: 14px"] {
 
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
-    .hero-video,
-    .video-overlay,
     .hero-badge,
     .feature-icon,
     #hero .hero-title,
@@ -1817,11 +1597,6 @@ div[style*="position: fixed"][style*="right: 14px"] {
     #hero .hero-cta,
     .hero-features {
         animation: none;
-    }
-    
-    .hero-video {
-        transform: translate(-50%, -50%) scale(1);
-        filter: blur(4px) brightness(0.6) saturate(1.2);
     }
     
     #hero .hero-content {

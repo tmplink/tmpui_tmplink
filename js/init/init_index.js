@@ -39,11 +39,9 @@ function initializeHomepage() {
 
     // Initialize components
     initNativeDropdown();
-    initThemeToggle();
     initScrollEffects();
     initIntersectionObserver();
     initMenubarXTracking();
-    initMobileVideoDisable();
     autoLogin();
     sendAnalytics();
 
@@ -51,99 +49,7 @@ function initializeHomepage() {
     ensureSectionsVisible();
 }
 
-/**
- * Initialize theme toggle functionality
- */
-function initThemeToggle() {
-    const themeToggle = document.getElementById('theme-toggle');
-    const body = document.body;
 
-    if (!themeToggle) return;
-
-    // Check local storage theme preference
-    const savedTheme = localStorage.getItem('theme-preference');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    // Initialize theme
-    if (savedTheme) {
-        // User has manually set theme
-        body.classList.add('theme-manual');
-        if (savedTheme === 'dark') {
-            body.classList.add('dark-mode');
-        }
-    } else if (systemPrefersDark) {
-        // No manual setting, but system prefers dark mode
-        body.classList.add('dark-mode');
-    }
-
-    // Toggle theme
-    themeToggle.addEventListener('click', () => {
-        const isDarkMode = body.classList.contains('dark-mode');
-
-        if (isDarkMode) {
-            // Switch to light mode
-            body.classList.remove('dark-mode');
-            body.classList.add('theme-manual');
-            localStorage.setItem('theme-preference', 'light');
-            updateThemeColor('#ffffff');
-        } else {
-            // Switch to dark mode
-            body.classList.add('dark-mode');
-            body.classList.add('theme-manual');
-            localStorage.setItem('theme-preference', 'dark');
-            updateThemeColor('#1f2937');
-        }
-
-        // Add toggle animation effect
-        themeToggle.style.transform = 'scale(0.9)';
-        setTimeout(() => {
-            themeToggle.style.transform = 'scale(1)';
-        }, 150);
-    });
-
-    // Listen for system theme changes (only effective when no manual setting)
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    function handleSystemThemeChange(e) {
-        if (!body.classList.contains('theme-manual')) {
-            if (e.matches) {
-                body.classList.add('dark-mode');
-                updateThemeColor('#1f2937');
-            } else {
-                body.classList.remove('dark-mode');
-                updateThemeColor('#ffffff');
-            }
-        }
-    }
-
-    if (mediaQuery.addEventListener) {
-        mediaQuery.addEventListener('change', handleSystemThemeChange);
-    } else if (mediaQuery.addListener) {
-        mediaQuery.addListener(handleSystemThemeChange);
-    }
-
-    // Reset theme preference function (optional)
-    window.resetThemePreference = function () {
-        localStorage.removeItem('theme-preference');
-        body.classList.remove('theme-manual', 'dark-mode');
-        // Recheck system preference
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            body.classList.add('dark-mode');
-            updateThemeColor('#1f2937');
-        } else {
-            updateThemeColor('#ffffff');
-        }
-    };
-}
-
-/**
- * Update theme color meta tag
- */
-function updateThemeColor(color) {
-    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-    if (themeColorMeta) {
-        themeColorMeta.setAttribute('content', color);
-    }
-}
 
 /**
  * Initialize native dropdown functionality
@@ -573,37 +479,4 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', addAnimationClasses);
 } else {
     addAnimationClasses();
-}
-
-/**
- * Disable video loading and playback on mobile devices
- * Saves bandwidth and improves performance on mobile
- */
-function initMobileVideoDisable() {
-    // Check if device is mobile
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-        window.innerWidth <= 768 ||
-        ('ontouchstart' in window);
-
-    if (isMobile) {
-        const videoElement = document.querySelector('.hero-video');
-        const videoBackground = document.querySelector('.hero-video-background');
-
-        if (videoElement && videoBackground) {
-            // Remove the video element
-            videoElement.remove();
-
-            // Add mobile-specific class for styling
-            videoBackground.classList.add('mobile-no-video');
-
-            // Ensure fallback background is visible
-            const fallback = videoBackground.querySelector('.video-fallback');
-            if (fallback) {
-                fallback.style.display = 'block';
-                fallback.style.opacity = '1';
-            }
-
-            console.log('Video disabled for mobile device');
-        }
-    }
 }
