@@ -8,6 +8,30 @@
     --app-surface: #f8fafc;
 }
 
+/* 深色模式 - 自动检测系统偏好 */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --app-bg: #111827;
+        --app-text: #f3f4f6;
+        --app-text-sub: #cbd5e1;
+        --app-primary: #8b5cf6;
+        --app-success: #34d399;
+        --app-border: #374151;
+        --app-surface: #1f2937;
+    }
+}
+
+/* 深色模式 - 手动切换 */
+body.dark-mode {
+    --app-bg: #111827;
+    --app-text: #f3f4f6;
+    --app-text-sub: #cbd5e1;
+    --app-primary: #8b5cf6;
+    --app-success: #34d399;
+    --app-border: #374151;
+    --app-surface: #1f2937;
+}
+
 body {
     background: var(--app-bg) !important;
     color: var(--app-text);
@@ -116,7 +140,7 @@ body {
 .meta-dot {
     width: 3px;
     height: 3px;
-    background: #cbd5e1;
+    background: var(--app-border);
     border-radius: 50%;
 }
 
@@ -178,7 +202,7 @@ body {
 }
 
 .action-item:active .action-icon-box {
-    background: #e2e8f0;
+    background: var(--app-border);
     transform: scale(0.95);
 }
 
@@ -317,7 +341,7 @@ body {
 /* Disclaimer */
 .legal-text {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--app-text-sub);
     text-align: center;
     margin-top: 12px;
 }
@@ -326,9 +350,9 @@ body {
 .publisher-card {
     margin-top: 16px;
     padding: 12px 14px;
-    background: rgba(91, 141, 239, 0.04);
+    background: var(--app-surface);
     border-radius: 14px;
-    border: 1px solid rgba(91, 141, 239, 0.12);
+    border: 1px solid var(--app-border);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -341,7 +365,7 @@ body {
     height: 44px;
     min-width: 44px;
     border-radius: 12px;
-    background: rgba(91, 141, 239, 0.1);
+    background: rgba(79, 70, 229, 0.12);
     overflow: hidden;
     flex-shrink: 0;
 }
@@ -367,12 +391,12 @@ body {
     gap: 6px;
     font-size: 15px;
     font-weight: 600;
-    color: #1f2a37;
+    color: var(--app-text);
 }
 
 .publisher-card .publisher-name-row .userinfo_card_pro,
 .publisher-card .publisher-name-row .userinfo_pro {
-    color: #4f81ff;
+    color: var(--app-primary);
     font-size: 16px;
     display: inline-flex;
     align-items: center;
@@ -380,7 +404,7 @@ body {
 
 .publisher-card .publisher-intro {
     font-size: 13px;
-    color: #64748b;
+    color: var(--app-text-sub);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -390,10 +414,292 @@ body {
 .publisher-card .publisher-badge {
     flex-shrink: 0;
     padding: 6px 12px;
-    background: rgba(91, 141, 239, 0.1);
+    background: rgba(79, 70, 229, 0.12);
     border-radius: 8px;
     font-size: 12px;
     font-weight: 500;
-    color: #4f81ff;
+    color: var(--app-primary);
     white-space: nowrap;
+}
+
+/* ==================== 深色模式适配 ==================== */
+
+/* 自动深色模式 - 系统偏好 */
+@media (prefers-color-scheme: dark) {
+    /* 文件图标渐变背景 */
+    .file-icon-wrapper {
+        background: linear-gradient(135deg, #3730a3 0%, #6d28d9 100%);
+        box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.45);
+    }
+
+    .file-icon-wrapper iconpark-icon {
+        color: #ddd6fe;
+    }
+
+    /* Meta dot */
+    .meta-dot {
+        background: var(--app-border);
+    }
+
+    /* Icon buttons (action grid) */
+    .action-icon-box {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--app-border);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .action-item:active .action-icon-box {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Header language button */
+    .lang-toggle-minimal {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--app-border);
+    }
+
+    .lang-toggle-minimal:active {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Publisher Pill */
+    .publisher-pill {
+        background: var(--app-surface);
+        border-color: var(--app-border);
+        color: var(--app-text);
+    }
+
+    /* Publisher Card */
+    .publisher-card {
+        box-shadow: 0 14px 30px -22px rgba(0, 0, 0, 0.6);
+    }
+
+    .publisher-card .publisher-icon {
+        background: rgba(139, 92, 246, 0.18);
+    }
+
+    /* 下载按钮 */
+    #file_download_btn_fast {
+        background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+        color: #ffffff;
+        box-shadow: 0 18px 36px -18px rgba(124, 58, 237, 0.55);
+    }
+
+    #file_download_btn_fast .download-progress-fill {
+        background: rgba(255, 255, 255, 0.18);
+    }
+
+    /* NSFW Alert */
+    #nsfw_alert {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+    }
+
+    /* Messenger/Login Overlay */
+    #file_messenger {
+        background: rgba(17, 24, 39, 0.86);
+    }
+
+    .messenger-card {
+        background: var(--app-surface);
+        border: 1px solid var(--app-border);
+        border-radius: 18px;
+        padding: 22px 18px;
+        box-shadow: 0 22px 60px -30px rgba(0, 0, 0, 0.85);
+    }
+
+    .messenger-msg {
+        color: var(--app-text);
+    }
+
+    /* 下拉菜单 */
+    .dropdown-menu {
+        background-color: var(--app-surface) !important;
+        border-color: var(--app-border) !important;
+    }
+
+    .dropdown-item {
+        color: var(--app-text) !important;
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+        background-color: rgba(255, 255, 255, 0.06) !important;
+    }
+
+    /* 图标颜色 */
+    iconpark-icon {
+        color: var(--app-text);
+    }
+
+    /* 分享者卡片：强制文字可读（避免被其它 CSS 染成黑色） */
+    .publisher-card,
+    .publisher-card .publisher-content,
+    .publisher-card .publisher-name-row,
+    .publisher-card .userinfo_nickname,
+    .publisher-card .userinfo_card_nickname {
+        color: var(--app-text) !important;
+    }
+
+    .publisher-card .publisher-intro,
+    .publisher-card .userinfo_card_intro {
+        color: var(--app-text-sub) !important;
+    }
+
+    /* 速度/就绪标签在深色下更柔和 */
+    .hs-model,
+    .hs-model iconpark-icon,
+    .hs-model-title {
+        color: var(--app-text-sub) !important;
+    }
+
+    /* 保持举报按钮红色 */
+    #btn_report_file .action-icon-box {
+        color: #f87171;
+    }
+
+    /* Legal text */
+    .legal-text {
+        color: var(--app-text-sub);
+    }
+}
+
+/* 手动深色模式 - JavaScript切换 */
+body.dark-mode .file-icon-wrapper {
+    background: linear-gradient(135deg, #3730a3 0%, #6d28d9 100%);
+    box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.45);
+}
+
+body.dark-mode .file-icon-wrapper iconpark-icon {
+    color: #ddd6fe;
+}
+
+body.dark-mode .meta-dot {
+    background: var(--app-border);
+}
+
+body.dark-mode .publisher-pill {
+    background: var(--app-surface);
+    border-color: var(--app-border);
+    color: var(--app-text);
+}
+
+body.dark-mode .publisher-card {
+    box-shadow: 0 14px 30px -22px rgba(0, 0, 0, 0.6);
+}
+
+body.dark-mode .publisher-card .publisher-icon {
+    background: rgba(139, 92, 246, 0.18);
+}
+
+body.dark-mode #file_download_btn_fast {
+    background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+    color: #ffffff;
+    box-shadow: 0 18px 36px -18px rgba(124, 58, 237, 0.55);
+}
+
+body.dark-mode #file_download_btn_fast .download-progress-fill {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+body.dark-mode #nsfw_alert {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+body.dark-mode #file_messenger {
+    background: rgba(17, 24, 39, 0.86);
+}
+
+body.dark-mode .messenger-card {
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: 18px;
+    padding: 22px 18px;
+    box-shadow: 0 22px 60px -30px rgba(0, 0, 0, 0.85);
+}
+
+body.dark-mode .messenger-msg {
+    color: var(--app-text);
+}
+
+body.dark-mode .dropdown-menu {
+    background-color: var(--app-surface) !important;
+    border-color: var(--app-border) !important;
+}
+
+body.dark-mode .dropdown-item {
+    color: var(--app-text) !important;
+}
+
+body.dark-mode .dropdown-item:hover,
+body.dark-mode .dropdown-item:focus {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+body.dark-mode iconpark-icon {
+    color: var(--app-text);
+}
+
+body.dark-mode .publisher-card,
+body.dark-mode .publisher-card .publisher-content,
+body.dark-mode .publisher-card .publisher-name-row,
+body.dark-mode .publisher-card .userinfo_nickname,
+body.dark-mode .publisher-card .userinfo_card_nickname {
+    color: var(--app-text) !important;
+}
+
+body.dark-mode .publisher-card .publisher-intro,
+body.dark-mode .publisher-card .userinfo_card_intro {
+    color: var(--app-text-sub) !important;
+}
+
+body.dark-mode .hs-model,
+body.dark-mode .hs-model iconpark-icon,
+body.dark-mode .hs-model-title {
+    color: var(--app-text-sub) !important;
+}
+
+body.dark-mode .action-icon-box {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--app-border);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+body.dark-mode .action-item:active .action-icon-box {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode #btn_report_file .action-icon-box {
+    color: #f87171;
+}
+
+body.dark-mode .legal-text {
+    color: var(--app-text-sub);
+}
+
+body.dark-mode .lang-toggle-minimal {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--app-border);
+}
+
+body.dark-mode .lang-toggle-minimal:active {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* 登录/注册按钮深色模式 */
+body.dark-mode .btn-light {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    border-color: var(--app-border) !important;
+    color: var(--app-text) !important;
+}
+
+body.dark-mode .btn-light:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--app-border) !important;
+}
+
+body.dark-mode .messenger-card .btn-primary {
+    background-color: var(--app-primary) !important;
+    border-color: var(--app-primary) !important;
 }

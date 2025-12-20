@@ -79,21 +79,6 @@ iconpark-icon.fa-fw {
     transform: scale(0.95);
 }
 
-.dark .btn-user-info {
-    background-color: rgba(104, 166, 255, 0.15);
-    color: #68a6ff;
-}
-
-.dark .btn-user-info:hover,
-.dark .btn-user-info:focus {
-    background-color: rgba(104, 166, 255, 0.25);
-    color: #68a6ff;
-}
-
-.dark .btn-user-info:active {
-    background-color: rgba(104, 166, 255, 0.35);
-}
-
 /* 触摸设备优化 */
 @media (hover: none) {
     .btn-user-info {
@@ -116,13 +101,6 @@ iconpark-icon.fa-fw {
     text-align: left;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
     border: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.dark .user-info-card {
-    background-color: #2a2a2a;
-    color: #eee;
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* 用户信息内容区 */
@@ -158,11 +136,6 @@ iconpark-icon.fa-fw {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-.dark .userinfo_avatar_card_img {
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
-}
-
 /* 用户名称样式 */
 .userinfo_card_nickname {
     font-size: 15px;
@@ -174,10 +147,6 @@ iconpark-icon.fa-fw {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-.dark .userinfo_card_nickname {
-    color: #fff;
 }
 
 /* 赞助者名字样式 */
@@ -192,10 +161,6 @@ iconpark-icon.fa-fw {
     display: inline-flex;
     align-items: center;
     height: 15px; /* 与文字高度匹配 */
-}
-
-.dark .userinfo_card_pro {
-    color: #68a6ff;
 }
 
 /* 确保用户名和认证图标对齐 */
@@ -215,8 +180,4 @@ iconpark-icon.fa-fw {
     word-break: break-word;
     white-space: normal;
     max-width: 210px;
-}
-
-.dark .userinfo_card_intro {
-    color: #bbb;
 }
