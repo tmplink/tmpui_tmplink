@@ -22,6 +22,7 @@ class download {
     multiThreadActive = false
     lastTotalBytes = 0;
     numberOfChunks = 3;
+    fastDownloadInProgress = false;
 
     init(parent_op) {
         this.parent_op = parent_op;
@@ -585,6 +586,12 @@ class download {
     // 新增多线程下载相关方法
     async startMultiThreadDownload(url, filename) {
         try {
+            // Prevent accidental re-entry (e.g. double click / duplicate handlers)
+            if (this.fastDownloadInProgress) {
+                return false;
+            }
+            this.fastDownloadInProgress = true;
+
             const headResponse = await fetch(url, { method: 'HEAD' });
             if (!headResponse.ok) throw new Error('Failed to get file info');
     
@@ -706,6 +713,8 @@ class download {
             this.parent_op.alert(app.languageData.download_error_retry || '网络不稳定，下载失败，请重试');
             
             throw error;
+        } finally {
+            this.fastDownloadInProgress = false;
         }
     }
     
@@ -915,8 +924,13 @@ class download {
         $('#file_download_btn_fast')
             .removeClass('btn-azure')
             .addClass('btn-success')
-            .html(app.languageData.file_btn_download_fast)
             .prop('disabled', false);
+
+        // Only update the label text; do not destroy progress DOM
+        const $label = $('#file_download_btn_fast').find('.download-btn-label');
+        if ($label.length) {
+            $label.html(app.languageData.file_btn_download_fast);
+        }
 
         this.cleanupMultiThreadDownload();
     }
@@ -955,8 +969,13 @@ class download {
         $('#file_download_btn_fast')
             .removeClass('btn-azure')
             .addClass('btn-success')
-            .html(app.languageData.file_btn_download_fast || '快速下载')
             .prop('disabled', false);
+
+        // Only update the label text; do not destroy progress DOM
+        const $label = $('#file_download_btn_fast').find('.download-btn-label');
+        if ($label.length) {
+            $label.html(app.languageData.file_btn_download_fast || '快速下载');
+        }
     }
 
     formatBytes(bytes) {

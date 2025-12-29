@@ -1366,12 +1366,15 @@ class tmplink {
                         const uiCallbacks = {
                             updateButtonText: (text) => {
                                 const $fastBtn = $('#file_download_btn_fast');
-                                const $textTarget = $fastBtn.find('.download-btn-text');
+                                // IMPORTANT: do NOT overwrite the whole button HTML,
+                                // otherwise progress DOM (#progress_thread_1/#download_progress_container) is destroyed.
+                                const $labelTarget = $fastBtn.find('.download-btn-label');
+                                const $legacyTextTarget = $fastBtn.find('.download-btn-text');
 
-                                if ($textTarget.length) {
-                                    $textTarget.html(text);
-                                } else {
-                                    $fastBtn.html(text);
+                                if ($labelTarget.length) {
+                                    $labelTarget.html(text);
+                                } else if ($legacyTextTarget.length) {
+                                    $legacyTextTarget.html(text);
                                 }
 
                                 if ((typeof text === 'string') && /<img/i.test(text)) {
@@ -1380,7 +1383,7 @@ class tmplink {
                                     $fastBtn.removeClass('is-loading');
                                 }
                             },
-                            updateButtonState: (disabled) => $('#file_download_btn_fast').attr('disabled', disabled),
+                            updateButtonState: (disabled) => $('#file_download_btn_fast').prop('disabled', !!disabled),
                             updateButtonClass: (removeClass, addClass) => {
                                 $('#file_download_btn_fast').removeClass(removeClass).addClass(addClass);
                             },
@@ -1404,8 +1407,9 @@ class tmplink {
                         }
                     };
 
-                    $('#file_download_btn_fast').on('click', downloadHandler);
-                    $('#file_download_btn_normal').on('click', downloadHandler);
+                    // Avoid duplicate bindings in SPA-like navigation.
+                    $('#file_download_btn_fast').off('click').on('click', downloadHandler);
+                    $('#file_download_btn_normal').off('click').on('click', downloadHandler);
 
                     //扫码下载按钮绑定
                     $('#file_download_by_qrcode').on('click', () => {
