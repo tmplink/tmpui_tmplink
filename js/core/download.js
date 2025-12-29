@@ -1,6 +1,6 @@
 class download {
     // 分块下载常量设置
-    CHUNK_SIZE = 56 * 1024 * 1024; // 默认块大小为56MB
+    CHUNK_SIZE = 8 * 1024 * 1024; // 默认块大小为8MB
     SMALL_FILE_THRESHOLD = this.CHUNK_SIZE * 3; // 小于3个块大小时使用直接下载
     MAX_CHUNK_RETRY = 3; // 单个块下载最大重试次数
     MAX_CONCURRENT_DOWNLOADS = 3; // 最大并行下载数
