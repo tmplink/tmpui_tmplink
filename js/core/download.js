@@ -523,7 +523,7 @@ class download {
 
         try {
             updateButtonClass('btn-success', 'btn-azure');
-            const loadingText = app.languageData.download_preparing || app.languageData.download_loading || 'Preparing...';
+            const loadingText = app.languageData.download_preparing || app.languageData.download_loading || '...';
             updateButtonText(loadingText);
             updateButtonState(true);
 
@@ -1025,7 +1025,7 @@ class download {
 
         try {
             updateButtonClass('btn-success', 'btn-azure');
-            const loadingText = app.languageData.download_preparing || app.languageData.download_loading || 'Preparing...';
+            const loadingText = app.languageData.download_preparing || app.languageData.download_loading || '...';
             updateButtonText(loadingText);
             updateButtonState(true);
 

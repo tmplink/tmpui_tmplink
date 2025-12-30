@@ -681,6 +681,8 @@
     "file_not_allow_in_wechat": "Sorry, files cannot be downloaded in WeChat at this time, please use an external browser to open TMP.link",
     "download_run": "Downloading:",
     "download_add": "Download task added:",
+    "download_loading": "Loading...",
+    "download_preparing": "Connecting to server",
     "model_title_folder_title": "Create a Folder",
     "model_title_folder_name": "Please enter a folder name",
     "filelist_dir": "folder",

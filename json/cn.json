@@ -940,6 +940,8 @@
     "chart_title_direct_uage": "直链使用情况",
     "download_run": "正在下载:",
     "download_add": "下载任务已添加:",
+    "download_loading": "加载中...",
+    "download_preparing": "正在连接服务器",
     "download_speed": "您尚未登录，登录后可免费提升下载速度。",
     "download_speed1": "未登录的用户，下载速度最高为 5 MB/s 。登录后再进行下载，速度最高可达 10 MB/s 。",
     "download_speed2": "请注意，下载速度可能会受到您当前网络的限制，这与 钛盘 提供的最高下载速度无关。在高峰时段，下载速度可能会受到同时下载人数的影响而降低。在使用蜂窝网络进行下载时，您的网络运营商可能会收取数据流量费。",
