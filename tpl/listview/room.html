@@ -304,8 +304,8 @@
                                         <% if(obj[x].nsfw==='yes'){ %>
                                             <img src="/img/nsfw.jpg" style="height:220px;border-radius: 10px;" />
                                         <% }else{ %>
-                                            <a href="javascript:;" onclick="TL.previewModel('<% obj[x].ukey %>','<% obj[x].fname %>',<% x %>)">
-                                                <img class='lazyload' src="/img/loading.svg" data-src="https://tmp-static.vx-cdn.com/img-<% obj[x].ukey %>-360x220.jpg" style="height:220px;border-radius: 10px;" />
+                                            <a href="javascript:;" onclick="TL.previewModel('<% obj[x].ukey %>','<% obj[x].fname %>',<% x %>,'<% obj[x].sid %>','<% obj[x].sha1 %>','<% obj[x].ftype %>')">
+                                                <img class='lazyload' src="/img/loading.svg" data-src="http://img-<% obj[x].sid %>.5t-cdn.com:999/crop/360x220/<% obj[x].sha1 %>.<% obj[x].ftype %>" style="height:220px;border-radius: 10px;" />
                                             </a>
                                         <% } %>
                                     </div>
