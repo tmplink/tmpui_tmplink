@@ -816,15 +816,28 @@ class tmplink {
         app.open('/app&listview=photo&mrid=' + mrid);
     }
 
-    previewModel(ukey, name, id) {
-        let url = 'https://tmp-static.vx-cdn.com/img-' + ukey + '-0x0.jpg';
+    previewModel(ukey, name, id, sid, sha1, ftype) {
+        if (!sid || !sha1) {
+            this.alert('图片信息缺失（sid/sha1），无法预览');
+            return false;
+        }
+
+        const ext = (ftype ? String(ftype) : 'jpg').toLowerCase();
+        const url = `http://img-${sid}.5t-cdn.com:999/thumb/0x0/${sha1}.${ext}`;
+
         $('#preview_img_loader').show();
         $('#preview_img').hide();
-        $.get(url, () => {
+
+        const img = new Image();
+        img.onload = () => {
             $('#preview_img_loader').hide();
             $('#preview_img').attr('src', url);
             $('#preview_img').show();
-        });
+        };
+        img.onerror = () => {
+            $('#preview_img_loader').hide();
+        };
+        img.src = url;
         let lastukey = $('#btn_preview_download').attr('data-ukey');
         $('#preview_title').html(name);
         $('#btn_preview_download').removeClass('btn_download_' + lastukey);

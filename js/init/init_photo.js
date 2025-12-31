@@ -49,6 +49,24 @@ var PHOTO = {
     imageExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'],
 
     /**
+     * Build image processing URL.
+     * New image server format (see img.md):
+     *   http://img-{sid}.5t-cdn.com:999/{op}/{size}/{sha1}.{ext}
+     */
+    buildImageUrl: function(photo, op, size) {
+        const sid = photo && photo.sid;
+        const sha1 = photo && photo.sha1;
+        const ext = (photo && photo.ftype ? String(photo.ftype) : 'jpg').toLowerCase();
+
+        if (!sid || !sha1) {
+            console.warn('[PHOTO] Missing sid/sha1 for image url', photo);
+            return '';
+        }
+
+        return `http://img-${sid}.5t-cdn.com:999/${op}/${size}/${sha1}.${ext}`;
+    },
+
+    /**
      * Initialize the photo album module
      */
     init: function() {
@@ -578,7 +596,7 @@ var PHOTO = {
         
         photos.forEach((photo, idx) => {
             const globalIndex = this.photoList.indexOf(photo);
-            const thumbnail = `https://tmp-static.vx-cdn.com/img-${photo.ukey}-800x600.jpg`;
+            const thumbnail = this.buildImageUrl(photo, 'thumb', '800x600');
             const size = typeof bytetoconver === 'function' ? bytetoconver(photo.fsize, true) : photo.fsize;
             
             html += tpl
@@ -1138,8 +1156,8 @@ var PHOTO = {
     updateLightbox: function() {
         const photo = this.photoList[this.lightboxIndex];
         if (!photo) return;
-        
-        const imageUrl = `https://tmp-static.vx-cdn.com/img-${photo.ukey}-0x0.jpg`;
+
+        const imageUrl = this.buildImageUrl(photo, 'thumb', '0x0');
         
         // Reset rotation
         $('#lightbox-image').css('transform', 'rotate(0deg)');
@@ -1176,7 +1194,7 @@ var PHOTO = {
         let html = '';
         
         this.photoList.forEach((photo, index) => {
-            const thumbnail = `https://tmp-static.vx-cdn.com/img-${photo.ukey}-128x128.jpg`;
+            const thumbnail = this.buildImageUrl(photo, 'thumb', '128x128');
             const active = index === this.lightboxIndex ? 'active' : '';
             
             html += tpl
