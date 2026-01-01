@@ -4,17 +4,17 @@
 
 | 图片服务器 | 对应存储服务器 |
 |-----------|---------------|
-| `img-hd100.5t-cdn.com:999` | `storage-hd100.tmp.link:1000` |
-| `img-hd101.5t-cdn.com:999` | `storage-hd101.tmp.link:1001` |
-| `img-hd105.5t-cdn.com:999` | `storage-hd105.tmp.link:1000` |
-| `img-hd106.5t-cdn.com:999` | `storage-hd106.tmp.link:1001` |
+| `img-hd100.5t-cdn.com:998` | `storage-hd100.tmp.link:1000` |
+| `img-hd101.5t-cdn.com:998` | `storage-hd101.tmp.link:1001` |
+| `img-hd105.5t-cdn.com:998` | `storage-hd105.tmp.link:1000` |
+| `img-hd106.5t-cdn.com:998` | `storage-hd106.tmp.link:1001` |
 
 ---
 
 ### URL 格式
 
 ```
-http://img-hd100.5t-cdn.com:999/{操作}/{参数}/{图片sha1}.{扩展名}
+https://img-hd100.5t-cdn.com:998/{操作}/{参数}/{图片sha1}.{扩展名}
 ```
 
 **扩展名要求：** `.jpg` `.jpeg` `.png` `.gif` `.webp`（用于 nginx 识别图片类型，转发时自动去掉）
@@ -34,8 +34,8 @@ http://img-hd100.5t-cdn.com:999/{操作}/{参数}/{图片sha1}.{扩展名}
 
 **示例：**
 ```
-http://img-hd100.5t-cdn.com:999/thumb/0x0/1fb173329cf63c8f4a82d44c1a32f603eb5ba633.jpg
-http://img-hd100.5t-cdn.com:999/thumb/200x200/1fb173329cf63c8f4a82d44c1a32f603eb5ba633.jpg
+https://img-hd100.5t-cdn.com:998/thumb/0x0/1fb173329cf63c8f4a82d44c1a32f603eb5ba633.jpg
+https://img-hd100.5t-cdn.com:998/thumb/200x200/1fb173329cf63c8f4a82d44c1a32f603eb5ba633.jpg
 ```
 
 ---
@@ -50,7 +50,7 @@ http://img-hd100.5t-cdn.com:999/thumb/200x200/1fb173329cf63c8f4a82d44c1a32f603eb
 
 **示例：**
 ```
-http://img-hd100.5t-cdn.com:999/crop/100x100/1fb173329cf63c8f4a82d44c1a32f603eb5ba633.jpg
+https://img-hd100.5t-cdn.com:998/crop/100x100/1fb173329cf63c8f4a82d44c1a32f603eb5ba633.jpg
 ```
 
 ---
@@ -65,7 +65,7 @@ http://img-hd100.5t-cdn.com:999/crop/100x100/1fb173329cf63c8f4a82d44c1a32f603eb5
 
 **示例：**
 ```
-http://img-hd100.5t-cdn.com:999/rotate/90/1fb173329cf63c8f4a82d44c1a32f603eb5ba633.jpg
+https://img-hd100.5t-cdn.com:998/rotate/90/1fb173329cf63c8f4a82d44c1a32f603eb5ba633.jpg
 ```
 
 ---

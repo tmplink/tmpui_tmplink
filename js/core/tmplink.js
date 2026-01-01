@@ -823,7 +823,7 @@ class tmplink {
         }
 
         const ext = (ftype ? String(ftype) : 'jpg').toLowerCase();
-        const url = `http://img-${sid}.5t-cdn.com:999/thumb/0x0/${sha1}.${ext}`;
+        const url = `https://img-${sid}.5t-cdn.com:998/thumb/0x0/${sha1}.${ext}`;
 
         $('#preview_img_loader').show();
         $('#preview_img').hide();

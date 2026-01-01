@@ -51,7 +51,7 @@ var PHOTO = {
     /**
      * Build image processing URL.
      * New image server format (see img.md):
-     *   http://img-{sid}.5t-cdn.com:999/{op}/{size}/{sha1}.{ext}
+    *   https://img-{sid}.5t-cdn.com:998/{op}/{size}/{sha1}.{ext}
      */
     buildImageUrl: function(photo, op, size) {
         const sid = photo && photo.sid;
@@ -63,7 +63,7 @@ var PHOTO = {
             return '';
         }
 
-        return `http://img-${sid}.5t-cdn.com:999/${op}/${size}/${sha1}.${ext}`;
+        return `https://img-${sid}.5t-cdn.com:998/${op}/${size}/${sha1}.${ext}`;
     },
 
     /**
