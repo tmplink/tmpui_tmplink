@@ -40,6 +40,7 @@ var PHOTO = {
     // Lightbox State
     lightboxIndex: 0,
     lightboxRotation: 0,
+    lastTrackedLightboxIndex: null,
     
     // Permissions
     isOwner: false,
@@ -47,6 +48,22 @@ var PHOTO = {
     
     // Image extensions
     imageExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'],
+
+    // ==================== Analytics ====================
+
+    /**
+     * Track UI analytics for photo album.
+     * Reuses the project's existing pattern: TL.ga(title) -> /user action=event_ui.
+     */
+    track: function(action) {
+        try {
+            if (typeof TL === 'undefined' || !TL || typeof TL.ga !== 'function') return;
+            const mode = this.isWorkspaceMode && this.isWorkspaceMode() ? 'Workspace' : 'Folder';
+            TL.ga(`Photo_Album_${action}_${mode}`);
+        } catch (e) {
+            // No-op: analytics should never break UI
+        }
+    },
 
     /**
      * Build image processing URL.
@@ -99,6 +116,9 @@ var PHOTO = {
             owner: 0,
             name: ''
         };
+
+        // Track entry
+        this.track('Enter');
         
         // Sync theme with main app (delay to ensure DOM is ready)
         setTimeout(() => this.syncTheme(), 10);
@@ -242,6 +262,10 @@ var PHOTO = {
     loadWorkspacePhotos: function(page) {
         if (this.isLoading) return;
         this.isLoading = true;
+
+        if (page > 0) {
+            this.track('LoadMore');
+        }
         
         if (page === 0) {
             // Loading is already shown by init
@@ -486,6 +510,10 @@ var PHOTO = {
     loadPhotos: function(page) {
         if (this.isLoading) return;
         this.isLoading = true;
+
+        if (page > 0) {
+            this.track('LoadMore');
+        }
         
         // Loading is already shown by init or loadFolderData
         // Only show loading for subsequent pages
@@ -723,6 +751,7 @@ var PHOTO = {
         this.gridSize = size;
         localStorage.setItem('album_grid_size', size);
         this.applyGridSize();
+        this.track('GridChange');
     },
 
     /**
@@ -754,6 +783,7 @@ var PHOTO = {
      * Refresh album
      */
     refresh: function() {
+        this.track('Refresh');
         if (this.isWorkspaceMode()) {
             // Reset and reload workspace photos
             this.photoList = [];
@@ -773,6 +803,7 @@ var PHOTO = {
      * This updates the URL and reloads data, but doesn't redraw the entire page
      */
     navigateTo: function(mrid) {
+        this.track('Navigate');
         // Update mrid
         this.mrid = String(mrid);
         
@@ -802,6 +833,7 @@ var PHOTO = {
      * This DOES require a full page load since we're changing listview
      */
     exitPhotoMode: function() {
+        this.track('Exit');
         // Clean up autoLoader if exists
         if (this.autoLoader) {
             this.autoLoader.disable();
@@ -855,6 +887,8 @@ var PHOTO = {
             console.log('[PHOTO] Already at desktop, cannot go back');
             return;
         }
+
+        this.track('GoBack');
         
         // Determine parent folder
         let parentMrid;
@@ -875,6 +909,7 @@ var PHOTO = {
      */
     openFolder: function(mrid) {
         console.log('[PHOTO] Opening folder:', mrid);
+        this.track('OpenFolder');
         this.navigateTo(mrid);
     },
 
@@ -887,14 +922,18 @@ var PHOTO = {
             return;
         }
 
+        this.track('ShareLink');
+
         const url = `${window.location.origin}/?tmpui_page=/app&listview=photo&mrid=${encodeURIComponent(this.mrid)}`;
         const onSuccess = () => {
             this.shareButtonFeedback('success');
             TL.alert(app.languageData.album_share_copied || '相册链接已复制');
+            this.track('ShareLinkSuccess');
         };
         const onFail = () => {
             this.shareButtonFeedback('error');
             TL.alert((app.languageData.album_share_copy_failed || '复制失败，请手动复制链接') + `\n${url}`);
+            this.track('ShareLinkFail');
         };
 
         this.shareButtonFeedback('pending');
@@ -1102,6 +1141,8 @@ var PHOTO = {
         if (items.length === 0) {
             return;
         }
+
+        this.track('DownloadSelected');
         
         // 逐个下载
         for (const ukey of items) {
@@ -1118,6 +1159,7 @@ var PHOTO = {
     downloadCurrent: function() {
         const photo = this.photoList[this.lightboxIndex];
         if (photo) {
+            this.track('DownloadCurrent');
             this.downloadByUkey(photo.ukey, {
                 index: this.lightboxIndex,
                 filename: photo.fname
@@ -1140,6 +1182,9 @@ var PHOTO = {
         
         $('#album-lightbox').addClass('active');
         $('body').css('overflow', 'hidden');
+
+        this.lastTrackedLightboxIndex = null;
+        this.track('LightboxOpen');
     },
 
     /**
@@ -1148,6 +1193,8 @@ var PHOTO = {
     closeLightbox: function() {
         $('#album-lightbox').removeClass('active');
         $('body').css('overflow', '');
+
+        this.track('LightboxClose');
     },
 
     /**
@@ -1156,6 +1203,11 @@ var PHOTO = {
     updateLightbox: function() {
         const photo = this.photoList[this.lightboxIndex];
         if (!photo) return;
+
+        if (this.lastTrackedLightboxIndex !== this.lightboxIndex) {
+            this.lastTrackedLightboxIndex = this.lightboxIndex;
+            this.track('ViewPhoto');
+        }
 
         const imageUrl = this.buildImageUrl(photo, 'thumb', '0x0');
         
@@ -1245,6 +1297,8 @@ var PHOTO = {
     rotateLightbox: function() {
         this.lightboxRotation = (this.lightboxRotation + 90) % 360;
         $('#lightbox-image').css('transform', `rotate(${this.lightboxRotation}deg)`);
+
+        this.track('Rotate');
     },
 
     // ==================== UI Helpers ====================
