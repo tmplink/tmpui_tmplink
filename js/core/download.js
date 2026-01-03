@@ -29,6 +29,46 @@ class download {
         this.resetMultiThreadStatus();
     }
 
+    // Best-effort check for HTTP Range support without downloading the full file.
+    // Returns true if the server responds with 206 for a 1-byte range request.
+    async probeRangeSupport(url) {
+        return new Promise((resolve) => {
+            let resolved = false;
+            const finish = (value) => {
+                if (resolved) return;
+                resolved = true;
+                resolve(value);
+            };
+
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                xhr.responseType = 'arraybuffer';
+                xhr.timeout = 5000;
+                xhr.setRequestHeader('Range', 'bytes=0-0');
+
+                xhr.onreadystatechange = () => {
+                    // HEADERS_RECEIVED: status + headers are available; abort ASAP.
+                    if (xhr.readyState === 2) {
+                        const ok = xhr.status === 206;
+                        try { xhr.abort(); } catch (e) { /* ignore */ }
+                        finish(ok);
+                    }
+                };
+                xhr.onerror = () => finish(false);
+                xhr.ontimeout = () => finish(false);
+                xhr.onabort = () => {
+                    // If aborted before HEADERS_RECEIVED, treat as unsupported.
+                    if (!resolved) finish(false);
+                };
+
+                xhr.send();
+            } catch (e) {
+                finish(false);
+            }
+        });
+    }
+
     //
     resetMultiThreadStatus() {
         this.chunks = [];
@@ -535,30 +575,33 @@ class download {
                     try {
                         // 获取文件大小以决定使用哪种下载方式
                         const headResponse = await fetch(downloadUrl, { method: 'HEAD' });
-                        if (headResponse.ok) {
+                        if (!headResponse.ok) {
+                            // 无法获取文件信息：回退普通下载
+                            window.location.href = downloadUrl;
+                        } else {
                             const fileSize = parseInt(headResponse.headers.get('content-length'));
-                            
-                            // 小文件使用浏览器直接下载
-                            if (fileSize > 0 && fileSize < this.SMALL_FILE_THRESHOLD) {
+
+                            // 无法可靠获取文件大小：回退普通下载
+                            if (!Number.isFinite(fileSize) || fileSize <= 0) {
+                                window.location.href = downloadUrl;
+                            } else if (fileSize < this.SMALL_FILE_THRESHOLD) {
+                                // 小文件使用浏览器直接下载
                                 console.log(`Small file detected (${this.formatBytes(fileSize)}), using direct download`);
                                 window.location.href = downloadUrl;
                             } else {
-                                // 大文件使用分块下载
+                                // 大文件：尝试分块下载（内部会再次确认 Range 支持，不支持则回退）
                                 await this.startMultiThreadDownload(downloadUrl, params.filename);
                             }
-                        } else {
-                            // 如果无法获取文件大小，则使用分块下载
-                            await this.startMultiThreadDownload(downloadUrl, params.filename);
                         }
                     } catch (error) {
-                        console.error('Multi-thread download failed, fallback to normal download:', error);
-                        // 显示用户友好的错误消息
-                        showError(app.languageData.download_error_retry || '网络不稳定，下载失败，请重试');
+                        console.error('Fast download failed, falling back to normal download:', error);
+                        // 回退普通下载，避免误报“网络不稳定”
+                        window.location.href = downloadUrl;
                         // 还原按钮状态
                         updateButtonClass('btn-azure', 'btn-success');
                         updateButtonText(downloadBtnText);
                         updateButtonState(false);
-                        return false;
+                        return true;
                     }
                 } else {
                     // 普通下载模式
@@ -593,16 +636,39 @@ class download {
             this.fastDownloadInProgress = true;
 
             const headResponse = await fetch(url, { method: 'HEAD' });
-            if (!headResponse.ok) throw new Error('Failed to get file info');
+            if (!headResponse.ok) {
+                // 无法获取文件信息：回退普通下载
+                window.location.href = url;
+                return true;
+            }
     
             this.totalSize = parseInt(headResponse.headers.get('content-length'));
-            if (!this.totalSize) throw new Error('Invalid file size');
+            if (!Number.isFinite(this.totalSize) || this.totalSize <= 0) {
+                // 无法可靠获取大小：回退普通下载
+                window.location.href = url;
+                return true;
+            }
     
             // 小文件使用浏览器直接下载
             if (this.totalSize < this.SMALL_FILE_THRESHOLD) {
                 console.log(`Small file detected (${this.formatBytes(this.totalSize)}), using direct download`);
                 window.location.href = url;
                 return true;
+            }
+
+            // 检查服务器是否支持 Range（分块下载依赖 206 Partial Content）
+            const acceptRanges = (headResponse.headers.get('accept-ranges') || '').toLowerCase();
+            if (acceptRanges && acceptRanges !== 'bytes') {
+                window.location.href = url;
+                return true;
+            }
+            // 如果头信息未明确声明，做一次 1-byte 探测请求
+            if (!acceptRanges) {
+                const rangeOk = await this.probeRangeSupport(url);
+                if (!rangeOk) {
+                    window.location.href = url;
+                    return true;
+                }
             }
     
             // 使用固定块大小计算需要的块数
@@ -708,11 +774,15 @@ class download {
         } catch (error) {
             console.error('Multi-thread download failed:', error);
             this.cleanupMultiThreadDownload();
-            
-            // 显示用户友好的错误消息
-            this.parent_op.alert(app.languageData.download_error_retry || '网络不稳定，下载失败，请重试');
-            
-            throw error;
+
+            // 分块下载失败（含 Range 不支持/大小不一致等）：回退普通下载，避免误报“网络不稳定”
+            try {
+                window.location.href = url;
+                return true;
+            } catch (e) {
+                // 如果回退也异常，则仍抛出让上层处理
+                throw error;
+            }
         } finally {
             this.fastDownloadInProgress = false;
         }
@@ -1034,30 +1104,33 @@ class download {
                     try {
                         // 获取文件大小以决定使用哪种下载方式
                         const headResponse = await fetch(params.url, { method: 'HEAD' });
-                        if (headResponse.ok) {
+                        if (!headResponse.ok) {
+                            // 无法获取文件信息：回退普通下载
+                            window.location.href = params.url;
+                        } else {
                             const fileSize = parseInt(headResponse.headers.get('content-length'));
-                            
-                            // 小文件使用浏览器直接下载
-                            if (fileSize > 0 && fileSize < this.SMALL_FILE_THRESHOLD) {
+
+                            // 无法可靠获取文件大小：回退普通下载
+                            if (!Number.isFinite(fileSize) || fileSize <= 0) {
+                                window.location.href = params.url;
+                            } else if (fileSize < this.SMALL_FILE_THRESHOLD) {
+                                // 小文件使用浏览器直接下载
                                 console.log(`Small file detected (${this.formatBytes(fileSize)}), using direct download`);
                                 window.location.href = params.url;
                             } else {
-                                // 大文件使用分块下载
+                                // 大文件使用分块下载（内部会确认 Range 支持，不支持则回退）
                                 await this.startMultiThreadDownload(params.url, params.filename);
                             }
-                        } else {
-                            // 如果无法获取文件大小，则使用分块下载
-                            await this.startMultiThreadDownload(params.url, params.filename);
                         }
                     } catch (error) {
-                        console.error('Multi-thread download failed, fallback to normal download:', error);
-                        // 显示用户友好的错误消息
-                        showError(app.languageData.download_error_retry || '网络不稳定，下载失败，请重试');
+                        console.error('Fast download failed, falling back to normal download:', error);
+                        // 回退普通下载，避免误报“网络不稳定”
+                        window.location.href = params.url;
                         // 还原按钮状态
                         updateButtonClass('btn-azure', 'btn-success');
                         updateButtonText(downloadBtnText);
                         updateButtonState(false);
-                        return false;
+                        return true;
                     }
                 } else {
                     // 普通下载模式
