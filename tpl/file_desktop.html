@@ -22,6 +22,8 @@ body {
     max-width: 680px;
     margin: 0 auto;
     padding: 60px 24px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .light-logo-area {
@@ -377,6 +379,25 @@ body {
     
     .light-actions-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Desktop: center the file info section in the viewport */
+@media (min-width: 769px) {
+    .light-file-page {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 0;
+    }
+
+    .light-file-container {
+        margin: 0;
+        padding: 0 24px;
+    }
+
+    .light-logo-area {
+        margin-bottom: 28px;
     }
 }
 </style>
