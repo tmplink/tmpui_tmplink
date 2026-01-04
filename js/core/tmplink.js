@@ -144,6 +144,9 @@ class tmplink {
 
         this.upload_model_selected_val = localStorage.getItem('app_upload_model') === null ? 0 : localStorage.getItem('app_upload_model');
 
+        // 在开始网络请求前显示加载图标
+        this.loading_box_on();
+
         let token = localStorage.getItem('app_token');
         $.post(this.api_tokx, {
             action: 'token_check',

@@ -1,4 +1,7 @@
 function INIT_room(){
+    // 立即显示加载图标
+    TL.loading_box_on();
+    
     TL.ready(() => {
         TL.dir.open(0);
         TL.dir_list_autoload_enabled();

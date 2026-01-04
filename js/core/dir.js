@@ -275,6 +275,9 @@ class dir {
     }
 
     open() {
+        // 显示加载图标
+        this.parent_op.loading_box_on();
+        
         var params = get_url_params();
         $('#room_userlist').hide();
         $('.permission-room-file').hide();

@@ -553,3 +553,8 @@ body.dark-mode .text-azure .iconpark-icon {
     }
 
 }
+
+/* 深色模式下的加载框样式 */
+body.dark-mode .loading-box {
+    background-color: transparent;
+}

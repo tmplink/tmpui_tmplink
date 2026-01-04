@@ -96,10 +96,12 @@ _:-moz-tree-row(hover), .msie, .win { display:none; }
     right: 0;
     top: 0;
     bottom: 0;
-    z-index: 10;
+    z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: transparent;
+    pointer-events: none;
 }
 
 .loading {

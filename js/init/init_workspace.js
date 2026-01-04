@@ -1,15 +1,13 @@
 function INIT_workspace() {
+    // 立即显示加载图标
+    TL.loading_box_on();
+    
     TL.ready(() => {
         //判断是否登录
         if (TL.isLogin() === false) {
             //跳转到登录页面
             app.open('/app&listview=login');
             return;
-        }
-        
-        // 初始时隐藏上传按钮，等待文件列表加载完成
-        if (isMobileScreen()) {
-            $('.btn-upload').hide();
         }
         
         // 直接调用filelist(0)，AutoLoader会自动处理启用和加载
