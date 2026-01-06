@@ -86,7 +86,8 @@ class navbar {
     model_select(model, act) {
         switch (model) {
             case '/workspace':
-                this.model_workspace(act);
+                // workspace 已废弃，重定向到 room
+                this.model_desktop(act);
                 break;
             case '/dir':
                 this.model_desktop(act);
@@ -111,13 +112,6 @@ class navbar {
         $('.topnav_' + this.lightUpCurrent).removeClass('text-azure');
         this.lightUpCurrent = name;
         $('.topnav_' + name).addClass('text-azure');
-    }
-
-    model_workspace(act) {
-        if (act === true) {
-            dynamicView.workspace();
-        }
-        this.navbar_lightup('workspace');
     }
 
     model_notes(act){

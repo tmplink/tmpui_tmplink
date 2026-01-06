@@ -363,11 +363,16 @@ class dir {
             }
 
             //如果用户是拥有者，显示直链相关的信息，并初始化
+            //但根目录（top == 99）时不显示直链功能
             // console.log('Dir Room owner:' + this.room.owner);
             if (this.room.owner == 1) {
-                this.parent_op.direct.dirRoomInit();
-                $('.room_direct_model').show();
                 $('#downloadAlert').hide();
+                if (this.room.top != 99) {
+                    this.parent_op.direct.dirRoomInit();
+                    $('.room_direct_model').show();
+                } else {
+                    $('.room_direct_model').hide();
+                }
             } else {
                 $('.room_direct_model').hide();
                 $('#downloadAlert').show();
@@ -490,13 +495,17 @@ class dir {
             this.parent_op.btn_copy_bind();
             this.filelist(0);
 
-            //是否需要设置上级目录返回按钮
+            //根目录时显示桌面专用按钮，隐藏子目录按钮
+            //同时隐藏协作功能，这个功能不适用于根目录
+            //直链功能的显示已在上面处理（owner==1 && top!=99）
             if (this.room.top == 99) {
-                $('.btn_for_sub').hide();
                 $('.btn_for_desktop').show();
+                $('.btn_for_sub').hide();
+                $('.room_share_model').hide();
             } else {
-                $('.btn_for_sub').show();
                 $('.btn_for_desktop').hide();
+                $('.btn_for_sub').show();
+                $('.room_share_model').show();
             }
 
             //如果不是拥有者
@@ -560,7 +569,8 @@ class dir {
 
     mobilePrepare() {
         let mrid = this.room.mr_id === undefined ? 0 : this.room.mr_id;
-        if (mrid !== 0) {
+        // 根目录时不显示返回按钮，因为没有上级目录
+        if (this.room.top != 99) {
             let back_btn = `<a href="/app&listview=room&mrid=${this.room.parent}" tmpui-action="TL.dir.open()" class="text-azure mt-1 btn_for_sub"><iconpark-icon name="left-c" class="fa-fw fa-2x"></iconpark-icon></a>`;
             $('#room_back').html(back_btn);
         } else {
@@ -591,15 +601,9 @@ class dir {
         // 动态计算顶部导航栏的实际高度并设置 padding
         this.updateNavPadding();
         
-        if (mridNum === 0) {
-            // 根目录：只显示"创建文件夹"按钮
-            $('.btn_mobile_top').hide();
-            $('.btn_mobile_sub').show();
-        } else {
-            // 子目录：显示"上传文件"和"创建文件夹"两个按钮
-            $('.btn_mobile_top').show();
-            $('.btn_mobile_sub').hide();
-        }
+        // 统一显示按钮，不再对 mrid = 0 做特殊处理
+        $('.btn_mobile_top').show();
+        $('.btn_mobile_sub').hide();
     }
 
     favoriteAdd(mr_id) {
@@ -690,8 +694,6 @@ class dir {
                 $('.mr_filelist_refresh_icon').removeClass('fa-spin');
                 $('.mr_filelist_refresh_icon').removeAttr('disabled');
                 this.listModel(rsp.data, page, params.mrid);
-                this.parent_op.dir_list_autoload_disabled();
-                this.parent_op.autoload = false;
                 this.file_list = rsp.data;
                 this.loadingOFF();
                 
@@ -777,8 +779,17 @@ class dir {
         });
     }
 
+    // 设置需要排除的文件夹ID列表（避免将文件夹移动到自身）
+    setExcludeFolderIds(ids) {
+        this.excludeFolderIds = ids || [];
+    }
+
     treeShow(parent) {
         for (let i in this.dir_tree) {
+            // 排除被选中的文件夹，避免将文件夹移动到自身
+            if (this.excludeFolderIds && this.excludeFolderIds.includes(String(this.dir_tree[i].id))) {
+                continue;
+            }
             if (this.treeHaveChildren(this.dir_tree[i].id)) {
                 this.dir_tree[i].children = true;
             } else {
@@ -814,11 +825,7 @@ class dir {
             mr_id: target
         }, (rsp) => {
             $('#movefileModal').modal('hide');
-            if (place == 'workspace') {
-                this.parent_op.workspace_filelist(0);
-            } else {
-                this.open();
-            }
+            this.open();
         });
     }
 
@@ -856,6 +863,10 @@ class dir {
 // 新增函数：显示子文件夹（替代原来的 treeShow 函数）
 treeShowNew(parent) {
     for (let i in this.dir_tree) {
+        // 排除被选中的文件夹，避免将文件夹移动到自身
+        if (this.excludeFolderIds && this.excludeFolderIds.includes(String(this.dir_tree[i].id))) {
+            continue;
+        }
         if (this.dir_tree[i].parent == parent) {
             if (this.treeHaveChildren(this.dir_tree[i].id)) {
                 this.dir_tree[i].children = true;
@@ -883,6 +894,10 @@ treeShowNew(parent) {
         const results = [];
         for (let i in this.dir_tree) {
             const folder = this.dir_tree[i];
+            // 排除被选中要移动的文件夹
+            if (this.excludeFolderIds && this.excludeFolderIds.includes(folder.id)) {
+                continue;
+            }
             if (folder.name.toLowerCase().includes(keyword)) {
                 // 构建文件夹路径
                 const path = this.buildFolderPath(folder.id);

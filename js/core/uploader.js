@@ -420,11 +420,6 @@ class uploader {
             return false;
         }
 
-        if (mr_id == 0) {
-            $('#dirsToUpload').hide();
-            $('.dirsToUpload_label').hide();
-        }
-
         // this.upload_model_selected(Number(this.upload_model_selected_val));
 
         $('#upload_mr_id').val(mr_id);
@@ -1496,11 +1491,8 @@ class uploader {
                 // 只在所有文件都上传完成时才刷新列表
                 if (this.upload_queue === 0 && this.upload_queue_file.length === 0) {
                     this.refreshTimeout = setTimeout(() => {
-                        if (get_page_mrid() !== undefined) {
-                            this.parent_op.dir.open();
-                        } else {
-                            this.parent_op.workspace_filelist(0);
-                        }
+                        // 统一使用 dir 模块刷新
+                        this.parent_op.dir.open();
                     }, 1000);
                 }
 

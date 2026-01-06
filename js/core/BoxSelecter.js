@@ -424,14 +424,29 @@ class BoxSelecter {
     moveToModel(type) {
         var node = document.getElementsByName(this.items_name);
         this.move_place = type;
+        
+        // 收集被选中的文件夹ID，用于在树形结构中排除
+        let excludeFolderIds = [];
         for (let i = 0; i < node.length; i++) {
             var inode = node[i];
             let check = inode.getAttribute('data-check');
-            if (this.dir_tree_init === false) {
+            let unit_type = inode.getAttribute('tlunit');
+            let id = inode.getAttribute('tldata');
+            if (check === 'true' && unit_type === 'dir') {
+                excludeFolderIds.push(id);
+            }
+        }
+        // 将排除的文件夹ID传递给 dir 对象
+        this.parent_op.dir.setExcludeFolderIds(excludeFolderIds);
+        
+        for (let i = 0; i < node.length; i++) {
+            var inode = node[i];
+            let check = inode.getAttribute('data-check');
+            if (check === 'true'){
+                // 每次都重新渲染树形结构，以确保排除列表生效
+                $('#mv_box_0').empty();
                 this.parent_op.dir.treeShow(0);
                 this.dir_tree_init = true;
-            }
-            if (check === 'true'){
                 $('#movefileModal').modal('show');
                 return true;
             }
