@@ -779,8 +779,17 @@ class dir {
         });
     }
 
+    // 设置需要排除的文件夹ID列表（避免将文件夹移动到自身）
+    setExcludeFolderIds(ids) {
+        this.excludeFolderIds = ids || [];
+    }
+
     treeShow(parent) {
         for (let i in this.dir_tree) {
+            // 排除被选中的文件夹，避免将文件夹移动到自身
+            if (this.excludeFolderIds && this.excludeFolderIds.includes(String(this.dir_tree[i].id))) {
+                continue;
+            }
             if (this.treeHaveChildren(this.dir_tree[i].id)) {
                 this.dir_tree[i].children = true;
             } else {
@@ -854,6 +863,10 @@ class dir {
 // 新增函数：显示子文件夹（替代原来的 treeShow 函数）
 treeShowNew(parent) {
     for (let i in this.dir_tree) {
+        // 排除被选中的文件夹，避免将文件夹移动到自身
+        if (this.excludeFolderIds && this.excludeFolderIds.includes(String(this.dir_tree[i].id))) {
+            continue;
+        }
         if (this.dir_tree[i].parent == parent) {
             if (this.treeHaveChildren(this.dir_tree[i].id)) {
                 this.dir_tree[i].children = true;
@@ -881,6 +894,10 @@ treeShowNew(parent) {
         const results = [];
         for (let i in this.dir_tree) {
             const folder = this.dir_tree[i];
+            // 排除被选中要移动的文件夹
+            if (this.excludeFolderIds && this.excludeFolderIds.includes(folder.id)) {
+                continue;
+            }
             if (folder.name.toLowerCase().includes(keyword)) {
                 // 构建文件夹路径
                 const path = this.buildFolderPath(folder.id);
