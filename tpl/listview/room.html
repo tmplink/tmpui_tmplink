@@ -106,19 +106,68 @@
                 <div class="mb-2"></div>
 
                 <div class="btn_for_desktop">
+                    <button class="btn btn-light btn-sm text-azure mr-2 mt-1" onclick="TL.sort_show();">
+                        <iconpark-icon name="list" class="fa-fw"></iconpark-icon>
+                        <span i18n="sort_title" class="d-none d-sm-inline">.</span>
+                    </button>
+                    <button class="btn btn-light btn-sm mr-2 mt-1 text-azure"
+                        onclick="TL.openPhotoAlbum();">
+                        <iconpark-icon name="images" class="fa-fw"></iconpark-icon>
+                        <span i18n="model_photo" class="d-none d-sm-inline">.</span>
+                    </button>
+                    <button class="btn btn-light btn-sm mr-2 mt-1 text-azure room_btn_performance"
+                        onclick="TL.dir.performanceOpen();">
+                        <iconpark-icon name="gear" class="fa-fw"></iconpark-icon>
+                        <span class="d-none d-sm-inline" i18n="btn_performance">.</span>
+                    </button>
+                    <button class="btn btn-light btn-sm text-azure mr-2 mt-1" onclick="TL.dir.open()">
+                        <iconpark-icon name="rotate" class="fa-fw mr_filelist_refresh_icon"></iconpark-icon>
+                    </button>
+                </div>
+                <div class="btn_for_desktop mt-2">
+                    <button onclick="TL.uploader.open('0');" tmpui-app="true" class="btn btn-sm btn-primary btn-upload mr-2 mt-1">
+                        <iconpark-icon name="cloud-arrow-up" class="fa-fw"></iconpark-icon>
+                        <span i18n="nav_upload" class="d-none d-sm-inline">.</span>
+                    </button>
                     <button class="btn btn-light text-azure btn-sm mr-2 mt-1 not_owner"
                         onclick="TL.dir.showCreateFolderModal();">
                         <iconpark-icon name="folder-plus" class="fa-fw"></iconpark-icon>
                         <span i18n="model_title_folder_title" class="d-none d-sm-inline">.</span>
                     </button>
-                    <button id="room_btn_file_photo_desktop" class="btn btn-light btn-sm mr-2 mt-1 text-azure"
-                        onclick="TL.openPhotoAlbum();">
-                        <iconpark-icon name="images" class="fa-fw"></iconpark-icon>
-                        <span i18n="model_photo" class="d-none d-sm-inline">.</span>
+                    <!-- 下载全部按钮 -->
+                    <button class="btn btn-light text-azure btn-sm mr-2 mt-1" onclick="TL.Selecter.downloadAll();">
+                        <iconpark-icon name="cloud-arrow-down" class="fa-fw"></iconpark-icon>
+                        <span i18n="file_btn_downloadall">.</span>
                     </button>
-                    <button class="btn btn-light btn-sm  text-azure mr-2 mt-1" onclick="TL.dir.open()">
-                        <iconpark-icon name="rotate" class="fa-fw mr_filelist_refresh_icon"></iconpark-icon>
+                    <button onclick="TL.Selecter.setAll();" class="btn btn-light text-azure btn-sm mr-2 mt-1">
+                        <iconpark-icon name="check-square" class="fa-fw"></iconpark-icon>
+                        <span class="d-none d-sm-inline" i18n="on_select_all">.</span>
                     </button>
+                    <button onclick="TL.Selecter.setNone();" class="btn btn-light text-azure btn-sm mr-2 mt-1 btn-gui-on-selected">
+                        <iconpark-icon name="x-square" class="fa-fw"></iconpark-icon>
+                        <span class="d-none d-sm-inline" i18n="on_select_cancel">.</span>
+                    </button>
+                    <div class="dropdown btn-gui-on-selected d-inline-block">
+                        <button class="btn btn-light text-azure dropdown-toggle btn-sm mt-1" type="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <iconpark-icon name="list-check" class="fa-fw"></iconpark-icon> <span
+                                i18n="on_select">.</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right shadow">
+                            <button class="dropdown-item not_owner" onclick="TL.Selecter.delete()">
+                                <iconpark-icon name="trash" class="fa-fw"></iconpark-icon>
+                                <span i18n="on_select_delete">.</span>
+                            </button>
+                            <button class="dropdown-item" onclick="TL.Selecter.download()">
+                                <iconpark-icon name="cloud-arrow-down" class="fa-fw"></iconpark-icon>
+                                <span i18n="on_select_download">.</span>
+                            </button>
+                            <button class="dropdown-item not_owner" onclick="TL.Selecter.moveToModel('room')">
+                                <iconpark-icon name="folder-plus" class="fa-fw"></iconpark-icon>
+                                <span i18n="on_select_move">.</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="btn_for_sub">
@@ -770,14 +819,16 @@
                         </span>
                     </label>
                 </div>
-                <h5 i18n="modal_performance_share">.</h5>
-                <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="pf_allow_upload"
-                        onclick="TL.dir.performancePost()">
-                    <span class="form-check-label" i18n="modal_performance_share_des">
-                        .
-                    </span>
-                </label>
+                <div class="room_share_model">
+                    <h5 i18n="modal_performance_share">.</h5>
+                    <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="pf_allow_upload"
+                            onclick="TL.dir.performancePost()">
+                        <span class="form-check-label" i18n="modal_performance_share_des">
+                            .
+                        </span>
+                    </label>
+                </div>
                 <div class="room_direct_model">
                     <hr>
                     <h5 i18n="modal_performance_direct">.</h5>

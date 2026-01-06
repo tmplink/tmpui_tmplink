@@ -363,11 +363,16 @@ class dir {
             }
 
             //如果用户是拥有者，显示直链相关的信息，并初始化
+            //但根目录（top == 99）时不显示直链功能
             // console.log('Dir Room owner:' + this.room.owner);
             if (this.room.owner == 1) {
-                this.parent_op.direct.dirRoomInit();
-                $('.room_direct_model').show();
                 $('#downloadAlert').hide();
+                if (this.room.top != 99) {
+                    this.parent_op.direct.dirRoomInit();
+                    $('.room_direct_model').show();
+                } else {
+                    $('.room_direct_model').hide();
+                }
             } else {
                 $('.room_direct_model').hide();
                 $('#downloadAlert').show();
@@ -490,13 +495,17 @@ class dir {
             this.parent_op.btn_copy_bind();
             this.filelist(0);
 
-            //是否需要设置上级目录返回按钮
+            //根目录时显示桌面专用按钮，隐藏子目录按钮
+            //同时隐藏协作功能，这个功能不适用于根目录
+            //直链功能的显示已在上面处理（owner==1 && top!=99）
             if (this.room.top == 99) {
-                $('.btn_for_sub').hide();
                 $('.btn_for_desktop').show();
+                $('.btn_for_sub').hide();
+                $('.room_share_model').hide();
             } else {
-                $('.btn_for_sub').show();
                 $('.btn_for_desktop').hide();
+                $('.btn_for_sub').show();
+                $('.room_share_model').show();
             }
 
             //如果不是拥有者
@@ -560,7 +569,8 @@ class dir {
 
     mobilePrepare() {
         let mrid = this.room.mr_id === undefined ? 0 : this.room.mr_id;
-        if (mrid !== 0) {
+        // 根目录时不显示返回按钮，因为没有上级目录
+        if (this.room.top != 99) {
             let back_btn = `<a href="/app&listview=room&mrid=${this.room.parent}" tmpui-action="TL.dir.open()" class="text-azure mt-1 btn_for_sub"><iconpark-icon name="left-c" class="fa-fw fa-2x"></iconpark-icon></a>`;
             $('#room_back').html(back_btn);
         } else {
@@ -591,15 +601,9 @@ class dir {
         // 动态计算顶部导航栏的实际高度并设置 padding
         this.updateNavPadding();
         
-        if (mridNum === 0) {
-            // 根目录：只显示"创建文件夹"按钮
-            $('.btn_mobile_top').hide();
-            $('.btn_mobile_sub').show();
-        } else {
-            // 子目录：显示"上传文件"和"创建文件夹"两个按钮
-            $('.btn_mobile_top').show();
-            $('.btn_mobile_sub').hide();
-        }
+        // 统一显示按钮，不再对 mrid = 0 做特殊处理
+        $('.btn_mobile_top').show();
+        $('.btn_mobile_sub').hide();
     }
 
     favoriteAdd(mr_id) {
