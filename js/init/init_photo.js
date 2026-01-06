@@ -87,6 +87,12 @@ var PHOTO = {
      * Initialize the photo album module
      */
     init: function() {
+        // Hide global loading box to prevent it from showing over the album
+        // (album has its own #album-loading indicator)
+        if (typeof TL !== 'undefined' && TL.loading_box_off) {
+            TL.loading_box_off();
+        }
+        
         let params = app.getUrlVars(window.location.href);
         this.mrid = params.mrid || '0';
         this.mode = params.mode || 'folder';
