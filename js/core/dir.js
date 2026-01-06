@@ -690,8 +690,6 @@ class dir {
                 $('.mr_filelist_refresh_icon').removeClass('fa-spin');
                 $('.mr_filelist_refresh_icon').removeAttr('disabled');
                 this.listModel(rsp.data, page, params.mrid);
-                this.parent_op.dir_list_autoload_disabled();
-                this.parent_op.autoload = false;
                 this.file_list = rsp.data;
                 this.loadingOFF();
                 
@@ -814,11 +812,7 @@ class dir {
             mr_id: target
         }, (rsp) => {
             $('#movefileModal').modal('hide');
-            if (place == 'workspace') {
-                this.parent_op.workspace_filelist(0);
-            } else {
-                this.open();
-            }
+            this.open();
         });
     }
 

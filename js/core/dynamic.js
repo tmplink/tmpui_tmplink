@@ -25,7 +25,8 @@ class dynamic {
                 break;
 
             case 'workspace':
-                this.workspace();
+                // workspace 已废弃，重定向到 room
+                this.room();
                 break;
 
             case 'room':
@@ -81,8 +82,6 @@ class dynamic {
         //     this.current=title;
         // }
 
-        //ページスクロール時の自動読み込みをオフにする
-        TL.dir_list_autoload_disabled();
         TL.navbar.enabled();
         TL.ready(() => {
             TL.head_set();
@@ -131,8 +130,8 @@ class dynamic {
                     //未登录，跳转到登录页
                     this.login();
                 } else {
-                    //已登录，进入 workspace
-                    this.workspace();
+                    //已登录，进入 room
+                    this.room();
                 }
             }
         );
@@ -147,25 +146,12 @@ class dynamic {
                     TL.ga('Index');
                     window.location.href = '/';
                 } else {
-                    //已登录，进入 workspace
-                    this.workspace();
+                    //已登录，进入 room
+                    this.room();
                     $('#tmpui_body').css('opacity', '1');
                 }
             }
         );
-    }
-
-    workspace() {
-        if (isMobileScreen()) {
-            $('#home_view').html(app.getFile('/tpl/listview/mobile_workspace.html'));
-        } else {
-            $('#home_view').html(app.getFile('/tpl/listview/workspace.html'));
-        }
-        TL.ga('Workspace');
-        app.dynOpen('/app&listview=workspace');
-        this.active('workspace');
-        INIT_workspace();
-        TL.navbar.model_workspace();
     }
 
     notes() {

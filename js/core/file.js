@@ -39,16 +39,8 @@ class file {
         }, (rsp) => {
             if (rsp.status == 1) {
                 alert(app.languageData.changemodel_msg_1);
-
-                //根据当前所在页面时 workspace 还是 room 来执行不同的列表刷新操作
-                let page = get_url_params();
-                if (page['listview'] == 'workspace') {
-                    this.parent_op.workspace_filelist(0);
-                    console.log('changeModel-workspace-refresh');
-                }else{
-                    this.parent_op.dir.filelist(0);
-                    console.log('changeModel-room-refresh');
-                }
+                //刷新文件列表
+                this.parent_op.dir.filelist(0);
             }
             if (rsp.status == 2) {
                 alert(app.languageData.changemodel_msg_2);

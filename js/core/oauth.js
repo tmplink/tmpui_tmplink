@@ -62,7 +62,7 @@ class oauth {
                 //     'send_to': 'AW-977119233/7Pa-CNH4qbkBEIHQ9tED',
                 // });
                 setTimeout(() => {
-                    dynamicView.workspace();
+                    dynamicView.room();
                 }, 1000);
                 return false;
             }

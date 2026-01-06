@@ -17,7 +17,8 @@ app.ready(() => {
             dynamicView.preload();
             break;
         case 'workspace':
-            dynamicView.workspace();
+            // workspace 已废弃，重定向到 room
+            dynamicView.room();
             break;
         case 'room':
             dynamicView.room();

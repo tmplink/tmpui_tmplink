@@ -47,7 +47,6 @@ class tmplink {
     high_speed_channel = false
 
     page_number = 1
-    autoload = false
     sort_by = 0
     sort_type = 0
     Selecter = null
@@ -55,7 +54,6 @@ class tmplink {
     recaptcha_op = false  // reCAPTCHA temporarily disabled
     recaptcha = '6LfqxcsUAAAAABAABxf4sIs8CnHLWZO4XDvRJyN5'
     recaptchaToken = '0'
-    workspaceAutoLoader = null
 
     //下面这段代码不适用
     recaptcha_actions = [
@@ -123,12 +121,6 @@ class tmplink {
         this.notification.init(this);
         this.file.init(this);
         this.ai.init(this);
-        
-        // 初始化workspace自动加载器
-        this.workspaceAutoLoader = new AutoLoader({
-            loadFunction: (page) => this.workspaceLoadData(page),
-            minItemsForDisable: 50
-        });
 
         //
         $('.workspace-navbar').hide();
@@ -609,13 +601,8 @@ class tmplink {
         localStorage.setItem(key.sort_by, this.sort_by);
         localStorage.setItem(key.sort_type, this.sort_type);
 
-        if (get_page_mrid() !== undefined) {
-            //刷新文件夹
-            this.dir.filelist(0);
-        } else {
-            //刷新流
-            this.workspace_filelist(0);
-        }
+        //统一使用 dir 模块刷新文件列表
+        this.dir.filelist(0);
         $('#sortModal').modal('hide');
     }
 
@@ -933,132 +920,6 @@ class tmplink {
         }, 'json');
     }
 
-    /**
-     * 启用自动加载
-     */
-    workspace_filelist_autoload_enabled() {
-        // 使用AutoLoader模块替代原有实现
-        this.workspaceAutoLoader.enable();
-    }
-
-    workspace_total() {
-        $.post(this.api_file, {
-            action: 'total',
-            token: this.api_token
-        }, (rsp) => {
-            if (rsp.data.nums > 0) {
-                let total_size_text = bytetoconver(rsp.data.size, true);
-                $('#workspace_total').html(`${rsp.data.nums} ${app.languageData.total_units_of_file} , ${total_size_text}`);
-            }
-        }, 'json');
-    }
-
-    /**
-     * 禁用自动加载
-     */
-    workspace_filelist_autoload_disabled() {
-        // 使用AutoLoader模块替代原有实现
-        this.workspaceAutoLoader.disable();
-    }
-
-    /**
-     * 使用AutoLoader加载workspace文件列表
-     * @param {Number} page - 页码，0表示初始加载，1表示加载更多
-     */
-    workspace_filelist(page) {
-        // 使用AutoLoader加载数据
-        this.workspaceAutoLoader.load(page);
-    }
-    
-    /**
-     * 实际加载workspace数据的函数，供AutoLoader调用
-     * @param {Number} page - 页码，0表示初始加载，1表示加载更多
-     */
-    workspaceLoadData(page) {
-        $('.no_files').fadeOut();
-        $('.no_dir').fadeOut();
-        $('.no_photos').fadeOut();
-        //初始化选择器
-        this.Selecter.pageInit();
-        
-        //when page is 0,page will be init
-        if (page == 0) {
-            this.page_number = 0;
-            $('#workspace_filelist').html('');
-            this.list_data = [];
-        } else {
-            this.page_number++;
-        }
-        
-        if (localStorage.getItem('app_login') != 1) {
-            this.logout();
-            return false;
-        }
-        
-        //if search
-        let search = $('#workspace_search').val();
-        let total_size_text = bytetoconver(this.total_size);
-
-        //更新文件总数
-        this.workspace_total();
-
-        //获取排序
-        let key = getSortKeys();
-        let sort_by = localStorage.getItem(key.sort_by);
-        let sort_type = localStorage.getItem(key.sort_type);
-
-        $('#filelist_refresh_icon').addClass('fa-spin');
-        $('#filelist_refresh_icon').attr('disabled', true);
-        this.loading_box_on();
-        
-        // 隐藏按钮，显示加载状态
-        if (isMobileScreen()) {
-            $('.btn-upload').hide();
-        }
-        
-        let photo = 0;
-        if (localStorage.getItem('app_workspace_view') == 'photo') {
-            photo = 1;
-        }
-        
-        $.post(this.api_file, {
-            action: 'workspace_filelist_page',
-            page: this.page_number,
-            token: this.api_token,
-            sort_type: sort_type,
-            sort_by: sort_by,
-            photo: photo,
-            search: search
-        }, (rsp) => {
-            $('#filelist_refresh_icon').removeClass('fa-spin');
-            $('#filelist_refresh_icon').removeAttr('disabled');
-            
-            if (rsp.status === 0) {
-                if (page == 0) {
-                    $('#workspace_filelist').html('<div class="text-center"><iconpark-icon name="folder-open" class="fa-fw fa-4x"></iconpark-icon></div>');
-                }
-            } else {
-                this.workspace_view(rsp.data, page);
-                for (let i in rsp.data) {
-                    this.list_data[rsp.data[i].ukey] = rsp.data[i];
-                }
-                //数据加入到 dir.file_list 以保持批量下载的兼容性
-                this.dir.file_list = rsp.data;
-            }
-            
-            $('#filelist').show();
-            this.loading_box_off();
-            
-            // 在文件列表加载完成后，显示按钮
-            if (isMobileScreen()) {
-                $('.btn-upload').fadeIn(300);
-            }
-            
-            // 让AutoLoader处理响应
-            return this.workspaceAutoLoader.handleResponse(rsp);
-        });
-    }
-
     is_file_ok(ukey) {
         setTimeout(() => {
             $.post(this.api_file, {
@@ -1086,79 +947,6 @@ class tmplink {
                 this.is_file_ok(data[i].ukey);
             }
         }
-    }
-
-    workspace_filelist_model(type) {
-        debug(type);
-        switch (type) {
-            case 'photo':
-                localStorage.setItem('app_workspace_view', 'photo');
-                break;
-            case 'list':
-                localStorage.setItem('app_workspace_view', 'list');
-                break;
-            default:
-                localStorage.setItem('app_workspace_view', 'list');
-        }
-        this.workspace_filelist(0);
-    }
-
-    workspace_view(data, page) {
-        switch (localStorage.getItem('app_workspace_view')) {
-            case 'photo':
-                this.workspace_filelist_by_photo(data, page);
-                break;
-            case 'list':
-                this.workspace_filelist_by_list(data, page);
-                break;
-            default:
-                this.workspace_filelist_by_list(data, page);
-        }
-    }
-
-    workspace_btn_active_reset() {
-        $('#ws_btn_file_list').removeClass('text-blue');
-        $('#ws_btn_file_grid').removeClass('text-blue');
-        $('#ws_btn_file_photo').removeClass('text-blue');
-    }
-
-    workspace_filelist_by_photo(data, page) {
-        this.workspace_btn_active_reset();
-        $('#ws_btn_file_photo').addClass('text-blue');
-        if (page == 0 && data == false) {
-            $('.no_photos').show();
-        }
-        if (data.length == 0) {
-            return false;
-        }
-        if (page == 0) {
-            $('#workspace_filelist').html('<div class="row" id="filelist_photo"></div>');
-        }
-        $('#filelist_photo').append(app.tpl('workspace_filelist_photo_tpl', data));
-        this.btn_copy_bind();
-        this.is_file_ok_check(data);
-        app.linkRebind();
-        this.lazyload('.lazyload');
-    }
-
-    workspace_filelist_by_list(data, page) {
-        this.workspace_btn_active_reset();
-        $('#ws_btn_file_list').addClass('text-blue');
-        if (page == 0 && data == false) {
-            $('.no_files').show();
-        }
-        if (data.length == 0) {
-            return false;
-        }
-        $('#workspace_filelist').append(app.tpl('workspace_filelist_list_tpl', data));
-        $('.lefttime-remainder').each((i, e) => {
-            let id = $(e).attr('id');
-            let time = $(e).attr('data-tmplink-lefttime');
-            countDown(id, time,this.currentLanguage);
-        });
-        this.btn_copy_bind();
-        this.is_file_ok_check(data);
-        app.linkRebind();
     }
 
     file_model_change(ukey, model) {
@@ -2190,22 +1978,6 @@ class tmplink {
         }
     }
 
-    /**
-     * 启用目录列表自动加载
-     */
-    dir_list_autoload_enabled() {
-        // 使用workspace的AutoLoader
-        this.workspaceAutoLoader.enable();
-    }
-
-    /**
-     * 禁用目录列表自动加载
-     */
-    dir_list_autoload_disabled() {
-        // 使用workspace的AutoLoader
-        this.workspaceAutoLoader.disable();
-    }
-
     file_rename(ukey, default_name) {
         var newname = prompt(app.languageData.modal_meetingroom_newname, default_name);
         if (newname == null || newname == "") {
@@ -2217,12 +1989,8 @@ class tmplink {
             name: newname,
             ukey: ukey
         }, (rsp) => {
-            //如果在 workspace 里面，则刷新
-            if (get_page_mrid() == undefined) {
-                this.workspace_filelist(0);
-            } else {
-                this.dir.filelist(0)
-            }
+            //统一使用 dir 模块刷新文件列表
+            this.dir.filelist(0);
         });
     }
 
@@ -2282,7 +2050,7 @@ class tmplink {
                                 location.href = return_page;
                                 localStorage.setItem('return_page', 0);
                             } else {
-                                dynamicView.workspace();
+                                dynamicView.room();
                             }
                         });
                     } else {
@@ -2386,7 +2154,7 @@ class tmplink {
                     // });
                     this.get_details(() => {
                         setTimeout(() => {
-                            dynamicView.workspace();
+                            dynamicView.room();
                         }, 3000);
                     });
                 } else {

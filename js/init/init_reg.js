@@ -4,7 +4,8 @@ function INIT_reg() {
         $('title').html(app.languageData.title_reg);
         $('meta[name=description]').html(app.languageData.des_reg);
         if (TL.isLogin()) {
-            dynamicView.workspace();
+            // 已登录，跳转到 room 页面
+            app.open('/app&listview=room&mrid=0');
         }
     });
 }

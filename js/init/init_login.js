@@ -11,7 +11,8 @@ function INIT_login() {
         }
 
         if (TL.isLogin()) {
-            dynamicView.workspace();
+            // 已登录，跳转到 room 页面
+            app.open('/app&listview=room&mrid=0');
         }else{
             //初始化谷歌登陆按钮
             TL.oauth.google_login();
