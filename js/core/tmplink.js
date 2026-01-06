@@ -123,8 +123,8 @@ class tmplink {
         this.ai.init(this);
 
         //
-        $('.workspace-navbar').hide();
-        $('.workspace-nologin').hide();
+        $('.auth-logged-in').hide();
+        $('.auth-logged-out').hide();
 
         //初始化 return_page
         let return_page = localStorage.getItem('return_page');
@@ -610,12 +610,12 @@ class tmplink {
         var login = localStorage.getItem('app_login');
         if (login != null && login != 0) {
             this.logined = 1;
-            $('.workspace-navbar').show();
-            $('.workspace-nologin').hide();
+            $('.auth-logged-in').show();
+            $('.auth-logged-out').hide();
             $('#index_manager').fadeIn();
         } else {
-            $('.workspace-navbar').hide();
-            $('.workspace-nologin').show();
+            $('.auth-logged-in').hide();
+            $('.auth-logged-out').show();
             $('#index_prepare').fadeIn();
         }
 
@@ -841,7 +841,7 @@ class tmplink {
         $('#btn_preview_download').removeAttr('disabled');
         $('#btn_preview_download').html(app.languageData.on_select_download);
         $('#btn_preview_download').attr('onclick', 'TL.download_direct(\'' + ukey + '\')');
-        $('#btn_preview_remove').attr('onclick', "TL.workspace_del('" + ukey + "')");
+        $('#btn_preview_remove').attr('onclick', "TL.dir.deleteFiles('" + ukey + "')");
         $('#previewModal').modal('show');
     }
 
@@ -878,46 +878,6 @@ class tmplink {
                 }
             }, 'json');
         });
-    }
-
-    workspace_navbar() {
-        if (localStorage.getItem('app_login') == 1) {
-            $('.workspace-navbar').show();
-        }
-    }
-
-    workspace_add(id, ukey, animated) {
-        $(id).attr('disabled', true);
-        $.post(this.api_file, {
-            action: 'add_to_workspace',
-            token: this.api_token,
-            ukey: ukey
-        }, (rsp) => {
-            if (animated === false) {
-                return false;
-            }
-        }, 'json');
-    }
-
-    workspace_del(ukey, group_delete) {
-        //如果是批量删除
-        if (group_delete === true) {
-            for (let i in ukey) {
-                $('.file_unit_' + ukey[i]).hide();
-            }
-        } else {
-            if (this.profile_confirm_delete_get()) {
-                if (!confirm(app.languageData.confirm_delete)) {
-                    return false;
-                }
-            }
-            $('.file_unit_' + ukey).hide();
-        }
-        $.post(this.api_file, {
-            action: 'remove_from_workspace',
-            token: this.api_token,
-            ukey: ukey
-        }, 'json');
     }
 
     is_file_ok(ukey) {
@@ -1047,7 +1007,7 @@ class tmplink {
                     $('#filename').html(rsp.data.name);
                     $('#filesize').html(rsp.data.size);
 
-                    // Mobile workspace button is handled by mobile-file.js with onclick attribute
+                    // Mobile save button is handled by mobile-file.js with onclick attribute
 
                     //如果设置了个性化图标
                     if (rsp.data.ui_publish === 'yes' && rsp.data.ui_publish_status === 'ok' && rsp.data.ui_pro === 'yes') {
@@ -1251,13 +1211,13 @@ class tmplink {
                     });
 
                     //添加到收藏按钮绑定
-                    $('#btn_add_to_workspace').on('click', () => {
+                    $('#btn_save_to_my_files').on('click', () => {
                         if (this.logined == 1) {
                             //更换图标为完成的标志
-                            $('#btn_add_to_workspace_icon iconpark-icon').attr('name', 'circle-check').css('color', '#22c55e');
-                            this.workspace_add('#btn_add_to_workspace', params.ukey, false);
+                            $('#btn_save_to_my_files_icon iconpark-icon').attr('name', 'circle-check').css('color', '#22c55e');
+                            this.dir.saveToMyFiles(params.ukey);
                             //移除监听
-                            $('#btn_add_to_workspace').off('click');
+                            $('#btn_save_to_my_files').off('click');
                         } else {
                             //设定登录后跳转的页面
                             localStorage.setItem('return_page', getCurrentURL());

@@ -57,6 +57,44 @@ class dir {
         this.parent_op.lazyload('.lazyload');
     }
 
+    /**
+     * 批量删除文件（从文件列表中删除）
+     * @param {string|array} ukey - 文件的 ukey 或 ukey 数组
+     * @param {boolean} group_delete - 是否为批量删除模式
+     */
+    deleteFiles(ukey, group_delete = false) {
+        // 如果是批量删除
+        if (group_delete === true) {
+            for (let i in ukey) {
+                $('.file_unit_' + ukey[i]).hide();
+            }
+        } else {
+            if (this.parent_op.profile_confirm_delete_get()) {
+                if (!confirm(app.languageData.confirm_delete)) {
+                    return false;
+                }
+            }
+            $('.file_unit_' + ukey).hide();
+        }
+        $.post(this.parent_op.api_file, {
+            action: 'remove_from_workspace',
+            token: this.parent_op.api_token,
+            ukey: ukey
+        }, 'json');
+    }
+
+    /**
+     * 将文件保存到我的文件（收藏功能）
+     * @param {string} ukey - 文件的 ukey
+     */
+    saveToMyFiles(ukey) {
+        $.post(this.parent_op.api_file, {
+            action: 'add_to_workspace',
+            token: this.parent_op.api_token,
+            ukey: ukey
+        }, 'json');
+    }
+
     deleteFile(ukey) {
         var params = get_url_params();
         if (this.parent_op.profile_confirm_delete_get()) {

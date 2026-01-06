@@ -5,13 +5,13 @@
             <div class="text-center display-4" id="file_messenger_msg"></div>
             <div class="row p-5" style="display: none;" id="file_messenger_msg_login">
                 <div class="col-md-6 col-12 text-center">
-                    <button class="btn btn-lg btn-primary btn-block workspace-nologin" type="button"
+                    <button class="btn btn-lg btn-primary btn-block auth-logged-out" type="button"
                         onclick="app.open('/app&listview=login');" i18n="index_b3">
                         .
                     </button>
                 </div>
                 <div class="col-md-6 col-12 text-center">
-                    <button class="btn btn-lg btn-danger btn-block workspace-nologin" type="button"
+                    <button class="btn btn-lg btn-danger btn-block auth-logged-out" type="button"
                         onclick="app.open('/app&listview=reg');" i18n="index_b2">
                         .
                     </button>
@@ -717,7 +717,7 @@
                         <div>
                             <span i18n="modal_performance_direct_tip">.</span>
                         </div>
-                        <button class="btn btn-primary mt-2 my-sm-0 workspace-navbar"
+                        <button class="btn btn-primary mt-2 my-sm-0 auth-logged-in"
                             onclick="app.open('/app&listview=direct');">
                             <iconpark-icon name="share-nodes" class="fa-fw"></iconpark-icon>
                             <span i18n="navbar_direct">.</span>

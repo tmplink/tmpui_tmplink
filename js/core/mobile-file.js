@@ -67,25 +67,21 @@
         });
     };
 
-    // Track if file has been added to workspace
-    let workspaceAdded = false;
+    // Track if file has been saved to my files
+    let fileSaved = false;
 
-    // Add to workspace handler for mobile
-    window.mobileAddToWorkspace = function() {
+    // Save to my files handler for mobile
+    window.mobileSaveToMyFiles = function() {
         // Check if user is logged in
         if (typeof TL !== 'undefined' && TL.logined == 1) {
-            const $btn = $('#btn_add_to_workspace_mobile');
+            const $btn = $('#btn_save_to_my_files_mobile');
             
             // Only execute actual operation on first click
-            if (!workspaceAdded) {
+            if (!fileSaved) {
                 const params = TL.get_url_params();
-                // Call API directly to avoid button being disabled
-                $.post(TL.api_file, {
-                    action: 'add_to_workspace',
-                    token: TL.api_token,
-                    ukey: params.ukey
-                }, 'json');
-                workspaceAdded = true;
+                // Call dir.saveToMyFiles
+                TL.dir.saveToMyFiles(params.ukey);
+                fileSaved = true;
             }
             
             // Always show visual feedback

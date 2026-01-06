@@ -56,8 +56,10 @@ class ai {
      * 初始化AI listview界面
      */
     initListView() {
-        // 设置navbar
-        TL.workspace_navbar()
+        // 设置navbar（仅当用户已登录时显示）
+        if (localStorage.getItem('app_login') == 1) {
+            $('.auth-logged-in').show();
+        }
         
         // 移动端UI调整
         $('.mobile-head-padding-large').css('padding-top', '100px')

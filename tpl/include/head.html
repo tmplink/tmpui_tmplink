@@ -7,7 +7,7 @@
 <nav class="mainNav nav-desktop mx-auto container p-2 topnav glass" style="display: none;">
     <div>
         <span onclick="$('#myModal').modal('show');" class="btn-pointer ml-3">
-            <div class="workspace-navbar pt-1" style="display:inline-flex">
+            <div class="auth-logged-in pt-1" style="display:inline-flex">
                 <span class="user_saved_logo mr-2">
                     <img src="/img/loading.svg" class="img-circle" alt="User Image"
                         style="width:40px;height:40px;border-radius: 6px;">
@@ -36,7 +36,7 @@
         <h6话 class="float-right text-center">
 
             <!-- 特别优惠活动 -->
-            <!-- <div class="workspace-navbar nav-units">
+            <!-- <div class="auth-logged-in nav-units">
                 <span>
                     <button class="btn p-0 topnav_events" onclick="TL.buy.openBlackFriday();">
                         <div>
@@ -49,7 +49,7 @@
                 </span>
             </div> -->
 
-            <div class="workspace-navbar nav-units">
+            <div class="auth-logged-in nav-units">
                 <span>
                     <a class="btn p-0 topnav_ai" href="/app&listview=ai" tmpui-action="dynamicView.ai();">
                         <div>
@@ -62,7 +62,7 @@
                 </span>
             </div>
 
-            <div class="workspace-nologin  nav-units">
+            <div class="auth-logged-out  nav-units">
                 <span>
                     <button class="btn p-0" onclick="dynamicView.login();">
                         <div>
@@ -75,7 +75,7 @@
                 </span>
             </div>
 
-            <div class="workspace-nologin nav-units">
+            <div class="auth-logged-out nav-units">
                 <span>
                     <button class="btn p-0" onclick="dynamicView.reg();">
                         <div>
@@ -88,7 +88,7 @@
                 </span>
             </div>
 
-            <div class="workspace-navbar nav-units">
+            <div class="auth-logged-in nav-units">
                 <span>
                     <a class="btn p-0 topnav_desktop" href="/app&listview=room&mrid=0"
                         tmpui-action="dynamicView.room();">
@@ -98,7 +98,7 @@
                 </span>
             </div>
 
-            <div class="btn-group dropup nav-units workspace-navbar">
+            <div class="btn-group dropup nav-units auth-logged-in">
                 <span class="btn" data-toggle="dropdown">
                     <button class="btn p-0">
                         <div>
@@ -215,7 +215,7 @@
                 </div>
             </div>
 
-            <div class="workspace-navbar nav-units">
+            <div class="auth-logged-in nav-units">
                 <span>
                     <button class="btn p-0" onclick="$('#shopModal').modal('show');" style="position: relative;">
                         <div>
@@ -258,7 +258,7 @@
     <div class="row text-center">
         <!-- 黑五活动特别 -->
         <!-- <div class="col-2">
-            <div class="workspace-navbar">
+            <div class="auth-logged-in">
                 <button class="btn" onclick="TL.buy.openBlackFriday();">
                     <div class="d-flex flex-column">
                         <span>
@@ -269,7 +269,7 @@
             </div>
         </div> -->
         <div class="col-2">
-            <div class="workspace-navbar">
+            <div class="auth-logged-in">
                 <a class="btn topnav_ai" href="/app&listview=ai" tmpui-action="dynamicView.ai();">
                     <div class="d-flex flex-column">
                         <span class="mx-auto">
@@ -280,7 +280,7 @@
             </div>
         </div>
         <div class="col-2">
-            <div class="workspace-navbar">
+            <div class="auth-logged-in">
                 <a class="btn topnav_desktop" href="/app&listview=room&mrid=0" tmpui-action="dynamicView.room();">
                     <div class="d-flex flex-column">
                         <span class="mx-auto">
@@ -291,7 +291,7 @@
             </div>
         </div>
         <div class="col-2">
-            <div class="workspace-navbar">
+            <div class="auth-logged-in">
                 <a class="btn topnav_notes" href="/app&listview=notes" tmpui-action="dynamicView.notes();">
                     <div class="d-flex flex-column">
                         <span class="mx-auto">
@@ -303,7 +303,7 @@
         </div>
         <div class="col-2">
             <!--[reg]-->
-            <div class="workspace-nologin">
+            <div class="auth-logged-out">
                 <div class="d-flex flex-column">
                     <button class="btn p-0" onclick="dynamicView.reg();">
                         <div>
@@ -312,7 +312,7 @@
                     </button>
                 </div>
             </div>
-            <div class="btn-group dropup workspace-navbar">
+            <div class="btn-group dropup auth-logged-in">
                 <button type="button" class="btn" data-toggle="dropdown">
                     <div class="d-flex flex-column">
                         <span class="mx-auto">

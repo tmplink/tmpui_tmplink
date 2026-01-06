@@ -1,9 +1,7 @@
 /**
  * Photo Album Module - Modern Immersive Gallery
  * A sleek, full-screen photo browsing experience
- * URL format: 
- *   - Folder mode: /?tmpui_page=/app&listview=photo&mrid=xxx
- *   - Workspace mode: /?tmpui_page=/app&listview=photo&mode=workspace
+ * URL format: /?tmpui_page=/app&listview=photo&mrid=xxx
  * 
  * @author tmpUI
  * @version 2.1
@@ -13,7 +11,6 @@
 var PHOTO = {
     // State
     mrid: null,
-    mode: 'folder', // 'folder' or 'workspace'
     roomData: null,
     photoList: [],
     folderList: [],
@@ -24,9 +21,6 @@ var PHOTO = {
     selectedItems: new Set(),
     downloader: null,
     gridSize: 'normal', // 'small', 'normal', 'large'
-    
-    // AutoLoader for workspace mode
-    autoLoader: null,
     
     // Room hierarchy info (like TL.dir.room)
     room: {
@@ -58,8 +52,7 @@ var PHOTO = {
     track: function(action) {
         try {
             if (typeof TL === 'undefined' || !TL || typeof TL.ga !== 'function') return;
-            const mode = this.isWorkspaceMode && this.isWorkspaceMode() ? 'Workspace' : 'Folder';
-            TL.ga(`Photo_Album_${action}_${mode}`);
+            TL.ga(`Photo_Album_${action}_Folder`);
         } catch (e) {
             // No-op: analytics should never break UI
         }
@@ -95,7 +88,6 @@ var PHOTO = {
         
         let params = app.getUrlVars(window.location.href);
         this.mrid = params.mrid || '0';
-        this.mode = params.mode || 'folder';
         
         // Reset state
         this.photoList = [];
@@ -107,12 +99,6 @@ var PHOTO = {
 
         // Prepare downloader
         this.ensureDownloader();
-        
-        // Clean up previous autoLoader if exists
-        if (this.autoLoader) {
-            this.autoLoader.disable();
-            this.autoLoader = null;
-        }
         
         // Reset room info
         this.room = {
@@ -147,19 +133,8 @@ var PHOTO = {
         // Show loading immediately
         this.showLoading();
         
-        // Initialize based on mode
-        if (this.isWorkspaceMode()) {
-            this.initWorkspaceMode();
-        } else {
-            this.initFolderMode();
-        }
-    },
-
-    /**
-     * Check if current mode is workspace
-     */
-    isWorkspaceMode: function() {
-        return this.mode === 'workspace';
+        // Initialize folder mode
+        this.initFolderMode();
     },
 
     /**
@@ -170,173 +145,6 @@ var PHOTO = {
         this.setupInfiniteScroll();
         // Load folder data
         this.loadFolderData();
-    },
-
-    /**
-     * Initialize workspace mode
-     */
-    initWorkspaceMode: function() {
-        // Check login
-        if (TL.isLogin() === false) {
-            app.open('/app&listview=login');
-            return;
-        }
-        
-        // Update UI for workspace mode
-        this.updateWorkspaceUI();
-        
-        // Initialize AutoLoader for workspace
-        this.initAutoLoader();
-        
-        // Load photos
-        this.loadWorkspacePhotos(0);
-    },
-
-    /**
-     * Update UI elements for workspace mode
-     */
-    updateWorkspaceUI: function() {
-        const title = app.languageData.ws_album_title || '仓库相册';
-        $('#album-folder-name').text(title);
-        $('#album-folder-name-m').text(title);
-        $('#album-mobile-title').text(title);
-        document.title = title + ' - Photo Album';
-        
-        // Hide breadcrumb in workspace mode (no folder hierarchy)
-        $('#album-breadcrumb').hide();
-        
-        // Hide back button in sidebar (no hierarchy in workspace)
-        $('.album-back-btn').hide();
-
-        // Hide share button in workspace mode
-        this.updateShareButtonVisibility();
-    },
-
-    /**
-     * Initialize AutoLoader for workspace mode
-     */
-    initAutoLoader: function() {
-        const self = this;
-        this.autoLoader = new AutoLoader({
-            loadFunction: (page) => {
-                if (page === 1 && !self.isLoading && self.hasMore) {
-                    self.loadWorkspacePhotos(self.currentPage + 1);
-                }
-                return true;
-            },
-            threshold: 200,
-            minScrollTop: 100,
-            minItemsForDisable: 20
-        });
-        
-        // Override scroll binding to use .album-content instead of window
-        this.autoLoader.bindScrollEvent = () => {
-            this.autoLoader.isScrollListenerActive = true;
-            $('.album-content').on('scroll.autoloader', this.handleWorkspaceScroll.bind(this));
-        };
-        
-        this.autoLoader.unbindScrollEvent = () => {
-            this.autoLoader.isScrollListenerActive = false;
-            $('.album-content').off('scroll.autoloader');
-        };
-        
-        // Enable auto loading
-        this.autoLoader.enable();
-    },
-
-    /**
-     * Handle scroll event for workspace infinite loading
-     */
-    handleWorkspaceScroll: function(event) {
-        const container = $(event.currentTarget);
-        const scrollTop = container.scrollTop();
-        const scrollHeight = container[0].scrollHeight;
-        const clientHeight = container.height();
-        const threshold = 200;
-        
-        if (scrollTop + clientHeight + threshold >= scrollHeight && scrollTop > 100) {
-            if (this.autoLoader && this.autoLoader.autoload && !this.isLoading && this.hasMore) {
-                this.autoLoader.autoload = false;
-                this.loadWorkspacePhotos(this.currentPage + 1);
-            }
-        }
-    },
-
-    /**
-     * Load photos from workspace API
-     */
-    loadWorkspacePhotos: function(page) {
-        if (this.isLoading) return;
-        this.isLoading = true;
-
-        if (page > 0) {
-            this.track('LoadMore');
-        }
-        
-        if (page === 0) {
-            // Loading is already shown by init
-            this.photoList = [];
-            $('#album-grid').html('');
-        }
-        
-        let keys = typeof getSortKeys === 'function' ? getSortKeys() : { sort_by: 'sort_by', sort_type: 'sort_type' };
-        let sort_by = localStorage.getItem(keys.sort_by) || 'time';
-        let sort_type = localStorage.getItem(keys.sort_type) || 'desc';
-        
-        $.post(TL.api_file, {
-            action: 'workspace_filelist_page',
-            page: page,
-            token: TL.api_token,
-            sort_type: sort_type,
-            sort_by: sort_by,
-            photo: 1
-        }, (rsp) => {
-            this.isLoading = false;
-            this.hideLoading();
-            this.currentPage = page;
-            
-            if (rsp.status === 0 || !rsp.data || rsp.data.length === 0) {
-                this.hasMore = false;
-                if (page === 0) {
-                    this.showEmpty();
-                }
-                if (this.autoLoader) {
-                    this.autoLoader.unbindScrollEvent();
-                }
-                return;
-            }
-            
-            // Filter only image files
-            let photos = rsp.data.filter(file => {
-                return this.imageExtensions.includes(file.ftype.toLowerCase());
-            });
-            
-            if (photos.length > 0) {
-                this.photoList = this.photoList.concat(photos);
-                this.renderPhotos(photos);
-            }
-            
-            // Check if there might be more data
-            if (rsp.data.length < 20) {
-                this.hasMore = false;
-                if (this.autoLoader) {
-                    this.autoLoader.unbindScrollEvent();
-                }
-            } else {
-                this.hasMore = true;
-                if (this.autoLoader) {
-                    this.autoLoader.autoload = true;
-                }
-            }
-            
-            // Update stats
-            this.updateStats();
-            
-            // Show empty if no photos
-            if (this.photoList.length === 0) {
-                this.showEmpty();
-            }
-        }, 'json');
     },
 
     /**
@@ -496,17 +304,17 @@ var PHOTO = {
     },
 
     /**
-     * Show/hide share button based on mode
+     * Show/hide share button based on folder permissions
      */
     updateShareButtonVisibility: function() {
         const headerBtn = $('#album-share-btn');
         const sideBtn = $('#album-share-btn-side');
-        const shouldShow = !this.isWorkspaceMode();
+        // Always show share button in folder mode (visibility controlled by permissions)
         if (headerBtn.length) {
-            shouldShow ? headerBtn.show() : headerBtn.hide();
+            headerBtn.show();
         }
         if (sideBtn.length) {
-            shouldShow ? sideBtn.show() : sideBtn.hide();
+            sideBtn.show();
         }
     },
 
@@ -790,18 +598,7 @@ var PHOTO = {
      */
     refresh: function() {
         this.track('Refresh');
-        if (this.isWorkspaceMode()) {
-            // Reset and reload workspace photos
-            this.photoList = [];
-            this.currentPage = 0;
-            this.hasMore = true;
-            if (this.autoLoader) {
-                this.autoLoader.enable();
-            }
-            this.loadWorkspacePhotos(0);
-        } else {
-            this.loadFolderData();
-        }
+        this.loadFolderData();
     },
 
     /**
@@ -840,35 +637,18 @@ var PHOTO = {
      */
     exitPhotoMode: function() {
         this.track('Exit');
-        // Clean up autoLoader if exists
-        if (this.autoLoader) {
-            this.autoLoader.disable();
-            this.autoLoader = null;
-        }
-        
-        if (this.isWorkspaceMode()) {
-            // Return to workspace
-            this.resetPreferredListView();
-            app.open('/app&listview=workspace');
-        } else {
-            // Return to room view
-            const mrid = this.isDesktop() ? 0 : this.room.mr_id;
-            const url = '/app&listview=room&mrid=' + mrid;
-            console.log('[PHOTO] Exiting photo mode:', url);
-            this.resetPreferredListView();
-            app.open(url);
-        }
+        // Return to room view
+        const mrid = this.isDesktop() ? 0 : this.room.mr_id;
+        const url = '/app&listview=room&mrid=' + mrid;
+        console.log('[PHOTO] Exiting photo mode:', url);
+        this.resetPreferredListView();
+        app.open(url);
     },
 
     /**
      * Ensure returning views default to list mode
      */
     resetPreferredListView: function() {
-        if (this.isWorkspaceMode()) {
-            localStorage.setItem('app_workspace_view', 'list');
-            return;
-        }
-
         const roomId = (this.room && this.room.mr_id !== undefined) ? this.room.mr_id : this.mrid;
         if (roomId !== undefined && roomId !== null) {
             const roomKey = 'app_room_view_' + roomId;
@@ -877,14 +657,9 @@ var PHOTO = {
     },
 
     /**
-     * Go back - in workspace mode, exit; in folder mode, go to parent
+     * Go back - go to parent folder
      */
     goBack: function() {
-        if (this.isWorkspaceMode()) {
-            this.exitPhotoMode();
-            return;
-        }
-        
         // Original folder mode goBack logic
         console.log('[PHOTO] goBack called, room info:', this.room);
         
@@ -920,14 +695,9 @@ var PHOTO = {
     },
 
     /**
-     * Copy album URL for sharing (folder mode only)
+     * Copy album URL for sharing
      */
     shareAlbumLink: function() {
-        if (this.isWorkspaceMode()) {
-            TL.alert(app.languageData.album_share_workspace_disabled || '仓库模式暂不支持分享链接');
-            return;
-        }
-
         this.track('ShareLink');
 
         const url = `${window.location.origin}/?tmpui_page=/app&listview=photo&mrid=${encodeURIComponent(this.mrid)}`;
@@ -1330,11 +1100,8 @@ var PHOTO = {
      * Show empty state
      */
     showEmpty: function() {
-        // Different empty message based on mode
-        if (this.isWorkspaceMode()) {
-            $('#album-empty .album-empty-title').text(app.languageData.ws_album_empty_title || '暂无照片');
-            $('#album-empty .album-empty-text').text(app.languageData.ws_album_empty_text || '您的仓库中没有图片文件');
-        } else if (this.isDesktop()) {
+        // Different empty message based on folder type
+        if (this.isDesktop()) {
             $('#album-empty .album-empty-title').text(app.languageData.page_no_dir_title || '暂无文件夹');
             $('#album-empty .album-empty-text').text(app.languageData.page_no_dir_text || '请先在桌面创建文件夹');
         } else {

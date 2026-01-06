@@ -306,7 +306,7 @@ class BoxSelecter {
             }
 
             if (ukey.length!==0) {
-                this.parent_op.workspace_del(ukey, true);
+                this.parent_op.dir.deleteFiles(ukey, true);
             }
         }
     }
