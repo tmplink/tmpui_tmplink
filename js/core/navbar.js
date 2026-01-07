@@ -86,13 +86,16 @@ class navbar {
     model_select(model, act) {
         switch (model) {
             case '/workspace':
-                // workspace 已废弃，重定向到 room
+                // workspace 已废弃，重定向到 filelist
                 this.model_desktop(act);
                 break;
             case '/dir':
                 this.model_desktop(act);
                 break;
             case '/room':
+                this.model_desktop(act);
+                break;
+            case '/filelist':
                 this.model_desktop(act);
                 break;
             case '/direct':
@@ -123,7 +126,7 @@ class navbar {
 
     model_desktop(act) {
         if (act === true) {
-            app.open('/room&mrid=0');
+            app.open('/app&listview=filelist&mrid=0');
         }
         this.navbar_lightup('desktop');
     }

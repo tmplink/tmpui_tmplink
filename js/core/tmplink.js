@@ -2010,7 +2010,7 @@ class tmplink {
                                 location.href = return_page;
                                 localStorage.setItem('return_page', 0);
                             } else {
-                                dynamicView.room();
+                                dynamicView.filelist();
                             }
                         });
                     } else {
@@ -2114,7 +2114,7 @@ class tmplink {
                     // });
                     this.get_details(() => {
                         setTimeout(() => {
-                            dynamicView.room();
+                            dynamicView.filelist();
                         }, 3000);
                     });
                 } else {

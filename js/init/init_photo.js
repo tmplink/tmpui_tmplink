@@ -637,9 +637,9 @@ var PHOTO = {
      */
     exitPhotoMode: function() {
         this.track('Exit');
-        // Return to room view
+        // Return to filelist view
         const mrid = this.isDesktop() ? 0 : this.room.mr_id;
-        const url = '/app&listview=room&mrid=' + mrid;
+        const url = '/app&listview=filelist&mrid=' + mrid;
         console.log('[PHOTO] Exiting photo mode:', url);
         this.resetPreferredListView();
         app.open(url);

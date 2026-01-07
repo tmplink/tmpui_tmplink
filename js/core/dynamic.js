@@ -66,6 +66,10 @@ class dynamic {
                 this.photo();
                 break;
 
+            case 'filelist':
+                this.filelist();
+                break;
+
             default:
                 listview = 'index';
                 this.index();
@@ -130,8 +134,8 @@ class dynamic {
                     //未登录，跳转到登录页
                     this.login();
                 } else {
-                    //已登录，进入 room
-                    this.room();
+                    //已登录，进入 filelist
+                    this.filelist();
                 }
             }
         );
@@ -146,8 +150,8 @@ class dynamic {
                     TL.ga('Index');
                     window.location.href = '/';
                 } else {
-                    //已登录，进入 room
-                    this.room();
+                    //已登录，进入 filelist
+                    this.filelist();
                     $('#tmpui_body').css('opacity', '1');
                 }
             }
@@ -268,6 +272,21 @@ class dynamic {
         this.active('photo');
         INIT_photo();
         TL.navbar.disabled();
+    }
+
+    filelist() {
+        if (isMobileScreen()) {
+            $('#home_view').html(app.getFile('/tpl/listview/mobile_filelist.html'));
+        } else {
+            $('#home_view').html(app.getFile('/tpl/listview/filelist.html'));
+        }
+        TL.ga('File List');
+        let params = app.getUrlVars(window.location.href);
+        let mrid = params.mrid || '0';
+        app.dynOpen('/app&listview=filelist&mrid=' + mrid);
+        this.active('filelist');
+        INIT_filelist();
+        TL.navbar.model_desktop();
     }
 
 }

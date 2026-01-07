@@ -1,0 +1,399 @@
+<!-- File List Module - Mobile Template -->
+<div class="filelist-container">
+    <div class="filelist-layout">
+        <!-- Mobile Sidebar (Hidden by default) -->
+        <aside class="filelist-sidebar">
+            <div class="filelist-sidebar-header">
+                <a href="javascript:;" class="filelist-back-btn" onclick="FILELIST.toggleSidebar()">
+                    <iconpark-icon name="x-square"></iconpark-icon>
+                    <span data-tpl="filelist_close">关闭</span>
+                </a>
+                <div class="filelist-folder-info">
+                    <h1 class="filelist-folder-name" id="filelist-folder-name-m" data-tpl="filelist_my_files">我的文件</h1>
+                    <div class="filelist-folder-meta">
+                        <span class="filelist-folder-meta-item">
+                            <iconpark-icon name="files"></iconpark-icon>
+                            <span id="filelist-file-count-m">0</span> <span data-tpl="filelist_files">个文件</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="filelist-sidebar-nav">
+                <div class="filelist-nav-section">
+                    <div class="filelist-nav-title" data-tpl="filelist_nav_view">视图</div>
+                    <div class="filelist-nav-item active" onclick="FILELIST.setView('list'); FILELIST.toggleSidebar();" id="nav-list-m">
+                        <iconpark-icon name="list"></iconpark-icon>
+                        <span data-tpl="filelist_view_list">列表视图</span>
+                    </div>
+                    <div class="filelist-nav-item" onclick="FILELIST.setView('grid'); FILELIST.toggleSidebar();" id="nav-grid-m">
+                        <iconpark-icon name="list-radio"></iconpark-icon>
+                        <span data-tpl="filelist_view_grid">网格视图</span>
+                    </div>
+                </div>
+                
+                <div class="filelist-nav-section">
+                    <div class="filelist-nav-title" data-tpl="filelist_nav_sort">排序</div>
+                    <div class="filelist-nav-item" onclick="FILELIST.setSort('name'); FILELIST.toggleSidebar();" id="sort-name-m">
+                        <iconpark-icon name="a-z"></iconpark-icon>
+                        <span data-tpl="filelist_sort_name">按名称</span>
+                    </div>
+                    <div class="filelist-nav-item" onclick="FILELIST.setSort('date'); FILELIST.toggleSidebar();" id="sort-date-m">
+                        <iconpark-icon name="calendar"></iconpark-icon>
+                        <span data-tpl="filelist_sort_date">按日期</span>
+                    </div>
+                    <div class="filelist-nav-item" onclick="FILELIST.setSort('size'); FILELIST.toggleSidebar();" id="sort-size-m">
+                        <iconpark-icon name="storage"></iconpark-icon>
+                        <span data-tpl="filelist_sort_size">按大小</span>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="filelist-sidebar-actions">
+                <button class="filelist-action-btn primary" id="filelist-download-btn-m" onclick="FILELIST.downloadSelected(); FILELIST.toggleSidebar();" style="display: none;">
+                    <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+                    <span data-tpl="filelist_download_selected">下载选中</span>
+                </button>
+                <button class="filelist-action-btn secondary" onclick="FILELIST.goBack(); FILELIST.toggleSidebar();">
+                    <iconpark-icon name="left-c"></iconpark-icon>
+                    <span data-tpl="filelist_back">返回</span>
+                </button>
+                <button class="filelist-action-btn tertiary" onclick="FILELIST.exitModule();">
+                    <iconpark-icon name="home"></iconpark-icon>
+                    <span data-tpl="filelist_exit">退出</span>
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="filelist-main">
+            <!-- Mobile Header -->
+            <div class="filelist-mobile-header" style="display: flex;">
+                <button class="filelist-icon-btn" id="mobile-back-btn" onclick="FILELIST.goBack()">
+                    <iconpark-icon name="left-c"></iconpark-icon>
+                </button>
+                <span class="filelist-mobile-title" id="filelist-mobile-title" data-tpl="filelist_my_files">我的文件</span>
+                <button class="filelist-icon-btn" onclick="FILELIST.toggleSidebar()">
+                    <iconpark-icon name="ellipsis"></iconpark-icon>
+                </button>
+            </div>
+            
+            <!-- Content Area -->
+            <div class="filelist-content">
+                <!-- Folders Section -->
+                <div class="filelist-folders-section" id="filelist-folders-section">
+                    <div class="filelist-section-header">
+                        <h3 class="filelist-section-title" data-tpl="filelist_folders">文件夹</h3>
+                    </div>
+                    <div class="filelist-folders-grid" id="filelist-folders-grid">
+                        <!-- Folders will be inserted here -->
+                    </div>
+                </div>
+                
+                <!-- Files Section -->
+                <div class="filelist-files-section" id="filelist-files-section">
+                    <div class="filelist-section-header">
+                        <h3 class="filelist-section-title" data-tpl="filelist_files_title">文件</h3>
+                    </div>
+                    
+                    <!-- List View -->
+                    <div class="filelist-list" id="filelist-list">
+                        <div class="filelist-list-body" id="filelist-list-body">
+                            <!-- Files will be inserted here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Grid View -->
+                    <div class="filelist-grid" id="filelist-grid" style="display: none;">
+                        <!-- Grid items will be inserted here -->
+                    </div>
+                </div>
+                
+                <!-- Loading State -->
+                <div class="filelist-loading" id="filelist-loading" style="display: none;">
+                    <div class="filelist-spinner"></div>
+                    <span class="filelist-loading-text" data-tpl="filelist_loading">正在加载...</span>
+                </div>
+                
+                <!-- Empty State -->
+                <div class="filelist-empty" id="filelist-empty" style="display: none;">
+                    <div class="filelist-empty-icon">
+                        <iconpark-icon name="folder-open"></iconpark-icon>
+                    </div>
+                    <h3 class="filelist-empty-title" data-tpl="filelist_empty_title">暂无文件</h3>
+                    <p class="filelist-empty-text" data-tpl="filelist_empty_text">此文件夹中没有文件</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Selection Bar -->
+    <div class="filelist-selection-bar" id="filelist-selection-bar">
+        <span class="selection-count">
+            <span id="selection-count-num">0</span> <span data-tpl="filelist_items_selected">项已选择</span>
+        </span>
+        <div class="selection-actions">
+            <button class="filelist-icon-btn" onclick="FILELIST.downloadSelected()" title="下载">
+                <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+            </button>
+            <button class="filelist-icon-btn" onclick="FILELIST.moveSelected()" title="移动">
+                <iconpark-icon name="folder-move"></iconpark-icon>
+            </button>
+            <button class="filelist-icon-btn" onclick="FILELIST.selectAll()" title="全选">
+                <iconpark-icon name="check-square"></iconpark-icon>
+            </button>
+            <button class="filelist-icon-btn danger" onclick="FILELIST.deleteSelected()" title="删除">
+                <iconpark-icon name="delete-bin"></iconpark-icon>
+            </button>
+            <button class="filelist-icon-btn" onclick="FILELIST.cancelSelection()" title="取消">
+                <iconpark-icon name="x-square"></iconpark-icon>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Mobile Bottom Bar -->
+    <div class="filelist-mobile-bar" style="display: flex;">
+        <button class="filelist-mobile-btn active" onclick="FILELIST.setView('list')">
+            <iconpark-icon name="list"></iconpark-icon>
+            <span data-tpl="filelist_list">列表</span>
+        </button>
+        <button class="filelist-mobile-btn" onclick="FILELIST.toggleSelectMode()">
+            <iconpark-icon name="check-square"></iconpark-icon>
+            <span data-tpl="filelist_select">选择</span>
+        </button>
+        <button class="filelist-mobile-btn" onclick="TL.sort_show();">
+            <iconpark-icon name="list-radio"></iconpark-icon>
+            <span i18n="sort_title">排序</span>
+        </button>
+        <button class="filelist-mobile-btn" onclick="TL.openPhotoAlbum();">
+            <iconpark-icon name="images"></iconpark-icon>
+            <span i18n="model_photo">相册</span>
+        </button>
+        <button class="filelist-mobile-btn" onclick="FILELIST.refresh()">
+            <iconpark-icon name="rotate"></iconpark-icon>
+            <span data-tpl="filelist_refresh">刷新</span>
+        </button>
+    </div>
+    
+    <!-- File Detail Modal -->
+    <div class="filelist-modal" id="filelist-detail-modal">
+        <div class="filelist-modal-backdrop" onclick="FILELIST.closeDetailModal()"></div>
+        <div class="filelist-modal-content">
+            <div class="filelist-modal-header">
+                <h3 class="filelist-modal-title" data-tpl="filelist_file_detail">文件详情</h3>
+                <button class="filelist-modal-close" onclick="FILELIST.closeDetailModal()">
+                    <iconpark-icon name="x-square"></iconpark-icon>
+                </button>
+            </div>
+            <div class="filelist-modal-body" id="filelist-detail-body">
+                <!-- File details will be inserted here -->
+            </div>
+            <div class="filelist-modal-footer">
+                <button class="filelist-btn secondary" onclick="FILELIST.closeDetailModal()" data-tpl="filelist_close">关闭</button>
+                <button class="filelist-btn primary" onclick="FILELIST.downloadCurrent()" data-tpl="filelist_download">下载</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Move Folder Modal -->
+    <div class="filelist-modal" id="filelist-move-modal">
+        <div class="filelist-modal-backdrop" onclick="FILELIST.closeMoveModal()"></div>
+        <div class="filelist-modal-content">
+            <div class="filelist-modal-header">
+                <h3 class="filelist-modal-title" data-tpl="filelist_move_to">移动到</h3>
+                <button class="filelist-modal-close" onclick="FILELIST.closeMoveModal()">
+                    <iconpark-icon name="x-square"></iconpark-icon>
+                </button>
+            </div>
+            <div class="filelist-modal-body">
+                <div class="filelist-move-folder-list" id="filelist-move-folder-list">
+                    <!-- Folders will be inserted here -->
+                </div>
+            </div>
+            <div class="filelist-modal-footer">
+                <button class="filelist-btn secondary" onclick="FILELIST.closeMoveModal()" data-tpl="filelist_cancel">取消</button>
+                <button class="filelist-btn primary" onclick="FILELIST.confirmMove()" data-tpl="filelist_confirm">确认移动</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Folder Modal -->
+    <div class="filelist-modal" id="filelist-create-folder-modal">
+        <div class="filelist-modal-backdrop" onclick="FILELIST.closeCreateFolderModal()"></div>
+        <div class="filelist-modal-content">
+            <div class="filelist-modal-header">
+                <h3 class="filelist-modal-title" data-tpl="filelist_create_folder">新建文件夹</h3>
+                <button class="filelist-modal-close" onclick="FILELIST.closeCreateFolderModal()">
+                    <iconpark-icon name="x-square"></iconpark-icon>
+                </button>
+            </div>
+            <div class="filelist-modal-body">
+                <div class="filelist-form-group">
+                    <label class="filelist-form-label" data-tpl="filelist_folder_name">文件夹名称</label>
+                    <input type="text" class="filelist-form-input" id="filelist-new-folder-name" placeholder="请输入文件夹名称">
+                </div>
+            </div>
+            <div class="filelist-modal-footer">
+                <button class="filelist-btn secondary" onclick="FILELIST.closeCreateFolderModal()" data-tpl="filelist_cancel">取消</button>
+                <button class="filelist-btn primary" onclick="FILELIST.confirmCreateFolder()" data-tpl="filelist_create">创建</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- File Item Template (List View) -->
+<script type="text/template" id="tpl-file-item-list">
+    <div class="filelist-item" data-fid="{fid}" data-index="{index}" onclick="FILELIST.itemClick(event, {index})">
+        <div class="filelist-item-select" onclick="event.stopPropagation(); FILELIST.toggleSelect({index})">
+            <iconpark-icon name="check"></iconpark-icon>
+        </div>
+        <div class="filelist-item-icon">
+            <img src="{icon}" alt="" class="filelist-item-icon-img">
+        </div>
+        <div class="filelist-item-info">
+            <div class="filelist-item-name">{name}</div>
+            <div class="filelist-item-meta">
+                <span>{size}</span>
+                <span>{date}</span>
+            </div>
+        </div>
+        <div class="filelist-item-actions">
+            <button class="filelist-icon-btn" onclick="event.stopPropagation(); FILELIST.downloadFile({index})" title="下载">
+                <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+            </button>
+            <button class="filelist-icon-btn" onclick="event.stopPropagation(); FILELIST.showFileMenu({index}, event)" title="更多">
+                <iconpark-icon name="ellipsis"></iconpark-icon>
+            </button>
+        </div>
+    </div>
+</script>
+
+<!-- File Item Template (Grid View) -->
+<script type="text/template" id="tpl-file-item-grid">
+    <div class="filelist-grid-item" data-fid="{fid}" data-index="{index}" onclick="FILELIST.itemClick(event, {index})">
+        <div class="filelist-grid-item-thumb">
+            <img src="{thumbnail}" alt="" class="filelist-grid-item-img">
+            <div class="filelist-grid-item-overlay">
+                <button class="filelist-icon-btn" onclick="event.stopPropagation(); FILELIST.downloadFile({index})">
+                    <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+                </button>
+            </div>
+        </div>
+        <div class="filelist-grid-item-info">
+            <div class="filelist-grid-item-name">{name}</div>
+            <div class="filelist-grid-item-meta">{size}</div>
+        </div>
+        <div class="filelist-grid-item-select" onclick="event.stopPropagation(); FILELIST.toggleSelect({index})">
+            <iconpark-icon name="check"></iconpark-icon>
+        </div>
+    </div>
+</script>
+
+<!-- Folder Item Template -->
+<script type="text/template" id="tpl-folder-item">
+    <div class="filelist-folder-item" data-mrid="{mrid}" onclick="FILELIST.openFolder('{mrid}')">
+        <div class="filelist-folder-icon">
+            <iconpark-icon name="folder-open"></iconpark-icon>
+        </div>
+        <div class="filelist-folder-info">
+            <div class="filelist-folder-item-name">{name}</div>
+            <div class="filelist-folder-item-meta">{count} 个项目</div>
+        </div>
+        <button class="filelist-icon-btn" onclick="event.stopPropagation(); FILELIST.showFolderMenu('{mrid}', event)" title="更多">
+            <iconpark-icon name="ellipsis"></iconpark-icon>
+        </button>
+    </div>
+</script>
+
+<!-- Sort Modal -->
+<div class="modal" id="sortModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h4 class="modal-title" i18n="sort_title">排序</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label i18n="sort_title">排序方式</label>
+                    <select class="form-control" id="sort_by" onchange="FILELIST.applySortFromModal()">
+                        <option value="time" i18n-only="html" i18n="sort_by_id">时间</option>
+                        <option value="name" i18n-only="html" i18n="sort_by_name">文件名</option>
+                        <option value="size" i18n-only="html" i18n="sort_by_size">文件大小</option>
+                        <option value="type" i18n-only="html" i18n="sort_by_type">文件类型</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label i18n="sort_type_label">排序方向</label>
+                    <select class="form-control" id="sort_type" onchange="FILELIST.applySortFromModal()">
+                        <option value="desc" i18n-only="html" i18n="sort_desc">倒序</option>
+                        <option value="asc" i18n-only="html" i18n="sort_asc">顺序</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal" i18n="model_btn_ok">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Folder Modal -->
+<div class="modal" id="mrCreaterModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h4 class="modal-title" i18n="model_title_meetingroom_creat">新建文件夹</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="notice_meetingroom_create" class="alert alert-info alert-dismissable" i18n="model_meetingroom_create_notice">
+                    请输入文件夹名称
+                </div>
+                <div class="form-group">
+                    <label for="modal_meetingroom_create_name" i18n="model_meetingroom_create_name">文件夹名称</label>
+                    <input type="text" class="form-control" id="modal_meetingroom_create_name"
+                           i18n="model_meetingroom_create_name_placeholder" placeholder="请输入名称">
+                </div>
+                <label for="modal_meetingroom_create_type" i18n="modal_meetingroom_create_type">文件夹类型</label>
+                <select class="form-control" id="modal_meetingroom_create_type">
+                    <option value="0" i18n-only="html" i18n="modal_meetingroom_type1" selected>私有</option>
+                    <option value="1" i18n-only="html" i18n="modal_meetingroom_type2">公开</option>
+                </select>
+                <input type="hidden" id="mr_parent_id" value="0" />
+                <input type="hidden" id="mr_top_id" value="0" />
+                <input type="hidden" id="mr_id" value="0" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" i18n="model_btn_cancel">取消</button>
+                <button type="button" class="btn btn-primary" id="modal_meetingroom_create_btn" i18n="model_btn_ok"
+                        onclick="TL.dir.create();">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Move File Modal -->
+<div class="modal" id="movefileModal">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h4 class="modal-title" i18n="on_select_move">移动到文件夹</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="mv_tree_wrapper">
+                    <div class="folder-item" id="dir_item_0" data-id="0" data-expanded="false" onclick="TL.dir.folderClick(0)">
+                        <iconpark-icon id="folder_icon_0" name="folder-plus" class="folder-icon"></iconpark-icon>
+                        <span class="folder-name" i18n="navbar_meetingroom">桌面</span>
+                    </div>
+                    <div class="folder-children" id="mv_box_0"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" i18n="model_btn_cancel">取消</button>
+                <button type="button" class="btn btn-primary" i18n="model_btn_ok" onclick="TL.dir.moveTo(TL.Selecter.pre_op_list, TL.Selecter.move_place);">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
