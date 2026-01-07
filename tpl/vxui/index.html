@@ -49,6 +49,25 @@
                 <div id="vx-sidebar-dynamic"></div>
             </nav>
             
+            <!-- Persistent Bottom Menu -->
+            <div class="vx-sidebar-bottom-menu">
+                <div class="vx-nav-section">
+                    <div class="vx-nav-title" data-tpl="nav_account">账户</div>
+                    <a href="javascript:;" class="vx-nav-item" data-module="shop" onclick="VXUI.navigate('shop')">
+                        <iconpark-icon name="bag-shopping"></iconpark-icon>
+                        <span class="vx-nav-item-text" data-tpl="nav_shop">商店</span>
+                    </a>
+                    <a href="javascript:;" class="vx-nav-item" data-module="account" data-tab="info" onclick="VXUI.navigate('account', {tab: 'info'})">
+                        <iconpark-icon name="user"></iconpark-icon>
+                        <span class="vx-nav-item-text" data-tpl="nav_info">信息</span>
+                    </a>
+                    <a href="javascript:;" class="vx-nav-item" data-module="account" data-tab="settings" onclick="VXUI.navigate('account', {tab: 'settings'})">
+                        <iconpark-icon name="gear"></iconpark-icon>
+                        <span class="vx-nav-item-text" data-tpl="nav_settings">设定</span>
+                    </a>
+                </div>
+            </div>
+            
             <div class="vx-sidebar-footer">
                 <a href="javascript:;" class="vx-nav-item" onclick="if(typeof TL !== 'undefined') TL.logout();">
                     <iconpark-icon name="right-from-bracket"></iconpark-icon>
@@ -95,9 +114,9 @@
             <iconpark-icon name="link"></iconpark-icon>
             <span data-tpl="nav_direct">直链</span>
         </button>
-        <button class="vx-mobile-btn" data-module="notes" onclick="VXUI.navigate('notes')">
-            <iconpark-icon name="memo-pad"></iconpark-icon>
-            <span data-tpl="nav_notes">密记</span>
+        <button class="vx-mobile-btn" data-module="account" onclick="VXUI.navigate('account')">
+            <iconpark-icon name="user"></iconpark-icon>
+            <span data-tpl="nav_info">我的</span>
         </button>
     </div>
 </div>

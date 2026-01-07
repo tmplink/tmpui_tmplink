@@ -281,6 +281,26 @@ html.vx-dark {
     flex-shrink: 0;
 }
 
+/* Sidebar Bottom Menu - Persistent account navigation */
+.vx-sidebar-bottom-menu {
+    padding: 12px 12px 0 12px;
+    border-top: 1px solid var(--vx-border);
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+.vx-sidebar-bottom-menu .vx-nav-section {
+    margin-bottom: 0;
+}
+
+.vx-sidebar-bottom-menu .vx-nav-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--vx-text-muted);
+    padding: 8px 12px 4px;
+    letter-spacing: 0.05em;
+}
+
 .vx-sidebar-footer {
     padding: 12px;
     border-top: 1px solid var(--vx-border);

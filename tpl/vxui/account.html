@@ -1,0 +1,964 @@
+<!-- VXUI Account Module Template - 账户中心 -->
+
+<!-- Dynamic Sidebar Content -->
+<template id="vx-account-sidebar-tpl">
+    <!-- Navigation -->
+    <div class="vx-nav-section">
+        <div class="vx-nav-title" data-tpl="nav_main">主功能</div>
+        <a href="javascript:;" class="vx-nav-item" data-module="filelist" onclick="VXUI.navigate('filelist')">
+            <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="nav_files">文件</span>
+        </a>
+        <a href="javascript:;" class="vx-nav-item" data-module="direct" onclick="VXUI.navigate('direct')">
+            <iconpark-icon name="link"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="nav_direct">直链</span>
+        </a>
+        <a href="javascript:;" class="vx-nav-item" data-module="notes" onclick="VXUI.navigate('notes')">
+            <iconpark-icon name="memo-pad"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="nav_notes">密记</span>
+        </a>
+        <a href="javascript:;" class="vx-nav-item" data-module="ai" onclick="VXUI.navigate('ai')">
+            <iconpark-icon name="user-robot"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="nav_ai">AI 助手</span>
+        </a>
+    </div>
+    
+    <!-- Account Navigation -->
+    <div class="vx-nav-section">
+        <div class="vx-nav-title">账户</div>
+        <a href="javascript:;" class="vx-nav-item active" id="nav-account-info" onclick="VX_ACCOUNT.showTab('info')">
+            <iconpark-icon name="user"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="navbar_my">我的</span>
+        </a>
+        <a href="javascript:;" class="vx-nav-item" id="nav-account-settings" onclick="VX_ACCOUNT.showTab('settings')">
+            <iconpark-icon name="gear"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="navbar_settings">设定</span>
+        </a>
+    </div>
+</template>
+
+<!-- Header -->
+<header class="vx-header vx-header-account">
+    <div class="vx-header-left">
+        <h1 class="vx-page-title">
+            <iconpark-icon name="user"></iconpark-icon>
+            <span data-tpl="navbar_my">我的账户</span>
+        </h1>
+    </div>
+    
+    <div class="vx-header-center">
+        <!-- Tab buttons for mobile -->
+        <div class="vx-account-tabs">
+            <button class="vx-tab-btn active" id="tab-info" onclick="VX_ACCOUNT.showTab('info')">
+                <iconpark-icon name="user"></iconpark-icon>
+                <span data-tpl="navbar_my">信息</span>
+            </button>
+            <button class="vx-tab-btn" id="tab-settings" onclick="VX_ACCOUNT.showTab('settings')">
+                <iconpark-icon name="gear"></iconpark-icon>
+                <span data-tpl="navbar_settings">设定</span>
+            </button>
+        </div>
+    </div>
+    
+    <div class="vx-header-right">
+        <button class="vx-btn-icon" onclick="VX_ACCOUNT.refresh()" title="刷新">
+            <iconpark-icon name="rotate"></iconpark-icon>
+        </button>
+    </div>
+</header>
+
+<!-- Content -->
+<div class="vx-content vx-account-content">
+    <!-- Loading State -->
+    <div class="vx-loading" id="vx-account-loading" style="display: none;">
+        <div class="vx-spinner vx-spinner-lg"></div>
+    </div>
+    
+    <!-- Info Tab -->
+    <div class="vx-account-tab-content" id="vx-account-info">
+        <!-- User Profile Card -->
+        <div class="vx-profile-card">
+            <!-- Loading State -->
+            <div class="vx-profile-loading" id="vx-profile-loading">
+                <div class="vx-profile-loading-inner">
+                    <div class="vx-spinner"></div>
+                    <span>加载中...</span>
+                </div>
+            </div>
+            
+            <!-- Profile Content (hidden until loaded) -->
+            <div class="vx-profile-content" id="vx-profile-content" style="display:none;">
+                <div class="vx-profile-header">
+                    <div class="vx-profile-avatar">
+                        <img src="/img/loading.svg" alt="" id="vx-profile-avatar">
+                        <button class="vx-avatar-edit" onclick="VX_ACCOUNT.editAvatar()">
+                            <iconpark-icon name="camera"></iconpark-icon>
+                        </button>
+                        <input type="file" id="vx-avatar-input" accept="image/png, image/jpeg" style="display:none;" onchange="VX_ACCOUNT.uploadAvatar(this)">
+                    </div>
+                    <div class="vx-profile-info">
+                        <!-- Display Mode -->
+                        <div class="vx-profile-display" id="vx-profile-display">
+                            <h2 class="vx-profile-name" id="vx-profile-name">--</h2>
+                            <p class="vx-profile-intro" id="vx-profile-intro">--</p>
+                            <div class="vx-profile-badges">
+                                <span class="vx-badge vx-badge-rank" id="vx-profile-rank">普通用户</span>
+                                <span class="vx-badge vx-badge-sponsor" id="vx-profile-sponsor-badge" style="display:none;">
+                                    <img src="/img/level/like.svg" width="14" alt="">
+                                    赞助者
+                                </span>
+                            </div>
+                            <button class="vx-btn vx-btn-secondary vx-btn-sm vx-profile-edit-btn" onclick="VX_ACCOUNT.showProfileEdit()">
+                                <iconpark-icon name="pen-to-square"></iconpark-icon>
+                                <span data-tpl="myprofile_edit">编辑资料</span>
+                            </button>
+                        </div>
+                    <!-- Edit Mode -->
+                    <div class="vx-profile-edit" id="vx-profile-edit" style="display:none;">
+                        <div class="vx-form-group">
+                            <label data-tpl="myprofile_nickname">昵称</label>
+                            <input type="text" class="vx-input" id="vx-profile-name-input" placeholder="输入昵称" maxlength="20">
+                        </div>
+                        <div class="vx-form-group">
+                            <label data-tpl="myprofile_intro">简介</label>
+                            <input type="text" class="vx-input" id="vx-profile-intro-input" placeholder="输入简介" maxlength="50">
+                        </div>
+                        <div class="vx-profile-edit-actions">
+                            <button class="vx-btn vx-btn-secondary" onclick="VX_ACCOUNT.cancelProfileEdit()">
+                                <iconpark-icon name="x"></iconpark-icon>
+                                <span data-tpl="model_btn_cancel">取消</span>
+                            </button>
+                            <button class="vx-btn vx-btn-primary" onclick="VX_ACCOUNT.saveProfile()">
+                                <iconpark-icon name="check"></iconpark-icon>
+                                <span data-tpl="model_btn_ok">保存</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Publish Profile Option (only for sponsors or users with high share value) -->
+            <div class="vx-profile-publish" id="vx-profile-publish" style="display:none;">
+                <div class="vx-profile-publish-inner">
+                    <label class="vx-switch-item">
+                        <span class="vx-switch-label">
+                            <iconpark-icon name="globe"></iconpark-icon>
+                            <span data-tpl="myprofile_publish">公开个人主页</span>
+                            <span class="vx-publish-status-icon" id="vx-profile-publish-status"></span>
+                        </span>
+                        <input type="checkbox" class="vx-switch" id="vx-profile-publish-switch" onchange="VX_ACCOUNT.setPublishProfile()">
+                    </label>
+                </div>
+            </div>
+            </div><!-- end vx-profile-content -->
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="vx-stats-grid">
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="gauge-circle-bolt"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="user_group_highspeed">高速通道</div>
+                    <div class="vx-stat-value" id="vx-stat-highspeed">--</div>
+                </div>
+            </div>
+            
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <img src="/img/level/check.svg" width="24" alt="">
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="user_group_blue">蓝标认证</div>
+                    <div class="vx-stat-value" id="vx-stat-blue">--</div>
+                </div>
+            </div>
+            
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <img src="/img/level/play.svg" width="24" alt="">
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="user_group_dvd">媒体播放</div>
+                    <div class="vx-stat-value" id="vx-stat-dvd">--</div>
+                </div>
+            </div>
+            
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="chart-network"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="user_group_value">分享值</div>
+                    <div class="vx-stat-value" id="vx-stat-acv">0</div>
+                </div>
+            </div>
+            
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="database"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="user_group_storage">存储空间</div>
+                    <div class="vx-stat-value" id="vx-stat-storage">--</div>
+                </div>
+            </div>
+            
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="file"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="myprofile_shared_files_count">分享数</div>
+                    <div class="vx-stat-value" id="vx-stat-shares">0</div>
+                </div>
+            </div>
+            
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="files"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="myprofile_shared_files_size">分享大小</div>
+                    <div class="vx-stat-value" id="vx-stat-filesize">0 GB</div>
+                </div>
+            </div>
+            
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="file-check"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="myprofile_shared_files_total">总上传量</div>
+                    <div class="vx-stat-value" id="vx-stat-upload">0 GB</div>
+                </div>
+            </div>
+            
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="user-plus"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="myprofile_join">注册时间</div>
+                    <div class="vx-stat-value" id="vx-stat-join">--</div>
+                </div>
+            </div>
+            
+            <div class="vx-stat-card vx-stat-card-action" onclick="VXUI.navigate('shop')">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="bag-shopping"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="navbar_buy">升级服务</div>
+                    <div class="vx-stat-value">前往商店 →</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Tab -->
+    <div class="vx-account-tab-content" id="vx-account-settings" style="display: none;">
+        <!-- Password Section -->
+        <div class="vx-settings-section">
+            <h3 class="vx-settings-title">
+                <iconpark-icon name="lock"></iconpark-icon>
+                <span data-tpl="navbar_reset_password">修改密码</span>
+            </h3>
+            <div class="vx-settings-card">
+                <div class="vx-form-group">
+                    <label data-tpl="model_resetpassword_new">新密码</label>
+                    <input type="password" class="vx-input" id="vx-new-password" placeholder="请输入新密码">
+                </div>
+                <div class="vx-form-group">
+                    <label data-tpl="model_resetpassword_re">确认密码</label>
+                    <input type="password" class="vx-input" id="vx-confirm-password" placeholder="请再次输入新密码">
+                </div>
+                <button class="vx-btn vx-btn-primary" onclick="VX_ACCOUNT.changePassword()">
+                    <iconpark-icon name="check"></iconpark-icon>
+                    <span data-tpl="model_btn_ok">确认修改</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Email Section -->
+        <div class="vx-settings-section">
+            <h3 class="vx-settings-title">
+                <iconpark-icon name="envelope"></iconpark-icon>
+                <span data-tpl="navbar_reset_email">修改邮箱</span>
+            </h3>
+            <div class="vx-settings-card">
+                <div class="vx-form-group">
+                    <label data-tpl="model_changeemail_new">新邮箱</label>
+                    <div class="vx-input-group">
+                        <input type="email" class="vx-input" id="vx-new-email" placeholder="请输入新邮箱">
+                        <button class="vx-btn vx-btn-secondary" onclick="VX_ACCOUNT.sendEmailCode()" id="vx-send-code-btn">
+                            <span data-tpl="form_checkcode_send">发送验证码</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="vx-form-group">
+                    <label data-tpl="form_checkcode">验证码</label>
+                    <input type="text" class="vx-input" id="vx-email-code" placeholder="请输入验证码">
+                </div>
+                <button class="vx-btn vx-btn-primary" onclick="VX_ACCOUNT.changeEmail()">
+                    <iconpark-icon name="check"></iconpark-icon>
+                    <span data-tpl="model_btn_ok">确认修改</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Google Connect Section -->
+        <div class="vx-settings-section">
+            <h3 class="vx-settings-title">
+                <iconpark-icon name="google"></iconpark-icon>
+                <span data-tpl="model_title_connected">便捷登录</span>
+            </h3>
+            <div class="vx-settings-card">
+                <div class="vx-connect-item">
+                    <div class="vx-connect-info">
+                        <iconpark-icon name="google" class="vx-connect-icon"></iconpark-icon>
+                        <div class="vx-connect-text">
+                            <span class="vx-connect-name">Google</span>
+                            <span class="vx-connect-status" id="vx-google-status">未绑定</span>
+                        </div>
+                    </div>
+                    <div class="vx-connect-actions">
+                        <a href="#" class="vx-btn vx-btn-secondary" id="vx-google-connect" style="display:none;">
+                            <span id="vx-google-connect-msg" data-tpl="oauth_btn_google_connect">绑定 Google</span>
+                        </a>
+                        <button class="vx-btn vx-btn-danger-outline" id="vx-google-disconnect" onclick="VX_ACCOUNT.disconnectGoogle()" style="display:none;">
+                            <span data-tpl="connect_to_google_disconnect">解除绑定</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Preferences Section -->
+        <div class="vx-settings-section">
+            <h3 class="vx-settings-title">
+                <iconpark-icon name="sliders"></iconpark-icon>
+                <span data-tpl="model_profile_title">偏好设置</span>
+            </h3>
+            <div class="vx-settings-card">
+                <label class="vx-switch-item">
+                    <span class="vx-switch-label" data-tpl="model_profile_bulk_copy">批量复制链接</span>
+                    <input type="checkbox" class="vx-switch" id="vx-pref-bulk-copy" onchange="VX_ACCOUNT.setPrefBulkCopy()">
+                </label>
+                <label class="vx-switch-item">
+                    <span class="vx-switch-label" data-tpl="model_profile_confirm_delete">删除确认</span>
+                    <input type="checkbox" class="vx-switch" id="vx-pref-confirm-delete" onchange="VX_ACCOUNT.setPrefConfirmDelete()">
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Account Module Styles */
+
+.vx-header-account {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 12px 20px;
+    background: var(--vx-surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--vx-border);
+}
+
+.vx-header-account .vx-page-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.vx-header-account .vx-page-title iconpark-icon {
+    font-size: 22px;
+    color: var(--vx-primary);
+}
+
+/* Account Tabs */
+.vx-account-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    padding: 4px;
+}
+
+.vx-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    border-radius: var(--vx-radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--vx-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vx-tab-btn:hover {
+    color: var(--vx-text);
+}
+
+.vx-tab-btn.active {
+    background: var(--vx-primary);
+    color: white;
+}
+
+.vx-tab-btn iconpark-icon {
+    font-size: 16px;
+}
+
+/* Account Content */
+.vx-account-content {
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Profile Card */
+.vx-profile-card {
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    overflow: hidden;
+    margin-bottom: 24px;
+    position: relative;
+    min-height: 200px;
+}
+
+/* Profile Loading */
+.vx-profile-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--vx-primary), #6366f1);
+    z-index: 10;
+}
+
+.vx-profile-loading-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    font-size: 14px;
+}
+
+.vx-profile-loading .vx-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.vx-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 32px;
+    background: linear-gradient(135deg, var(--vx-primary), #6366f1);
+    color: white;
+}
+
+.vx-profile-avatar {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.vx-profile-avatar img {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--vx-radius-lg);
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    object-fit: cover;
+}
+
+.vx-avatar-edit {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--vx-shadow-md);
+    transition: transform 0.2s ease;
+}
+
+.vx-avatar-edit:hover {
+    transform: scale(1.1);
+}
+
+.vx-avatar-edit iconpark-icon {
+    font-size: 16px;
+    color: var(--vx-primary);
+}
+
+.vx-profile-info {
+    flex: 1;
+}
+
+.vx-profile-name {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+
+.vx-profile-intro {
+    font-size: 14px;
+    opacity: 0.9;
+    margin: 0 0 12px 0;
+}
+
+.vx-profile-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.vx-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.vx-badge-rank {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.vx-badge-sponsor {
+    background: linear-gradient(135deg, #ffd700, #ffb347);
+    color: #5d4037;
+}
+
+/* Stats Grid */
+.vx-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.vx-stat-card {
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.vx-stat-card-action {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vx-stat-card-action:hover {
+    border-color: var(--vx-primary);
+    box-shadow: var(--vx-shadow-sm);
+}
+
+.vx-stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    flex-shrink: 0;
+}
+
+.vx-stat-icon iconpark-icon {
+    font-size: 24px;
+    color: var(--vx-primary);
+}
+
+.vx-stat-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.vx-stat-label {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+    margin-bottom: 4px;
+}
+
+.vx-stat-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vx-text);
+}
+
+/* Settings Sections */
+.vx-settings-section {
+    margin-bottom: 32px;
+}
+
+.vx-settings-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin-bottom: 16px;
+}
+
+.vx-settings-title iconpark-icon {
+    font-size: 20px;
+    color: var(--vx-primary);
+}
+
+.vx-settings-card {
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    padding: 24px;
+}
+
+/* Form Groups */
+.vx-form-group {
+    margin-bottom: 16px;
+}
+
+.vx-form-group:last-of-type {
+    margin-bottom: 20px;
+}
+
+.vx-form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--vx-text);
+    margin-bottom: 8px;
+}
+
+.vx-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    background: var(--vx-bg);
+    color: var(--vx-text);
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.vx-input:focus {
+    outline: none;
+    border-color: var(--vx-primary);
+}
+
+.vx-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.vx-input-group .vx-input {
+    flex: 1;
+}
+
+/* Switch Item */
+.vx-switch-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--vx-border);
+    cursor: pointer;
+}
+
+.vx-switch-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.vx-switch-item:first-child {
+    padding-top: 0;
+}
+
+.vx-switch-label {
+    font-size: 14px;
+    color: var(--vx-text);
+}
+
+.vx-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--vx-bg-secondary);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.vx-switch:checked {
+    background: var(--vx-primary);
+}
+
+.vx-switch::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: var(--vx-shadow-sm);
+}
+
+.vx-switch:checked::before {
+    transform: translateX(20px);
+}
+
+/* Connect Item */
+.vx-connect-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.vx-connect-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.vx-connect-icon {
+    font-size: 28px;
+    color: var(--vx-text);
+}
+
+.vx-connect-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.vx-connect-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--vx-text);
+}
+
+.vx-connect-status {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-connect-status.connected {
+    color: var(--vx-success);
+}
+
+.vx-connect-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Buttons */
+.vx-btn-danger-outline {
+    background: transparent;
+    border: 1px solid var(--vx-danger);
+    color: var(--vx-danger);
+}
+
+.vx-btn-danger-outline:hover {
+    background: var(--vx-danger);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .vx-account-content {
+        padding: 16px;
+    }
+    
+    .vx-profile-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 24px;
+    }
+    
+    .vx-profile-badges {
+        justify-content: center;
+    }
+    
+    .vx-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .vx-header-account .vx-header-left {
+        display: none;
+    }
+    
+    .vx-connect-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .vx-connect-actions {
+        justify-content: flex-end;
+    }
+}
+
+/* Profile Edit */
+.vx-profile-display {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.vx-profile-edit-btn {
+    margin-top: 8px;
+    width: fit-content;
+}
+
+.vx-profile-edit {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.vx-profile-edit .vx-form-group {
+    margin-bottom: 0;
+}
+
+.vx-profile-edit .vx-form-group label {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.vx-profile-edit .vx-input {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.vx-profile-edit .vx-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.vx-profile-edit .vx-input:focus {
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.vx-profile-edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.vx-profile-edit-actions .vx-btn {
+    flex: 1;
+}
+
+/* Profile Publish */
+.vx-profile-publish {
+    padding: 16px 32px 24px;
+    background: var(--vx-surface);
+}
+
+.vx-profile-publish-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.vx-profile-publish .vx-switch-item {
+    border-bottom: none;
+    padding: 0;
+}
+
+.vx-profile-publish .vx-switch-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vx-profile-publish .vx-switch-label iconpark-icon {
+    font-size: 18px;
+    color: var(--vx-primary);
+}
+
+/* Publish status icon */
+.vx-publish-status-icon {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 4px;
+}
+
+.vx-publish-icon {
+    font-size: 16px;
+}
+
+.vx-publish-icon-ok {
+    color: var(--vx-success);
+}
+
+.vx-publish-icon-reject {
+    color: var(--vx-danger);
+}
+
+.vx-publish-icon-wait {
+    color: var(--vx-info);
+}
+
+.vx-publish-icon-review {
+    color: var(--vx-warning);
+}
+
+@media (max-width: 768px) {
+    .vx-profile-publish {
+        padding: 16px;
+    }
+    
+    .vx-profile-edit-actions {
+        flex-direction: column;
+    }
+    
+    .vx-profile-edit-btn {
+        width: 100%;
+    }
+}
+</style>
