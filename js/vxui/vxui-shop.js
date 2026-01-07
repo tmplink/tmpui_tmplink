@@ -3,7 +3,7 @@
  * 商店模块 - 购买赞助、存储空间、直链配额
  */
 
-const VX_SHOP = {
+window.VX_SHOP = {
     // Current state
     currentTab: 'products',
     selectedProduct: null,
@@ -19,25 +19,29 @@ const VX_SHOP = {
             type: 'addon',
             code: 'HS',
             name: '赞助者',
+            monthlyPrice: 6,
             prices: {
-                '1': 72,   // 1 year
+                '1': 72,   // 1 year (6*12)
                 '10': 720  // 10 years
             }
         },
         storage: {
             type: 'addon',
             items: {
-                '256GB': { code: '256GB', name: '256GB', prices: { '1': 72, '10': 720 } },
-                '1TB': { code: '1TB', name: '1TB', prices: { '1': 144, '10': 1440 } },
-                '3TB': { code: '3TB', name: '3TB', prices: { '1': 288, '10': 2880 } },
-                '5TB': { code: '5TB', name: '5TB', prices: { '1': 432, '10': 4320 } }
+                '256GB': { code: '256GB', name: '256GB', monthlyPrice: 6, prices: { '1': 72, '10': 720 } },
+                '1TB': { code: '1TB', name: '1TB', monthlyPrice: 18, prices: { '1': 216, '10': 2160 } },
+                '3TB': { code: '3TB', name: '3TB', monthlyPrice: 66, prices: { '1': 792, '10': 7920 } },
+                '5TB': { code: '5TB', name: '5TB', monthlyPrice: 120, prices: { '1': 1440, '10': 14400 } }
             }
         },
         direct: {
             type: 'direct',
-            code: 'D20',
-            name: '直链配额',
-            pricePerUnit: 6 // CNY per unit
+            items: {
+                'D20': { code: 'D20', name: '20GB', size: '20GB', price: 6 },
+                'D100': { code: 'D100', name: '100GB', size: '100GB', price: 18 },
+                'D600': { code: 'D600', name: '600GB', size: '600GB', price: 60 },
+                'D1024': { code: 'D1024', name: '1TB', size: '1TB', price: 90 }
+            }
         },
         firstTimeSponsor: {
             type: 'addon',
@@ -146,24 +150,48 @@ const VX_SHOP = {
      * Check if first time sponsor is available
      */
     async checkFirstTimeSponsor() {
+        const apiUrl = (typeof TL !== 'undefined' && TL.api_pay) ? TL.api_pay : '/api_v2/pay';
+        const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
+        
+        if (!token) {
+            console.warn('[VX_SHOP] No token, skipping first time sponsor check');
+            return;
+        }
+        
         try {
-            const result = await this.apiRequest('checkFirstTimeSponsor');
-            if (result.status === 'ok' && result.data) {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=limit_product_check&token=${token}&code=FN01`
+            });
+            
+            const data = await response.json();
+            
+            // API returns status=1 when available
+            if (data.status === 1) {
                 document.getElementById('vx-shop-special').style.display = 'block';
                 
-                // Update price based on currency
+                // Update price based on language
                 const priceEl = document.getElementById('vx-first-sponsor-price');
-                const isCN = typeof TL !== 'undefined' && TL.lang === 'cn';
+                const unitEl = priceEl.nextElementSibling;
+                const isCN = typeof TL !== 'undefined' && (TL.lang === 'cn' || TL.lang === 'jp');
+                
                 if (isCN) {
                     priceEl.textContent = '36';
-                    priceEl.nextElementSibling.textContent = '元';
+                    unitEl.textContent = '元';
                 } else {
                     priceEl.textContent = '6';
-                    priceEl.nextElementSibling.textContent = 'USD';
+                    unitEl.textContent = 'USD';
                 }
+            } else {
+                // Hide if not available
+                document.getElementById('vx-shop-special').style.display = 'none';
             }
         } catch (e) {
             console.warn('[VX_SHOP] First time sponsor check failed:', e);
+            document.getElementById('vx-shop-special').style.display = 'none';
         }
     },
     
@@ -191,20 +219,30 @@ const VX_SHOP = {
      */
     async loadUserStatus() {
         try {
-            // Get user info from TL
-            const user = (typeof TL !== 'undefined' && TL.user) ? TL.user : {};
+            // Check if TL data is available
+            if (typeof TL === 'undefined') {
+                console.warn('[VX_SHOP] TL not available');
+                return;
+            }
             
             // Update avatar
-            document.getElementById('vx-user-avatar').src = user.avatar || '/img/avatar/default.png';
-            document.getElementById('vx-user-name').textContent = user.uname || '--';
+            const avatarEl = document.getElementById('vx-user-avatar');
+            if (avatarEl) {
+                avatarEl.src = TL.avatar || '/img/avatar/default.png';
+            }
+            
+            // Update username
+            const nameEl = document.getElementById('vx-user-name');
+            if (nameEl) {
+                nameEl.textContent = TL.uname || '--';
+            }
             
             // Get rank text
-            const rankTexts = {
-                'admin': '管理员',
-                'vip': '赞助者',
-                'user': '普通用户'
-            };
-            document.getElementById('vx-user-rank').textContent = rankTexts[user.rank] || '普通用户';
+            const rankEl = document.getElementById('vx-user-rank');
+            if (rankEl) {
+                const isSponsor = TL.sponsor;
+                rankEl.textContent = isSponsor ? '赞助者' : '普通用户';
+            }
             
             // Update status items
             const formatDate = (timestamp) => {
@@ -221,38 +259,58 @@ const VX_SHOP = {
                 return formatDate(timestamp);
             };
             
+            const group = TL.user_group || {};
+            
             // Highspeed
-            document.getElementById('vx-user-highspeed').textContent = 
-                user.group?.highspeed ? formatExpiry(user.group.highspeed) : '未开通';
+            const highspeedEl = document.getElementById('vx-user-highspeed');
+            if (highspeedEl) {
+                highspeedEl.textContent = group.highspeed ? formatExpiry(group.highspeed) : '未开通';
+            }
             
             // Blue verification
-            document.getElementById('vx-user-blue').textContent = 
-                user.group?.blue ? formatExpiry(user.group.blue) : '未开通';
+            const blueEl = document.getElementById('vx-user-blue');
+            if (blueEl) {
+                blueEl.textContent = group.blue ? formatExpiry(group.blue) : '未开通';
+            }
             
             // DVD/Media
-            document.getElementById('vx-user-dvd').textContent = 
-                user.group?.dvd ? formatExpiry(user.group.dvd) : '未开通';
+            const dvdEl = document.getElementById('vx-user-dvd');
+            if (dvdEl) {
+                dvdEl.textContent = group.dvd ? formatExpiry(group.dvd) : '未开通';
+            }
             
             // Sponsor status
-            document.getElementById('vx-user-sponsor').textContent = 
-                user.group?.sponsor ? formatExpiry(user.group.sponsor) : '未开通';
+            const sponsorEl = document.getElementById('vx-user-sponsor');
+            if (sponsorEl) {
+                sponsorEl.textContent = TL.sponsor_time ? formatExpiry(TL.sponsor_time) : '未开通';
+            }
             
             // Storage
-            const storageText = user.storage ? 
-                `${this.formatBytes(user.storage.used)} / ${this.formatBytes(user.storage.total)}` : '--';
-            document.getElementById('vx-user-storage').textContent = storageText;
+            const storageEl = document.getElementById('vx-user-storage');
+            if (storageEl) {
+                const used = TL.storage_used || 0;
+                const total = TL.storage || 0;
+                storageEl.textContent = `${this.formatBytes(used)} / ${this.formatBytes(total)}`;
+            }
             
-            // Direct quota
-            document.getElementById('vx-user-quota').textContent = 
-                user.direct?.quota !== undefined ? `${user.direct.quota} GB` : '--';
+            // Direct quota  
+            const quotaEl = document.getElementById('vx-user-quota');
+            if (quotaEl) {
+                const acvDq = TL.user_acv_dq || TL.acv_dq;
+                quotaEl.textContent = acvDq ? acvDq : '--';
+            }
             
             // Account value (ACV)
-            document.getElementById('vx-user-acv').textContent = 
-                user.acv !== undefined ? `¥${user.acv}` : '--';
+            const acvEl = document.getElementById('vx-user-acv');
+            if (acvEl) {
+                acvEl.textContent = TL.user_acv !== undefined ? `¥${TL.user_acv}` : '--';
+            }
             
             // Join date
-            document.getElementById('vx-user-join').textContent = 
-                user.join ? formatDate(user.join) : '--';
+            const joinEl = document.getElementById('vx-user-join');
+            if (joinEl) {
+                joinEl.textContent = TL.user_join ? formatDate(TL.user_join) : '--';
+            }
                 
         } catch (e) {
             console.error('[VX_SHOP] Failed to load user status:', e);
@@ -277,16 +335,25 @@ const VX_SHOP = {
      * Open sponsor purchase modal
      */
     openSponsor() {
+        console.log('[VX_SHOP] openSponsor called');
         this.purchaseType = 'addon';
         this.selectedProduct = 'sponsor';
         this.selectedCode = 'HS';
         this.selectedTime = 1;
         
         const modalTitle = document.getElementById('vx-modal-title');
+        const modalBody = document.getElementById('vx-modal-body');
+        
+        console.log('[VX_SHOP] Modal elements:', { modalTitle, modalBody });
+        
+        if (!modalTitle || !modalBody) {
+            console.error('[VX_SHOP] Modal elements not found!');
+            return;
+        }
+        
         modalTitle.innerHTML = '<iconpark-icon name="heart-circle-plus"></iconpark-icon> ' + 
             this.t('model_title_sponsor', '成为赞助者');
         
-        const modalBody = document.getElementById('vx-modal-body');
         modalBody.innerHTML = `
             <p class="vx-modal-desc">${this.t('model_des_sponsor', '获得高速通道、蓝标认证、媒体播放等特权')}</p>
             
@@ -313,16 +380,27 @@ const VX_SHOP = {
      * Open storage purchase modal
      */
     openStorage() {
+        console.log('[VX_SHOP] openStorage called');
         this.purchaseType = 'addon';
         this.selectedProduct = 'storage';
         this.selectedCode = '256GB';
         this.selectedTime = 1;
         
         const modalTitle = document.getElementById('vx-modal-title');
+        const modalBody = document.getElementById('vx-modal-body');
+        
+        console.log('[VX_SHOP] Modal elements:', { modalTitle, modalBody });
+        
+        if (!modalTitle || !modalBody) {
+            console.error('[VX_SHOP] Modal elements not found!');
+            return;
+        }
+        
         modalTitle.innerHTML = '<iconpark-icon name="album-circle-plus"></iconpark-icon> ' + 
             this.t('model_title_buy_storage', '私有空间');
         
-        const modalBody = document.getElementById('vx-modal-body');
+        const items = this.products.storage.items;
+        
         modalBody.innerHTML = `
             <p class="vx-modal-desc">${this.t('storage_content', '扩展您的私有存储空间')}</p>
             
@@ -330,19 +408,19 @@ const VX_SHOP = {
             <div class="vx-purchase-options">
                 <div class="vx-purchase-option selected" onclick="VX_SHOP.selectCode('256GB')">
                     <h4>256GB</h4>
-                    <div class="vx-option-price">¥72/年</div>
+                    <div class="vx-option-price">¥${items['256GB'].monthlyPrice}/月</div>
                 </div>
                 <div class="vx-purchase-option" onclick="VX_SHOP.selectCode('1TB')">
                     <h4>1TB</h4>
-                    <div class="vx-option-price">¥144/年</div>
+                    <div class="vx-option-price">¥${items['1TB'].monthlyPrice}/月</div>
                 </div>
                 <div class="vx-purchase-option" onclick="VX_SHOP.selectCode('3TB')">
                     <h4>3TB</h4>
-                    <div class="vx-option-price">¥288/年</div>
+                    <div class="vx-option-price">¥${items['3TB'].monthlyPrice}/月</div>
                 </div>
                 <div class="vx-purchase-option" onclick="VX_SHOP.selectCode('5TB')">
                     <h4>5TB</h4>
-                    <div class="vx-option-price">¥432/年</div>
+                    <div class="vx-option-price">¥${items['5TB'].monthlyPrice}/月</div>
                 </div>
             </div>
             
@@ -367,34 +445,86 @@ const VX_SHOP = {
      * Open direct quota purchase modal
      */
     openQuota() {
+        console.log('[VX_SHOP] openQuota called');
         this.purchaseType = 'direct';
         this.selectedProduct = 'direct';
         this.selectedCode = 'D20';
         this.quantity = 1;
         
         const modalTitle = document.getElementById('vx-modal-title');
+        const modalBody = document.getElementById('vx-modal-body');
+        
+        console.log('[VX_SHOP] Modal elements:', { modalTitle, modalBody });
+        
+        if (!modalTitle || !modalBody) {
+            console.error('[VX_SHOP] Modal elements not found!');
+            return;
+        }
+        
         modalTitle.innerHTML = '<iconpark-icon name="share-nodes"></iconpark-icon> ' + 
             this.t('model_title_buy_direct_quota', '优先配额（直链）');
         
-        const modalBody = document.getElementById('vx-modal-body');
+        const items = this.products.direct.items;
+        
         modalBody.innerHTML = `
-            <p class="vx-modal-desc">${this.t('direct_quota_content', '获得更多直链配额')}</p>
+            <p class="vx-modal-desc">${this.t('direct_quota_content', '当您通过直链为其他人提供文件下载服务时，可以使用优先配额获得最大下载速度。')}</p>
+            <p style="color: var(--vx-text-secondary); font-size: 13px; margin-bottom: 16px;">
+                ${this.t('direct_quota_content2', '优先配额不会过期。多次购买会叠加此配额。')}
+            </p>
             
-            <div class="vx-quantity-input">
-                <label>${this.t('payment_quantity', '数量')}:</label>
-                <input type="number" value="1" min="1" max="100" onchange="VX_SHOP.setQuantity(this.value)">
-                <span>× 20GB</span>
+            <h4 class="vx-section-title">${this.t('direct_quota_type', '配额')}</h4>
+            <div class="vx-purchase-options vx-purchase-options-grid">
+                <div class="vx-purchase-option selected" onclick="VX_SHOP.selectDirectCode('D20')">
+                    <h4>${items['D20'].size}</h4>
+                    <div class="vx-option-price">¥${items['D20'].price}</div>
+                </div>
+                <div class="vx-purchase-option" onclick="VX_SHOP.selectDirectCode('D100')">
+                    <h4>${items['D100'].size}</h4>
+                    <div class="vx-option-price">¥${items['D100'].price}</div>
+                </div>
+                <div class="vx-purchase-option" onclick="VX_SHOP.selectDirectCode('D600')">
+                    <h4>${items['D600'].size}</h4>
+                    <div class="vx-option-price">¥${items['D600'].price}</div>
+                </div>
+                <div class="vx-purchase-option" onclick="VX_SHOP.selectDirectCode('D1024')">
+                    <h4>${items['D1024'].size}</h4>
+                    <div class="vx-option-price">¥${items['D1024'].price}</div>
+                </div>
             </div>
             
-            <p style="color: var(--vx-text-secondary); font-size: 13px;">
-                ${this.t('direct_quota_tip', '每份配额包含 20GB 直链流量')}
-            </p>
+            <h4 class="vx-section-title">${this.t('model_buy_nums', '购买数量')}</h4>
+            <div class="vx-quantity-input">
+                <input type="number" value="1" min="1" max="99" id="vx-direct-quantity" onchange="VX_SHOP.setQuantity(this.value)">
+            </div>
             
             ${this.renderPaymentMethods()}
         `;
         
         this.updateModalPrice();
         this.showModal();
+    },
+    
+    /**
+     * Select direct quota code
+     */
+    selectDirectCode(code) {
+        this.selectedCode = code;
+        
+        // Update UI
+        document.querySelectorAll('.vx-purchase-options-grid .vx-purchase-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        
+        // Find and select the clicked option
+        const items = this.products.direct.items;
+        document.querySelectorAll('.vx-purchase-options-grid .vx-purchase-option').forEach(opt => {
+            const h4 = opt.querySelector('h4');
+            if (h4 && items[code] && h4.textContent === items[code].size) {
+                opt.classList.add('selected');
+            }
+        });
+        
+        this.updateModalPrice();
     },
     
     /**
@@ -478,8 +608,7 @@ const VX_SHOP = {
     selectTime(time) {
         this.selectedTime = time;
         
-        // Update UI
-        const timeText = time + ' ' + (TL.tpl.payment_year || '年');
+        // Update UI - find time selection options
         document.querySelectorAll('.vx-purchase-option').forEach(opt => {
             const h4 = opt.querySelector('h4');
             if (h4 && (h4.textContent.includes('年') || h4.textContent.includes('year'))) {
@@ -536,7 +665,10 @@ const VX_SHOP = {
                 priceCNY = item.prices[this.selectedTime.toString()];
             }
         } else if (this.selectedProduct === 'direct') {
-            priceCNY = this.products.direct.pricePerUnit * this.quantity;
+            const item = this.products.direct.items[this.selectedCode];
+            if (item) {
+                priceCNY = item.price * this.quantity;
+            }
         }
         
         // Convert to USD if PayPal
@@ -556,16 +688,25 @@ const VX_SHOP = {
      * Show modal
      */
     showModal() {
-        document.getElementById('vx-shop-modal').classList.add('show');
-        document.body.style.overflow = 'hidden';
+        console.log('[VX_SHOP] showModal called');
+        const modal = document.getElementById('vx-shop-modal');
+        if (modal) {
+            modal.classList.add('vx-modal-open');
+            document.body.classList.add('vx-modal-body-open');
+        } else {
+            console.error('[VX_SHOP] Modal element not found!');
+        }
     },
     
     /**
      * Close modal
      */
     closeModal() {
-        document.getElementById('vx-shop-modal').classList.remove('show');
-        document.body.style.overflow = '';
+        const modal = document.getElementById('vx-shop-modal');
+        if (modal) {
+            modal.classList.remove('vx-modal-open');
+            document.body.classList.remove('vx-modal-body-open');
+        }
     },
     
     /**
@@ -586,7 +727,10 @@ const VX_SHOP = {
                 priceCNY = item.prices[this.selectedTime.toString()];
             }
         } else if (this.selectedProduct === 'direct') {
-            priceCNY = this.products.direct.pricePerUnit * this.quantity;
+            const item = this.products.direct.items[this.selectedCode];
+            if (item) {
+                priceCNY = item.price * this.quantity;
+            }
         }
         
         // Build payment URL
@@ -669,17 +813,36 @@ const VX_SHOP = {
         }
         
         try {
-            const result = await this.apiRequest('giftcard', { code });
+            const apiUrl = (typeof TL !== 'undefined' && TL.api_pay) ? TL.api_pay : '/api_v2/pay';
+            const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
             
-            if (result.status === 'ok') {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=giftcard_active&token=${token}&code=${encodeURIComponent(code)}`
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 1) {
                 VXUI.toastSuccess(this.t('giftcard_success', '兑换成功！'));
                 this.closeModal();
                 this.restoreModalFooter();
-                this.loadUserStatus();
+                // Refresh user data
+                if (typeof TL !== 'undefined' && TL.get_details) {
+                    TL.get_details(() => {
+                        this.loadUserStatus();
+                    });
+                } else {
+                    this.loadUserStatus();
+                }
             } else {
                 VXUI.toastError(result.message || this.t('giftcard_error', '兑换失败'));
             }
         } catch (e) {
+            console.error('[VX_SHOP] Gift card redemption error:', e);
             VXUI.toastError(this.t('error_network', '网络错误'));
         }
     },

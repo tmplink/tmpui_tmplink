@@ -710,6 +710,7 @@
 .vx-quantity-input {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 12px;
     margin: 16px 0;
 }
@@ -720,14 +721,20 @@
 }
 
 .vx-quantity-input input {
-    width: 100px;
-    padding: 8px 12px;
+    width: 100%;
+    max-width: 200px;
+    padding: 12px 16px;
     border: 1px solid var(--vx-border);
     border-radius: var(--vx-radius-md);
-    background: var(--vx-bg);
+    background: var(--vx-bg-secondary);
     color: var(--vx-text);
-    font-size: 16px;
+    font-size: 18px;
     text-align: center;
+}
+
+.vx-quantity-input input:focus {
+    outline: none;
+    border-color: var(--vx-primary);
 }
 
 /* Section Title in Modal */
