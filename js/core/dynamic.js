@@ -130,8 +130,8 @@ class dynamic {
                     //未登录，跳转到登录页
                     this.login();
                 } else {
-                    //已登录，进入 room
-                    this.room();
+                    //已登录，进入 VXUI 界面
+                    window.location.href = '/?tmpui_page=/vx';
                 }
             }
         );

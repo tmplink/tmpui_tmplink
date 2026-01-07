@@ -1,0 +1,109 @@
+<!-- VXUI Direct Module Template -->
+
+<!-- Header -->
+<header class="vx-header">
+    <div class="vx-header-left">
+        <button class="vx-btn-icon" onclick="VXUI.toggleSidebar()">
+            <iconpark-icon name="bars"></iconpark-icon>
+        </button>
+        
+        <h1 class="vx-text-xl vx-font-semibold" data-tpl="nav_direct">直链</h1>
+    </div>
+    
+    <div class="vx-header-right">
+        <button class="vx-btn-icon" onclick="VX_DIRECT.refresh()" data-vx-tooltip="刷新">
+            <iconpark-icon name="rotate"></iconpark-icon>
+        </button>
+    </div>
+</header>
+
+<!-- Content -->
+<div class="vx-content">
+    <!-- Info Card -->
+    <div class="vx-card vx-mb-md">
+        <div class="vx-card-body">
+            <div class="vx-flex vx-items-center vx-gap-md">
+                <div class="vx-avatar vx-avatar-xl" style="background: var(--vx-info-light);">
+                    <iconpark-icon name="link" style="font-size: 32px; color: var(--vx-info);"></iconpark-icon>
+                </div>
+                <div class="vx-flex-1">
+                    <h2 class="vx-text-2xl vx-font-semibold" data-tpl="nav_direct">直链管理</h2>
+                    <div class="vx-flex vx-items-center vx-gap-md vx-mt-sm vx-text-muted">
+                        <span>
+                            <iconpark-icon name="link"></iconpark-icon>
+                            <span id="vx-direct-count">0</span> 个直链
+                        </span>
+                    </div>
+                </div>
+                <button class="vx-btn vx-btn-secondary" onclick="VX_DIRECT.showHelp()">
+                    <iconpark-icon name="info-circle"></iconpark-icon>
+                    <span data-tpl="direct_what">什么是直链</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toolbar -->
+    <div class="vx-toolbar vx-mb-md">
+        <div class="vx-flex vx-items-center vx-gap-sm">
+            <button class="vx-btn vx-btn-ghost vx-btn-sm" onclick="VX_DIRECT.toggleSelectAll()">
+                <iconpark-icon name="check-square"></iconpark-icon>
+                <span data-tpl="on_select_all">全选</span>
+            </button>
+            <div class="vx-btn-group vx-hidden" id="vx-direct-batch-actions">
+                <span class="vx-text-sm vx-text-muted vx-mr-sm">
+                    已选 <span id="vx-direct-selected-count">0</span> 项
+                </span>
+                <button class="vx-btn vx-btn-ghost vx-btn-sm" onclick="VX_DIRECT.copySelectedUrls()">
+                    <iconpark-icon name="copy"></iconpark-icon>
+                    <span>复制链接</span>
+                </button>
+                <button class="vx-btn vx-btn-ghost vx-btn-sm vx-text-danger" onclick="VX_DIRECT.deleteSelected()">
+                    <iconpark-icon name="trash"></iconpark-icon>
+                    <span data-tpl="on_select_delete">删除</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading State -->
+    <div class="vx-loading" id="vx-direct-loading">
+        <div class="vx-spinner vx-spinner-lg"></div>
+        <span class="vx-loading-text" data-tpl="loading">加载中...</span>
+    </div>
+    
+    <!-- Direct List -->
+    <div id="vx-direct-content" class="vx-hidden">
+        <div class="vx-file-list" id="vx-direct-list">
+            <!-- Items will be rendered here -->
+        </div>
+    </div>
+    
+    <!-- Empty State -->
+    <div class="vx-empty vx-hidden" id="vx-direct-empty">
+        <div class="vx-empty-icon">
+            <iconpark-icon name="link"></iconpark-icon>
+        </div>
+        <h3 class="vx-empty-title">暂无直链</h3>
+        <p class="vx-empty-text">在文件列表中选择文件，可以创建直链</p>
+        <button class="vx-btn vx-btn-primary" onclick="VXUI.navigate('filelist')">
+            <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+            <span data-tpl="nav_files">查看文件</span>
+        </button>
+    </div>
+</div>
+
+<style>
+/* Direct Module Specific Styles */
+.vx-direct-url-text {
+    display: block;
+    padding: 8px 12px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius);
+    font-family: var(--vx-font-mono);
+    font-size: var(--vx-text-xs);
+    color: var(--vx-text-secondary);
+    word-break: break-all;
+    margin-top: 8px;
+}
+</style>
