@@ -398,6 +398,13 @@ var VX_FILELIST = VX_FILELIST || {
             // 特殊处理桌面
             if (this.mrid == 0 || this.mrid === '0') {
                 this.isDesktop = true;
+                // 桌面目录在老逻辑中用 top=99 表示，且 parent 固定为 0
+                if (!this.room || typeof this.room !== 'object') {
+                    this.room = {};
+                }
+                this.room.mr_id = 0;
+                this.room.top = 99;
+                this.room.parent = 0;
                 this.room.name = (typeof app !== 'undefined' && app.languageData && app.languageData.navbar_meetingroom) 
                     ? app.languageData.navbar_meetingroom : '桌面';
             }
@@ -1749,18 +1756,46 @@ var VX_FILELIST = VX_FILELIST || {
     // ==================== 模态框 ====================
     
     showCreateModal() {
-        const modal = document.getElementById('vx-fl-create-modal');
+        const modalId = 'vx-fl-create-modal';
+        const modal = document.getElementById(modalId);
         const input = document.getElementById('vx-fl-folder-name');
-        if (modal) modal.classList.add('show');
-        if (input) {
-            input.value = '';
-            input.focus();
+        const modelSelect = document.getElementById('vx-fl-folder-model');
+
+        // 对齐老版逻辑：子文件夹强制 model=0
+        const mr_id = (this.room && this.room.mr_id !== undefined && this.room.mr_id !== null) ? this.room.mr_id : this.mrid;
+        let parent = (this.room && this.room.parent !== undefined && this.room.parent !== null) ? this.room.parent : 0;
+        let top = (this.room && this.room.top !== undefined && this.room.top !== null) ? this.room.top : 0;
+        if (this.isDesktop || mr_id == 0 || mr_id === '0' || top == 99) {
+            top = 99;
+            parent = 0;
+        }
+
+        if (input) input.value = '';
+        if (modelSelect) {
+            modelSelect.value = '0';
+            modelSelect.disabled = (Number(parent) > 0);
+        }
+
+        if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.openModal === 'function') {
+            VXUI.openModal(modalId);
+        } else if (modal) {
+            modal.classList.add('vx-modal-open');
+            document.body.classList.add('vx-modal-body-open');
+            const firstInput = modal.querySelector('input, textarea, select');
+            if (firstInput) setTimeout(() => firstInput.focus(), 100);
         }
     },
     
     closeCreateModal() {
-        const modal = document.getElementById('vx-fl-create-modal');
-        if (modal) modal.classList.remove('show');
+        const modalId = 'vx-fl-create-modal';
+        const modal = document.getElementById(modalId);
+
+        if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.closeModal === 'function') {
+            VXUI.closeModal(modalId);
+        } else if (modal) {
+            modal.classList.remove('vx-modal-open');
+            document.body.classList.remove('vx-modal-body-open');
+        }
     },
     
     createFolder() {
@@ -1772,15 +1807,36 @@ var VX_FILELIST = VX_FILELIST || {
         
         const token = this.getToken();
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
+
+        // 对齐老版逻辑：桌面(top=99)时 parent 必须为 0；子文件夹 model 固定为 0
+        const mr_id = (this.room && this.room.mr_id !== undefined && this.room.mr_id !== null) ? this.room.mr_id : this.mrid;
+        let parent = (this.room && this.room.parent !== undefined && this.room.parent !== null) ? this.room.parent : 0;
+        let top = (this.room && this.room.top !== undefined && this.room.top !== null) ? this.room.top : 0;
+
+        if (this.isDesktop || mr_id == 0 || mr_id === '0' || top == 99) {
+            top = 99;
+            parent = 0;
+        }
+
+        let model = 0;
+        const modelVal = document.getElementById('vx-fl-folder-model')?.value;
+        if (modelVal !== undefined && modelVal !== null && modelVal !== '') {
+            const parsed = parseInt(modelVal, 10);
+            model = Number.isFinite(parsed) ? parsed : 0;
+        }
+        // 子文件夹的 model 强制为 0（与老版一致）
+        if (Number(parent) > 0) {
+            model = 0;
+        }
         
         $.post(apiUrl, {
             action: 'create',
             token: token,
             name: name,
-            mr_id: this.mrid,
-            parent: this.room.parent || 0,
-            top: this.room.top || 0,
-            model: 0
+            mr_id: mr_id,
+            parent: parent,
+            top: top,
+            model: model
         }, (rsp) => {
             if (rsp.status === 1) {
                 this.closeCreateModal();
@@ -1793,15 +1849,29 @@ var VX_FILELIST = VX_FILELIST || {
     },
     
     showRenameModal() {
-        const modal = document.getElementById('vx-fl-rename-modal');
-        if (modal) modal.classList.add('show');
-        const input = document.getElementById('vx-fl-rename-input');
-        if (input) input.focus();
+        const modalId = 'vx-fl-rename-modal';
+        const modal = document.getElementById(modalId);
+
+        if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.openModal === 'function') {
+            VXUI.openModal(modalId);
+        } else if (modal) {
+            modal.classList.add('vx-modal-open');
+            document.body.classList.add('vx-modal-body-open');
+            const firstInput = modal.querySelector('input, textarea, select');
+            if (firstInput) setTimeout(() => firstInput.focus(), 100);
+        }
     },
     
     closeRenameModal() {
-        const modal = document.getElementById('vx-fl-rename-modal');
-        if (modal) modal.classList.remove('show');
+        const modalId = 'vx-fl-rename-modal';
+        const modal = document.getElementById(modalId);
+
+        if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.closeModal === 'function') {
+            VXUI.closeModal(modalId);
+        } else if (modal) {
+            modal.classList.remove('vx-modal-open');
+            document.body.classList.remove('vx-modal-body-open');
+        }
         this._renameTarget = null;
     },
     

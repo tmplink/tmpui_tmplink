@@ -183,9 +183,17 @@
             </button>
         </div>
         <div class="vx-modal-body">
+            <div class="vx-text-sm vx-text-muted vx-mb-md" i18n="model_meetingroom_create_notice">创建新的文件夹</div>
             <div class="vx-form-group">
                 <label class="vx-label" data-tpl="modal_meetingroom_newname">文件夹名称</label>
                 <input type="text" class="vx-input" id="vx-fl-folder-name" placeholder="请输入文件夹名称">
+            </div>
+            <div class="vx-form-group">
+                <label class="vx-label" i18n="modal_meetingroom_create_type">权限</label>
+                <select class="vx-select" id="vx-fl-folder-model">
+                    <option value="0" i18n-only="html" i18n="modal_meetingroom_type1">公开，所有人都可访问。</option>
+                    <option value="1" i18n-only="html" i18n="modal_meetingroom_type2">私有，仅自己可访问。</option>
+                </select>
             </div>
         </div>
         <div class="vx-modal-footer">
