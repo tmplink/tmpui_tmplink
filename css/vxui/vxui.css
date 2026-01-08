@@ -1288,6 +1288,10 @@ body.vx-modal-body-open {
 }
 
 /* ==================== Responsive ==================== */
+.vx-portrait-sidebar-btn {
+    display: none;
+}
+
 @media (max-width: 768px) {
     .vx-sidebar {
         transform: translateX(-100%);
@@ -1344,6 +1348,30 @@ body.vx-modal-body-open {
     
     .vx-toolbar > div {
         justify-content: center;
+    }
+}
+
+/* Portrait tablets (e.g., iPad) should use drawer sidebar to avoid width-priority layout issues */
+@media (orientation: portrait) and (max-width: 1024px) {
+    .vx-sidebar {
+        transform: translateX(-100%);
+    }
+
+    .vx-layout.sidebar-open .vx-sidebar {
+        transform: translateX(0);
+    }
+
+    .vx-main {
+        margin-left: 0;
+    }
+
+    .vx-layout.sidebar-collapsed .vx-main {
+        margin-left: 0;
+    }
+
+    /* Filelist header: show drawer menu button only in this mode */
+    .vx-portrait-sidebar-btn {
+        display: inline-flex;
     }
 }
 

@@ -489,7 +489,14 @@ class tmplink {
             this.get_details_do = true;
             this.storage_status_update();
             this.head_set();
-            this.bg_load();
+
+            // VXUI 页面不需要应用背景（壁纸背景/背景图层）
+            const page = (typeof get_url_params === 'function' ? (get_url_params('tmpui_page') || {}).tmpui_page : undefined);
+            if (page === '/vx') {
+                this.bg_remove();
+            } else {
+                this.bg_load();
+            }
             //初始化直链
             this.direct.init_details(() => {
                 this.readyExec();

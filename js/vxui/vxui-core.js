@@ -24,6 +24,9 @@ class VXUICore {
         // 侧边栏状态
         this.sidebarOpen = false;
         this.sidebarCollapsed = false;
+
+        // 侧边栏显示模式（抽屉/常驻）
+        this.sidebarOverlayMode = false;
         
         // 暗色模式
         this.darkMode = this.getDarkModePreference();
@@ -55,6 +58,9 @@ class VXUICore {
         
         // 绑定全局事件
         this.bindGlobalEvents();
+
+        // 处理竖屏平板等场景：侧边栏使用抽屉模式
+        this.applySidebarResponsiveMode();
         
         // 初始化提示框容器
         this.initToastContainer();
@@ -68,6 +74,45 @@ class VXUICore {
         }
         
         console.log('[VXUI] Core initialized');
+    }
+
+    /**
+     * 是否需要侧边栏抽屉模式
+     * - 手机：<=768
+     * - 竖屏平板：<=1024 且竖屏
+     */
+    isSidebarOverlayMode() {
+        const width = window.innerWidth;
+        if (width <= 768) return true;
+
+        const isPortrait = (typeof window.matchMedia === 'function'
+            && window.matchMedia('(orientation: portrait)').matches)
+            || (window.innerHeight > window.innerWidth);
+
+        return isPortrait && width <= 1024;
+    }
+
+    /**
+     * 应用侧边栏响应式模式，并在模式切换时重置状态
+     */
+    applySidebarResponsiveMode() {
+        const layout = document.getElementById('vx-layout');
+        if (!layout) return;
+
+        const nextMode = this.isSidebarOverlayMode();
+        const prevMode = this.sidebarOverlayMode;
+        this.sidebarOverlayMode = nextMode;
+
+        // 进入/退出抽屉模式时，确保侧边栏默认隐藏
+        if (nextMode !== prevMode) {
+            this.closeSidebar();
+        }
+
+        // 抽屉模式下不使用折叠（避免出现窄条侧边栏占位/遮挡）
+        if (nextMode && this.sidebarCollapsed) {
+            this.sidebarCollapsed = false;
+            layout.classList.remove('sidebar-collapsed');
+        }
     }
     
     /**
@@ -321,9 +366,12 @@ class VXUICore {
         
         // 窗口大小变化
         window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                this.closeSidebar();
-            }
+            this.applySidebarResponsiveMode();
+        });
+
+        // 设备旋转（iPad 等）
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => this.applySidebarResponsiveMode(), 50);
         });
         
         // 点击侧边栏外部关闭
@@ -370,7 +418,7 @@ class VXUICore {
      * 切换侧边栏
      */
     toggleSidebar() {
-        if (window.innerWidth <= 768) {
+        if (this.isSidebarOverlayMode()) {
             if (this.sidebarOpen) {
                 this.closeSidebar();
             } else {
