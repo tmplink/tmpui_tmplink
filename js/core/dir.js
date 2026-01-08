@@ -11,22 +11,24 @@ class dir {
 
     viewByList(data, page) {
         let url_params = get_url_params();
+        const subRooms = Array.isArray(this.subroom_data) ? this.subroom_data : [];
+        const listData = Array.isArray(data) ? data : [];
         this.btnActiveReset();
         $('#room_btn_file_list').addClass('text-blue');
         if (page == 0 || page == 'all') {
             $('#dir_list').html('');
-            if (this.subroom_data.length != 0) {
-                $('#dir_list').append(app.tpl('dir_list_tpl', this.subroom_data));
+            if (subRooms.length !== 0) {
+                $('#dir_list').append(app.tpl('dir_list_tpl', subRooms));
             }
-            if (data === false && this.subroom_data == 0 && url_params.mrid != 0) {
+            if (listData.length === 0 && subRooms.length === 0 && String(url_params.mrid) !== '0') {
                 $('.no_files').show();
             }
-            if (data === false && this.subroom_data == 0 && url_params.mrid == '0') {
+            if (listData.length === 0 && subRooms.length === 0 && String(url_params.mrid) === '0') {
                 $('.no_dir').show();
             }
         }
-        if (data.length != 0) {
-            $('#dir_list').append(app.tpl('dir_filelist_tpl', data));
+        if (listData.length !== 0) {
+            $('#dir_list').append(app.tpl('dir_filelist_tpl', listData));
         }
         $('.lefttime-remainder').each((i, e) => {
             let id = $(e).attr('id');
@@ -38,19 +40,21 @@ class dir {
     }
 
     viewByPhoto(data, page) {
+        const subRooms = Array.isArray(this.subroom_data) ? this.subroom_data : [];
+        const listData = Array.isArray(data) ? data : [];
         this.btnActiveReset();
         $('#room_btn_file_photo').addClass('text-blue');
         if (page == 0 || page == 'all') {
             $('#dir_list').html('');
-            if (this.subroom_data.length != 0) {
-                $('#dir_list').append(app.tpl('dir_list_tpl', this.subroom_data));
+            if (subRooms.length !== 0) {
+                $('#dir_list').append(app.tpl('dir_list_tpl', subRooms));
             }
-            if (data === false && this.subroom_data == 0) {
+            if (listData.length === 0 && subRooms.length === 0) {
                 $('.no_photos').show();
             }
         }
-        if (data.length != 0) {
-            $('#dir_list').append(app.tpl('dir_photolist_tpl', data));
+        if (listData.length !== 0) {
+            $('#dir_list').append(app.tpl('dir_photolist_tpl', listData));
         }
         this.parent_op.btn_copy_bind();
         app.linkRebind();
@@ -340,7 +344,6 @@ class dir {
             this.room.sort_by = rsp.data.sort_by;
             this.room.sort_type = rsp.data.sort_type;
             this.room.status = rsp.data.status;
-            this.room.allow_upload = rsp.data.allow_upload;
             this.room.img_link = rsp.data.img_link;
             this.room.model = rsp.data.model;
             this.room.ui_avatar_id = rsp.data.ui_avatar_id;
@@ -452,13 +455,6 @@ class dir {
                 }
             }
 
-            //如果文件夹允许其他人上传文件
-            if (this.room.allow_upload == 'yes') {
-                $('#pf_allow_upload').prop('checked', true);
-            } else {
-                $('#pf_allow_upload').prop('checked', false);
-            }
-
             //如果是公开文件夹，启用搜索
             if (this.room.publish === 'yes') {
                 $('#pf_publish').prop('checked', true);
@@ -487,25 +483,22 @@ class dir {
             $('#dir_list').show();
 
             if (rsp.data.sub_rooms !== 0) {
-                this.subroom_data = rsp.data.sub_rooms;
+                this.subroom_data = Array.isArray(rsp.data.sub_rooms) ? rsp.data.sub_rooms : [];
             } else {
-                this.subroom_data = 0;
+                this.subroom_data = [];
             }
 
             this.parent_op.btn_copy_bind();
             this.filelist(0);
 
             //根目录时显示桌面专用按钮，隐藏子目录按钮
-            //同时隐藏协作功能，这个功能不适用于根目录
             //直链功能的显示已在上面处理（owner==1 && top!=99）
             if (this.room.top == 99) {
                 $('.btn_for_desktop').show();
                 $('.btn_for_sub').hide();
-                $('.room_share_model').hide();
             } else {
                 $('.btn_for_desktop').hide();
                 $('.btn_for_sub').show();
-                $('.room_share_model').show();
             }
 
             //如果不是拥有者
@@ -747,14 +740,12 @@ class dir {
         let pf_sort_by = $('#pf_sort_by').val();
         let pf_sort_type = $('#pf_sort_type').val();
         let pf_publish   = $('#pf_publish').is(':checked') ? 'yes' : 'no';
-        let pf_allow_upload = $('#pf_allow_upload').is(':checked') ? 'yes' : 'no';
         let mrid = this.room.mr_id;
         $.post(this.parent_op.api_mr, {
             action: 'pf_set',
             token: this.parent_op.api_token,
             sort_by: pf_sort_by,
             sort_type: pf_sort_type,
-            pf_upload: pf_allow_upload,
             pf_publish: pf_publish,
             mr_id: mrid
         });

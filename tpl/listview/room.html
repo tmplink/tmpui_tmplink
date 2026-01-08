@@ -273,7 +273,7 @@
             </div>
 
             <script type="text/template" id="room_back_btn_tpl">
-                <% if(TL.dir.room.owner==1 || (TL.dir.room.allow_upload=='yes'&&TL.isLogin())){ %>
+                <% if(TL.dir.room.owner==1){ %>
                     <button onclick="TL.uploader.open('<% TL.dir.room.mr_id %>');" tmpui-app="true" class="btn btn-sm btn-primary btn-upload mr-2 mt-1">
                         <iconpark-icon name="cloud-arrow-up" class="fa-fw"></iconpark-icon>
                         <span i18n="nav_upload" class="d-none d-sm-inline"><% app.languageData.nav_upload %></span>
@@ -536,14 +536,12 @@
                                                 <span i18n="set_as_cover"><% app.languageData.set_as_cover %></span>
                                             </button>
                                         <% } %> 
-                                        <!--[检查此目录是否是直链目录]-->
+                                        <!--[生成直链：只要用户有直链功能就可以把文件做成直链]-->
                                         <% if(TL.direct.is_allow()){ %>
-                                            <% if(TL.direct.dir_btn_status===false){ %>
-                                                <button onclick="TL.direct.addLink('<% obj[x].ukey %>','<% encodeURIComponent(obj[x].fname) %>')" class="dropdown-item">
-                                                    <iconpark-icon name="share-nodes" class="fa-fw"></iconpark-icon>
-                                                    <span i18n="menu_addlink"><% app.languageData.menu_addlink %></span>
-                                                </button>
-                                            <% } %>
+                                            <button onclick="TL.direct.addLink('<% obj[x].ukey %>','<% encodeURIComponent(obj[x].fname) %>')" class="dropdown-item">
+                                                <iconpark-icon name="link" class="fa-fw"></iconpark-icon>
+                                                <span i18n="menu_addlink"><% app.languageData.menu_addlink %></span>
+                                            </button>
                                         <% } %>   
                                         <!-- 修改有效期 -->
                                         <div class="dropdown-divider"></div>
@@ -607,6 +605,21 @@
                                             <iconpark-icon name="trash" class="fa-fw"></iconpark-icon>
                                             <span i18n="menu_delete"><% app.languageData.menu_delete %></span>
                                         </button>  
+
+                                        <!--[直链功能：在同步中状态也允许加入/生成直链]-->
+                                        <% if(TL.direct.is_allow()){ %>
+                                            <% if(TL.direct.dir_btn_status===true){ %>
+                                                <button onclick="TL.direct.genLinkDirectForRoomV2('<% encodeURIComponent(obj[x].fname) %>')" class="dropdown-item">
+                                                    <iconpark-icon name="link" class="fa-fw"></iconpark-icon>
+                                                    <span i18n="menu_addlink"><% app.languageData.menu_addlink %></span>
+                                                </button>
+                                            <% }else{ %>
+                                                <button onclick="TL.direct.addLink('<% obj[x].ukey %>','<% encodeURIComponent(obj[x].fname) %>')" class="dropdown-item">
+                                                    <iconpark-icon name="share-nodes" class="fa-fw"></iconpark-icon>
+                                                    <span i18n="menu_addlink"><% app.languageData.menu_addlink %></span>
+                                                </button>
+                                            <% } %>
+                                        <% } %>
                                     </div>
                                 </span>
                             <% } %>
@@ -816,16 +829,6 @@
                             onclick="TL.dir.performancePost()">
                         <span class="form-check-label" i18n="modal_performance_publish_des">
                             启用后，其他用户可以通过搜索引擎找到此目录内的文件。
-                        </span>
-                    </label>
-                </div>
-                <div class="room_share_model">
-                    <h5 i18n="modal_performance_share">.</h5>
-                    <label class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="pf_allow_upload"
-                            onclick="TL.dir.performancePost()">
-                        <span class="form-check-label" i18n="modal_performance_share_des">
-                            .
                         </span>
                     </label>
                 </div>
