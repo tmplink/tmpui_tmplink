@@ -326,7 +326,7 @@
 .vx-sidebar-folder-name {
     font-size: 14px;
     font-weight: 600;
-    color: var(--vx-text-primary);
+    color: var(--vx-text);
     margin: 0 0 4px 0;
     white-space: nowrap;
     overflow: hidden;
@@ -347,7 +347,7 @@
 
 /* Active nav item */
 .vx-nav-item.active {
-    background: rgba(var(--vx-primary-rgb), 0.1);
+    background: var(--vx-primary-light);
     color: var(--vx-primary);
 }
 
@@ -424,7 +424,7 @@
 .vx-list-container {
     width: 100%;
     flex: 1;
-    background: var(--vx-bg-card);
+    background: var(--vx-surface);
     border-radius: 0;
     overflow: hidden;
     display: flex;
@@ -487,7 +487,7 @@
 }
 
 .vx-list-row:hover {
-    background: var(--vx-bg-hover);
+    background: var(--vx-surface-hover);
 }
 
 .vx-list-row:last-child {
@@ -495,7 +495,7 @@
 }
 
 .vx-list-row.selected {
-    background: rgba(var(--vx-primary-rgb), 0.08);
+    background: var(--vx-primary-light);
 }
 
 /* List Row Checkbox */
@@ -503,11 +503,11 @@
     width: 20px;
     height: 20px;
     margin-right: 12px;
-    border: 2px solid var(--vx-border-strong);
+    border: 2px solid var(--vx-border-hover);
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.15s ease;
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
@@ -658,7 +658,7 @@
 }
 
 .vx-list-filename a {
-    color: var(--vx-text-primary);
+    color: var(--vx-text);
     text-decoration: none;
     font-weight: 500;
     white-space: nowrap;
@@ -779,7 +779,7 @@
 .vx-empty-title {
     font-size: 18px;
     font-weight: 600;
-    color: var(--vx-text-primary);
+    color: var(--vx-text);
     margin-bottom: 8px;
 }
 
@@ -798,7 +798,7 @@
 .vx-context-menu {
     position: fixed;
     z-index: 1000;
-    background: var(--vx-bg-card);
+    background: var(--vx-surface);
     border: 1px solid var(--vx-border);
     border-radius: var(--vx-radius-md);
     box-shadow: var(--vx-shadow-lg);
@@ -816,14 +816,14 @@
     align-items: center;
     gap: 10px;
     padding: 10px 16px;
-    color: var(--vx-text-primary);
+    color: var(--vx-text);
     cursor: pointer;
     transition: background 0.15s ease;
     font-size: 14px;
 }
 
 .vx-context-item:hover {
-    background: var(--vx-bg-hover);
+    background: var(--vx-surface-hover);
 }
 
 .vx-context-item iconpark-icon {
@@ -851,7 +851,8 @@
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--vx-bg-card);
+    background: var(--vx-surface);
+    background: color-mix(in srgb, var(--vx-surface) 80%, transparent);
     border: 1px solid var(--vx-border);
     border-radius: var(--vx-radius-lg);
     box-shadow: var(--vx-shadow-lg);
@@ -864,7 +865,7 @@
 
 .vx-selection-info {
     font-weight: 500;
-    color: var(--vx-text-primary);
+    color: var(--vx-text);
 }
 
 .vx-selection-actions {
