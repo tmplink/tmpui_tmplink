@@ -6,6 +6,76 @@
 const VX_ACCOUNT = {
     // Current state
     currentTab: 'info',
+
+    /**
+     * Initialize Account Info module (separate route)
+     */
+    initInfo(params = {}) {
+        console.log('[VX_ACCOUNT] Initializing profile module...', params);
+
+        // Check login
+        if (typeof TL !== 'undefined' && !TL.isLogin()) {
+            VXUI.toastWarning('请先登录');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+            return;
+        }
+
+        // Apply translations
+        if (typeof TL !== 'undefined' && TL.tpl_lang) {
+            TL.tpl_lang();
+        }
+
+        // Load user info - check if TL data is ready
+        if (typeof TL !== 'undefined') {
+            if (TL.uid) {
+                this.fetchProfileDetails(() => {
+                    this.loadUserInfo();
+                });
+            } else {
+                const checkData = setInterval(() => {
+                    if (TL.uid) {
+                        clearInterval(checkData);
+                        this.fetchProfileDetails(() => {
+                            this.loadUserInfo();
+                        });
+                    }
+                }, 200);
+
+                // Timeout after 5 seconds
+                setTimeout(() => {
+                    clearInterval(checkData);
+                    this.loadUserInfo();
+                }, 5000);
+            }
+        }
+    },
+
+    /**
+     * Initialize Account Settings module (separate route)
+     */
+    initSettings(params = {}) {
+        console.log('[VX_ACCOUNT] Initializing settings module...', params);
+
+        // Check login
+        if (typeof TL !== 'undefined' && !TL.isLogin()) {
+            VXUI.toastWarning('请先登录');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+            return;
+        }
+
+        // Apply translations
+        if (typeof TL !== 'undefined' && TL.tpl_lang) {
+            TL.tpl_lang();
+        }
+
+        // Load preferences + connect status (only if the section exists)
+        this.loadPreferences();
+        this.loadGoogleStatus();
+    },
     
     /**
      * Get translation text safely
@@ -121,13 +191,6 @@ const VX_ACCOUNT = {
      */
     showTab(tab) {
         this.currentTab = tab;
-        
-        // Update tab buttons
-        document.querySelectorAll('.vx-tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        const tabBtn = document.getElementById(`tab-${tab}`);
-        if (tabBtn) tabBtn.classList.add('active');
         
         // Update sidebar nav (only module dynamic area)
         document.querySelectorAll('#vx-sidebar-dynamic .vx-nav-item').forEach(item => {
@@ -576,16 +639,22 @@ const VX_ACCOUNT = {
         // Load from local storage or server
         const bulkCopy = localStorage.getItem('pref_bulk_copy') === 'true';
         const confirmDelete = localStorage.getItem('pref_confirm_delete') !== 'false'; // Default true
-        
-        document.getElementById('vx-pref-bulk-copy').checked = bulkCopy;
-        document.getElementById('vx-pref-confirm-delete').checked = confirmDelete;
+
+        const bulkCopyEl = document.getElementById('vx-pref-bulk-copy');
+        const confirmDeleteEl = document.getElementById('vx-pref-confirm-delete');
+        if (!bulkCopyEl || !confirmDeleteEl) return;
+
+        bulkCopyEl.checked = bulkCopy;
+        confirmDeleteEl.checked = confirmDelete;
     },
     
     /**
      * Set bulk copy preference
      */
     setPrefBulkCopy() {
-        const checked = document.getElementById('vx-pref-bulk-copy').checked;
+        const el = document.getElementById('vx-pref-bulk-copy');
+        if (!el) return;
+        const checked = el.checked;
         localStorage.setItem('pref_bulk_copy', checked);
         
         // Post to server if TL available
@@ -598,7 +667,9 @@ const VX_ACCOUNT = {
      * Set confirm delete preference
      */
     setPrefConfirmDelete() {
-        const checked = document.getElementById('vx-pref-confirm-delete').checked;
+        const el = document.getElementById('vx-pref-confirm-delete');
+        if (!el) return;
+        const checked = el.checked;
         localStorage.setItem('pref_confirm_delete', checked);
         
         // Post to server if TL available
@@ -807,6 +878,11 @@ const VX_ACCOUNT = {
      * Load Google connect status
      */
     loadGoogleStatus() {
+        const statusEl = document.getElementById('vx-google-status');
+        const connectBtn = document.getElementById('vx-google-connect');
+        const disconnectBtn = document.getElementById('vx-google-disconnect');
+        if (!statusEl || !connectBtn || !disconnectBtn) return;
+
         const apiUrl = (typeof TL !== 'undefined' && TL.api_user) ? TL.api_user : '/api_v2/user';
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
         
@@ -814,10 +890,6 @@ const VX_ACCOUNT = {
             action: 'oauth_google_is_connected',
             token: token
         }, (data) => {
-            const statusEl = document.getElementById('vx-google-status');
-            const connectBtn = document.getElementById('vx-google-connect');
-            const disconnectBtn = document.getElementById('vx-google-disconnect');
-            
             if (data.status == 1) {
                 // Connected
                 statusEl.textContent = this.lang('oauth_btn_google_connected', '已绑定');
@@ -840,6 +912,9 @@ const VX_ACCOUNT = {
      * Get Google connect URL
      */
     getGoogleConnectUrl() {
+        const connectBtn = document.getElementById('vx-google-connect');
+        if (!connectBtn) return;
+
         const apiUrl = (typeof TL !== 'undefined' && TL.api_user) ? TL.api_user : '/api_v2/user';
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
         const lang = (typeof TL !== 'undefined' && TL.currentLanguage) ? TL.currentLanguage : 'cn';
@@ -851,7 +926,6 @@ const VX_ACCOUNT = {
             lang: lang
         }, (data) => {
             if (data.status == 1) {
-                const connectBtn = document.getElementById('vx-google-connect');
                 connectBtn.href = data.data;
                 connectBtn.target = '_blank';
                 connectBtn.style.display = 'inline-flex';
@@ -864,7 +938,10 @@ const VX_ACCOUNT = {
      * Start Google connect callback polling
      */
     startGoogleConnectCallback() {
-        document.getElementById('vx-google-connect-msg').textContent = this.lang('oauth_btn_processing', '连接中...');
+        const msgEl = document.getElementById('vx-google-connect-msg');
+        if (msgEl) {
+            msgEl.textContent = this.lang('oauth_btn_processing', '连接中...');
+        }
         
         const checkStatus = () => {
             const apiUrl = (typeof TL !== 'undefined' && TL.api_user) ? TL.api_user : '/api_v2/user';
@@ -875,11 +952,13 @@ const VX_ACCOUNT = {
                 token: token
             }, (data) => {
                 if (data.data === 'GOOGLE_BIND_SUCCESS') {
-                    document.getElementById('vx-google-connect-msg').textContent = this.lang('oauth_btn_complete', '绑定成功');
+                    const doneEl = document.getElementById('vx-google-connect-msg');
+                    if (doneEl) doneEl.textContent = this.lang('oauth_btn_complete', '绑定成功');
                     setTimeout(() => this.loadGoogleStatus(), 2000);
                 } else if (data.data === 'GOOGLE_BIND_FAILED') {
                     VXUI.toastError('绑定失败');
-                    document.getElementById('vx-google-connect-msg').textContent = this.lang('oauth_btn_google_connect', '绑定 Google');
+                    const failEl = document.getElementById('vx-google-connect-msg');
+                    if (failEl) failEl.textContent = this.lang('oauth_btn_google_connect', '绑定 Google');
                 } else if (data.data === 'GOOGLE_BIND_START') {
                     setTimeout(checkStatus, 2000);
                 } else {
@@ -896,11 +975,14 @@ const VX_ACCOUNT = {
      */
     disconnectGoogle() {
         if (!confirm('确定要解除 Google 账号绑定吗？')) return;
+
+        const disconnectBtn = document.getElementById('vx-google-disconnect');
+        if (!disconnectBtn) return;
         
         const apiUrl = (typeof TL !== 'undefined' && TL.api_user) ? TL.api_user : '/api_v2/user';
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
         
-        document.getElementById('vx-google-disconnect').disabled = true;
+        disconnectBtn.disabled = true;
         
         $.post(apiUrl, {
             action: 'oauth_google_disconnect',
@@ -909,7 +991,7 @@ const VX_ACCOUNT = {
             VXUI.toastSuccess('已解除绑定');
             this.loadGoogleStatus();
         }, 'json').always(() => {
-            document.getElementById('vx-google-disconnect').disabled = false;
+            disconnectBtn.disabled = false;
         });
     },
     
@@ -917,14 +999,25 @@ const VX_ACCOUNT = {
      * Refresh account data
      */
     refresh() {
-        this.loadUserInfo();
-        this.loadGoogleStatus();
+        if (document.getElementById('vx-profile-avatar') || document.getElementById('vx-profile-name')) {
+            this.loadUserInfo();
+        }
+        if (document.getElementById('vx-google-status')) {
+            this.loadGoogleStatus();
+        }
+        if (document.getElementById('vx-pref-bulk-copy') || document.getElementById('vx-pref-confirm-delete')) {
+            this.loadPreferences();
+        }
         VXUI.toastInfo('已刷新');
     }
 };
 
-// Register module
-VXUI.registerModule('account', {
-    template: '/tpl/vxui/account.html',
-    init: (params) => VX_ACCOUNT.init(params)
+VXUI.registerModule('profile', {
+    template: '/tpl/vxui/profile.html',
+    init: (params) => VX_ACCOUNT.initInfo(params)
+});
+
+VXUI.registerModule('settings', {
+    template: '/tpl/vxui/settings.html',
+    init: (params) => VX_ACCOUNT.initSettings(params)
 });

@@ -1,0 +1,117 @@
+<!-- VXUI Settings Module Template - 账户设定 -->
+<link rel="stylesheet" href="/css/vxui/account.css">
+
+<!-- Header -->
+<header class="vx-header vx-header-account">
+    <div class="vx-header-left">
+        <h1 class="vx-page-title">
+            <iconpark-icon name="gear"></iconpark-icon>
+            <span data-tpl="navbar_settings">设定</span>
+        </h1>
+    </div>
+
+    <div class="vx-header-right">
+        <button class="vx-btn-icon" onclick="VX_ACCOUNT.refresh()" title="刷新">
+            <iconpark-icon name="rotate"></iconpark-icon>
+        </button>
+    </div>
+</header>
+
+<!-- Content -->
+<div class="vx-content vx-account-content">
+    <div class="vx-account-tab-content" id="vx-account-settings">
+        <!-- Password Section -->
+        <div class="vx-settings-section">
+            <h3 class="vx-settings-title">
+                <iconpark-icon name="lock"></iconpark-icon>
+                <span data-tpl="navbar_reset_password">修改密码</span>
+            </h3>
+            <div class="vx-settings-card">
+                <div class="vx-form-group">
+                    <label data-tpl="model_resetpassword_new">新密码</label>
+                    <input type="password" class="vx-input" id="vx-new-password" placeholder="请输入新密码">
+                </div>
+                <div class="vx-form-group">
+                    <label data-tpl="model_resetpassword_re">确认密码</label>
+                    <input type="password" class="vx-input" id="vx-confirm-password" placeholder="请再次输入新密码">
+                </div>
+                <button class="vx-btn vx-btn-primary" onclick="VX_ACCOUNT.changePassword()">
+                    <iconpark-icon name="check"></iconpark-icon>
+                    <span data-tpl="model_btn_ok">确认修改</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Email Section -->
+        <div class="vx-settings-section">
+            <h3 class="vx-settings-title">
+                <iconpark-icon name="envelope"></iconpark-icon>
+                <span data-tpl="navbar_reset_email">修改邮箱</span>
+            </h3>
+            <div class="vx-settings-card">
+                <div class="vx-form-group">
+                    <label data-tpl="model_changeemail_new">新邮箱</label>
+                    <div class="vx-input-group">
+                        <input type="email" class="vx-input" id="vx-new-email" placeholder="请输入新邮箱">
+                        <button class="vx-btn vx-btn-secondary" onclick="VX_ACCOUNT.sendEmailCode()" id="vx-send-code-btn">
+                            <span data-tpl="form_checkcode_send">发送验证码</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="vx-form-group">
+                    <label data-tpl="form_checkcode">验证码</label>
+                    <input type="text" class="vx-input" id="vx-email-code" placeholder="请输入验证码">
+                </div>
+                <button class="vx-btn vx-btn-primary" onclick="VX_ACCOUNT.changeEmail()">
+                    <iconpark-icon name="check"></iconpark-icon>
+                    <span data-tpl="model_btn_ok">确认修改</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Google Connect Section -->
+        <div class="vx-settings-section">
+            <h3 class="vx-settings-title">
+                <iconpark-icon name="google"></iconpark-icon>
+                <span data-tpl="model_title_connected">便捷登录</span>
+            </h3>
+            <div class="vx-settings-card">
+                <div class="vx-connect-item">
+                    <div class="vx-connect-info">
+                        <iconpark-icon name="google" class="vx-connect-icon"></iconpark-icon>
+                        <div class="vx-connect-text">
+                            <span class="vx-connect-name">Google</span>
+                            <span class="vx-connect-status" id="vx-google-status">未绑定</span>
+                        </div>
+                    </div>
+                    <div class="vx-connect-actions">
+                        <a href="#" class="vx-btn vx-btn-secondary" id="vx-google-connect" style="display:none;">
+                            <span id="vx-google-connect-msg" data-tpl="oauth_btn_google_connect">绑定 Google</span>
+                        </a>
+                        <button class="vx-btn vx-btn-danger-outline" id="vx-google-disconnect" onclick="VX_ACCOUNT.disconnectGoogle()" style="display:none;">
+                            <span data-tpl="connect_to_google_disconnect">解除绑定</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preferences Section -->
+        <div class="vx-settings-section">
+            <h3 class="vx-settings-title">
+                <iconpark-icon name="sliders"></iconpark-icon>
+                <span data-tpl="model_profile_title">偏好设置</span>
+            </h3>
+            <div class="vx-settings-card">
+                <label class="vx-switch-item">
+                    <span class="vx-switch-label" data-tpl="model_profile_bulk_copy">批量复制链接</span>
+                    <input type="checkbox" class="vx-switch" id="vx-pref-bulk-copy" onchange="VX_ACCOUNT.setPrefBulkCopy()">
+                </label>
+                <label class="vx-switch-item">
+                    <span class="vx-switch-label" data-tpl="model_profile_confirm_delete">删除确认</span>
+                    <input type="checkbox" class="vx-switch" id="vx-pref-confirm-delete" onchange="VX_ACCOUNT.setPrefConfirmDelete()">
+                </label>
+            </div>
+        </div>
+    </div>
+</div>

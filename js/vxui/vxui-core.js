@@ -234,18 +234,6 @@ class VXUICore {
             });
             document.querySelectorAll(`[data-module="filelist"][data-view="${view}"]`).forEach(item => item.classList.add('active'));
         }
-
-        // account 模块：底部菜单有 data-tab，需要只高亮对应项
-        if (moduleName === 'account' && params && params.tab) {
-            const tab = String(params.tab);
-            document.querySelectorAll('[data-module="account"]').forEach(item => {
-                const itemTab = item.getAttribute('data-tab');
-                if (itemTab && itemTab !== tab) {
-                    item.classList.remove('active');
-                }
-            });
-            document.querySelectorAll(`[data-module="account"][data-tab="${tab}"]`).forEach(item => item.classList.add('active'));
-        }
     }
 
     /**

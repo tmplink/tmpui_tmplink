@@ -1,0 +1,208 @@
+<!-- VXUI Profile Module Template - 个人资料 -->
+<link rel="stylesheet" href="/css/vxui/account.css">
+
+<!-- Header -->
+<header class="vx-header vx-header-account">
+    <div class="vx-header-left">
+        <h1 class="vx-page-title">
+            <iconpark-icon name="user"></iconpark-icon>
+            <span data-tpl="navbar_my">我的账户</span>
+        </h1>
+    </div>
+
+    <div class="vx-header-right">
+        <button class="vx-btn-icon" onclick="VX_ACCOUNT.refresh()" title="刷新">
+            <iconpark-icon name="rotate"></iconpark-icon>
+        </button>
+    </div>
+</header>
+
+<!-- Content -->
+<div class="vx-content vx-account-content">
+    <!-- Loading State -->
+    <div class="vx-loading" id="vx-account-loading" style="display: none;">
+        <div class="vx-spinner vx-spinner-lg"></div>
+    </div>
+
+    <div class="vx-account-tab-content" id="vx-account-info">
+        <!-- User Profile Card -->
+        <div class="vx-profile-card">
+            <!-- Loading State -->
+            <div class="vx-profile-loading" id="vx-profile-loading">
+                <div class="vx-profile-loading-inner">
+                    <div class="vx-spinner"></div>
+                    <span>加载中...</span>
+                </div>
+            </div>
+
+            <!-- Profile Content (hidden until loaded) -->
+            <div class="vx-profile-content" id="vx-profile-content" style="display:none;">
+                <div class="vx-profile-header">
+                    <div class="vx-profile-avatar">
+                        <img src="/img/loading.svg" alt="" id="vx-profile-avatar">
+                        <button class="vx-avatar-edit" onclick="VX_ACCOUNT.editAvatar()">
+                            <iconpark-icon name="camera"></iconpark-icon>
+                        </button>
+                        <input type="file" id="vx-avatar-input" accept="image/png, image/jpeg" style="display:none;" onchange="VX_ACCOUNT.uploadAvatar(this)">
+                    </div>
+                    <div class="vx-profile-info">
+                        <!-- Display Mode -->
+                        <div class="vx-profile-display" id="vx-profile-display">
+                            <h2 class="vx-profile-name" id="vx-profile-name">--</h2>
+                            <p class="vx-profile-intro" id="vx-profile-intro">--</p>
+                            <div class="vx-profile-badges">
+                                <span class="vx-badge vx-badge-rank" id="vx-profile-rank">普通用户</span>
+                                <span class="vx-badge vx-badge-sponsor" id="vx-profile-sponsor-badge" style="display:none;">
+                                    <img src="/img/level/like.svg" width="14" alt="">
+                                    赞助者
+                                </span>
+                            </div>
+                            <button class="vx-btn vx-btn-secondary vx-btn-sm vx-profile-edit-btn" onclick="VX_ACCOUNT.showProfileEdit()">
+                                <iconpark-icon name="pen-to-square"></iconpark-icon>
+                                <span data-tpl="myprofile_edit">编辑资料</span>
+                            </button>
+                        </div>
+                        <!-- Edit Mode -->
+                        <div class="vx-profile-edit" id="vx-profile-edit" style="display:none;">
+                            <div class="vx-form-group">
+                                <label data-tpl="myprofile_nickname">昵称</label>
+                                <input type="text" class="vx-input" id="vx-profile-name-input" placeholder="输入昵称" maxlength="20">
+                            </div>
+                            <div class="vx-form-group">
+                                <label data-tpl="myprofile_intro">简介</label>
+                                <input type="text" class="vx-input" id="vx-profile-intro-input" placeholder="输入简介" maxlength="50">
+                            </div>
+                            <div class="vx-profile-edit-actions">
+                                <button class="vx-btn vx-btn-secondary" onclick="VX_ACCOUNT.cancelProfileEdit()">
+                                    <iconpark-icon name="x"></iconpark-icon>
+                                    <span data-tpl="model_btn_cancel">取消</span>
+                                </button>
+                                <button class="vx-btn vx-btn-primary" onclick="VX_ACCOUNT.saveProfile()">
+                                    <iconpark-icon name="check"></iconpark-icon>
+                                    <span data-tpl="model_btn_ok">保存</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Publish Profile Option (only for sponsors or users with high share value) -->
+                <div class="vx-profile-publish" id="vx-profile-publish" style="display:none;">
+                    <div class="vx-profile-publish-inner">
+                        <label class="vx-switch-item">
+                            <span class="vx-switch-label">
+                                <iconpark-icon name="globe"></iconpark-icon>
+                                <span data-tpl="myprofile_publish">公开个人主页</span>
+                                <span class="vx-publish-status-icon" id="vx-profile-publish-status"></span>
+                            </span>
+                            <input type="checkbox" class="vx-switch" id="vx-profile-publish-switch" onchange="VX_ACCOUNT.setPublishProfile()">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="vx-stats-grid">
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="gauge-circle-bolt"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="user_group_highspeed">高速通道</div>
+                    <div class="vx-stat-value" id="vx-stat-highspeed">--</div>
+                </div>
+            </div>
+
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <img src="/img/level/check.svg" width="24" alt="">
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="user_group_blue">蓝标认证</div>
+                    <div class="vx-stat-value" id="vx-stat-blue">--</div>
+                </div>
+            </div>
+
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <img src="/img/level/play.svg" width="24" alt="">
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="user_group_dvd">媒体播放</div>
+                    <div class="vx-stat-value" id="vx-stat-dvd">--</div>
+                </div>
+            </div>
+
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="chart-network"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="user_group_value">分享值</div>
+                    <div class="vx-stat-value" id="vx-stat-acv">0</div>
+                </div>
+            </div>
+
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="database"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="user_group_storage">存储空间</div>
+                    <div class="vx-stat-value" id="vx-stat-storage">--</div>
+                </div>
+            </div>
+
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="file"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="myprofile_shared_files_count">分享数</div>
+                    <div class="vx-stat-value" id="vx-stat-shares">0</div>
+                </div>
+            </div>
+
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="files"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="myprofile_shared_files_size">分享大小</div>
+                    <div class="vx-stat-value" id="vx-stat-filesize">0 GB</div>
+                </div>
+            </div>
+
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="file-check"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="myprofile_shared_files_total">总上传量</div>
+                    <div class="vx-stat-value" id="vx-stat-upload">0 GB</div>
+                </div>
+            </div>
+
+            <div class="vx-stat-card">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="user-plus"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="myprofile_join">注册时间</div>
+                    <div class="vx-stat-value" id="vx-stat-join">--</div>
+                </div>
+            </div>
+
+            <div class="vx-stat-card vx-stat-card-action" onclick="VXUI.navigate('shop')">
+                <div class="vx-stat-icon">
+                    <iconpark-icon name="bag-shopping"></iconpark-icon>
+                </div>
+                <div class="vx-stat-content">
+                    <div class="vx-stat-label" data-tpl="navbar_buy">升级服务</div>
+                    <div class="vx-stat-value">前往商店 →</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

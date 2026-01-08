@@ -204,7 +204,10 @@ html.vx-dark {
 }
 
 .vx-sidebar-header {
-    padding: 16px 20px;
+    height: var(--vx-header-height);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
     border-bottom: 1px solid var(--vx-border);
     flex-shrink: 0;
 }
