@@ -339,7 +339,8 @@ class dir {
             this.room.parent = rsp.data.parent;
             this.room.top = rsp.data.top;
             this.room.owner = rsp.data.owner;
-            this.room.mr_id = rsp.data.mr_id;
+            // 如果URL参数mrid是0，则强制设置mr_id为0（根目录）
+            this.room.mr_id = (params.mrid == 0) ? 0 : rsp.data.mr_id;
             this.room.display = rsp.data.display;
             this.room.sort_by = rsp.data.sort_by;
             this.room.sort_type = rsp.data.sort_type;
@@ -667,7 +668,7 @@ class dir {
 
         this.parent_op.recaptcha_do('mr_list', (recaptcha) => {
             let photo = 0;
-            if (room_display == 'photo') {
+            if (params.listview == 'photo') {
                 photo = 1;
             }
             $.post(this.parent_op.api_mr, {
