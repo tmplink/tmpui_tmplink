@@ -335,7 +335,6 @@ window.VX_SHOP = {
      * Open sponsor purchase modal
      */
     openSponsor() {
-        console.log('[VX_SHOP] openSponsor called');
         this.purchaseType = 'addon';
         this.selectedProduct = 'sponsor';
         this.selectedCode = 'HS';
@@ -343,9 +342,7 @@ window.VX_SHOP = {
         
         const modalTitle = document.getElementById('vx-modal-title');
         const modalBody = document.getElementById('vx-modal-body');
-        
-        console.log('[VX_SHOP] Modal elements:', { modalTitle, modalBody });
-        
+
         if (!modalTitle || !modalBody) {
             console.error('[VX_SHOP] Modal elements not found!');
             return;
@@ -380,7 +377,6 @@ window.VX_SHOP = {
      * Open storage purchase modal
      */
     openStorage() {
-        console.log('[VX_SHOP] openStorage called');
         this.purchaseType = 'addon';
         this.selectedProduct = 'storage';
         this.selectedCode = '256GB';
@@ -388,9 +384,7 @@ window.VX_SHOP = {
         
         const modalTitle = document.getElementById('vx-modal-title');
         const modalBody = document.getElementById('vx-modal-body');
-        
-        console.log('[VX_SHOP] Modal elements:', { modalTitle, modalBody });
-        
+
         if (!modalTitle || !modalBody) {
             console.error('[VX_SHOP] Modal elements not found!');
             return;
@@ -445,7 +439,6 @@ window.VX_SHOP = {
      * Open direct quota purchase modal
      */
     openQuota() {
-        console.log('[VX_SHOP] openQuota called');
         this.purchaseType = 'direct';
         this.selectedProduct = 'direct';
         this.selectedCode = 'D20';
@@ -453,9 +446,7 @@ window.VX_SHOP = {
         
         const modalTitle = document.getElementById('vx-modal-title');
         const modalBody = document.getElementById('vx-modal-body');
-        
-        console.log('[VX_SHOP] Modal elements:', { modalTitle, modalBody });
-        
+
         if (!modalTitle || !modalBody) {
             console.error('[VX_SHOP] Modal elements not found!');
             return;
@@ -688,7 +679,6 @@ window.VX_SHOP = {
      * Show modal
      */
     showModal() {
-        console.log('[VX_SHOP] showModal called');
         const modal = document.getElementById('vx-shop-modal');
         if (modal) {
             modal.classList.add('vx-modal-open');

@@ -241,6 +241,13 @@ html.vx-dark {
     margin-bottom: 8px;
 }
 
+.vx-nav-divider {
+    height: 1px;
+    background: var(--vx-border);
+    margin: 10px 12px;
+    flex-shrink: 0;
+}
+
 .vx-nav-title {
     display: flex;
     align-items: center;
