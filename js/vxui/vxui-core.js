@@ -120,6 +120,12 @@ class VXUICore {
      * 导航到指定模块
      */
     navigate(moduleName, params = {}) {
+        // photo 模块已整合到 filelist(album) 中：兼容旧入口
+        if (moduleName === 'photo') {
+            moduleName = 'filelist';
+            params = { ...params, view: 'album' };
+        }
+
         console.log(`[VXUI] Navigating to: ${moduleName}`, params);
         
         // 获取模块
@@ -142,7 +148,10 @@ class VXUICore {
         this.currentModule = moduleName;
         
         // 更新导航状态
-        this.updateNavState(moduleName);
+        this.updateNavState(moduleName, params);
+
+        // 重置模块侧边栏区域（模块仅写入 dynamic 区）
+        this.clearSidebarDynamic();
         
         // 加载模块模板
         this.loadModuleTemplate(moduleName, () => {
@@ -202,7 +211,7 @@ class VXUICore {
     /**
      * 更新导航状态
      */
-    updateNavState(moduleName) {
+    updateNavState(moduleName, params = {}) {
         // 移除所有 active 状态
         document.querySelectorAll('.vx-nav-item').forEach(item => {
             item.classList.remove('active');
@@ -212,9 +221,84 @@ class VXUICore {
         });
         
         // 添加当前模块的 active 状态
-        document.querySelectorAll(`[data-module="${moduleName}"]`).forEach(item => {
-            item.classList.add('active');
-        });
+        document.querySelectorAll(`[data-module="${moduleName}"]`).forEach(item => item.classList.add('active'));
+
+        // filelist 模块：同一模块下区分 list/album 入口
+        if (moduleName === 'filelist') {
+            const view = (params && params.view) ? String(params.view) : (localStorage.getItem('vx_view_mode') || 'list');
+            document.querySelectorAll('[data-module="filelist"][data-view]').forEach(item => {
+                const itemView = item.getAttribute('data-view');
+                if (itemView && itemView !== view) {
+                    item.classList.remove('active');
+                }
+            });
+            document.querySelectorAll(`[data-module="filelist"][data-view="${view}"]`).forEach(item => item.classList.add('active'));
+        }
+
+        // account 模块：底部菜单有 data-tab，需要只高亮对应项
+        if (moduleName === 'account' && params && params.tab) {
+            const tab = String(params.tab);
+            document.querySelectorAll('[data-module="account"]').forEach(item => {
+                const itemTab = item.getAttribute('data-tab');
+                if (itemTab && itemTab !== tab) {
+                    item.classList.remove('active');
+                }
+            });
+            document.querySelectorAll(`[data-module="account"][data-tab="${tab}"]`).forEach(item => item.classList.add('active'));
+        }
+    }
+
+    /**
+     * 清空模块动态侧边栏区域，并恢复静态导航可见性
+     */
+    clearSidebarDynamic() {
+        const sidebarStatic = document.getElementById('vx-sidebar-static');
+        const sidebarDynamic = document.getElementById('vx-sidebar-dynamic');
+        const divider = document.getElementById('vx-sidebar-divider');
+
+        if (sidebarStatic) {
+            sidebarStatic.style.display = '';
+        }
+        if (sidebarDynamic) {
+            sidebarDynamic.innerHTML = '';
+        }
+        if (divider) {
+            divider.style.display = 'none';
+        }
+    }
+
+    /**
+     * 从 template 渲染模块动态侧边栏（仅模块特定操作区）
+     */
+    setSidebarDynamicFromTemplate(templateId) {
+        const tpl = document.getElementById(templateId);
+        const sidebarDynamic = document.getElementById('vx-sidebar-dynamic');
+        const divider = document.getElementById('vx-sidebar-divider');
+        if (!tpl || !sidebarDynamic) return;
+
+        const content = tpl.content ? tpl.content.cloneNode(true) : tpl.cloneNode(true);
+        sidebarDynamic.innerHTML = '';
+        sidebarDynamic.appendChild(content);
+
+        const hasContent = sidebarDynamic.textContent && sidebarDynamic.textContent.trim().length > 0;
+        if (divider) {
+            divider.style.display = hasContent ? '' : 'none';
+        }
+
+        if (typeof app !== 'undefined') {
+            app.languageBuild();
+        }
+    }
+
+    /**
+     * 根据 dynamic 是否为空刷新分割线显示
+     */
+    refreshSidebarDivider() {
+        const sidebarDynamic = document.getElementById('vx-sidebar-dynamic');
+        const divider = document.getElementById('vx-sidebar-divider');
+        if (!sidebarDynamic || !divider) return;
+        const hasContent = sidebarDynamic.textContent && sidebarDynamic.textContent.trim().length > 0;
+        divider.style.display = hasContent ? '' : 'none';
     }
     
     /**

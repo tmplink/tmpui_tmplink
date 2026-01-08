@@ -85,6 +85,10 @@ const VX_DIRECT = {
         if (typeof app !== 'undefined') {
             app.languageBuild();
         }
+
+        if (typeof VXUI !== 'undefined' && typeof VXUI.refreshSidebarDivider === 'function') {
+            VXUI.refreshSidebarDivider();
+        }
     },
     
     /**

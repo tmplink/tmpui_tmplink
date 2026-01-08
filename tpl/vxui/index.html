@@ -22,10 +22,6 @@
                             <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
                             <span class="vx-nav-item-text" data-tpl="nav_files">文件</span>
                         </a>
-                        <a href="javascript:;" class="vx-nav-item" data-module="photo" onclick="VXUI.navigate('photo')">
-                            <iconpark-icon name="images"></iconpark-icon>
-                            <span class="vx-nav-item-text" data-tpl="nav_photo">相册</span>
-                        </a>
                         <a href="javascript:;" class="vx-nav-item" data-module="direct" onclick="VXUI.navigate('direct')">
                             <iconpark-icon name="link"></iconpark-icon>
                             <span class="vx-nav-item-text" data-tpl="nav_direct">直链</span>
@@ -40,6 +36,8 @@
                         </a>
                     </div>
                 </div>
+
+                <div class="vx-nav-divider" id="vx-sidebar-divider" style="display: none;"></div>
                 
                 <!-- Dynamic sidebar content will be inserted here -->
                 <div id="vx-sidebar-dynamic"></div>
@@ -101,10 +99,6 @@
         <button class="vx-mobile-btn" data-module="filelist" onclick="VXUI.navigate('filelist')">
             <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
             <span data-tpl="nav_files">文件</span>
-        </button>
-        <button class="vx-mobile-btn" data-module="photo" onclick="VXUI.navigate('photo')">
-            <iconpark-icon name="images"></iconpark-icon>
-            <span data-tpl="nav_photo">相册</span>
         </button>
         <button class="vx-mobile-btn" data-module="direct" onclick="VXUI.navigate('direct')">
             <iconpark-icon name="link"></iconpark-icon>

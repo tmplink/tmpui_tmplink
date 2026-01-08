@@ -80,6 +80,10 @@ const VX_AI = {
         if (typeof app !== 'undefined') {
             app.languageBuild();
         }
+
+        if (typeof VXUI !== 'undefined' && typeof VXUI.refreshSidebarDivider === 'function') {
+            VXUI.refreshSidebarDivider();
+        }
     },
     
     /**

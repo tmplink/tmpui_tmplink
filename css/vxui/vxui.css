@@ -290,7 +290,7 @@ html.vx-dark {
 
 /* Sidebar Bottom Menu - Persistent account navigation */
 .vx-sidebar-bottom-menu {
-    padding: 12px 12px 0 12px;
+    padding: 12px 0 0 0;
     border-top: 1px solid var(--vx-border);
     flex-shrink: 0;
     margin-top: auto;

@@ -55,7 +55,7 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 获取视图模式参数或从存储恢复
         this.viewMode = params.view || localStorage.getItem('vx_view_mode') || 'list';
-        this.gridSize = localStorage.getItem('vx_album_grid_size') || 'normal';
+        this.gridSize = localStorage.getItem('vx_album_grid_size') || 'small';
         
         // 重置状态
         this.selectedItems = [];
@@ -90,19 +90,21 @@ var VX_FILELIST = VX_FILELIST || {
     updateSidebar() {
         const tpl = document.getElementById('vx-filelist-sidebar-tpl');
         const container = document.getElementById('vx-sidebar-dynamic');
-        const staticNav = document.getElementById('vx-sidebar-static');
         
         if (!tpl || !container) return;
-        
-        // 隐藏静态导航
-        if (staticNav) {
-            staticNav.style.display = 'none';
-        }
         
         // 克隆模板内容
         const content = tpl.content.cloneNode(true);
         container.innerHTML = '';
         container.appendChild(content);
+
+        if (typeof VXUI !== 'undefined' && typeof VXUI.refreshSidebarDivider === 'function') {
+            VXUI.refreshSidebarDivider();
+        }
+
+        if (typeof app !== 'undefined') {
+            app.languageBuild();
+        }
         
         // 更新标题
         const title = this.room.name || '桌面';
@@ -119,12 +121,8 @@ var VX_FILELIST = VX_FILELIST || {
      * 更新相册视图控制区域显示
      */
     updateAlbumViewControls() {
-        const albumViewSection = document.getElementById('vx-fl-album-view-section');
         const albumControls = document.getElementById('vx-fl-album-controls');
         
-        if (albumViewSection) {
-            albumViewSection.style.display = this.viewMode === 'album' ? '' : 'none';
-        }
         if (albumControls) {
             albumControls.style.display = this.viewMode === 'album' ? '' : 'none';
         }
@@ -135,6 +133,12 @@ var VX_FILELIST = VX_FILELIST || {
         
         if (listBtn) listBtn.classList.toggle('active', this.viewMode === 'list');
         if (albumBtn) albumBtn.classList.toggle('active', this.viewMode === 'album');
+        
+        // 更新网格大小按钮状态
+        const normalBtn = document.getElementById('view-normal');
+        const smallBtn = document.getElementById('view-small');
+        if (normalBtn) normalBtn.classList.toggle('active', this.gridSize === 'normal');
+        if (smallBtn) smallBtn.classList.toggle('active', this.gridSize === 'small');
     },
     
     /**

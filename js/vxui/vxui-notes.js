@@ -85,6 +85,10 @@ const VX_NOTES = {
         if (typeof app !== 'undefined') {
             app.languageBuild();
         }
+
+        if (typeof VXUI !== 'undefined' && typeof VXUI.refreshSidebarDivider === 'function') {
+            VXUI.refreshSidebarDivider();
+        }
     },
     
     /**

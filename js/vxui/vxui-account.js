@@ -99,29 +99,20 @@ const VX_ACCOUNT = {
      * Update sidebar content
      */
     updateSidebar() {
-        const sidebarTpl = document.getElementById('vx-account-sidebar-tpl');
-        const sidebarDynamic = document.getElementById('vx-sidebar-dynamic');
-        const sidebarStatic = document.getElementById('vx-sidebar-static');
-        
-        if (sidebarTpl && sidebarDynamic) {
-            // Hide static navigation
-            if (sidebarStatic) {
-                sidebarStatic.style.display = 'none';
+        if (typeof VXUI !== 'undefined' && typeof VXUI.setSidebarDynamicFromTemplate === 'function') {
+            VXUI.setSidebarDynamicFromTemplate('vx-account-sidebar-tpl');
+        } else {
+            const sidebarTpl = document.getElementById('vx-account-sidebar-tpl');
+            const sidebarDynamic = document.getElementById('vx-sidebar-dynamic');
+            if (sidebarTpl && sidebarDynamic) {
+                const content = sidebarTpl.content ? sidebarTpl.content.cloneNode(true) : sidebarTpl.cloneNode(true);
+                sidebarDynamic.innerHTML = '';
+                sidebarDynamic.appendChild(content);
             }
-            
-            // Clone template content
-            const content = sidebarTpl.content ? sidebarTpl.content.cloneNode(true) : sidebarTpl.cloneNode(true);
-            sidebarDynamic.innerHTML = '';
-            sidebarDynamic.appendChild(content);
-            
-            // Update active state
-            document.querySelectorAll('.vx-nav-item[data-module]').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            if (typeof TL !== 'undefined' && TL.tpl_lang) {
-                TL.tpl_lang();
-            }
+        }
+
+        if (typeof TL !== 'undefined' && TL.tpl_lang) {
+            TL.tpl_lang();
         }
     },
     
@@ -138,8 +129,8 @@ const VX_ACCOUNT = {
         const tabBtn = document.getElementById(`tab-${tab}`);
         if (tabBtn) tabBtn.classList.add('active');
         
-        // Update sidebar nav
-        document.querySelectorAll('.vx-nav-item').forEach(item => {
+        // Update sidebar nav (only module dynamic area)
+        document.querySelectorAll('#vx-sidebar-dynamic .vx-nav-item').forEach(item => {
             item.classList.remove('active');
         });
         const navItem = document.getElementById(`nav-account-${tab}`);

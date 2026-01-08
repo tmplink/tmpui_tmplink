@@ -102,17 +102,17 @@ window.VX_SHOP = {
      * Update sidebar content
      */
     updateSidebar() {
-        const sidebarTpl = document.getElementById('vx-shop-sidebar-tpl');
-        const sidebarContent = document.querySelector('.vx-sidebar-content');
-        
-        if (sidebarTpl && sidebarContent) {
-            sidebarContent.innerHTML = sidebarTpl.innerHTML;
-            
-            // Update active state
-            document.querySelectorAll('.vx-nav-item[data-module]').forEach(item => {
-                item.classList.remove('active');
-            });
-            
+        if (typeof VXUI !== 'undefined' && typeof VXUI.setSidebarDynamicFromTemplate === 'function') {
+            VXUI.setSidebarDynamicFromTemplate('vx-shop-sidebar-tpl');
+        } else {
+            const sidebarTpl = document.getElementById('vx-shop-sidebar-tpl');
+            const sidebarDynamic = document.getElementById('vx-sidebar-dynamic');
+            if (sidebarTpl && sidebarDynamic) {
+                sidebarDynamic.innerHTML = sidebarTpl.innerHTML;
+            }
+        }
+
+        if (typeof TL !== 'undefined' && TL.tpl_lang) {
             TL.tpl_lang();
         }
     },
@@ -129,8 +129,8 @@ window.VX_SHOP = {
         });
         document.getElementById(`tab-${tab}`).classList.add('active');
         
-        // Update sidebar nav
-        document.querySelectorAll('.vx-nav-item').forEach(item => {
+        // Update sidebar nav (only module dynamic area)
+        document.querySelectorAll('#vx-sidebar-dynamic .vx-nav-item').forEach(item => {
             item.classList.remove('active');
         });
         const navItem = document.getElementById(`nav-shop-${tab}`);

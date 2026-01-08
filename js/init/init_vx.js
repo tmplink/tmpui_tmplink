@@ -15,11 +15,6 @@
             VXUI.registerModule('filelist', VX_FILELIST);
         }
 
-        // 相册模块
-        if (typeof VX_PHOTO !== 'undefined') {
-            VXUI.registerModule('photo', VX_PHOTO);
-        }
-
         // 直链模块
         if (typeof VX_DIRECT !== 'undefined') {
             VXUI.registerModule('direct', VX_DIRECT);

@@ -3,29 +3,6 @@
 
 <!-- Dynamic Sidebar Content -->
 <template id="vx-filelist-sidebar-tpl">
-    <!-- Navigation -->
-    <div class="vx-nav-section">
-        <div class="vx-nav-title" data-tpl="nav_main">主功能</div>
-        <a href="javascript:;" class="vx-nav-item active" data-module="filelist" onclick="VXUI.navigate('filelist')">
-            <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
-            <span class="vx-nav-item-text" data-tpl="nav_files">文件</span>
-        </a>
-        <a href="javascript:;" class="vx-nav-item" data-module="direct" onclick="VXUI.navigate('direct')">
-            <iconpark-icon name="link"></iconpark-icon>
-            <span class="vx-nav-item-text" data-tpl="nav_direct">直链</span>
-        </a>
-        <a href="javascript:;" class="vx-nav-item" data-module="notes" onclick="VXUI.navigate('notes')">
-            <iconpark-icon name="memo-pad"></iconpark-icon>
-            <span class="vx-nav-item-text" data-tpl="nav_notes">密记</span>
-        </a>
-        <a href="javascript:;" class="vx-nav-item" data-module="ai" onclick="VXUI.navigate('ai')">
-            <iconpark-icon name="user-robot"></iconpark-icon>
-            <span class="vx-nav-item-text" data-tpl="nav_ai">助手</span>
-        </a>
-    </div>
-
-    <div class="vx-nav-divider"></div>
-    
     <!-- Current Folder Info -->
     <div class="vx-nav-section">
         <div class="vx-nav-title">当前文件夹</div>
@@ -36,23 +13,6 @@
                 <span id="vx-fl-item-count">0</span> <span>项</span>
             </div>
         </div>
-    </div>
-    
-    <!-- View Mode (只在相册模式显示) -->
-    <div class="vx-nav-section vx-album-view-section" id="vx-fl-album-view-section" style="display: none;">
-        <div class="vx-nav-title" data-tpl="album_view">视图</div>
-        <a href="javascript:;" class="vx-nav-item active" onclick="VX_FILELIST.setGridSize('normal')" id="nav-grid-normal">
-            <iconpark-icon name="list-radio"></iconpark-icon>
-            <span class="vx-nav-item-text" data-tpl="album_grid_normal">标准网格</span>
-        </a>
-        <a href="javascript:;" class="vx-nav-item" onclick="VX_FILELIST.setGridSize('large')" id="nav-grid-large">
-            <iconpark-icon name="images"></iconpark-icon>
-            <span class="vx-nav-item-text" data-tpl="album_grid_large">大图模式</span>
-        </a>
-        <a href="javascript:;" class="vx-nav-item" onclick="VX_FILELIST.setGridSize('small')" id="nav-grid-small">
-            <iconpark-icon name="list"></iconpark-icon>
-            <span class="vx-nav-item-text" data-tpl="album_grid_small">紧凑模式</span>
-        </a>
     </div>
     
     <!-- Actions -->
@@ -105,13 +65,10 @@
         
         <!-- 相册模式下的网格大小控制 -->
         <div class="vx-btn-group vx-album-controls" id="vx-fl-album-controls" style="display: none;">
-            <button class="vx-btn-icon active" onclick="VX_FILELIST.setGridSize('normal')" id="view-normal" title="标准网格">
+            <button class="vx-btn-icon" onclick="VX_FILELIST.setGridSize('normal')" id="view-normal" title="标准网格">
                 <iconpark-icon name="list-radio"></iconpark-icon>
             </button>
-            <button class="vx-btn-icon" onclick="VX_FILELIST.setGridSize('large')" id="view-large" title="大图模式">
-                <iconpark-icon name="images"></iconpark-icon>
-            </button>
-            <button class="vx-btn-icon" onclick="VX_FILELIST.setGridSize('small')" id="view-small" title="紧凑模式">
+            <button class="vx-btn-icon active" onclick="VX_FILELIST.setGridSize('small')" id="view-small" title="紧凑模式">
                 <iconpark-icon name="list"></iconpark-icon>
             </button>
         </div>
