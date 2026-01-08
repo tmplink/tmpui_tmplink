@@ -171,6 +171,12 @@ class VXUICore {
             params = { ...params, view: 'album' };
         }
 
+        // filelist 模块：默认补齐 view 参数，确保 URL 可直接还原视图模式
+        if (moduleName === 'filelist') {
+            const nextView = (params && params.view) ? String(params.view) : (localStorage.getItem('vx_view_mode') || 'list');
+            params = { ...params, view: nextView };
+        }
+
         console.log(`[VXUI] Navigating to: ${moduleName}`, params);
         
         // 获取模块

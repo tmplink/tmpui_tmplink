@@ -232,6 +232,20 @@ var VX_FILELIST = VX_FILELIST || {
         
         this.viewMode = mode;
         localStorage.setItem('vx_view_mode', mode);
+
+        // 同步 URL（便于复制链接/下次直达 list/album 模式）
+        if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.updateUrl === 'function') {
+            const currentParams = (typeof VXUI.getUrlParams === 'function') ? (VXUI.getUrlParams() || {}) : {};
+            delete currentParams.module;
+            VXUI.updateUrl('filelist', {
+                ...currentParams,
+                mrid: this.mrid,
+                view: this.viewMode
+            });
+            if (typeof VXUI.updateNavState === 'function') {
+                VXUI.updateNavState('filelist', { mrid: this.mrid, view: this.viewMode });
+            }
+        }
         
         // 应用视图模式
         this.applyViewMode();
@@ -828,22 +842,42 @@ var VX_FILELIST = VX_FILELIST || {
      * 获取文件图标
      */
     getFileIcon(ftype) {
-        const type = (ftype || '').toLowerCase();
-        const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
-        const videoTypes = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'webm'];
-        const audioTypes = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a'];
-        const docTypes = ['doc', 'docx', 'pdf', 'xls', 'xlsx', 'ppt', 'pptx', 'txt'];
-        const archiveTypes = ['zip', 'rar', '7z', 'tar', 'gz'];
-        const codeTypes = ['js', 'ts', 'py', 'java', 'cpp', 'c', 'h', 'css', 'html', 'json'];
-        
-        if (imageTypes.includes(type)) return { icon: 'file-image', class: 'vx-icon-image' };
-        if (videoTypes.includes(type)) return { icon: 'video', class: 'vx-icon-video' };
-        if (audioTypes.includes(type)) return { icon: 'music-note', class: 'vx-icon-audio' };
-        if (docTypes.includes(type)) return { icon: 'file-word', class: 'vx-icon-document' };
-        if (archiveTypes.includes(type)) return { icon: 'file-archive', class: 'vx-icon-archive' };
-        if (codeTypes.includes(type)) return { icon: 'file-code', class: 'vx-icon-code' };
-        
-        return { icon: 'file', class: 'vx-icon-file' };
+        const type = String(ftype || '').toLowerCase().replace('.', '').trim();
+
+        // 优先使用 tmplink.js 提供的通用图标映射
+        let icon = null;
+        if (typeof TL !== 'undefined' && typeof TL.fileicon === 'function') {
+            icon = TL.fileicon(type);
+        }
+
+        // 兜底：保持旧行为（避免 TL 未加载时图标丢失）
+        if (!icon) {
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+            const videoTypes = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+            const audioTypes = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a'];
+            const docTypes = ['doc', 'docx', 'pdf', 'xls', 'xlsx', 'ppt', 'pptx', 'txt'];
+            const archiveTypes = ['zip', 'rar', '7z', 'tar', 'gz'];
+            const codeTypes = ['js', 'ts', 'py', 'java', 'cpp', 'c', 'h', 'css', 'html', 'json'];
+
+            if (imageTypes.includes(type)) icon = 'file-image';
+            else if (videoTypes.includes(type)) icon = 'file-video';
+            else if (audioTypes.includes(type)) icon = 'file-music';
+            else if (docTypes.includes(type)) icon = 'file-word';
+            else if (archiveTypes.includes(type)) icon = 'file-zipper';
+            else if (codeTypes.includes(type)) icon = 'file-code';
+            else icon = 'file-lines';
+        }
+
+        // VXUI 现有颜色/样式 class 映射（仅用于样式，不参与图标选择）
+        let cls = 'vx-icon-file';
+        if (icon === 'file-image') cls = 'vx-icon-image';
+        else if (icon === 'file-video') cls = 'vx-icon-video';
+        else if (icon === 'file-music') cls = 'vx-icon-audio';
+        else if (icon === 'file-zipper') cls = 'vx-icon-archive';
+        else if (icon === 'file-code') cls = 'vx-icon-code';
+        else if (['file-word', 'file-excel', 'file-powerpoint', 'file-pdf'].includes(icon)) cls = 'vx-icon-document';
+
+        return { icon, class: cls };
     },
     
     // ==================== 相册模式操作 ====================
@@ -1051,7 +1085,7 @@ var VX_FILELIST = VX_FILELIST || {
      * 打开文件夹
      */
     openFolder(mrid) {
-        VXUI.navigate('filelist', { mrid: mrid });
+        VXUI.navigate('filelist', { mrid: mrid, view: this.viewMode });
     },
     
     /**

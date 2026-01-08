@@ -347,6 +347,19 @@ html.vx-dark {
     transition: margin-left 0.3s ease;
 }
 
+/* Module container should fill remaining height so module content can scroll correctly */
+#vx-module-container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Allow flex children with overflow to actually shrink and scroll */
+#vx-module-container > .vx-content {
+    min-height: 0;
+}
+
 /* Mobile Header */
 .vx-mobile-header {
     display: none;
