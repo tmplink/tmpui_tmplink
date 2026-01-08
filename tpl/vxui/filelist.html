@@ -14,27 +14,6 @@
             </div>
         </div>
     </div>
-    
-    <!-- Actions -->
-    <div class="vx-nav-section">
-        <div class="vx-nav-title">操作</div>
-        <a href="javascript:;" class="vx-nav-item" onclick="VX_FILELIST.upload()">
-            <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
-            <span class="vx-nav-item-text" data-tpl="nav_upload">上传文件</span>
-        </a>
-        <a href="javascript:;" class="vx-nav-item" onclick="VX_FILELIST.showCreateModal()">
-            <iconpark-icon name="folder-plus"></iconpark-icon>
-            <span class="vx-nav-item-text" data-tpl="model_title_folder_title">新建文件夹</span>
-        </a>
-        <a href="javascript:;" class="vx-nav-item" onclick="VX_FILELIST.selectAll()">
-            <iconpark-icon name="check-square"></iconpark-icon>
-            <span class="vx-nav-item-text" data-tpl="on_select_all">全选</span>
-        </a>
-        <a href="javascript:;" class="vx-nav-item" id="vx-fl-share-btn" onclick="VX_FILELIST.shareFolder()" style="display: none;">
-            <iconpark-icon name="share-from-square"></iconpark-icon>
-            <span class="vx-nav-item-text">分享链接</span>
-        </a>
-    </div>
 </template>
 
 <!-- Header -->
@@ -49,10 +28,6 @@
         <nav class="vx-breadcrumb" id="vx-fl-breadcrumb">
             <a href="javascript:;" onclick="VX_FILELIST.openFolder(0)">桌面</a>
         </nav>
-    </div>
-    
-    <div class="vx-header-center">
-        <h1 class="vx-page-title" id="vx-fl-title">桌面</h1>
     </div>
     
     <div class="vx-header-right">
@@ -75,12 +50,18 @@
                 <iconpark-icon name="list"></iconpark-icon>
             </button>
         </div>
-        
-        <button class="vx-btn-icon" onclick="VX_FILELIST.toggleSelectMode()" title="选择">
-            <iconpark-icon name="check-square"></iconpark-icon>
+
+        <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.upload()" title="上传文件">
+            <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
+            <span data-tpl="nav_upload">上传文件</span>
         </button>
-        <button class="vx-btn-icon" onclick="VX_FILELIST.refresh()" title="刷新">
-            <iconpark-icon name="rotate"></iconpark-icon>
+        <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.showCreateModal()" title="新建文件夹">
+            <iconpark-icon name="folder-plus"></iconpark-icon>
+            <span data-tpl="model_title_folder_title">新建文件夹</span>
+        </button>
+        <button class="vx-btn vx-btn-ghost" id="vx-fl-refresh-btn" onclick="VX_FILELIST.refresh()" title="刷新">
+            <iconpark-icon name="rotate" data-role="refresh-icon"></iconpark-icon>
+            <span data-role="refresh-text">刷新</span>
         </button>
     </div>
 </header>
@@ -97,6 +78,7 @@
         <!-- List Header -->
         <div class="vx-list-header">
             <div class="vx-list-col vx-list-col-name">
+                <div class="vx-list-checkbox" id="vx-fl-select-all" onclick="event.stopPropagation(); VX_FILELIST.toggleSelectAllFromHeader()" title="全选"></div>
                 <span data-tpl="filename">文件名</span>
             </div>
             <div class="vx-list-col vx-list-col-size">
@@ -453,6 +435,8 @@
 .vx-list-col-name {
     flex: 1;
     min-width: 200px;
+    display: flex;
+    align-items: center;
 }
 
 .vx-list-col-size {
@@ -533,6 +517,34 @@
     border: solid white;
     border-width: 0 2px 2px 0;
     transform: rotate(45deg) translate(-1px, -1px);
+}
+
+/* Header Select All Checkbox States */
+.vx-list-checkbox.vx-checked {
+    background: var(--vx-primary);
+    border-color: var(--vx-primary);
+}
+
+.vx-list-checkbox.vx-checked::after {
+    content: '';
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.vx-list-checkbox.vx-indeterminate {
+    background: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+}
+
+.vx-list-checkbox.vx-indeterminate::after {
+    content: '';
+    width: 10px;
+    height: 2px;
+    background: var(--vx-primary);
+    border-radius: 1px;
 }
 
 /* List Row Name */
@@ -749,7 +761,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 300px;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Refresh button feedback */
+#vx-fl-refresh-btn[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+#vx-fl-refresh-btn[data-refreshing="1"] [data-role="refresh-icon"] {
+    animation: vxFlSpin 0.85s linear infinite;
+}
+
+@keyframes vxFlSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* Empty state */

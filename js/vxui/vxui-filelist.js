@@ -37,6 +37,9 @@ var VX_FILELIST = VX_FILELIST || {
     
     // 下载器
     downloader: null,
+
+    // 刷新状态
+    refreshing: false,
     
     /**
      * 初始化模块
@@ -341,13 +344,28 @@ var VX_FILELIST = VX_FILELIST || {
     /**
      * 加载文件夹数据
      */
-    loadRoom() {
+    loadRoom(options = {}) {
+        const opts = options || {};
+        const finalize = () => {
+            if (opts.refreshing) {
+                this.setRefreshing(false);
+            }
+        };
+
+        if (opts.refreshing) {
+            this.setRefreshing(true);
+        }
+        if (opts.showLoading !== false) {
+            this.showLoading();
+        }
+
         const token = this.getToken();
         
         if (!token) {
             console.warn('[VX_FILELIST] No token available');
             this.hideLoading();
             this.showEmpty();
+            finalize();
             return;
         }
 
@@ -361,11 +379,13 @@ var VX_FILELIST = VX_FILELIST || {
             if (rsp.status === 0) {
                 this.hideLoading();
                 VXUI.toastError('文件夹不存在');
+                finalize();
                 return;
             }
             
             if (rsp.status === 3) {
                 VXUI.navigate('login');
+                finalize();
                 return;
             }
             
@@ -388,10 +408,34 @@ var VX_FILELIST = VX_FILELIST || {
             // 加载文件列表
             this.loadFileList(0);
             
+            finalize();
         }, 'json').fail(() => {
             this.hideLoading();
             VXUI.toastError('加载失败');
+            finalize();
         });
+    },
+
+    /**
+     * 设置刷新按钮状态
+     */
+    setRefreshing(on) {
+        const btn = document.getElementById('vx-fl-refresh-btn');
+        const text = btn ? btn.querySelector('[data-role="refresh-text"]') : null;
+
+        this.refreshing = !!on;
+
+        if (!btn) return;
+
+        if (this.refreshing) {
+            btn.disabled = true;
+            btn.dataset.refreshing = '1';
+            if (text) text.textContent = '刷新中';
+        } else {
+            btn.disabled = false;
+            delete btn.dataset.refreshing;
+            if (text) text.textContent = '刷新';
+        }
     },
     
     /**
@@ -1103,7 +1147,8 @@ var VX_FILELIST = VX_FILELIST || {
      * 刷新
      */
     refresh() {
-        this.loadRoom();
+        if (this.refreshing) return;
+        this.loadRoom({ refreshing: true, showLoading: true });
     },
     
     /**
@@ -1530,6 +1575,41 @@ var VX_FILELIST = VX_FILELIST || {
             if (count) count.textContent = this.selectedItems.length;
         } else {
             if (bar) bar.style.display = 'none';
+        }
+
+        this.updateSelectAllCheckbox();
+    },
+
+    /**
+     * 表头全选框：全选/取消全选
+     */
+    toggleSelectAllFromHeader() {
+        const total = (this.subRooms ? this.subRooms.length : 0) + (this.fileList ? this.fileList.length : 0);
+        if (total <= 0) return;
+
+        if (this.selectedItems.length === total) {
+            this.clearSelection();
+        } else {
+            this.selectAll();
+        }
+    },
+
+    /**
+     * 同步表头全选框状态（未选/半选/全选）
+     */
+    updateSelectAllCheckbox() {
+        const el = document.getElementById('vx-fl-select-all');
+        if (!el) return;
+
+        const total = (this.subRooms ? this.subRooms.length : 0) + (this.fileList ? this.fileList.length : 0);
+        el.classList.remove('vx-checked', 'vx-indeterminate');
+
+        if (total <= 0) return;
+
+        if (this.selectedItems.length === total) {
+            el.classList.add('vx-checked');
+        } else if (this.selectedItems.length > 0) {
+            el.classList.add('vx-indeterminate');
         }
     },
     
