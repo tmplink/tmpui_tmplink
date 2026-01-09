@@ -198,6 +198,77 @@ var VX_FILELIST = VX_FILELIST || {
                 if (e.key === 'ArrowRight') this.lightboxNext();
             }
         });
+        
+        // 拖拽上传
+        document.addEventListener('dragenter', this._onDragEnter = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this._dragCounter = (this._dragCounter || 0) + 1;
+            const overlay = document.getElementById('vx-drag-overlay');
+            if (overlay) overlay.classList.add('active');
+        });
+        
+        document.addEventListener('dragleave', this._onDragLeave = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this._dragCounter = (this._dragCounter || 1) - 1;
+            if (this._dragCounter <= 0) {
+                this._dragCounter = 0;
+                const overlay = document.getElementById('vx-drag-overlay');
+                if (overlay) overlay.classList.remove('active');
+            }
+        });
+        
+        document.addEventListener('dragover', this._onDragOver = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+        
+        document.addEventListener('drop', this._onDrop = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this._dragCounter = 0;
+            const overlay = document.getElementById('vx-drag-overlay');
+            if (overlay) overlay.classList.remove('active');
+            
+            // 处理拖拽文件
+            if (typeof VX_UPLOADER !== 'undefined') {
+                VX_UPLOADER.current_mrid = this.mrid;
+                VX_UPLOADER.handleDrop(e);
+            }
+        });
+        
+        // 粘贴上传
+        document.addEventListener('paste', this._onPaste = (e) => {
+            // 忽略在输入框中的粘贴
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            if (typeof VX_UPLOADER !== 'undefined') {
+                VX_UPLOADER.current_mrid = this.mrid;
+                VX_UPLOADER.handlePaste(e);
+            }
+        });
+        
+        // 上传模态框拖拽区域
+        const dropzone = document.getElementById('vx-upload-dropzone');
+        if (dropzone) {
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('dragover');
+            });
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.classList.remove('dragover');
+            });
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+                if (typeof VX_UPLOADER !== 'undefined') {
+                    VX_UPLOADER.current_mrid = this.mrid;
+                    VX_UPLOADER.handleDrop(e);
+                    VX_UPLOADER.closeModal();
+                }
+            });
+        }
     },
     
     /**
@@ -212,6 +283,21 @@ var VX_FILELIST = VX_FILELIST || {
         }
         if (this._onKeydown) {
             document.removeEventListener('keydown', this._onKeydown);
+        }
+        if (this._onDragEnter) {
+            document.removeEventListener('dragenter', this._onDragEnter);
+        }
+        if (this._onDragLeave) {
+            document.removeEventListener('dragleave', this._onDragLeave);
+        }
+        if (this._onDragOver) {
+            document.removeEventListener('dragover', this._onDragOver);
+        }
+        if (this._onDrop) {
+            document.removeEventListener('drop', this._onDrop);
+        }
+        if (this._onPaste) {
+            document.removeEventListener('paste', this._onPaste);
         }
     },
     
@@ -1159,6 +1245,18 @@ var VX_FILELIST = VX_FILELIST || {
     },
     
     /**
+     * 上传文件
+     */
+    upload() {
+        if (typeof VX_UPLOADER !== 'undefined') {
+            VX_UPLOADER.openModal(this.mrid);
+        } else {
+            console.warn('[VX_FILELIST] VX_UPLOADER not loaded');
+            VXUI.toastError('上传模块未加载');
+        }
+    },
+    
+    /**
      * 预览文件
      */
     previewFile(ukey) {
@@ -1395,16 +1493,59 @@ var VX_FILELIST = VX_FILELIST || {
         if (!confirm('确定要删除此文件吗？')) return;
         
         const token = this.getToken();
-        const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
-        
-        $.post(apiUrl, {
-            action: 'file_del',
-            token: token,
-            mr_id: this.mrid,
-            ukey: ukey
-        }, () => {
+
+        this._deleteFileWithFallback(ukey, token).then((ok) => {
             this.refresh();
-            VXUI.toastSuccess('删除成功');
+            if (ok) {
+                VXUI.toastSuccess('删除成功');
+            } else {
+                VXUI.toastError('删除失败，请重试');
+            }
+        });
+    },
+
+    /**
+     * 删除文件：优先从当前文件夹删除；失败时回退到从工作区移除（兼容老逻辑 remove_from_workspace）。
+     */
+    _deleteFileWithFallback(ukey, token) {
+        const mrApiUrl = (typeof TL !== 'undefined' && TL.api_mr)
+            ? TL.api_mr
+            : '/api_v2/meetingroom';
+        const fileApiUrl = (typeof TL !== 'undefined' && TL.api_file)
+            ? TL.api_file
+            : ((typeof TL !== 'undefined' && TL.api_url) ? (TL.api_url + '/file') : '/api_v2/file');
+
+        return new Promise((resolve) => {
+            // 1) meetingroom 删除
+            $.post(mrApiUrl, {
+                action: 'file_del',
+                token: token,
+                mr_id: this.mrid,
+                ukey: ukey
+            }, (rsp) => {
+                if (rsp && rsp.status === 1) {
+                    resolve(true);
+                    return;
+                }
+
+                // 2) fallback：从工作区移除
+                $.post(fileApiUrl, {
+                    action: 'remove_from_workspace',
+                    token: token,
+                    ukey: ukey
+                }, (rsp2) => {
+                    resolve(!!(rsp2 && rsp2.status === 1));
+                }, 'json').fail(() => resolve(false));
+            }, 'json').fail(() => {
+                // 走不到 meetingroom，则直接尝试移出工作区
+                $.post(fileApiUrl, {
+                    action: 'remove_from_workspace',
+                    token: token,
+                    ukey: ukey
+                }, (rsp2) => {
+                    resolve(!!(rsp2 && rsp2.status === 1));
+                }, 'json').fail(() => resolve(false));
+            });
         });
     },
     
@@ -1448,15 +1589,6 @@ var VX_FILELIST = VX_FILELIST || {
         const input = document.getElementById('vx-fl-rename-input');
         if (input) input.value = folder.name || '';
         this.showRenameModal();
-    },
-    
-    /**
-     * 上传文件
-     */
-    upload() {
-        if (typeof TL !== 'undefined' && TL.uploader && TL.uploader.select) {
-            TL.uploader.select();
-        }
     },
     
     /**
@@ -1656,29 +1788,32 @@ var VX_FILELIST = VX_FILELIST || {
         
         const token = this.getToken();
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
-        
-        let completed = 0;
-        const total = this.selectedItems.length;
-        
-        this.selectedItems.forEach(item => {
+
+        const tasks = this.selectedItems.map((item) => {
             if (item.type === 'folder') {
-                $.post(apiUrl, { action: 'delete', token, mr_id: item.id }, () => {
-                    completed++;
-                    if (completed === total) {
-                        this.clearSelection();
-                        this.refresh();
-                        VXUI.toastSuccess('删除成功');
-                    }
+                return new Promise((resolve) => {
+                    $.post(apiUrl, {
+                        action: 'delete',
+                        token,
+                        mr_id: item.id
+                    }, (rsp) => resolve(!!(rsp && rsp.status === 1)), 'json').fail(() => resolve(false));
                 });
+            }
+
+            return this._deleteFileWithFallback(item.id, token);
+        });
+
+        Promise.all(tasks).then((results) => {
+            const okCount = results.filter(Boolean).length;
+            const total = results.length;
+
+            this.clearSelection();
+            this.refresh();
+
+            if (okCount === total) {
+                VXUI.toastSuccess('删除成功');
             } else {
-                $.post(apiUrl, { action: 'file_del', token, mr_id: this.mrid, ukey: item.id }, () => {
-                    completed++;
-                    if (completed === total) {
-                        this.clearSelection();
-                        this.refresh();
-                        VXUI.toastSuccess('删除成功');
-                    }
-                });
+                VXUI.toastError(`删除完成：成功 ${okCount} / ${total}，部分失败`);
             }
         });
     },
