@@ -291,6 +291,30 @@ html.vx-dark {
     flex-shrink: 0;
 }
 
+/* Navigation Stats (for modules like Notes) */
+.vx-nav-stats {
+    padding: 8px 12px;
+}
+
+.vx-nav-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: var(--vx-text-sm);
+    color: var(--vx-text-secondary);
+}
+
+.vx-nav-stat-item iconpark-icon {
+    font-size: 16px;
+    color: var(--vx-text-muted);
+}
+
+.vx-nav-stat-item strong {
+    color: var(--vx-text);
+    font-weight: 600;
+}
+
 /* Sidebar Bottom Menu - Persistent account navigation */
 .vx-sidebar-bottom-menu {
     padding: 12px 0 0 0;

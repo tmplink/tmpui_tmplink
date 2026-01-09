@@ -51,10 +51,18 @@
             });
         }
 
-        // 检查，如果域名开头不是 www. 跳转到 www. 127.0.0.1 时跳过
-        if (window.location.host.indexOf('www.') != 0 && window.location.host !== '127.0.0.1' && window.location.host !== 'localhost') {
-            window.location.href = 'https://www.' + window.location.host + window.location.pathname + window.location.search;
-        }
+        // 检查，如果域名开头不是 www. 跳转到 www.
+        // 注意：开发环境 (localhost / 127.0.0.1 / IP) 跳过；同时必须使用 hostname（host 会包含端口，导致误判）。
+        (function () {
+            var hostname = window.location.hostname;
+
+            // Skip localhost / loopback / IPs
+            if (hostname === 'localhost' || hostname === '127.0.0.1') return;
+            if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname)) return;
+            if (hostname.indexOf('www.') === 0) return;
+
+            window.location.href = 'https://www.' + hostname + window.location.pathname + window.location.search + window.location.hash;
+        })();
 
     </script>
 
