@@ -26,6 +26,9 @@ var VX_UPLOADER = VX_UPLOADER || {
     upload_model: 1, // 默认3天
     upload_server: null,
     servers: [],
+    serversLoading: false, // 服务器列表加载中
+    serversLoaded: false, // 服务器列表已加载
+    serversLoadCallbacks: [], // 等待服务器加载的回调队列
     prepare_sha1: false,
     skip_upload: false,
 
@@ -79,7 +82,19 @@ var VX_UPLOADER = VX_UPLOADER || {
      */
     loadServers() {
         const token = this.getToken();
-        if (!token) return;
+        if (!token) {
+            this.serversLoaded = true;
+            this.serversLoading = false;
+            return;
+        }
+        
+        // 如果已经加载完成，不重复加载
+        if (this.serversLoaded) return;
+        
+        // 如果正在加载中，不重复发起请求
+        if (this.serversLoading) return;
+        
+        this.serversLoading = true;
 
         const api = this.getUploadApi();
         
@@ -89,6 +104,9 @@ var VX_UPLOADER = VX_UPLOADER || {
                 action: 'upload_request_select2',
                 captcha: captcha
             }, (rsp) => {
+                this.serversLoading = false;
+                this.serversLoaded = true;
+                
                 if (rsp.status === 1 && rsp.data && rsp.data.servers) {
                     this.servers = rsp.data.servers;
                     
@@ -105,7 +123,48 @@ var VX_UPLOADER = VX_UPLOADER || {
                     // 更新下拉框
                     this.updateServerSelect();
                 }
-            }, 'json');
+                
+                // 执行等待中的回调
+                this.executeServersLoadCallbacks();
+            }, 'json').fail(() => {
+                this.serversLoading = false;
+                this.serversLoaded = true;
+                // 执行等待中的回调
+                this.executeServersLoadCallbacks();
+            });
+        });
+    },
+    
+    /**
+     * 等待服务器列表加载完成
+     */
+    waitForServers(callback) {
+        if (this.serversLoaded) {
+            callback();
+            return;
+        }
+        
+        // 添加到回调队列
+        this.serversLoadCallbacks.push(callback);
+        
+        // 如果还没有开始加载，启动加载
+        if (!this.serversLoading) {
+            this.loadServers();
+        }
+    },
+    
+    /**
+     * 执行等待服务器加载的回调
+     */
+    executeServersLoadCallbacks() {
+        const callbacks = this.serversLoadCallbacks.slice();
+        this.serversLoadCallbacks = [];
+        callbacks.forEach(cb => {
+            try {
+                cb();
+            } catch (e) {
+                console.error('[VX_UPLOADER] Server load callback error:', e);
+            }
         });
     },
 
@@ -535,6 +594,16 @@ var VX_UPLOADER = VX_UPLOADER || {
         task.status = 'uploading';
         this.updateUploadRow(task);
         
+        // 等待服务器列表加载完成
+        this.waitForServers(() => {
+            this.doUploadSlice(task);
+        });
+    },
+    
+    /**
+     * 实际执行分片上传
+     */
+    doUploadSlice(task) {
         const server = this.upload_server || (this.servers.length > 0 ? this.servers[0].url : null);
         if (!server) {
             this.uploadFailed(task, '无可用服务器');

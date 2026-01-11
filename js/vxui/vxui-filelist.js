@@ -89,6 +89,11 @@ var VX_FILELIST = VX_FILELIST || {
         this.directDirKey = null;
         this.directLoading = false;
         
+        // 初始化上传模块（预加载服务器列表）
+        if (typeof VX_UPLOADER !== 'undefined') {
+            VX_UPLOADER.init();
+        }
+        
         // 显示加载状态
         this.showLoading();
         
