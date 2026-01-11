@@ -1138,6 +1138,47 @@ var VX_FILELIST = VX_FILELIST || {
         
         const iconInfo = this.getFolderIcon(folder);
         
+        // 判断是否是文件夹的拥有者（基于每个文件夹的 type 属性）
+        const isFolderOwner = folder.type === 'owner';
+        // 是否是收藏的文件夹
+        const isFavorite = folder.fav == 1;
+        // 是否可以分享（公开或已发布的文件夹）
+        const canShare = folder.publish === 'yes' || folder.model === 'public';
+        
+        // 构建操作按钮
+        let actionsHtml = '';
+        
+        // 分享按钮 - 公开或已发布的文件夹显示
+        if (canShare) {
+            const shareUrl = `https://${typeof TL !== 'undefined' && TL.site_domain ? TL.site_domain : location.host}/room/${folder.mr_id}`;
+            actionsHtml += `
+                <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.shareFolder('${folder.mr_id}', '${this.escapeHtml(shareUrl)}')" title="分享">
+                    <iconpark-icon name="share-from-square"></iconpark-icon>
+                </button>
+            `;
+        }
+        
+        // 重命名和删除按钮 - 只有文件夹拥有者才能操作
+        if (isFolderOwner) {
+            actionsHtml += `
+                <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.renameFolder('${folder.mr_id}')" title="重命名">
+                    <iconpark-icon name="pen-to-square"></iconpark-icon>
+                </button>
+                <button class="vx-list-action-btn vx-action-danger" onclick="event.stopPropagation(); VX_FILELIST.deleteFolder('${folder.mr_id}')" title="删除">
+                    <iconpark-icon name="trash"></iconpark-icon>
+                </button>
+            `;
+        }
+        
+        // 收藏的文件夹显示取消收藏按钮
+        if (isFavorite && !isFolderOwner) {
+            actionsHtml += `
+                <button class="vx-list-action-btn vx-action-danger" onclick="event.stopPropagation(); VX_FILELIST.unfavoriteFolder('${folder.mr_id}')" title="取消收藏">
+                    <iconpark-icon name="trash"></iconpark-icon>
+                </button>
+            `;
+        }
+        
         row.innerHTML = `
             <div class="vx-list-checkbox" onclick="event.stopPropagation(); VX_FILELIST.toggleItemSelect(this.parentNode)"></div>
             <div class="vx-list-name">
@@ -1155,14 +1196,7 @@ var VX_FILELIST = VX_FILELIST || {
                 ${folder.ctime || '--'}
             </div>
             <div class="vx-list-actions">
-                ${this.isOwner ? `
-                    <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.renameFolder('${folder.mr_id}')" title="重命名">
-                        <iconpark-icon name="pen-to-square"></iconpark-icon>
-                    </button>
-                    <button class="vx-list-action-btn vx-action-danger" onclick="event.stopPropagation(); VX_FILELIST.deleteFolder('${folder.mr_id}')" title="删除">
-                        <iconpark-icon name="trash"></iconpark-icon>
-                    </button>
-                ` : ''}
+                ${actionsHtml}
             </div>
         `;
         
@@ -2080,25 +2114,65 @@ var VX_FILELIST = VX_FILELIST || {
     },
     
     /**
-     * 分享文件夹
+     * 分享文件夹（复制链接）
+     * @param {string} mrid - 文件夹ID（可选，默认分享当前文件夹）
+     * @param {string} url - 分享链接（可选）
      */
-    shareFolder() {
-        if (this.isDesktop) {
-            VXUI.toastWarning('桌面无法分享');
-            return;
+    shareFolder(mrid, url) {
+        // 如果没有传入 url，构建当前文件夹的链接
+        if (!url) {
+            if (this.isDesktop && !mrid) {
+                VXUI.toastWarning('桌面无法分享');
+                return;
+            }
+            const targetMrid = mrid || this.mrid;
+            const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
+            url = `https://${domain}/room/${targetMrid}`;
         }
-        
-        const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
-        const url = `https://${domain}/room/${this.mrid}`;
         
         if (typeof VXUI !== 'undefined' && VXUI.copyToClipboard) {
             VXUI.copyToClipboard(url);
             VXUI.toastSuccess('链接已复制');
+        } else if (typeof TL !== 'undefined' && typeof TL.bulkCopy === 'function') {
+            // 使用老版的复制方法
+            TL.bulkCopy(null, btoa(url), true);
         } else {
             navigator.clipboard.writeText(url).then(() => {
                 VXUI.toastSuccess('链接已复制');
+            }).catch(() => {
+                VXUI.toastError('复制失败');
             });
         }
+    },
+    
+    /**
+     * 取消收藏文件夹
+     */
+    unfavoriteFolder(mrid) {
+        const token = this.getToken();
+        const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
+        
+        // 隐藏该行
+        const row = document.querySelector(`.vx-list-row[data-mrid="${mrid}"]`);
+        if (row) {
+            row.classList.add('vx-row-removing');
+        }
+        
+        $.post(apiUrl, {
+            action: 'favorite_del',
+            token: token,
+            mr_id: mrid
+        }, () => {
+            // 从数据中移除
+            this.subRooms = this.subRooms.filter(f => f.mr_id != mrid);
+            // 移除 DOM
+            setTimeout(() => {
+                if (row) row.remove();
+                this.updateItemCount();
+                this.updateEmptyState();
+            }, 300);
+            VXUI.toastSuccess('已取消收藏');
+        });
     },
     
     // ==================== 选择模式 ====================
