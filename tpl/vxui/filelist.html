@@ -641,7 +641,7 @@
     align-items: center;
     padding: 12px 16px;
     border-bottom: 1px solid var(--vx-border);
-    transition: background 0.15s ease;
+    transition: background 0.15s ease, opacity 0.3s ease, transform 0.3s ease;
     cursor: pointer;
 }
 
@@ -655,6 +655,70 @@
 
 .vx-list-row.selected {
     background: var(--vx-primary-light);
+}
+
+/* List Row Animation */
+.vx-list-row.vx-row-adding {
+    animation: vx-row-slide-in 0.3s ease forwards;
+}
+
+.vx-list-row.vx-row-removing {
+    animation: vx-row-slide-out 0.3s ease forwards;
+}
+
+@keyframes vx-row-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+        background: var(--vx-primary-light);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        background: transparent;
+    }
+}
+
+@keyframes vx-row-slide-out {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+}
+
+/* Photo Card Animation */
+.photo-card.vx-card-adding {
+    animation: vx-card-fade-in 0.3s ease forwards;
+}
+
+.photo-card.vx-card-removing {
+    animation: vx-card-fade-out 0.3s ease forwards;
+}
+
+@keyframes vx-card-fade-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes vx-card-fade-out {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
 }
 
 /* List Row Checkbox */

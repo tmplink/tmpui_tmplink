@@ -1508,6 +1508,231 @@ var VX_FILELIST = VX_FILELIST || {
     },
     
     /**
+     * 文件上传完成后的增量更新
+     * @param {string|number} mrid - 上传到的文件夹ID
+     * @param {string} ukey - 新上传文件的 ukey（可选）
+     */
+    onFileUploaded(mrid, ukey) {
+        // 如果上传的不是当前文件夹，忽略
+        if (String(mrid) !== String(this.mrid)) {
+            return;
+        }
+        
+        // 防止短时间内重复更新
+        if (this._uploadUpdatePending) {
+            return;
+        }
+        this._uploadUpdatePending = true;
+        
+        // 延迟一小段时间，合并多个上传完成的更新
+        setTimeout(() => {
+            this._uploadUpdatePending = false;
+            this.incrementalUpdate();
+        }, 500);
+    },
+    
+    /**
+     * 增量更新文件列表
+     * 请求服务器获取最新文件列表，然后与当前列表对比，只更新差异部分
+     */
+    incrementalUpdate() {
+        const token = this.getToken();
+        if (!token) return;
+        
+        const sortBy = localStorage.getItem(`vx_room_sort_by_${this.mrid}`) || this.room.sort_by || 0;
+        const sortType = localStorage.getItem(`vx_room_sort_type_${this.mrid}`) || this.room.sort_type || 0;
+        const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
+        
+        $.post(apiUrl, {
+            action: 'file_list_page',
+            mr_id: this.mrid,
+            page: 0,
+            sort_by: sortBy,
+            sort_type: sortType,
+            token: token
+        }, (rsp) => {
+            if (rsp.status !== 1 || !rsp.data) {
+                return;
+            }
+            
+            const newFiles = rsp.data || [];
+            const oldUkeys = new Set(this.fileList.map(f => f.ukey));
+            const newUkeys = new Set(newFiles.map(f => f.ukey));
+            
+            // 找出新增的文件
+            const addedFiles = newFiles.filter(f => !oldUkeys.has(f.ukey));
+            
+            // 找出被删除的文件（当前有但新列表没有）
+            const removedUkeys = this.fileList.filter(f => !newUkeys.has(f.ukey)).map(f => f.ukey);
+            
+            // 如果没有变化，不做任何操作
+            if (addedFiles.length === 0 && removedUkeys.length === 0) {
+                return;
+            }
+            
+            // 更新内部数据
+            // 移除已删除的文件
+            if (removedUkeys.length > 0) {
+                this.fileList = this.fileList.filter(f => !removedUkeys.includes(f.ukey));
+            }
+            
+            // 添加新文件（按照服务器返回的顺序插入到开头）
+            if (addedFiles.length > 0) {
+                // 新文件应该在列表开头（最新上传的在前面）
+                this.fileList = addedFiles.concat(this.fileList);
+            }
+            
+            // 更新图片列表
+            this.photoList = this.fileList.filter(file => this.isImageFile(file.ftype));
+            
+            // 局部更新 DOM
+            if (this.viewMode === 'list') {
+                this.incrementalUpdateListView(addedFiles, removedUkeys);
+            } else {
+                this.incrementalUpdateAlbumView(addedFiles, removedUkeys);
+            }
+            
+            // 更新项目数量
+            this.updateItemCount();
+            
+        }, 'json');
+    },
+    
+    /**
+     * 列表视图的增量更新
+     */
+    incrementalUpdateListView(addedFiles, removedUkeys) {
+        const listBody = document.getElementById('vx-fl-list-body');
+        if (!listBody) return;
+        
+        // 移除已删除的行
+        removedUkeys.forEach(ukey => {
+            const row = listBody.querySelector(`.vx-list-row[data-ukey="${ukey}"]`);
+            if (row) {
+                row.classList.add('vx-row-removing');
+                setTimeout(() => row.remove(), 300);
+            }
+        });
+        
+        // 添加新文件行（插入到文件夹之后、现有文件之前）
+        if (addedFiles.length > 0) {
+            // 找到第一个文件行的位置（文件夹之后）
+            const firstFileRow = listBody.querySelector('.vx-list-row[data-type="file"]');
+            
+            // 反向遍历以保持顺序
+            for (let i = addedFiles.length - 1; i >= 0; i--) {
+                const file = addedFiles[i];
+                const newRow = this.createFileRow(file);
+                newRow.classList.add('vx-row-adding');
+                
+                if (firstFileRow) {
+                    listBody.insertBefore(newRow, firstFileRow);
+                } else {
+                    // 没有文件，直接添加到末尾
+                    listBody.appendChild(newRow);
+                }
+                
+                // 移除动画类
+                setTimeout(() => newRow.classList.remove('vx-row-adding'), 300);
+            }
+            
+            // 初始化新添加行的倒计时
+            this.initLeftTimeCountdown();
+        }
+        
+        // 检查是否需要显示/隐藏空状态
+        this.updateEmptyState();
+    },
+    
+    /**
+     * 相册视图的增量更新
+     */
+    incrementalUpdateAlbumView(addedFiles, removedUkeys) {
+        const albumGrid = document.getElementById('vx-fl-album-grid');
+        if (!albumGrid) return;
+        
+        // 移除已删除的卡片
+        removedUkeys.forEach(ukey => {
+            const card = albumGrid.querySelector(`.photo-card[data-fid="${ukey}"]`);
+            if (card) {
+                card.classList.add('vx-card-removing');
+                setTimeout(() => card.remove(), 300);
+            }
+        });
+        
+        // 添加新图片卡片（只添加图片类型的文件）
+        const addedPhotos = addedFiles.filter(f => this.isImageFile(f.ftype));
+        if (addedPhotos.length > 0) {
+            const tpl = document.getElementById('tpl-vx-photo-card');
+            if (!tpl) return;
+            
+            const template = tpl.innerHTML;
+            const firstCard = albumGrid.querySelector('.photo-card');
+            
+            // 反向遍历以保持顺序
+            for (let i = addedPhotos.length - 1; i >= 0; i--) {
+                const photo = addedPhotos[i];
+                // 在 photoList 中找到索引
+                const index = this.photoList.findIndex(p => p.ukey === photo.ukey);
+                
+                const thumbnail = this.buildImageUrl(photo, 'ithumb', 's');
+                const name = photo.fname || '未命名';
+                const size = photo.fsize_formated || this.formatSize(photo.fsize || 0);
+                
+                const html = template
+                    .replace(/{index}/g, index)
+                    .replace(/{fid}/g, photo.ukey)
+                    .replace(/{thumbnail}/g, thumbnail)
+                    .replace(/{name}/g, this.escapeHtml(name))
+                    .replace(/{size}/g, size);
+                
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = html.trim();
+                const newCard = wrapper.firstChild;
+                newCard.classList.add('vx-card-adding');
+                
+                if (firstCard) {
+                    albumGrid.insertBefore(newCard, firstCard);
+                } else {
+                    albumGrid.appendChild(newCard);
+                }
+                
+                setTimeout(() => newCard.classList.remove('vx-card-adding'), 300);
+            }
+            
+            // 绑定图片加载事件
+            this.bindPhotoImageLoading();
+        }
+        
+        // 检查是否需要显示/隐藏空状态
+        this.updateEmptyState();
+    },
+    
+    /**
+     * 更新空状态显示
+     */
+    updateEmptyState() {
+        const empty = document.getElementById('vx-fl-empty');
+        const listContainer = document.getElementById('vx-fl-list');
+        const albumContainer = document.getElementById('vx-fl-album');
+        
+        const hasContent = (this.subRooms && this.subRooms.length > 0) || 
+                          (this.fileList && this.fileList.length > 0);
+        
+        if (empty) {
+            empty.style.display = hasContent ? 'none' : 'flex';
+        }
+        
+        if (this.viewMode === 'list') {
+            if (listContainer) listContainer.style.display = hasContent ? '' : 'none';
+            if (albumContainer) albumContainer.style.display = 'none';
+        } else {
+            if (listContainer) listContainer.style.display = 'none';
+            if (albumContainer) albumContainer.style.display = hasContent ? '' : 'none';
+        }
+    },
+    
+    /**
      * 上传文件
      */
     upload() {

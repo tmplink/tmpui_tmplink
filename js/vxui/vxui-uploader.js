@@ -759,14 +759,14 @@ var VX_UPLOADER = VX_UPLOADER || {
         // 显示成功提示
         VXUI.toastSuccess(`${task.filename} 上传完成`);
         
-        // 刷新文件列表
+        // 通知文件列表进行增量更新
         if (typeof VX_FILELIST !== 'undefined') {
             setTimeout(() => {
                 // 移除上传行
                 this.removeUploadRow(task.id);
-                // 刷新列表
-                VX_FILELIST.refresh();
-            }, 1500);
+                // 增量更新文件列表（而不是完全刷新）
+                VX_FILELIST.onFileUploaded(task.mrid, task.ukey);
+            }, 1000);
         }
         
         // 继续处理队列
