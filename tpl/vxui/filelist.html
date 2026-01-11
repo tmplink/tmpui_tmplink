@@ -24,6 +24,33 @@
             </div>
         </div>
     </div>
+
+    <!-- Direct Controls (folder share) -->
+    <div class="vx-nav-section" id="vx-fl-direct-section" style="display:none;">
+        <div class="vx-nav-title">直链</div>
+        <div class="vx-sidebar-module-info">
+            <label class="vx-checkbox" style="margin: 0;">
+                <input type="checkbox" id="vx-fl-direct-toggle" onchange="VX_FILELIST.toggleDirectForFolder()">
+                <span>允许文件夹直链</span>
+            </label>
+            <div id="vx-fl-direct-disabled" class="vx-text-muted" style="margin-top: 8px; font-size: var(--vx-text-xs); display:none;">
+                请先在直链模块绑定域名。
+            </div>
+            <div id="vx-fl-direct-link-wrap" style="margin-top: 10px; display:none;">
+                <div id="vx-fl-direct-link" style="padding: 8px 10px; background: var(--vx-bg-secondary); border-radius: var(--vx-radius); font-family: var(--vx-font-mono); font-size: var(--vx-text-xs); user-select: all; word-break: break-all;"></div>
+                <div style="display:flex; gap: 8px; margin-top: 8px;">
+                    <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.copyFolderDirectLink()" title="复制">
+                        <iconpark-icon name="copy"></iconpark-icon>
+                        <span>复制</span>
+                    </button>
+                    <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.openFolderDirectLink()" title="打开">
+                        <iconpark-icon name="link"></iconpark-icon>
+                        <span>打开</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <!-- Header -->
@@ -155,28 +182,44 @@
 
 <!-- Context Menu -->
 <div class="vx-context-menu" id="vx-fl-context-menu">
-    <div class="vx-context-item" onclick="VX_FILELIST.openContextItem()">
+    <div class="vx-context-item" id="vx-fl-menu-open" onclick="VX_FILELIST.openContextItem()">
         <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
         <span>打开</span>
     </div>
-    <div class="vx-context-item" onclick="VX_FILELIST.downloadContextItem()">
+    <div class="vx-context-item" id="vx-fl-menu-download" onclick="VX_FILELIST.downloadContextItem()">
         <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
         <span data-tpl="on_select_download">下载</span>
     </div>
-    <div class="vx-context-item" onclick="VX_FILELIST.renameContextItem()">
+    <div class="vx-context-item" id="vx-fl-menu-rename" onclick="VX_FILELIST.renameContextItem()">
         <iconpark-icon name="pen-to-square"></iconpark-icon>
         <span data-tpl="menu_rename">重命名</span>
     </div>
-    <div class="vx-context-item" onclick="VX_FILELIST.shareContextItem()">
+    <div class="vx-context-item" id="vx-fl-menu-direct-share" onclick="VX_FILELIST.directShareContextItem()">
         <iconpark-icon name="share-from-square"></iconpark-icon>
-        <span>分享</span>
+        <span>通过直链分享</span>
     </div>
-    <div class="vx-context-item" onclick="VX_FILELIST.moveContextItem()">
-        <iconpark-icon name="folder-plus"></iconpark-icon>
-        <span data-tpl="on_select_move">移动到</span>
+
+    <div class="vx-context-divider" id="vx-fl-menu-expire-divider"></div>
+    <div class="vx-context-label" id="vx-fl-menu-expire-label">修改有效期</div>
+    <div class="vx-context-item" id="vx-fl-menu-expire-3" onclick="VX_FILELIST.setExpireContextItem(99)">
+        <iconpark-icon name="infinity"></iconpark-icon>
+        <span>永久保存</span>
     </div>
+    <div class="vx-context-item" id="vx-fl-menu-expire-0" onclick="VX_FILELIST.setExpireContextItem(0)">
+        <iconpark-icon name="clock"></iconpark-icon>
+        <span>24 小时</span>
+    </div>
+    <div class="vx-context-item" id="vx-fl-menu-expire-1" onclick="VX_FILELIST.setExpireContextItem(1)">
+        <iconpark-icon name="clock"></iconpark-icon>
+        <span>3 天</span>
+    </div>
+    <div class="vx-context-item" id="vx-fl-menu-expire-2" onclick="VX_FILELIST.setExpireContextItem(2)">
+        <iconpark-icon name="clock"></iconpark-icon>
+        <span>7 天</span>
+    </div>
+
     <div class="vx-context-divider"></div>
-    <div class="vx-context-item vx-text-danger" onclick="VX_FILELIST.deleteContextItem()">
+    <div class="vx-context-item vx-text-danger" id="vx-fl-menu-delete" onclick="VX_FILELIST.deleteContextItem()">
         <iconpark-icon name="trash"></iconpark-icon>
         <span data-tpl="menu_delete">删除</span>
     </div>
@@ -958,6 +1001,13 @@
     height: 1px;
     background: var(--vx-border);
     margin: 6px 0;
+}
+
+.vx-context-label {
+    padding: 6px 16px 4px;
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    font-weight: 500;
 }
 
 /* Selection Bar */

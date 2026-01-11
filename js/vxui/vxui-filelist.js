@@ -31,6 +31,9 @@ var VX_FILELIST = VX_FILELIST || {
     
     // 右键菜单目标
     contextTarget: null,
+
+    // 右键菜单模式：'context'（右键）|'more'（行内更多）
+    contextMode: 'context',
     
     // 图片扩展名
     imageExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'],
@@ -40,12 +43,24 @@ var VX_FILELIST = VX_FILELIST || {
 
     // 刷新状态
     refreshing: false,
+
+    // ==================== Folder Direct (直链文件夹) ====================
+    directDomain: null,
+    directProtocol: 'http://',
+    directDomainReady: false,
+    directDirEnabled: false,
+    directDirKey: null,
+    directLoading: false,
     
     /**
      * 初始化模块
      */
     init(params = {}) {
         console.log('[VX_FILELIST] Initializing...', params);
+
+        // 防止事件监听器重复绑定
+        this.unbindEvents();
+        this.hideContextMenu();
         
         // 检查登录状态
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
@@ -65,6 +80,14 @@ var VX_FILELIST = VX_FILELIST || {
         this.selectMode = false;
         this.photoList = [];
         this.lightboxOpen = false;
+
+        // reset direct state
+        this.directDomain = null;
+        this.directProtocol = 'http://';
+        this.directDomainReady = false;
+        this.directDirEnabled = false;
+        this.directDirKey = null;
+        this.directLoading = false;
         
         // 显示加载状态
         this.showLoading();
@@ -115,6 +138,9 @@ var VX_FILELIST = VX_FILELIST || {
         if (sidebarTitle) {
             sidebarTitle.textContent = title;
         }
+
+        // 同步直链侧边栏区域（模板每次都会被重建）
+        this.applyDirectSidebarUI();
         
         // 更新相册视图控制显示
         this.updateAlbumViewControls();
@@ -168,17 +194,36 @@ var VX_FILELIST = VX_FILELIST || {
      * 绑定事件
      */
     bindEvents() {
+        // 行内“更多”按钮（事件委托，避免 inline onclick 在部分环境失效）
+        document.addEventListener('click', this._onMoreClick = (e) => {
+            const btn = e && e.target && e.target.closest ? e.target.closest('.vx-more-btn') : null;
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const row = btn.closest ? btn.closest('.vx-list-row') : null;
+            if (!row) return;
+            this.openMoreMenu(e, row);
+        }, true);
+
         // 右键菜单
         document.addEventListener('contextmenu', this._onContextMenu = (e) => {
             const row = e.target.closest('.vx-list-row');
             if (row) {
                 e.preventDefault();
-                this.showContextMenu(e.pageX, e.pageY, row);
+                // 使用 clientX/clientY（视口坐标），因为菜单是 position: fixed
+                this.showContextMenu(e.clientX, e.clientY, row);
             }
         });
         
-        // 点击隐藏右键菜单
-        document.addEventListener('click', this._onDocClick = () => {
+        // 点击隐藏右键菜单（点菜单本身/更多按钮时不关闭）
+        document.addEventListener('click', this._onDocClick = (e) => {
+            if (!e) {
+                this.hideContextMenu();
+                return;
+            }
+            const inMenu = e.target && e.target.closest && e.target.closest('#vx-fl-context-menu');
+            const onMoreBtn = e.target && e.target.closest && e.target.closest('.vx-more-btn');
+            if (inMenu || onMoreBtn) return;
             this.hideContextMenu();
         });
         
@@ -275,6 +320,9 @@ var VX_FILELIST = VX_FILELIST || {
      * 解绑事件
      */
     unbindEvents() {
+        if (this._onMoreClick) {
+            document.removeEventListener('click', this._onMoreClick, true);
+        }
         if (this._onContextMenu) {
             document.removeEventListener('contextmenu', this._onContextMenu);
         }
@@ -497,6 +545,9 @@ var VX_FILELIST = VX_FILELIST || {
             
             // 更新 UI
             this.updateRoomUI();
+
+            // 加载文件夹直链状态（仅非桌面/登录且 owner 时显示）
+            this.loadDirectFolderState();
             
             // 加载文件列表
             this.loadFileList(0);
@@ -560,6 +611,213 @@ var VX_FILELIST = VX_FILELIST || {
         if (shareBtn) {
             shareBtn.style.display = this.isDesktop ? 'none' : '';
         }
+    },
+
+    // ==================== Folder Direct (直链文件夹) ====================
+    applyDirectSidebarUI() {
+        const section = document.getElementById('vx-fl-direct-section');
+        const toggle = document.getElementById('vx-fl-direct-toggle');
+        const disabled = document.getElementById('vx-fl-direct-disabled');
+        const wrap = document.getElementById('vx-fl-direct-link-wrap');
+        const linkEl = document.getElementById('vx-fl-direct-link');
+
+        // 仅在文件夹（非桌面）且拥有者时展示
+        const show = this.isOwner && !this.isDesktop && this.mrid && String(this.mrid) !== '0';
+        if (section) section.style.display = show ? '' : 'none';
+        if (!show) return;
+
+        const domainReady = !!this.directDomainReady;
+
+        if (toggle) {
+            toggle.disabled = !domainReady;
+            toggle.checked = !!this.directDirEnabled;
+        }
+
+        if (disabled) {
+            disabled.style.display = domainReady ? 'none' : '';
+        }
+
+        const link = this.getFolderDirectLink();
+        if (wrap) wrap.style.display = (domainReady && this.directDirEnabled && !!link) ? '' : 'none';
+        if (linkEl) linkEl.textContent = link || '';
+    },
+
+    apiDirectPost(data) {
+        return new Promise((resolve, reject) => {
+            if (typeof TL === 'undefined') {
+                reject(new Error('TL not ready'));
+                return;
+            }
+            const token = this.getToken();
+            if (token && !TL.api_token) {
+                TL.api_token = token;
+            }
+            if (!token) {
+                reject(new Error('token missing'));
+                return;
+            }
+            const apiUrl = TL.api_direct ? TL.api_direct : '/api_v2/direct';
+            $.post(apiUrl, { ...data, token: token }, (rsp) => resolve(rsp), 'json')
+                .fail((xhr) => reject(xhr));
+        });
+    },
+
+    async loadDirectFolderState() {
+        // hide fast if not applicable
+        const show = this.isOwner && !this.isDesktop && this.mrid && String(this.mrid) !== '0';
+        if (!show) {
+            this.directDomain = null;
+            this.directDomainReady = false;
+            this.directDirEnabled = false;
+            this.directDirKey = null;
+            this.applyDirectSidebarUI();
+            return;
+        }
+
+        if (this.directLoading) return;
+        this.directLoading = true;
+
+        try {
+            const details = await this.apiDirectPost({ action: 'details' });
+            if (details && details.status === 1 && details.data) {
+                const d = details.data;
+                this.directDomain = d.domain;
+                const ssl = d.ssl_status === 'yes';
+                const ssl_acme = d.ssl_acme === 'disable' ? false : true;
+                this.directProtocol = (ssl || ssl_acme) ? 'https://' : 'http://';
+                this.directDomainReady = !!(this.directDomain && this.directDomain !== 0);
+            } else {
+                this.directDomain = null;
+                this.directDomainReady = false;
+            }
+
+            if (!this.directDomainReady) {
+                this.directDirEnabled = false;
+                this.directDirKey = null;
+                this.applyDirectSidebarUI();
+                return;
+            }
+
+            const rsp = await this.apiDirectPost({ action: 'dir_details', mrid: this.mrid });
+            if (rsp && rsp.status === 1) {
+                this.directDirEnabled = true;
+                this.directDirKey = rsp.data;
+            } else {
+                this.directDirEnabled = false;
+                this.directDirKey = null;
+            }
+
+            this.applyDirectSidebarUI();
+
+            // 直链状态变化会影响文件操作按钮
+            this.render();
+        } catch (e) {
+            console.error('[VX_FILELIST] loadDirectFolderState error:', e);
+            this.directDomain = null;
+            this.directDomainReady = false;
+            this.directDirEnabled = false;
+            this.directDirKey = null;
+            this.applyDirectSidebarUI();
+        } finally {
+            this.directLoading = false;
+        }
+    },
+
+    async toggleDirectForFolder() {
+        const toggle = document.getElementById('vx-fl-direct-toggle');
+        if (!toggle) return;
+
+        if (!this.directDomainReady) {
+            toggle.checked = false;
+            VXUI.toastWarning('请先绑定直链域名');
+            return;
+        }
+
+        const wantEnable = !!toggle.checked;
+
+        if (!wantEnable) {
+            // disable
+            VXUI.confirm({
+                title: '关闭文件夹直链',
+                message: '确定要关闭此文件夹的直链分享吗？',
+                confirmClass: 'vx-btn-danger',
+                onConfirm: async () => {
+                    try {
+                        await this.apiDirectPost({ action: 'del_dir', direct_key: this.directDirKey });
+                        VXUI.toastSuccess('已关闭');
+                        await this.loadDirectFolderState();
+                    } catch (e) {
+                        console.error(e);
+                        VXUI.toastError('操作失败');
+                        toggle.checked = true;
+                    }
+                },
+                onCancel: () => {
+                    toggle.checked = true;
+                }
+            });
+            return;
+        }
+
+        // enable
+        try {
+            const rsp = await this.apiDirectPost({ action: 'add_dir', mrid: this.mrid });
+            if (rsp && rsp.status === 1) {
+                VXUI.toastSuccess('已开启');
+                await this.loadDirectFolderState();
+            } else {
+                VXUI.toastError('开启失败');
+                toggle.checked = false;
+            }
+        } catch (e) {
+            console.error(e);
+            VXUI.toastError('开启失败');
+            toggle.checked = false;
+        }
+    },
+
+    getFolderDirectLink() {
+        if (!this.directDomainReady || !this.directDirEnabled || !this.directDirKey) return '';
+        return `${this.directProtocol}${this.directDomain}/share/${this.directDirKey}/`;
+    },
+
+    copyFolderDirectLink() {
+        const link = this.getFolderDirectLink();
+        if (!link) {
+            VXUI.toastWarning('未开启文件夹直链');
+            return;
+        }
+        VXUI.copyToClipboard(link);
+    },
+
+    openFolderDirectLink() {
+        const link = this.getFolderDirectLink();
+        if (!link) {
+            VXUI.toastWarning('未开启文件夹直链');
+            return;
+        }
+        window.open(link, '_blank');
+    },
+
+    getDirectFileShareLink(file) {
+        if (!this.directDomainReady || !this.directDirEnabled || !this.directDirKey) return '';
+        const name = file && (file.fname_ex || file.fname) ? String(file.fname_ex || file.fname) : '';
+        const encoded = encodeURIComponent(name);
+        return `${this.directProtocol}${this.directDomain}/share/${this.directDirKey}/${encoded}`;
+    },
+
+    copyDirectFileLinkByUkey(ukey) {
+        const file = (this.fileList || []).find(f => String(f.ukey) === String(ukey));
+        if (!file) {
+            VXUI.toastError('文件不存在');
+            return;
+        }
+        const link = this.getDirectFileShareLink(file);
+        if (!link) {
+            VXUI.toastWarning('未开启文件夹直链');
+            return;
+        }
+        VXUI.copyToClipboard(link);
     },
     
     /**
@@ -961,14 +1219,14 @@ var VX_FILELIST = VX_FILELIST || {
                 <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.downloadFile('${file.ukey}')" title="下载">
                     <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
                 </button>
-                ${this.isOwner ? `
-                    <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.renameFile('${file.ukey}', '${this.escapeHtml(file.fname_ex || file.fname)}')" title="重命名">
-                        <iconpark-icon name="pen-to-square"></iconpark-icon>
-                    </button>
-                    <button class="vx-list-action-btn vx-action-danger" onclick="event.stopPropagation(); VX_FILELIST.deleteFile('${file.ukey}')" title="删除">
-                        <iconpark-icon name="trash"></iconpark-icon>
+                ${(this.directDomainReady && this.directDirEnabled && this.directDirKey) ? `
+                    <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.copyDirectFileLinkByUkey('${file.ukey}')" title="复制直链">
+                        <iconpark-icon name="copy"></iconpark-icon>
                     </button>
                 ` : ''}
+                <button type="button" class="vx-list-action-btn vx-more-btn" onclick="event.stopPropagation(); VX_FILELIST.openMoreMenu(event, this.closest('.vx-list-row'))" title="更多">
+                    <iconpark-icon name="ellipsis"></iconpark-icon>
+                </button>
             </div>
         `;
         
@@ -1819,21 +2077,215 @@ var VX_FILELIST = VX_FILELIST || {
     },
     
     // ==================== 右键菜单 ====================
-    
-    showContextMenu(x, y, target) {
+
+    ensureContextMenu() {
+        let menu = document.getElementById('vx-fl-context-menu');
+        if (menu) return menu;
+
+        // 兜底：模板未包含菜单时动态创建
+        menu = document.createElement('div');
+        menu.className = 'vx-context-menu';
+        menu.id = 'vx-fl-context-menu';
+        menu.innerHTML = `
+            <div class="vx-context-item" id="vx-fl-menu-open" onclick="VX_FILELIST.openContextItem()">
+                <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+                <span>打开</span>
+            </div>
+            <div class="vx-context-item" id="vx-fl-menu-download" onclick="VX_FILELIST.downloadContextItem()">
+                <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+                <span data-tpl="on_select_download">下载</span>
+            </div>
+            <div class="vx-context-item" id="vx-fl-menu-rename" onclick="VX_FILELIST.renameContextItem()">
+                <iconpark-icon name="pen-to-square"></iconpark-icon>
+                <span data-tpl="menu_rename">重命名</span>
+            </div>
+            <div class="vx-context-item" id="vx-fl-menu-direct-share" onclick="VX_FILELIST.directShareContextItem()">
+                <iconpark-icon name="share-from-square"></iconpark-icon>
+                <span>通过直链分享</span>
+            </div>
+
+            <div class="vx-context-divider" id="vx-fl-menu-expire-divider"></div>
+            <div class="vx-context-label" id="vx-fl-menu-expire-label">修改有效期</div>
+            <div class="vx-context-item" id="vx-fl-menu-expire-3" onclick="VX_FILELIST.setExpireContextItem(99)">
+                <iconpark-icon name="infinity"></iconpark-icon>
+                <span>永久保存</span>
+            </div>
+            <div class="vx-context-item" id="vx-fl-menu-expire-0" onclick="VX_FILELIST.setExpireContextItem(0)">
+                <iconpark-icon name="clock"></iconpark-icon>
+                <span>24 小时</span>
+            </div>
+            <div class="vx-context-item" id="vx-fl-menu-expire-1" onclick="VX_FILELIST.setExpireContextItem(1)">
+                <iconpark-icon name="clock"></iconpark-icon>
+                <span>3 天</span>
+            </div>
+            <div class="vx-context-item" id="vx-fl-menu-expire-2" onclick="VX_FILELIST.setExpireContextItem(2)">
+                <iconpark-icon name="clock"></iconpark-icon>
+                <span>7 天</span>
+            </div>
+
+            <div class="vx-context-divider"></div>
+            <div class="vx-context-item vx-text-danger" id="vx-fl-menu-delete" onclick="VX_FILELIST.deleteContextItem()">
+                <iconpark-icon name="trash"></iconpark-icon>
+                <span data-tpl="menu_delete">删除</span>
+            </div>
+        `;
+
+        document.body.appendChild(menu);
+        return menu;
+    },
+
+    showContextMenu(x, y, target, mode = 'context') {
         this.contextTarget = target;
-        const menu = document.getElementById('vx-fl-context-menu');
+        this.contextMode = mode || 'context';
+
+        const menu = this.ensureContextMenu();
         if (!menu) return;
-        
-        menu.style.left = x + 'px';
-        menu.style.top = y + 'px';
+
+        this.updateContextMenuForTarget();
+
+        // 先显示确保可测量尺寸
         menu.classList.add('show');
+
+        const menuRect = menu.getBoundingClientRect();
+        const padding = 8;
+
+        let left = x;
+        let top = y;
+
+        // 菜单使用 position: fixed，使用视口坐标
+        const maxLeft = window.innerWidth - menuRect.width - padding;
+        const maxTop = window.innerHeight - menuRect.height - padding;
+        const minLeft = padding;
+        const minTop = padding;
+
+        if (left > maxLeft) left = maxLeft;
+        if (top > maxTop) top = maxTop;
+        if (left < minLeft) left = minLeft;
+        if (top < minTop) top = minTop;
+
+        menu.style.left = left + 'px';
+        menu.style.top = top + 'px';
     },
     
     hideContextMenu() {
         const menu = document.getElementById('vx-fl-context-menu');
         if (menu) menu.classList.remove('show');
         this.contextTarget = null;
+        this.contextMode = 'context';
+    },
+
+    openMoreMenu(event, row) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        const target = row || (event && event.target && event.target.closest
+            ? event.target.closest('.vx-list-row')
+            : null);
+        if (!target) return;
+
+        // 从 event.target 找到实际的按钮元素
+        const btn = event && event.target ? event.target.closest('.vx-more-btn') : null;
+        
+        if (btn) {
+            // 使用按钮位置计算菜单位置
+            const rect = btn.getBoundingClientRect();
+            const menuWidth = 180; // 预估菜单宽度
+            const menuHeight = 280; // 预估菜单高度
+            
+            let x, y;
+            
+            // 水平方向：优先在按钮右侧，空间不够则在左侧
+            if (rect.right + menuWidth + 8 <= window.innerWidth) {
+                x = rect.right + 4;
+            } else {
+                x = rect.left - menuWidth - 4;
+            }
+            
+            // 垂直方向：优先在按钮下方，空间不够则在上方
+            if (rect.bottom + menuHeight + 8 <= window.innerHeight) {
+                y = rect.top;
+            } else {
+                y = rect.bottom - menuHeight;
+            }
+            
+            // 确保不超出视口
+            x = Math.max(8, Math.min(x, window.innerWidth - menuWidth - 8));
+            y = Math.max(8, Math.min(y, window.innerHeight - menuHeight - 8));
+            
+            this.showContextMenu(x, y, target, 'more');
+        } else {
+            // 降级：使用鼠标点击位置
+            const x = event && typeof event.clientX === 'number' ? event.clientX : 100;
+            const y = event && typeof event.clientY === 'number' ? event.clientY : 100;
+            this.showContextMenu(x, y, target, 'more');
+        }
+    },
+
+    updateContextMenuForTarget() {
+        const target = this.contextTarget;
+        if (!target) return;
+
+        const type = target.dataset.type;
+        const isFile = type === 'file';
+        const canOwnerOps = !!this.isOwner;
+
+        const elOpen = document.getElementById('vx-fl-menu-open');
+        const elDownload = document.getElementById('vx-fl-menu-download');
+        const elRename = document.getElementById('vx-fl-menu-rename');
+        const elDelete = document.getElementById('vx-fl-menu-delete');
+        const elDirectShare = document.getElementById('vx-fl-menu-direct-share');
+        const elExpireDivider = document.getElementById('vx-fl-menu-expire-divider');
+        const elExpire0 = document.getElementById('vx-fl-menu-expire-0');
+        const elExpire1 = document.getElementById('vx-fl-menu-expire-1');
+        const elExpire2 = document.getElementById('vx-fl-menu-expire-2');
+        const elExpire3 = document.getElementById('vx-fl-menu-expire-3');
+        const elExpireLabel = document.getElementById('vx-fl-menu-expire-label');
+
+        // “更多(...)”菜单：仅显示扩展操作（重命名/删除/直链/有效期）
+        if (this.contextMode === 'more') {
+            if (elOpen) elOpen.style.display = 'none';
+            if (elDownload) elDownload.style.display = 'none';
+        } else {
+            if (elOpen) elOpen.style.display = '';
+            if (elDownload) elDownload.style.display = '';
+        }
+
+        // 文件夹：隐藏直链与有效期
+        if (elDirectShare) elDirectShare.style.display = isFile ? '' : 'none';
+        if (elExpireDivider) elExpireDivider.style.display = isFile ? '' : 'none';
+
+        // 获取当前文件的 model（有效期）
+        const ukey = target.dataset.ukey;
+        const file = isFile ? (this.fileList || []).find(f => String(f.ukey) === String(ukey)) : null;
+        const currentModel = (file && file.model !== undefined && file.model !== null && file.model !== '')
+            ? Number(file.model)
+            : null;
+
+        // 检查私有空间是否足够显示"永久保存"选项
+        const fileSize = file ? (Number(file.fsize) || 0) : 0;
+        const storageTotal = (typeof TL !== 'undefined' && TL.storage) ? Number(TL.storage) : 0;
+        const privateUsed = (typeof TL !== 'undefined' && TL.private_storage_used) ? Number(TL.private_storage_used) : 0;
+        const remainingSpace = storageTotal - privateUsed;
+        const canSetPermanent = (fileSize <= remainingSpace);
+
+        // 显示"修改有效期"标签
+        if (elExpireLabel) elExpireLabel.style.display = (isFile && canOwnerOps) ? '' : 'none';
+
+        // 根据当前 model 隐藏对应的有效期选项（不显示已选中的选项）
+        // 注意：永久保存的 model 值是 99
+        if (elExpire0) elExpire0.style.display = (isFile && canOwnerOps && currentModel !== 0) ? '' : 'none';
+        if (elExpire1) elExpire1.style.display = (isFile && canOwnerOps && currentModel !== 1) ? '' : 'none';
+        if (elExpire2) elExpire2.style.display = (isFile && canOwnerOps && currentModel !== 2) ? '' : 'none';
+        // 永久保存选项（model=99）：除了检查 currentModel，还需检查私有空间是否足够
+        if (elExpire3) elExpire3.style.display = (isFile && canOwnerOps && currentModel !== 99 && canSetPermanent) ? '' : 'none';
+
+        // 显示有效期分隔线
+        if (elExpireDivider) elExpireDivider.style.display = (isFile && canOwnerOps) ? '' : 'none';
+
+        // 非 owner：隐藏重命名/删除
+        if (elRename) elRename.style.display = canOwnerOps ? '' : 'none';
+        if (elDelete) elDelete.style.display = canOwnerOps ? '' : 'none';
     },
     
     openContextItem() {
@@ -1867,14 +2319,66 @@ var VX_FILELIST = VX_FILELIST || {
         this.hideContextMenu();
     },
     
-    shareContextItem() {
+
+    directShareContextItem() {
+        if (!this.contextTarget) return;
+        const type = this.contextTarget.dataset.type;
+        if (type !== 'file') {
+            this.hideContextMenu();
+            return;
+        }
+        this.copyDirectFileLinkByUkey(this.contextTarget.dataset.ukey);
         this.hideContextMenu();
-        VXUI.toastInfo('分享功能开发中');
     },
-    
-    moveContextItem() {
+
+    setExpireContextItem(model) {
+        if (!this.contextTarget) return;
+        const type = this.contextTarget.dataset.type;
+        if (type !== 'file') {
+            this.hideContextMenu();
+            return;
+        }
+        if (!this.isOwner) {
+            VXUI.toastWarning('无权限');
+            this.hideContextMenu();
+            return;
+        }
+        this.changeFileModel(this.contextTarget.dataset.ukey, model);
         this.hideContextMenu();
-        VXUI.toastInfo('移动功能开发中');
+    },
+
+    changeFileModel(ukey, model) {
+        const token = this.getToken();
+        if (!token) {
+            VXUI.toastError('未登录');
+            return;
+        }
+
+        // 对齐老版：使用 ukeys 数组
+        const apiUrl = (typeof TL !== 'undefined' && TL.api_file)
+            ? TL.api_file
+            : ((typeof TL !== 'undefined' && TL.api_url) ? (TL.api_url + '/file') : '/api_v2/file');
+
+        $.post(apiUrl, {
+            action: 'change_model',
+            token: token,
+            ukeys: [ukey],
+            model: model
+        }, (rsp) => {
+            if (rsp && rsp.status === 1) {
+                VXUI.toastSuccess('修改成功');
+                this.refresh();
+                return;
+            }
+            // 处理不同的错误状态
+            if (rsp && rsp.status === 2) {
+                VXUI.toastError('存储空间不足');
+            } else {
+                VXUI.toastError('修改失败');
+            }
+        }, 'json').fail(() => {
+            VXUI.toastError('修改失败');
+        });
     },
     
     deleteContextItem() {

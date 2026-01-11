@@ -168,6 +168,270 @@ html.vx-dark {
     position: relative;
 }
 
+/* ==================== List View (Shared) ==================== */
+.vx-list-container {
+    width: 100%;
+    flex: 1;
+    background: var(--vx-surface);
+    border-radius: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.vx-list-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--vx-bg-secondary);
+    border-bottom: 1px solid var(--vx-border);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--vx-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.vx-list-col {
+    flex-shrink: 0;
+}
+
+.vx-list-col-name {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+}
+
+.vx-list-col-size {
+    width: 100px;
+    text-align: right;
+}
+
+.vx-list-col-date {
+    width: 150px;
+    text-align: right;
+}
+
+.vx-list-col-actions {
+    width: 120px;
+    text-align: right;
+}
+
+.vx-list-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.vx-list-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--vx-border);
+    transition: background 0.15s ease;
+    cursor: pointer;
+}
+
+.vx-list-row:hover {
+    background: var(--vx-surface-hover);
+}
+
+.vx-list-row:last-child {
+    border-bottom: none;
+}
+
+.vx-list-row.selected {
+    background: var(--vx-primary-light);
+}
+
+.vx-list-checkbox {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    border: 2px solid var(--vx-border-hover);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.vx-list-checkbox:hover {
+    border-color: var(--vx-primary);
+}
+
+.vx-list-row.selected .vx-list-checkbox {
+    background: var(--vx-primary);
+    border-color: var(--vx-primary);
+}
+
+.vx-list-row.selected .vx-list-checkbox::after {
+    content: '';
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.vx-list-checkbox.vx-checked {
+    background: var(--vx-primary);
+    border-color: var(--vx-primary);
+}
+
+.vx-list-checkbox.vx-checked::after {
+    content: '';
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.vx-list-checkbox.vx-indeterminate {
+    background: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+}
+
+.vx-list-checkbox.vx-indeterminate::after {
+    content: '';
+    width: 10px;
+    height: 2px;
+    background: var(--vx-primary);
+    border-radius: 1px;
+}
+
+.vx-list-name {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.vx-list-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.vx-list-icon iconpark-icon {
+    font-size: 24px;
+}
+
+.vx-list-size,
+.vx-list-date {
+    color: var(--vx-text-secondary);
+    font-size: 13px;
+}
+
+.vx-list-size {
+    width: 100px;
+    text-align: right;
+}
+
+.vx-list-date {
+    width: 150px;
+    text-align: right;
+}
+
+.vx-list-actions {
+    width: 120px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.vx-list-action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    border-radius: var(--vx-radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--vx-text-secondary);
+    transition: all 0.15s ease;
+}
+
+.vx-list-action-btn:hover {
+    background: var(--vx-bg-secondary);
+    color: var(--vx-primary);
+}
+
+.vx-list-action-btn.vx-action-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+}
+
+.vx-list-filename {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.vx-list-filename a {
+    color: var(--vx-text);
+    text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.vx-list-filename a:hover {
+    color: var(--vx-primary);
+}
+
+/* ==================== Selection Bar (Shared) ==================== */
+.vx-selection-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--vx-surface);
+    background: color-mix(in srgb, var(--vx-surface) 80%, transparent);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    box-shadow: var(--vx-shadow-lg);
+    padding: 12px 20px;
+    display: none;
+    align-items: center;
+    gap: 16px;
+    z-index: 100;
+}
+
+.vx-selection-info {
+    font-weight: 500;
+    color: var(--vx-text);
+}
+
+.vx-selection-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .vx-selection-bar {
+        left: 10px;
+        right: 10px;
+        transform: none;
+        flex-wrap: wrap;
+    }
+}
+
 /* Sidebar Overlay (Mobile) */
 .vx-sidebar-overlay {
     display: none;
@@ -492,6 +756,75 @@ html.vx-dark {
     flex: 1;
     padding: 24px;
     overflow-y: auto;
+}
+
+/* List-style content (filelist-like): no padding, flex column */
+.vx-content-list {
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Minimal header (filelist-like) */
+.vx-header-minimal {
+    position: sticky;
+    top: 0;
+    z-index: var(--vx-z-sticky);
+    padding: 12px 20px;
+    background: var(--vx-surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--vx-border);
+    margin-bottom: 0;
+}
+
+/* 深色/浅色模式半透明背景（沿用 filelist 视觉） */
+@supports (backdrop-filter: blur(12px)) {
+    .vx-header-minimal {
+        background: rgba(30, 41, 59, 0.85);
+    }
+
+    @media (prefers-color-scheme: light) {
+        html:not(.vx-dark) .vx-header-minimal {
+            background: rgba(255, 255, 255, 0.85);
+        }
+    }
+
+    html.vx-light .vx-header-minimal {
+        background: rgba(255, 255, 255, 0.85);
+    }
+}
+
+.vx-header-minimal .vx-page-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Direct: keep header controls in one row to avoid tall header */
+#vx-direct-header-files-controls {
+    flex-wrap: nowrap !important;
+}
+
+#vx-direct-header-files-controls .vx-select {
+    width: auto;
+    max-width: 140px;
+}
+
+/* Direct list panels should fill height in list mode */
+.vx-content-list #vx-direct-panels {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.vx-content-list #vx-direct-panel-files,
+.vx-content-list #vx-direct-panel-folders {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Toolbar */

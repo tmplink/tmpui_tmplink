@@ -1,109 +1,540 @@
 <!-- VXUI Direct Module Template -->
 
+<!-- Dynamic Sidebar Content -->
+<template id="vx-direct-sidebar-tpl">
+    <div class="vx-nav-section">
+        <div class="vx-nav-title" data-tpl="nav_direct">直链</div>
+        <a href="javascript:;" class="vx-nav-item" id="vx-direct-nav-dashboard" onclick="VX_DIRECT.showTab('dashboard')">
+            <iconpark-icon name="gauge-circle-bolt"></iconpark-icon>
+            <span class="vx-nav-item-text">仪表盘</span>
+        </a>
+        <a href="javascript:;" class="vx-nav-item" id="vx-direct-nav-files" onclick="VX_DIRECT.showTab('files')">
+            <iconpark-icon name="file"></iconpark-icon>
+            <span class="vx-nav-item-text">文件</span>
+        </a>
+        <a href="javascript:;" class="vx-nav-item" id="vx-direct-nav-folders" onclick="VX_DIRECT.showTab('folders')">
+            <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+            <span class="vx-nav-item-text">文件夹</span>
+        </a>
+        <a href="javascript:;" class="vx-nav-item" id="vx-direct-nav-domain" onclick="VX_DIRECT.showTab('domain')">
+            <iconpark-icon name="globe"></iconpark-icon>
+            <span class="vx-nav-item-text">域名设置</span>
+        </a>
+        <a href="javascript:;" class="vx-nav-item" id="vx-direct-nav-api" onclick="VX_DIRECT.showTab('api')">
+            <iconpark-icon name="key"></iconpark-icon>
+            <span class="vx-nav-item-text">API</span>
+        </a>
+    </div>
+</template>
+
 <!-- Header -->
-<header class="vx-header">
+<header class="vx-header vx-header-minimal">
     <div class="vx-header-left">
-        <button class="vx-btn-icon" onclick="VXUI.toggleSidebar()">
+        <button class="vx-btn-icon vx-portrait-sidebar-btn" onclick="VXUI.toggleSidebar()" title="菜单">
             <iconpark-icon name="bars"></iconpark-icon>
         </button>
-        
-        <h1 class="vx-text-xl vx-font-semibold" data-tpl="nav_direct">直链</h1>
+        <h1 class="vx-page-title">
+            <iconpark-icon name="link"></iconpark-icon>
+            <span data-tpl="nav_direct">直链</span>
+        </h1>
     </div>
-    
+
     <div class="vx-header-right">
-        <button class="vx-btn-icon" onclick="VX_DIRECT.refresh()" data-vx-tooltip="刷新">
-            <iconpark-icon name="rotate"></iconpark-icon>
+        <div id="vx-direct-header-files-controls" style="display:none; align-items:center; gap: 8px; flex-wrap: wrap;">
+            <select id="vx-direct-sort-by" class="vx-select" style="max-width: 160px;" onchange="VX_DIRECT.onSortChange()">
+                <option value="0">按时间</option>
+                <option value="1">按名称</option>
+                <option value="2">按大小</option>
+            </select>
+            <select id="vx-direct-sort-type" class="vx-select" style="max-width: 160px;" onchange="VX_DIRECT.onSortChange()">
+                <option value="0">降序</option>
+                <option value="1">升序</option>
+            </select>
+        </div>
+        <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.showHelp()" title="帮助">
+            <iconpark-icon name="circle-info"></iconpark-icon>
+            <span data-tpl="direct_what">什么是直链</span>
         </button>
     </div>
 </header>
 
 <!-- Content -->
-<div class="vx-content">
-    <!-- Info Card -->
-    <div class="vx-card vx-mb-md">
-        <div class="vx-card-body">
-            <div class="vx-flex vx-items-center vx-gap-md">
-                <div class="vx-avatar vx-avatar-xl" style="background: var(--vx-info-light);">
-                    <iconpark-icon name="link" style="font-size: 32px; color: var(--vx-info);"></iconpark-icon>
-                </div>
-                <div class="vx-flex-1">
-                    <h2 class="vx-text-2xl vx-font-semibold" data-tpl="nav_direct">直链管理</h2>
-                    <div class="vx-flex vx-items-center vx-gap-md vx-mt-sm vx-text-muted">
-                        <span>
-                            <iconpark-icon name="link"></iconpark-icon>
-                            <span id="vx-direct-count">0</span> 个直链
-                        </span>
-                    </div>
-                </div>
-                <button class="vx-btn vx-btn-secondary" onclick="VX_DIRECT.showHelp()">
-                    <iconpark-icon name="circle-info"></iconpark-icon>
-                    <span data-tpl="direct_what">什么是直链</span>
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Toolbar -->
-    <div class="vx-toolbar vx-mb-md">
-        <div class="vx-flex vx-items-center vx-gap-sm">
-            <button class="vx-btn vx-btn-ghost vx-btn-sm" onclick="VX_DIRECT.toggleSelectAll()">
-                <iconpark-icon name="check-square"></iconpark-icon>
-                <span data-tpl="on_select_all">全选</span>
-            </button>
-            <div class="vx-btn-group vx-hidden" id="vx-direct-batch-actions">
-                <span class="vx-text-sm vx-text-muted vx-mr-sm">
-                    已选 <span id="vx-direct-selected-count">0</span> 项
-                </span>
-                <button class="vx-btn vx-btn-ghost vx-btn-sm" onclick="VX_DIRECT.copySelectedUrls()">
-                    <iconpark-icon name="copy"></iconpark-icon>
-                    <span>复制链接</span>
-                </button>
-                <button class="vx-btn vx-btn-ghost vx-btn-sm vx-text-danger" onclick="VX_DIRECT.deleteSelected()">
-                    <iconpark-icon name="trash"></iconpark-icon>
-                    <span data-tpl="on_select_delete">删除</span>
-                </button>
-            </div>
-        </div>
-    </div>
-    
+<div class="vx-content" id="vx-direct-content">
     <!-- Loading State -->
     <div class="vx-loading" id="vx-direct-loading">
         <div class="vx-spinner vx-spinner-lg"></div>
         <span class="vx-loading-text" data-tpl="loading">加载中...</span>
     </div>
-    
-    <!-- Direct List -->
-    <div id="vx-direct-content" class="vx-hidden">
-        <div class="vx-file-list" id="vx-direct-list">
-            <!-- Items will be rendered here -->
-        </div>
-    </div>
-    
-    <!-- Empty State -->
-    <div class="vx-empty vx-hidden" id="vx-direct-empty">
-        <div class="vx-empty-icon">
-            <iconpark-icon name="link"></iconpark-icon>
-        </div>
-        <h3 class="vx-empty-title">暂无直链</h3>
-        <p class="vx-empty-text">在文件列表中选择文件，可以创建直链</p>
-        <button class="vx-btn vx-btn-primary" onclick="VXUI.navigate('filelist')">
-            <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
-            <span data-tpl="nav_files">查看文件</span>
-        </button>
+
+    <!-- Tabs -->
+    <div id="vx-direct-panels" class="vx-hidden">
+        <!-- Dashboard Tab -->
+        <section id="vx-direct-panel-dashboard">
+            <!-- Summary Card -->
+            <div class="vx-card vx-mb-md">
+                <div class="vx-card-body">
+                    <div class="vx-flex vx-items-center vx-gap-md" style="gap: 16px;">
+                        <div class="vx-avatar vx-avatar-xl" style="background: var(--vx-info-light);">
+                            <iconpark-icon name="globe" style="font-size: 32px; color: var(--vx-info);"></iconpark-icon>
+                        </div>
+                        <div class="vx-flex-1" style="min-width: 0;">
+                            <div class="vx-text-lg vx-font-semibold" style="display:flex; align-items:center; gap:10px;">
+                                <span id="vx-direct-domain-text">未绑定域名</span>
+                                <iconpark-icon id="vx-direct-domain-lock" name="lock-solid" style="display:none;"></iconpark-icon>
+                            </div>
+                            <div class="vx-flex vx-items-center vx-gap-md vx-mt-sm vx-text-muted" style="gap: 12px; flex-wrap: wrap;">
+                                <span><iconpark-icon name="link"></iconpark-icon> <span id="vx-direct-count">0</span> 个直链</span>
+                                <span><iconpark-icon name="battery-three-quarters"></iconpark-icon> <span id="vx-direct-quota">0</span></span>
+                                <span><iconpark-icon name="arrow-up-arrow-down"></iconpark-icon> <span id="vx-direct-total-transfer">0</span></span>
+                                <span><iconpark-icon name="download"></iconpark-icon> <span id="vx-direct-total-downloads">0</span></span>
+                            </div>
+                            <div id="vx-direct-ready" class="vx-text-muted" style="margin-top: 10px; display:none;">
+                                <span>服务已就绪</span>
+                            </div>
+                            <div id="vx-direct-progress" style="margin-top: 10px; display:none;">
+                                <div style="height: 6px; background: var(--vx-bg-secondary); border-radius: var(--vx-radius); overflow: hidden;">
+                                    <div id="vx-direct-progress-bar" style="height: 6px; width: 0%; background: var(--vx-success);"></div>
+                                </div>
+                                <div class="vx-text-muted" style="margin-top: 6px; font-size: var(--vx-text-xs);">正在处理中…</div>
+                            </div>
+                        </div>
+                        <div class="vx-flex" id="vx-direct-top-actions" style="display:flex; gap: 8px; align-items:center; flex-wrap: wrap; justify-content: flex-end;">
+                            <button class="vx-btn vx-btn-ghost" id="vx-direct-top-brand" onclick="VX_DIRECT.openBrandSettings()" title="品牌设置">
+                                <iconpark-icon name="setting-two"></iconpark-icon>
+                                <span>品牌</span>
+                            </button>
+                            <button class="vx-btn vx-btn-secondary" id="vx-direct-top-quota" onclick="VX_DIRECT.openQuotaPurchase()" title="购买直链配额">
+                                <iconpark-icon name="battery-bolt"></iconpark-icon>
+                                <span>购买配额</span>
+                            </button>
+                            <button class="vx-btn vx-btn-secondary" id="vx-direct-top-domain" onclick="VX_DIRECT.showTab('domain')" title="域名设置">
+                                <iconpark-icon name="signal-stream"></iconpark-icon>
+                                <span>域名设置</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="vx-direct-notice-cname" class="vx-text-danger" style="margin-top: 12px; display:none;">
+                        域名解析似乎未正确指向，请检查 CNAME 记录。
+                    </div>
+                    <div id="vx-direct-notice-quota" class="vx-text-danger" style="margin-top: 8px; display:none;">
+                        剩余配额较低，建议及时补充。
+                    </div>
+                </div>
+            </div>
+
+            <div class="vx-card vx-mb-md" id="vx-direct-usage-card">
+                <div class="vx-card-header">
+                    <div class="vx-card-title">流量统计</div>
+                </div>
+                <div class="vx-card-body">
+                    <div class="vx-text-muted" style="margin-bottom: 10px;">展示直链下载流量（按时间统计）。</div>
+                    <div style="display:flex; gap: 8px; flex-wrap: wrap; align-items:center; margin-bottom: 10px;">
+                        <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.loadUsage(2)">24小时</button>
+                        <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.loadUsage(3)">过去一周</button>
+                        <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.loadUsage(4)">最近30天</button>
+                    </div>
+                    <div id="vx-direct-usage-chart" style="max-width: 100%;"></div>
+                </div>
+            </div>
+
+            <div class="vx-card" id="vx-direct-brand-card" style="margin-top: 16px;">
+                <div class="vx-card-header">
+                    <div class="vx-card-title">品牌设置</div>
+                </div>
+                <div class="vx-card-body">
+                    <div class="vx-text-muted" style="margin-bottom: 12px;">自定义直链页面的品牌信息（Logo / 标题 / 描述）。</div>
+
+                    <div style="display:flex; gap: 12px; flex-wrap: wrap; align-items: flex-start;">
+                        <div style="min-width: 220px;">
+                            <div class="vx-text-sm" style="margin-bottom: 6px;">当前 Logo</div>
+                            <div id="vx-direct-brand-logo-preview" style="width: 72px; height: 72px; border-radius: var(--vx-radius-md); background: var(--vx-bg-secondary); display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                                <iconpark-icon name="image" style="font-size: 28px; color: var(--vx-text-muted);"></iconpark-icon>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <input id="vx-direct-brand-logo-input" type="file" accept="image/*" onchange="VX_DIRECT.brandLogoSet(this)" />
+                            </div>
+                            <div id="vx-direct-brand-logo-msg" class="vx-text-muted" style="margin-top: 8px; font-size: var(--vx-text-xs);"></div>
+                        </div>
+
+                        <div style="flex: 1; min-width: 260px;">
+                            <label class="vx-text-sm" style="display:block; margin-bottom: 6px;">品牌标题</label>
+                            <input id="vx-direct-brand-title" class="vx-input" placeholder="请输入品牌标题" />
+
+                            <label class="vx-text-sm" style="display:block; margin: 12px 0 6px;">品牌描述</label>
+                            <textarea id="vx-direct-brand-content" class="vx-input" style="min-height: 110px; resize: vertical;" placeholder="请输入品牌描述"></textarea>
+
+                            <div style="margin-top: 12px; display:flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                                <button class="vx-btn vx-btn-primary" onclick="VX_DIRECT.brandSet()">
+                                    <iconpark-icon name="floppy-disk"></iconpark-icon>
+                                    <span>保存品牌</span>
+                                </button>
+                                <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.brandReview()">
+                                    <iconpark-icon name="paper-plane"></iconpark-icon>
+                                    <span>提交审核</span>
+                                </button>
+                                <span id="vx-direct-brand-save-status" class="vx-text-muted" style="font-size: var(--vx-text-xs);"></span>
+                            </div>
+
+                            <div style="margin-top: 12px;">
+                                <span class="vx-text-sm">当前状态：</span>
+                                <span id="vx-direct-brand-status" class="vx-text-muted">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Files Tab -->
+        <section id="vx-direct-panel-files" style="display:none;">
+            <div id="vx-direct-files-empty" class="vx-empty" style="display:none;">
+                <div class="vx-empty-icon"><iconpark-icon name="link"></iconpark-icon></div>
+                <h3 class="vx-empty-title">暂无直链文件</h3>
+                <p class="vx-empty-text">可在文件列表中创建直链，然后在此处管理。</p>
+                <button class="vx-btn vx-btn-primary" onclick="VXUI.navigate('filelist')">
+                    <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+                    <span data-tpl="nav_files">查看文件</span>
+                </button>
+            </div>
+
+            <div class="vx-list-container" id="vx-direct-files-list" style="display:none;">
+                <div class="vx-list-header">
+                    <div class="vx-list-col vx-list-col-name">
+                        <div class="vx-list-checkbox" id="vx-direct-select-all" onclick="event.stopPropagation(); VX_DIRECT.toggleSelectAllFromHeader()" title="全选"></div>
+                        <span data-tpl="filename">文件名</span>
+                    </div>
+                    <div class="vx-list-col vx-list-col-size">
+                        <span data-tpl="filesize">大小</span>
+                    </div>
+                    <div class="vx-list-col vx-list-col-date vx-hide-mobile">
+                        <span data-tpl="filedate">日期</span>
+                    </div>
+                    <div class="vx-list-col vx-list-col-actions">
+                        <span data-tpl="actions">操作</span>
+                    </div>
+                </div>
+                <div class="vx-list-body" id="vx-direct-files-list-body"></div>
+            </div>
+
+            <!-- Selection Bar (filelist-style) -->
+            <div class="vx-selection-bar" id="vx-direct-selection-bar" style="display: none;">
+                <div class="vx-selection-info">
+                    <span class="vx-selection-count">已选择 <strong id="vx-direct-selected-count">0</strong> 项</span>
+                </div>
+                <div class="vx-selection-actions">
+                    <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.copySelectedUrls()">
+                        <iconpark-icon name="copy"></iconpark-icon>
+                        <span>复制链接</span>
+                    </button>
+                    <button class="vx-btn vx-btn-ghost vx-text-danger" onclick="VX_DIRECT.deleteSelected()">
+                        <iconpark-icon name="trash"></iconpark-icon>
+                        <span data-tpl="on_select_delete">删除</span>
+                    </button>
+                    <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.clearSelection()">
+                        <span data-tpl="on_select_cancel">取消</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Folders Tab -->
+        <section id="vx-direct-panel-folders" style="display:none;">
+            <div id="vx-direct-folders-empty" class="vx-empty" style="display:none;">
+                <div class="vx-empty-icon"><iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon></div>
+                <h3 class="vx-empty-title">暂无直链文件夹</h3>
+                <p class="vx-empty-text">已开启直链的文件夹会出现在这里。</p>
+            </div>
+
+            <div class="vx-list-container" id="vx-direct-folders-list" style="display:none;">
+                <div class="vx-list-header">
+                    <div class="vx-list-col vx-list-col-name">
+                        <div class="vx-list-checkbox" style="visibility:hidden"></div>
+                        <span data-tpl="filename">文件名</span>
+                    </div>
+                    <div class="vx-list-col vx-list-col-size">
+                        <span data-tpl="filesize">大小</span>
+                    </div>
+                    <div class="vx-list-col vx-list-col-date vx-hide-mobile">
+                        <span data-tpl="filedate">日期</span>
+                    </div>
+                    <div class="vx-list-col vx-list-col-actions">
+                        <span data-tpl="actions">操作</span>
+                    </div>
+                </div>
+                <div class="vx-list-body" id="vx-direct-folders-list-body"></div>
+            </div>
+        </section>
+
+        <!-- API Tab -->
+        <section id="vx-direct-panel-api" style="display:none;">
+            <div class="vx-card vx-mb-md">
+                <div class="vx-card-body">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap: 12px; flex-wrap: wrap;">
+                        <div>
+                            <div class="vx-text-lg vx-font-semibold">API Key</div>
+                            <div class="vx-text-muted" style="margin-top: 4px;">用于 CLI / 接口访问</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap: 8px;">
+                            <span class="vx-badge" style="background: var(--vx-primary-light); color: var(--vx-primary); padding: 6px 10px; border-radius: var(--vx-radius);">KEY</span>
+                            <span id="vx-direct-api-key" style="font-family: var(--vx-font-mono); user-select: all;">-</span>
+                            <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.copyAPIKey()" id="vx-direct-api-copy" title="复制">
+                                <iconpark-icon name="copy"></iconpark-icon>
+                                <span>复制</span>
+                            </button>
+                            <button class="vx-btn vx-btn-ghost vx-text-danger" onclick="VX_DIRECT.resetAPIKey()" id="vx-direct-api-reset" title="重置">
+                                <iconpark-icon name="rotate"></iconpark-icon>
+                                <span>重置</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="vx-card">
+                <div class="vx-card-header">
+                    <div class="vx-card-title">接口概览</div>
+                </div>
+                <div class="vx-card-body">
+                    <div class="vx-text-muted" style="margin-bottom: 12px;">基础地址：<span id="vx-direct-api-base" style="font-family: var(--vx-font-mono); user-select: all;"></span></div>
+                    <div class="vx-text-sm" style="line-height: 1.8;">
+                        <div><strong>POST</strong> https://tmp-cli.vx-cdn.com/app/upload_cli <span class="vx-text-muted">上传文件（返回 ukey）</span></div>
+                        <div><strong>POST</strong> https://tmp-api.vx-cdn.com/services/direct <span class="vx-text-muted">配额/列表/直链管理（action=quota / list_of_workspace / list_of_direct / link_add / link_del）</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="vx-card" style="margin-top: 16px;">
+                <div class="vx-card-header">
+                    <div class="vx-card-title">接口文档（服务端 API）</div>
+                </div>
+                <div class="vx-card-body">
+                    <div class="vx-text-muted" style="margin-bottom: 12px;">以下内容迁移自旧版直链 API 文档，便于对接脚本/CLI。</div>
+
+                    <details style="padding: 10px 0;">
+                        <summary style="cursor:pointer;">POST https://tmp-cli.vx-cdn.com/app/upload_cli（上传文件）</summary>
+                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
+                            <div style="margin-bottom: 8px;">Endpoint：<span style="font-family: var(--vx-font-mono); user-select: all;">https://tmp-cli.vx-cdn.com/app/upload_cli</span></div>
+                            <div style="margin-bottom: 8px;">Content-Type：<span style="font-family: var(--vx-font-mono);">application/x-www-form-urlencoded</span></div>
+
+                            <div style="margin-top: 10px; font-weight: 600;">示例</div>
+                            <div style="background: var(--vx-bg-secondary); padding: 10px; border-radius: var(--vx-radius); font-family: var(--vx-font-mono); user-select: all; overflow:auto;">
+curl -k -F "file=@/root/test.bin" -F "key=API key" -X POST "https://tmp-cli.vx-cdn.com/app/upload_cli"
+                            </div>
+
+                            <div style="margin-top: 12px; font-weight: 600;">参数</div>
+                            <div style="overflow:auto; border: 1px solid var(--vx-border); border-radius: var(--vx-radius);">
+                                <table style="width:100%; border-collapse: collapse;">
+                                    <tbody>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);">
+                                            <td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td>
+                                            <td style="padding: 10px;">API Key</td>
+                                        </tr>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);">
+                                            <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">mrid</td>
+                                            <td style="padding: 10px;">文件有效期</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">model</td>
+                                            <td style="padding: 10px;">
+                                                存储模式
+                                                <div class="vx-text-muted" style="margin-top: 6px;">
+                                                    <div><span style="font-family: var(--vx-font-mono);">99</span>：永久</div>
+                                                    <div><span style="font-family: var(--vx-font-mono);">0</span>：24h 后销毁</div>
+                                                    <div><span style="font-family: var(--vx-font-mono);">1</span>：3 天</div>
+                                                    <div><span style="font-family: var(--vx-font-mono);">2</span>：7 天</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div style="margin-top: 12px; font-weight: 600;">返回值</div>
+                            <div class="vx-text-muted">Status：</div>
+                            <div style="margin-top: 6px;">
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-success);">1</span>：上传完成，此时返回的 data 为文件的 UKEY。</div>
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">0</span>：上传失败，无效的请求。</div>
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">2</span>：上传失败，文件大小超过限制。</div>
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">3</span>：上传失败，服务器繁忙，无法处理此次请求。</div>
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">4</span>：上传失败，私有空间不足，无法存储文件。</div>
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">5</span>：上传失败，目前上传的文件总量已经超出了当日配额（存储至私有空间时不受限制）。</div>
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">6</span>：上传失败，API Key 已失效。</div>
+                            </div>
+                            <div style="margin-top: 8px;">Data：成功时为 UKEY；失败时为错误信息。</div>
+                        </div>
+                    </details>
+
+                    <details style="padding: 10px 0;">
+                        <summary style="cursor:pointer;">POST https://tmp-api.vx-cdn.com/services/direct（通用说明）</summary>
+                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
+                            <div style="margin-bottom: 8px;">Endpoint：<span style="font-family: var(--vx-font-mono); user-select: all;">https://tmp-api.vx-cdn.com/services/direct</span></div>
+                            <div style="margin-bottom: 8px;">Content-Type：<span style="font-family: var(--vx-font-mono);">application/x-www-form-urlencoded</span></div>
+                            <div>通用参数：<span style="font-family: var(--vx-font-mono);">action</span>、<span style="font-family: var(--vx-font-mono);">key</span>（API Key）、<span style="font-family: var(--vx-font-mono);">page</span>。</div>
+                        </div>
+                    </details>
+
+                    <details style="padding: 10px 0;">
+                        <summary style="cursor:pointer;">POST https://tmp-api.vx-cdn.com/services/direct（action=quota 获取直链流量配额）</summary>
+                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
+                            <div style="margin-top: 8px; font-weight: 600;">参数</div>
+                            <div style="overflow:auto; border: 1px solid var(--vx-border); border-radius: var(--vx-radius);">
+                                <table style="width:100%; border-collapse: collapse;">
+                                    <tbody>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">quota</span></td></tr>
+                                        <tr><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div style="margin-top: 12px; font-weight: 600;">返回值</div>
+                            <div>status：<span style="font-family: var(--vx-font-mono);">1</span> 有数据；<span style="font-family: var(--vx-font-mono);">0</span> 没有数据</div>
+                            <div>data：<span style="font-family: var(--vx-font-mono);">quota</span>（已购买的配额）</div>
+                        </div>
+                    </details>
+
+                    <details style="padding: 10px 0;">
+                        <summary style="cursor:pointer;">POST https://tmp-api.vx-cdn.com/services/direct（action=list_of_workspace 获取仓库文件列表）</summary>
+                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
+                            <div style="margin-top: 8px; font-weight: 600;">参数</div>
+                            <div style="overflow:auto; border: 1px solid var(--vx-border); border-radius: var(--vx-radius);">
+                                <table style="width:100%; border-collapse: collapse;">
+                                    <tbody>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">list_of_workspace</span></td></tr>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
+                                        <tr><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">page</td><td style="padding: 10px;">页码</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div style="margin-top: 12px; font-weight: 600;">返回值</div>
+                            <div>status：<span style="font-family: var(--vx-font-mono);">1</span> 有数据；<span style="font-family: var(--vx-font-mono);">0</span> 没有数据</div>
+                            <div>data：（Array）每项包含 <span style="font-family: var(--vx-font-mono);">ukey</span> / <span style="font-family: var(--vx-font-mono);">name</span> / <span style="font-family: var(--vx-font-mono);">size</span></div>
+                        </div>
+                    </details>
+
+                    <details style="padding: 10px 0;">
+                        <summary style="cursor:pointer;">POST https://tmp-api.vx-cdn.com/services/direct（action=list_of_direct 获取直链文件列表）</summary>
+                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
+                            <div style="margin-top: 8px; font-weight: 600;">参数</div>
+                            <div style="overflow:auto; border: 1px solid var(--vx-border); border-radius: var(--vx-radius);">
+                                <table style="width:100%; border-collapse: collapse;">
+                                    <tbody>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">list_of_direct</span></td></tr>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
+                                        <tr><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">page</td><td style="padding: 10px;">页码</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div style="margin-top: 12px; font-weight: 600;">返回值</div>
+                            <div>status：<span style="font-family: var(--vx-font-mono);">1</span> 有数据；<span style="font-family: var(--vx-font-mono);">0</span> 没有数据</div>
+                            <div>data：（Array）每项包含 <span style="font-family: var(--vx-font-mono);">dkey</span> / <span style="font-family: var(--vx-font-mono);">link</span> / <span style="font-family: var(--vx-font-mono);">name</span> / <span style="font-family: var(--vx-font-mono);">size</span> / <span style="font-family: var(--vx-font-mono);">etime</span></div>
+                        </div>
+                    </details>
+
+                    <details style="padding: 10px 0;">
+                        <summary style="cursor:pointer;">POST https://tmp-api.vx-cdn.com/services/direct（action=link_add 添加直链）</summary>
+                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
+                            <div style="margin-top: 8px; font-weight: 600;">参数</div>
+                            <div style="overflow:auto; border: 1px solid var(--vx-border); border-radius: var(--vx-radius);">
+                                <table style="width:100%; border-collapse: collapse;">
+                                    <tbody>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">link_add</span></td></tr>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">ukey</td><td style="padding: 10px;">UKEY</td></tr>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">valid_time</td><td style="padding: 10px;">有效期（分）</td></tr>
+                                        <tr><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">download_limit</td><td style="padding: 10px;">下载次数限制</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div style="margin-top: 12px; font-weight: 600;">返回值</div>
+                            <div>status：</div>
+                            <div style="margin-top: 6px;">
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-success);">1</span>：完成</div>
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">0</span>：失败</div>
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">1001</span>：失败，文件不存在</div>
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">1002</span>：失败，内部错误</div>
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">1005</span>：失败，文件尚未就绪，请稍后再添加</div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details style="padding: 10px 0;">
+                        <summary style="cursor:pointer;">POST https://tmp-api.vx-cdn.com/services/direct（action=link_del 移除直链）</summary>
+                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
+                            <div style="margin-top: 8px; font-weight: 600;">参数</div>
+                            <div style="overflow:auto; border: 1px solid var(--vx-border); border-radius: var(--vx-radius);">
+                                <table style="width:100%; border-collapse: collapse;">
+                                    <tbody>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">link_del</span></td></tr>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
+                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">dkey</td><td style="padding: 10px;">DKEY</td></tr>
+                                        <tr><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">delete</td><td style="padding: 10px;">同时删除文件</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div style="margin-top: 12px; font-weight: 600;">返回值</div>
+                            <div>status：</div>
+                            <div style="margin-top: 6px;">
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-success);">1</span>：完成</div>
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">0</span>：失败</div>
+                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">1003</span>：失败，没有找到对应的直链</div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- Domain Tab -->
+        <section id="vx-direct-panel-domain" style="display:none;">
+            <div class="vx-card">
+                <div class="vx-card-header">
+                    <div class="vx-card-title">绑定域名</div>
+                </div>
+                <div class="vx-card-body">
+                    <div class="vx-text-muted" style="margin-bottom: 12px;">绑定后可使用自定义域名访问直链资源。</div>
+
+                    <div style="display:flex; gap: 12px; flex-wrap: wrap; align-items: flex-start;">
+                        <div style="flex: 1; min-width: 260px;">
+                            <label class="vx-text-sm" style="display:block; margin-bottom: 6px;">域名</label>
+                            <input id="vx-direct-domain-input" class="vx-input" placeholder="请输入您的域名" oninput="VX_DIRECT.onDomainInput()" />
+                            <div id="vx-direct-domain-hint" class="vx-text-muted" style="margin-top: 8px; font-size: var(--vx-text-xs); display:none;"></div>
+                            <div id="vx-direct-domain-error" class="vx-text-danger" style="margin-top: 8px; font-size: var(--vx-text-xs); display:none;"></div>
+                        </div>
+
+                        <div style="flex: 1; min-width: 260px;">
+                            <label class="vx-text-sm" style="display:block; margin-bottom: 6px;">启用 HTTPS</label>
+                            <label class="vx-radio" style="margin-right: 16px;"><input type="radio" name="vx-direct-ssl" value="yes"> 启用</label>
+                            <label class="vx-radio"><input type="radio" name="vx-direct-ssl" value="no" checked> 关闭</label>
+                            <div class="vx-text-muted" style="margin-top: 8px; font-size: var(--vx-text-xs);">启用后将自动申请证书（需按提示配置 DNS）。</div>
+
+                            <div style="margin-top: 14px; display:flex; gap: 8px; flex-wrap: wrap;">
+                                <button class="vx-btn vx-btn-primary" onclick="VX_DIRECT.saveDomain()">
+                                    <iconpark-icon name="check"></iconpark-icon>
+                                    <span>保存设置</span>
+                                </button>
+                                <button class="vx-btn vx-btn-danger" id="vx-direct-disable-ssl" onclick="VX_DIRECT.disableSSL()" style="display:none;">
+                                    <iconpark-icon name="circle-xmark"></iconpark-icon>
+                                    <span>停用 HTTPS</span>
+                                </button>
+                            </div>
+
+                            <div id="vx-direct-traffic-block" style="margin-top: 16px;">
+                                <label class="vx-text-sm" style="display:block; margin-bottom: 6px;">单 IP 日流量限制（可选）</label>
+                                <div style="display:flex; gap: 8px;">
+                                    <input id="vx-direct-traffic-limit" class="vx-input" style="max-width: 180px;" placeholder="0 表示不限" />
+                                    <button class="vx-btn vx-btn-secondary" onclick="VX_DIRECT.saveTrafficLimit()">保存</button>
+                                </div>
+                                <div class="vx-text-muted" style="margin-top: 8px; font-size: var(--vx-text-xs);">用于限制单个 IP 每日下载流量。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
     </div>
 </div>
 
 <style>
-/* Direct Module Specific Styles */
-.vx-direct-url-text {
-    display: block;
-    padding: 8px 12px;
-    background: var(--vx-bg-secondary);
-    border-radius: var(--vx-radius);
-    font-family: var(--vx-font-mono);
-    font-size: var(--vx-text-xs);
-    color: var(--vx-text-secondary);
-    word-break: break-all;
-    margin-top: 8px;
-}
+/* (tabs removed; navigation uses left sidebar) */
 </style>

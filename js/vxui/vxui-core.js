@@ -633,6 +633,8 @@ class VXUICore {
             onConfirm = () => {},
             onCancel = () => {}
         } = options;
+
+        const hasCancel = cancelText !== null && cancelText !== undefined && String(cancelText).trim() !== '';
         
         // 创建模态框
         const modalId = 'vx-confirm-modal-' + Date.now();
@@ -646,14 +648,14 @@ class VXUICore {
                 <div class="vx-modal-header">
                     <h3 class="vx-modal-title">${title}</h3>
                     <button class="vx-modal-close" onclick="VXUI.closeModal('${modalId}')">
-                        <iconpark-icon name="close"></iconpark-icon>
+                        <iconpark-icon name="circle-xmark"></iconpark-icon>
                     </button>
                 </div>
                 <div class="vx-modal-body">
-                    <p>${message}</p>
+                    <div class="vx-modal-message">${message}</div>
                 </div>
                 <div class="vx-modal-footer">
-                    <button class="vx-btn vx-btn-secondary" id="${modalId}-cancel">${cancelText}</button>
+                    ${hasCancel ? `<button class="vx-btn vx-btn-secondary" id="${modalId}-cancel">${cancelText}</button>` : ''}
                     <button class="vx-btn ${confirmClass}" id="${modalId}-confirm">${confirmText}</button>
                 </div>
             </div>
@@ -662,11 +664,13 @@ class VXUICore {
         document.body.appendChild(modal);
         
         // 绑定事件
-        document.getElementById(`${modalId}-cancel`).onclick = () => {
-            this.closeModal(modalId);
-            setTimeout(() => modal.remove(), 300);
-            onCancel();
-        };
+        if (hasCancel) {
+            document.getElementById(`${modalId}-cancel`).onclick = () => {
+                this.closeModal(modalId);
+                setTimeout(() => modal.remove(), 300);
+                onCancel();
+            };
+        }
         
         document.getElementById(`${modalId}-confirm`).onclick = () => {
             this.closeModal(modalId);
@@ -704,7 +708,7 @@ class VXUICore {
                 <div class="vx-modal-header">
                     <h3 class="vx-modal-title">${title}</h3>
                     <button class="vx-modal-close" onclick="VXUI.closeModal('${modalId}')">
-                        <iconpark-icon name="close"></iconpark-icon>
+                        <iconpark-icon name="circle-xmark"></iconpark-icon>
                     </button>
                 </div>
                 <div class="vx-modal-body">
