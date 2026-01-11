@@ -2034,7 +2034,400 @@ var VX_FILELIST = VX_FILELIST || {
      * 移动选中项
      */
     moveSelected() {
-        VXUI.toastInfo('移动功能开发中');
+        if (this.selectedItems.length === 0) {
+            VXUI.toastWarning('请选择要移动的项目');
+            return;
+        }
+        
+        // 收集被选中的文件夹ID，用于在树形结构中排除（避免将文件夹移动到自身）
+        this._moveExcludeFolderIds = [];
+        this.selectedItems.forEach(item => {
+            if (item.type === 'folder') {
+                this._moveExcludeFolderIds.push(String(item.id));
+            }
+        });
+        
+        // 打开移动文件夹模态框
+        this.openMoveModal();
+    },
+    
+    // ==================== 移动文件夹模态框 ====================
+    
+    /**
+     * 目录树数据
+     */
+    _moveDirTree: [],
+    _moveExcludeFolderIds: [],
+    _moveSelectedFolderId: null,
+    
+    /**
+     * 打开移动文件夹模态框
+     */
+    openMoveModal() {
+        const modalId = 'vx-fl-move-modal';
+        
+        // 重置状态
+        this._moveSelectedFolderId = null;
+        
+        // 清空搜索和树形结构
+        const searchInput = document.getElementById('vx-move-search-input');
+        const searchClear = document.getElementById('vx-move-search-clear');
+        const searchResults = document.getElementById('vx-move-search-results');
+        const treeWrapper = document.getElementById('vx-move-tree-wrapper');
+        const treeRoot = document.getElementById('vx-move-tree-root');
+        const loading = document.getElementById('vx-move-loading');
+        
+        if (searchInput) searchInput.value = '';
+        if (searchClear) searchClear.style.display = 'none';
+        if (searchResults) {
+            searchResults.style.display = 'none';
+            searchResults.innerHTML = '';
+        }
+        if (treeRoot) treeRoot.innerHTML = '';
+        if (treeWrapper) treeWrapper.style.display = 'block';
+        if (loading) loading.style.display = 'flex';
+        
+        // 打开模态框
+        if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.openModal === 'function') {
+            VXUI.openModal(modalId);
+        } else {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('vx-modal-open');
+                document.body.classList.add('vx-modal-body-open');
+            }
+        }
+        
+        // 加载目录树数据
+        this.loadMoveDirTree();
+    },
+    
+    /**
+     * 关闭移动文件夹模态框
+     */
+    closeMoveModal() {
+        const modalId = 'vx-fl-move-modal';
+        
+        if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.closeModal === 'function') {
+            VXUI.closeModal(modalId);
+        } else {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('vx-modal-open');
+                document.body.classList.remove('vx-modal-body-open');
+            }
+        }
+        
+        // 清理状态
+        this._moveSelectedFolderId = null;
+        this._moveExcludeFolderIds = [];
+    },
+    
+    /**
+     * 加载目录树数据
+     */
+    loadMoveDirTree() {
+        const token = this.getToken();
+        const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
+        
+        $.post(apiUrl, {
+            action: 'get_dir_tree',
+            token: token
+        }, (rsp) => {
+            const loading = document.getElementById('vx-move-loading');
+            if (loading) loading.style.display = 'none';
+            
+            if (rsp && rsp.status === 1) {
+                this._moveDirTree = rsp.data || [];
+                // 渲染根目录的子文件夹
+                this.renderMoveFolderTree(0);
+            } else {
+                const treeRoot = document.getElementById('vx-move-tree-root');
+                if (treeRoot) {
+                    treeRoot.innerHTML = '<div class="vx-move-no-results">加载失败，请重试</div>';
+                }
+            }
+        }, 'json').fail(() => {
+            const loading = document.getElementById('vx-move-loading');
+            if (loading) loading.style.display = 'none';
+            
+            const treeRoot = document.getElementById('vx-move-tree-root');
+            if (treeRoot) {
+                treeRoot.innerHTML = '<div class="vx-move-no-results">加载失败，请重试</div>';
+            }
+        });
+    },
+    
+    /**
+     * 检查文件夹是否有子文件夹
+     */
+    moveFolderHasChildren(parentId) {
+        for (let folder of this._moveDirTree) {
+            // 排除被选中的文件夹
+            if (this._moveExcludeFolderIds.includes(String(folder.id))) {
+                continue;
+            }
+            if (String(folder.parent) === String(parentId)) {
+                return true;
+            }
+        }
+        return false;
+    },
+    
+    /**
+     * 渲染文件夹树
+     */
+    renderMoveFolderTree(parentId) {
+        const containerId = parentId === 0 ? 'vx-move-tree-root' : `vx-move-subtree-${parentId}`;
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        let html = '';
+        for (let folder of this._moveDirTree) {
+            // 排除被选中的文件夹，避免将文件夹移动到自身
+            if (this._moveExcludeFolderIds.includes(String(folder.id))) {
+                continue;
+            }
+            
+            if (String(folder.parent) === String(parentId)) {
+                const hasChildren = this.moveFolderHasChildren(folder.id);
+                const iconName = hasChildren ? 'folder-plus' : 'folder';
+                
+                html += `
+                    <div class="vx-move-folder-item" id="vx-move-item-${folder.id}" 
+                         data-id="${folder.id}" data-expanded="false"
+                         onclick="VX_FILELIST.onMoveFolderClick('${folder.id}')">
+                        <span class="vx-move-folder-icon">
+                            <iconpark-icon id="vx-move-icon-${folder.id}" name="${iconName}"></iconpark-icon>
+                        </span>
+                        <span class="vx-move-folder-name">${this.escapeHtml(folder.name)}</span>
+                    </div>
+                    <div class="vx-move-subtree" id="vx-move-subtree-${folder.id}" style="display: none;"></div>
+                `;
+            }
+        }
+        
+        container.innerHTML = html;
+    },
+    
+    /**
+     * 文件夹点击事件
+     */
+    onMoveFolderClick(id) {
+        const folderItem = document.getElementById(`vx-move-item-${id}`);
+        const subtree = document.getElementById(`vx-move-subtree-${id}`);
+        const icon = document.getElementById(`vx-move-icon-${id}`);
+        
+        if (!folderItem) return;
+        
+        const isExpanded = folderItem.getAttribute('data-expanded') === 'true';
+        
+        // 处理选中状态
+        document.querySelectorAll('.vx-move-folder-item.selected, .vx-move-search-item.selected').forEach(el => {
+            el.classList.remove('selected');
+        });
+        folderItem.classList.add('selected');
+        this._moveSelectedFolderId = id;
+        
+        // 检查是否有子文件夹
+        if (this.moveFolderHasChildren(id) && subtree) {
+            if (isExpanded) {
+                // 收起
+                subtree.style.display = 'none';
+                folderItem.setAttribute('data-expanded', 'false');
+                if (icon) icon.setAttribute('name', 'folder-plus');
+            } else {
+                // 展开
+                if (subtree.children.length === 0) {
+                    this.renderMoveFolderTree(id);
+                }
+                subtree.style.display = 'block';
+                folderItem.setAttribute('data-expanded', 'true');
+                if (icon) icon.setAttribute('name', 'folder-open');
+            }
+        }
+    },
+    
+    /**
+     * 搜索文件夹
+     */
+    searchMoveFolder(keyword) {
+        keyword = keyword.trim().toLowerCase();
+        
+        const searchClear = document.getElementById('vx-move-search-clear');
+        const searchResults = document.getElementById('vx-move-search-results');
+        const treeWrapper = document.getElementById('vx-move-tree-wrapper');
+        
+        if (keyword === '') {
+            this.clearMoveSearch();
+            return;
+        }
+        
+        // 显示清除按钮
+        if (searchClear) searchClear.style.display = 'flex';
+        
+        // 搜索匹配的文件夹
+        const results = [];
+        for (let folder of this._moveDirTree) {
+            // 排除被选中要移动的文件夹
+            if (this._moveExcludeFolderIds.includes(String(folder.id))) {
+                continue;
+            }
+            if (folder.name.toLowerCase().includes(keyword)) {
+                // 构建文件夹路径
+                const path = this.buildMoveFolderPath(folder.id);
+                results.push({
+                    id: folder.id,
+                    name: folder.name,
+                    path: path
+                });
+            }
+        }
+        
+        // 显示搜索结果
+        this.showMoveSearchResults(results, keyword);
+    },
+    
+    /**
+     * 构建文件夹路径
+     */
+    buildMoveFolderPath(folderId) {
+        const pathParts = [];
+        let currentId = folderId;
+        
+        // 向上遍历构建路径
+        while (currentId != 0) {
+            const folder = this._moveDirTree.find(f => String(f.id) === String(currentId));
+            if (!folder) break;
+            pathParts.unshift(folder.name);
+            currentId = folder.parent;
+        }
+        
+        return '/' + pathParts.join('/');
+    },
+    
+    /**
+     * 显示搜索结果
+     */
+    showMoveSearchResults(results, keyword) {
+        const searchResults = document.getElementById('vx-move-search-results');
+        const treeWrapper = document.getElementById('vx-move-tree-wrapper');
+        
+        // 隐藏树形结构，显示搜索结果
+        if (treeWrapper) treeWrapper.style.display = 'none';
+        if (searchResults) searchResults.style.display = 'block';
+        
+        if (results.length === 0) {
+            const noResultText = (typeof app !== 'undefined' && app.languageData && app.languageData.move_folder_no_result) 
+                ? app.languageData.move_folder_no_result 
+                : '未找到匹配的文件夹';
+            if (searchResults) {
+                searchResults.innerHTML = `<div class="vx-move-no-results">${noResultText}</div>`;
+            }
+            return;
+        }
+        
+        // 渲染搜索结果
+        let html = '';
+        for (let result of results) {
+            html += `
+                <div class="vx-move-search-item" id="vx-move-search-${result.id}"
+                     data-id="${result.id}" onclick="VX_FILELIST.onMoveSearchResultClick('${result.id}')">
+                    <span class="vx-move-folder-icon">
+                        <iconpark-icon name="folder"></iconpark-icon>
+                    </span>
+                    <div class="vx-move-search-info">
+                        <span class="vx-move-folder-name">${this.escapeHtml(result.name)}</span>
+                        <span class="vx-move-folder-path">${this.escapeHtml(result.path)}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (searchResults) {
+            searchResults.innerHTML = html;
+        }
+    },
+    
+    /**
+     * 清除搜索
+     */
+    clearMoveSearch() {
+        const searchInput = document.getElementById('vx-move-search-input');
+        const searchClear = document.getElementById('vx-move-search-clear');
+        const searchResults = document.getElementById('vx-move-search-results');
+        const treeWrapper = document.getElementById('vx-move-tree-wrapper');
+        
+        if (searchInput) searchInput.value = '';
+        if (searchClear) searchClear.style.display = 'none';
+        if (searchResults) {
+            searchResults.style.display = 'none';
+            searchResults.innerHTML = '';
+        }
+        if (treeWrapper) treeWrapper.style.display = 'block';
+        
+        // 清除搜索结果中的选中状态，但保留树形结构中的选中状态
+        document.querySelectorAll('.vx-move-search-item').forEach(el => {
+            el.classList.remove('selected');
+        });
+    },
+    
+    /**
+     * 搜索结果点击事件
+     */
+    onMoveSearchResultClick(id) {
+        // 清除所有选中状态
+        document.querySelectorAll('.vx-move-folder-item.selected, .vx-move-search-item.selected').forEach(el => {
+            el.classList.remove('selected');
+        });
+        // 选中当前项
+        const item = document.getElementById(`vx-move-search-${id}`);
+        if (item) {
+            item.classList.add('selected');
+        }
+        this._moveSelectedFolderId = id;
+    },
+    
+    /**
+     * 确认移动
+     */
+    confirmMove() {
+        if (this._moveSelectedFolderId === null || this._moveSelectedFolderId === undefined) {
+            const errorMsg = (typeof app !== 'undefined' && app.languageData && app.languageData.status_error_13) 
+                ? app.languageData.status_error_13 
+                : '请选择目标文件夹';
+            VXUI.toastWarning(errorMsg);
+            return;
+        }
+        
+        // 构建要移动的数据 - 与旧代码格式保持一致
+        const data = this.selectedItems.map(item => ({
+            id: item.id,
+            type: item.type === 'folder' ? 'dir' : 'file'
+        }));
+        
+        const token = this.getToken();
+        const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
+        
+        $.post(apiUrl, {
+            action: 'move_to_dir2',
+            token: token,
+            data: data,
+            mr_id: this._moveSelectedFolderId
+        }, (rsp) => {
+            this.closeMoveModal();
+            if (rsp && rsp.status === 1) {
+                VXUI.toastSuccess('移动成功');
+                this.clearSelection();
+                this.refresh();
+            } else {
+                const errorMsg = (rsp && rsp.message) ? rsp.message : '移动失败，请重试';
+                VXUI.toastError(errorMsg);
+            }
+        }, 'json').fail(() => {
+            this.closeMoveModal();
+            VXUI.toastError('移动失败，请重试');
+        });
     },
     
     /**

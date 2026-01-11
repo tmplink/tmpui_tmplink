@@ -279,6 +279,51 @@
     </div>
 </div>
 
+<!-- Move to Folder Modal -->
+<div class="vx-modal" id="vx-fl-move-modal">
+    <div class="vx-modal-overlay" onclick="VX_FILELIST.closeMoveModal()"></div>
+    <div class="vx-modal-container">
+        <div class="vx-modal-header">
+            <h3 class="vx-modal-title" data-tpl="model_title_move_to">移动到文件夹</h3>
+            <button class="vx-modal-close" onclick="VX_FILELIST.closeMoveModal()">
+                <iconpark-icon name="circle-xmark"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-modal-body">
+            <!-- 搜索框 -->
+            <div class="vx-move-search-wrapper">
+                <div class="vx-move-search-input-wrapper">
+                    <iconpark-icon name="search" class="vx-move-search-icon"></iconpark-icon>
+                    <input type="text" id="vx-move-search-input" class="vx-move-search-input" 
+                           placeholder="搜索文件夹..." data-tpl-placeholder="move_folder_search_placeholder"
+                           oninput="VX_FILELIST.searchMoveFolder(this.value)">
+                    <button type="button" id="vx-move-search-clear" class="vx-move-search-clear" 
+                            onclick="VX_FILELIST.clearMoveSearch()" style="display: none;">
+                        <iconpark-icon name="close-small"></iconpark-icon>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 搜索结果区域 -->
+            <div id="vx-move-search-results" class="vx-move-search-results" style="display: none;"></div>
+            
+            <!-- 树形结构区域 -->
+            <div id="vx-move-tree-wrapper" class="vx-move-tree-wrapper">
+                <div id="vx-move-tree-root" class="vx-move-tree-root"></div>
+            </div>
+            
+            <!-- 加载状态 -->
+            <div id="vx-move-loading" class="vx-move-loading" style="display: none;">
+                <div class="vx-spinner"></div>
+            </div>
+        </div>
+        <div class="vx-modal-footer">
+            <button class="vx-btn vx-btn-secondary" onclick="VX_FILELIST.closeMoveModal()" data-tpl="model_btn_cancel">取消</button>
+            <button class="vx-btn vx-btn-primary" onclick="VX_FILELIST.confirmMove()" data-tpl="model_btn_ok">确定</button>
+        </div>
+    </div>
+</div>
+
 <!-- Upload Modal -->
 <div class="vx-modal" id="vx-upload-modal">
     <div class="vx-modal-overlay" onclick="VX_UPLOADER.closeModal()"></div>
@@ -950,6 +995,250 @@
 .vx-type-folder {
     color: var(--vx-text-muted);
     font-size: 12px;
+}
+
+/* ==================== Move Folder Modal Styles ==================== */
+
+/* Move modal body */
+#vx-fl-move-modal .vx-modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 16px 20px;
+}
+
+/* Search wrapper */
+.vx-move-search-wrapper {
+    position: sticky;
+    top: 0;
+    background: var(--vx-surface);
+    z-index: 10;
+    padding-bottom: 12px;
+    margin-bottom: 8px;
+}
+
+.vx-move-search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.vx-move-search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--vx-text-muted);
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.vx-move-search-input {
+    width: 100%;
+    padding: 10px 36px 10px 38px;
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    font-size: 14px;
+    color: var(--vx-text);
+    background-color: var(--vx-bg-secondary);
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.vx-move-search-input:focus {
+    border-color: var(--vx-primary);
+    background-color: var(--vx-surface);
+    box-shadow: 0 0 0 3px var(--vx-primary-light);
+}
+
+.vx-move-search-input::placeholder {
+    color: var(--vx-text-muted);
+}
+
+.vx-move-search-clear {
+    position: absolute;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--vx-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.vx-move-search-clear:hover {
+    background-color: var(--vx-bg-secondary);
+    color: var(--vx-text-secondary);
+}
+
+/* Tree wrapper */
+.vx-move-tree-wrapper {
+    padding: 0;
+}
+
+.vx-move-tree-root {
+    margin: 0;
+    padding: 0;
+}
+
+/* Folder item */
+.vx-move-folder-item {
+    cursor: pointer;
+    border-radius: var(--vx-radius-md);
+    transition: all 0.2s ease;
+    padding: 10px 14px;
+    margin: 2px 0;
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.vx-move-folder-item:hover {
+    background-color: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+}
+
+.vx-move-folder-item.selected {
+    background-color: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+}
+
+.vx-move-folder-item.selected .vx-move-folder-name {
+    color: var(--vx-primary);
+    font-weight: 500;
+}
+
+/* Folder icon */
+.vx-move-folder-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    margin-right: 8px;
+}
+
+.vx-move-folder-icon iconpark-icon {
+    font-size: 18px;
+    color: var(--vx-primary);
+}
+
+.vx-move-folder-item.selected .vx-move-folder-icon iconpark-icon {
+    color: var(--vx-primary);
+}
+
+/* Folder name */
+.vx-move-folder-name {
+    font-size: 14px;
+    color: var(--vx-text);
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+/* Subtree (nested folders) */
+.vx-move-subtree {
+    padding-left: 20px;
+    margin-bottom: 0;
+}
+
+/* Search results */
+.vx-move-search-results {
+    padding: 0;
+}
+
+.vx-move-search-item {
+    cursor: pointer;
+    border-radius: var(--vx-radius-md);
+    transition: all 0.2s ease;
+    padding: 10px 14px;
+    margin: 2px 0;
+    display: flex;
+    align-items: flex-start;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.vx-move-search-item:hover {
+    background-color: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+}
+
+.vx-move-search-item.selected {
+    background-color: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+}
+
+.vx-move-search-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.vx-move-search-item .vx-move-folder-name {
+    font-weight: 500;
+}
+
+.vx-move-folder-path {
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vx-move-search-item.selected .vx-move-folder-name {
+    color: var(--vx-primary);
+}
+
+.vx-move-search-item.selected .vx-move-folder-path {
+    color: var(--vx-primary);
+    opacity: 0.8;
+}
+
+/* No results */
+.vx-move-no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--vx-text-muted);
+    font-size: 14px;
+}
+
+/* Loading */
+.vx-move-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+/* Mobile responsive */
+@media (max-width: 576px) {
+    #vx-fl-move-modal .vx-modal-container {
+        margin: 0;
+        max-width: 100%;
+        height: 100%;
+        border-radius: 0;
+    }
+
+    #vx-fl-move-modal .vx-modal-body {
+        max-height: calc(100vh - 140px);
+        padding: 12px 16px;
+    }
+
+    .vx-move-folder-item {
+        padding: 12px 14px;
+    }
+
+    .vx-move-folder-name {
+        font-size: 15px;
+    }
 }
 
 /* Context Menu */
