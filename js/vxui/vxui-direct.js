@@ -187,15 +187,18 @@ const VX_DIRECT = {
 
     showTab(tab) {
         const next = String(tab || 'dashboard');
-        this.activeTab = next;
-
-        this.updateTabUI();
-
+        
+        // 如果没有配置域名，只允许显示 domain 标签
         if (this.domain === 0 && next !== 'domain') {
             this.activeTab = 'domain';
             this.updateTabUI();
+            this.applyGateUI();
             return;
         }
+        
+        this.activeTab = next;
+        this.updateTabUI();
+        this.applyGateUI();
 
         this.loadCurrentTab(true);
     },
@@ -358,7 +361,9 @@ const VX_DIRECT = {
 
         this.isInit = true;
         this.key = rsp.data.key;
-        this.domain = rsp.data.domain;
+        // 规范化 domain 值：将 "0" 字符串、null、undefined 都转为数字 0
+        const rawDomain = rsp.data.domain;
+        this.domain = (rawDomain && rawDomain !== '0' && rawDomain !== 0) ? rawDomain : 0;
         this.quota = rsp.data.quota;
         this.quota_free = rsp.data.quota_free;
         this.total_downloads = rsp.data.total_downloads;
@@ -691,26 +696,73 @@ const VX_DIRECT = {
 
     onDomainInput() {
         const domainInput = document.getElementById('vx-direct-domain-input');
-        const hint = document.getElementById('vx-direct-domain-hint');
         const err = document.getElementById('vx-direct-domain-error');
-        if (!domainInput || !hint || !err) return;
+        const acmeHint = document.getElementById('vx-direct-domain-acme-hint');
+        const cnameHint = document.getElementById('vx-direct-domain-cname-hint');
+        const sslBox = document.getElementById('vx-direct-ssl-box');
+        const acmeDomain = document.getElementById('vx-direct-acme-domain');
+        const cnameDomain = document.getElementById('vx-direct-cname-domain');
+        
+        if (!domainInput) return;
 
         const domain = String(domainInput.value || '').trim();
-        err.style.display = 'none';
-        hint.style.display = 'none';
+        const enableSsl = document.querySelector('input[name="vx-direct-ssl"]:checked')?.value || 'no';
+        
+        // 隐藏所有提示
+        if (err) err.style.display = 'none';
+        if (acmeHint) acmeHint.style.display = 'none';
+        if (cnameHint) cnameHint.style.display = 'none';
 
         if (domain.length === 0) return;
 
-        // light validation
-        const ok = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(domain);
-        if (!ok) {
-            err.textContent = '域名格式不正确';
-            err.style.display = '';
+        // 如果域名是 *.5t-cdn.com 作为子域名，则不执行任何检查，也隐藏 SSL 选项
+        if (domain.indexOf('.5t-cdn.com') !== -1) {
+            // 不能是三级域名
+            if (domain.split('.').length > 3) {
+                if (err) {
+                    err.textContent = '域名格式不正确';
+                    err.style.display = '';
+                }
+                return;
+            }
+            // 隐藏 SSL 选项（5t-cdn.com 子域名不需要单独配置 SSL）
+            if (sslBox) sslBox.style.display = 'none';
             return;
         }
 
-        hint.textContent = '请确保域名已正确配置 CNAME 解析后再保存。';
-        hint.style.display = '';
+        // 显示 SSL 选项
+        if (sslBox) sslBox.style.display = '';
+
+        // 域名格式验证
+        const reg = /^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$/;
+        if (!reg.test(domain)) {
+            if (err) {
+                err.textContent = '域名格式不正确';
+                err.style.display = '';
+            }
+            return;
+        }
+
+        // 更新动态域名显示
+        if (acmeDomain) acmeDomain.textContent = `_acme-challenge.${domain}`;
+        if (cnameDomain) cnameDomain.textContent = domain;
+
+        // 如果启用 SSL，显示 ACME DNS 提示
+        if (enableSsl === 'yes') {
+            if (acmeHint) acmeHint.style.display = '';
+        }
+        
+        // 始终显示 CNAME 提示
+        if (cnameHint) cnameHint.style.display = '';
+    },
+
+    showCloudflareNotice() {
+        VXUI.alert({
+            title: 'Cloudflare 用户注意',
+            message: `<p>如果您使用 Cloudflare 管理域名，请使用二级域名作为直链域名。</p>
+                      <p>例如：如果您的域名是 <span class="vx-text-primary">abc.com</span>，您应该使用 <span class="vx-text-primary">download.abc.com</span> 作为直链域名。</p>
+                      <p>此外，请勿为该域名启用 HTTP 代理（橙色云朵），否则会降低下载速度。</p>`
+        });
     },
 
     async saveDomain() {

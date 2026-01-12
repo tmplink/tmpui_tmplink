@@ -497,14 +497,32 @@ curl -k -F "file=@/root/test.bin" -F "key=API key" -X POST "https://tmp-cli.vx-c
                         <div style="flex: 1; min-width: 260px;">
                             <label class="vx-text-sm" style="display:block; margin-bottom: 6px;">域名</label>
                             <input id="vx-direct-domain-input" class="vx-input" placeholder="请输入您的域名" oninput="VX_DIRECT.onDomainInput()" />
-                            <div id="vx-direct-domain-hint" class="vx-text-muted" style="margin-top: 8px; font-size: var(--vx-text-xs); display:none;"></div>
+                            <!-- 域名格式错误提示 -->
                             <div id="vx-direct-domain-error" class="vx-text-danger" style="margin-top: 8px; font-size: var(--vx-text-xs); display:none;"></div>
+                            <!-- ACME DNS 提示（启用 HTTPS 时显示） -->
+                            <div id="vx-direct-domain-acme-hint" class="vx-text-muted" style="margin-top: 8px; font-size: var(--vx-text-xs); display:none;">
+                                <span data-tpl="direct_ssl_check_input_notice2">请为域名添加 CNAME 记录：</span><br>
+                                <span id="vx-direct-acme-domain" class="vx-text-success">_acme-challenge.example.com</span>
+                                <span> → </span>
+                                <span class="vx-text-danger">_acme-challenge.ng-ccc.com</span>
+                            </div>
+                            <!-- CNAME 提示（普通域名绑定） -->
+                            <div id="vx-direct-domain-cname-hint" class="vx-text-muted" style="margin-top: 8px; font-size: var(--vx-text-xs); display:none;">
+                                <span data-tpl="direct_ssl_check_input_notice2">请为域名添加 CNAME 记录：</span><br>
+                                <span id="vx-direct-cname-domain" class="vx-text-success">example.com</span>
+                                <span> → </span>
+                                <span class="vx-text-danger">cdn.5t-cdn.com</span>
+                                <div style="margin-top: 8px; cursor: pointer; color: var(--vx-warning);" onclick="VX_DIRECT.showCloudflareNotice()">
+                                    <iconpark-icon name="circle-exclamation"></iconpark-icon>
+                                    <span data-tpl="direct_cf_notice">如果您的域名由 Cloudflare 管理，请使用二级域名。</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div style="flex: 1; min-width: 260px;">
+                        <div style="flex: 1; min-width: 260px;" id="vx-direct-ssl-box">
                             <label class="vx-text-sm" style="display:block; margin-bottom: 6px;">启用 HTTPS</label>
-                            <label class="vx-radio" style="margin-right: 16px;"><input type="radio" name="vx-direct-ssl" value="yes"> 启用</label>
-                            <label class="vx-radio"><input type="radio" name="vx-direct-ssl" value="no" checked> 关闭</label>
+                            <label class="vx-radio" style="margin-right: 16px;"><input type="radio" name="vx-direct-ssl" value="yes" onchange="VX_DIRECT.onDomainInput()"> 启用</label>
+                            <label class="vx-radio"><input type="radio" name="vx-direct-ssl" value="no" checked onchange="VX_DIRECT.onDomainInput()"> 关闭</label>
                             <div class="vx-text-muted" style="margin-top: 8px; font-size: var(--vx-text-xs);">启用后将自动申请证书（需按提示配置 DNS）。</div>
 
                             <div style="margin-top: 14px; display:flex; gap: 8px; flex-wrap: wrap;">
