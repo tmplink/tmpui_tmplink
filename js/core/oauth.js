@@ -62,7 +62,8 @@ class oauth {
                 //     'send_to': 'AW-977119233/7Pa-CNH4qbkBEIHQ9tED',
                 // });
                 setTimeout(() => {
-                    dynamicView.room();
+                    // 跳转到新版 VXUI 后台
+                    app.open('/vx');
                 }, 1000);
                 return false;
             }
