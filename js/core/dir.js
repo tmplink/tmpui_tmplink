@@ -62,22 +62,9 @@ class dir {
     }
 
     deleteFile(ukey) {
-        var params = get_url_params();
-        if (this.parent_op.profile_confirm_delete_get()) {
-            if (!confirm(app.languageData.confirm_delete)) {
-                return false;
-            }
-        }
-        $('.file_unit_' + ukey).hide();
-        $.post(this.parent_op.api_mr, {
-            action: 'file_del',
-            token: this.parent_op.api_token,
-            //captcha: recaptcha,
-            mr_id: params.mrid,
-            ukey: ukey
-        }, () => {
-            //this.dir.filelist();
-        });
+        // Room is the new entry for the old workspace view.
+        // Use workspace deletion flow to avoid calling meetingroom file_del.
+        return this.parent_op.workspace_del(ukey, false);
     }
 
     showCreateFolderModal() {
