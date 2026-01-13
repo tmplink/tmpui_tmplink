@@ -2057,7 +2057,8 @@ class tmplink {
                                 location.href = return_page;
                                 localStorage.setItem('return_page', 0);
                             } else {
-                                dynamicView.room();
+                                // 跳转到新版 VXUI 后台
+                                app.open('/vx');
                             }
                         });
                     } else {

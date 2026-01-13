@@ -206,13 +206,18 @@ class VXUICore {
         
         // 加载模块模板
         this.loadModuleTemplate(moduleName, () => {
-            // 初始化模块
-            if (typeof module.init === 'function') {
-                module.init(params);
+            // 初始化模块（确保即使模块 init 抛错也会更新 URL）
+            try {
+                if (typeof module.init === 'function') {
+                    module.init(params);
+                }
+            } catch (e) {
+                console.error(`[VXUI] Module init failed: ${moduleName}`, e);
+                this.toastError('模块初始化失败');
+            } finally {
+                // 更新 URL
+                this.updateUrl(moduleName, params);
             }
-            
-            // 更新 URL
-            this.updateUrl(moduleName, params);
             
             // 构建语言
             if (typeof app !== 'undefined') {

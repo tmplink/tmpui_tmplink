@@ -43,6 +43,10 @@ const VX_DIRECT = {
     folders: [],
     foldersReqSeq: 0,
 
+    // 预加载缓存状态
+    filesPreloaded: false,
+    foldersPreloaded: false,
+
     // search/sort
     sort_by: 0,
     sort_type: 0,
@@ -160,6 +164,10 @@ const VX_DIRECT = {
 
         this.filesReqSeq = 0;
         this.foldersReqSeq = 0;
+
+        // 重置预加载缓存状态
+        this.filesPreloaded = false;
+        this.foldersPreloaded = false;
 
         this.search = '';
     },
@@ -462,12 +470,9 @@ const VX_DIRECT = {
 
     // ==================== Quota ====================
     openQuotaPurchase() {
-        if (typeof VX_SHOP !== 'undefined' && VX_SHOP && typeof VX_SHOP.openQuota === 'function') {
-            VX_SHOP.openQuota();
-            return;
-        }
+        // 导航到商店页面并传递参数打开配额购买
         if (typeof VXUI !== 'undefined' && typeof VXUI.navigate === 'function') {
-            VXUI.navigate('shop');
+            VXUI.navigate('shop', { action: 'quota' });
             return;
         }
         VXUI.toastWarning('无法打开购买页面');
@@ -926,6 +931,8 @@ const VX_DIRECT = {
             this.applyGateUI();
             if (this.domain && this.domain !== 0) {
                 this.loadUsage(this.usageRt).catch(() => { /* ignore */ });
+                // 预加载文件和文件夹数据用于统计显示
+                this.preloadData();
             }
             this.updateStats();
         } else if (this.activeTab === 'files') {
@@ -949,6 +956,77 @@ const VX_DIRECT = {
         }
     },
 
+    /**
+     * 预加载文件和文件夹数据
+     * 在仪表盘加载时调用，用于统计显示和后续Tab切换时复用
+     */
+    async preloadData() {
+        if (this.domain === 0) return;
+
+        // 并行预加载文件和文件夹数据
+        const promises = [];
+
+        // 预加载文件（只加载第一页用于统计）
+        if (!this.filesPreloaded) {
+            promises.push(this.preloadFiles());
+        }
+
+        // 预加载文件夹
+        if (!this.foldersPreloaded) {
+            promises.push(this.preloadFolders());
+        }
+
+        if (promises.length > 0) {
+            await Promise.all(promises).catch(e => {
+                console.error('[VX_DIRECT] preloadData error:', e);
+            });
+            this.updateStats();
+        }
+    },
+
+    /**
+     * 预加载文件列表（第一页）
+     */
+    async preloadFiles() {
+        try {
+            const key = this.keyGet();
+            const sort_by = localStorage.getItem(key.sort_by) ?? String(this.sort_by);
+            const sort_type = localStorage.getItem(key.sort_type) ?? String(this.sort_type);
+
+            const rsp = await this.apiPost({
+                action: 'filelist_page',
+                page: 0,
+                sort_by,
+                sort_type,
+                search: ''
+            });
+
+            if (rsp && rsp.status === 1) {
+                this.files = rsp.data || [];
+                this.pageNumber = 0;
+                this.hasMore = (rsp.data || []).length > 0;
+                this.filesPreloaded = true;
+            }
+        } catch (e) {
+            console.error('[VX_DIRECT] preloadFiles error:', e);
+        }
+    },
+
+    /**
+     * 预加载文件夹列表
+     */
+    async preloadFolders() {
+        try {
+            const rsp = await this.apiPost({ action: 'room_list' });
+            if (rsp && rsp.status === 1) {
+                this.folders = rsp.data || [];
+                this.foldersPreloaded = true;
+            }
+        } catch (e) {
+            console.error('[VX_DIRECT] preloadFolders error:', e);
+        }
+    },
+
     load() {
         // Backward compatibility
         this.loadCurrentTab(true);
@@ -960,11 +1038,18 @@ const VX_DIRECT = {
             return;
         }
 
+        // 如果有预加载缓存且不是强制重置，直接使用缓存数据渲染
+        if (this.filesPreloaded && !reset && this.pageNumber === 0 && !this.search) {
+            this.renderFiles();
+            return;
+        }
+
         if (reset) {
             this.pageNumber = 0;
             this.hasMore = true;
             this.files = [];
             this.selectedItems.clear();
+            this.filesPreloaded = false; // 重置时清除缓存标志
             // do NOT force isLoading=false here; that can allow concurrent
             // requests to append duplicate data.
         }
@@ -1000,11 +1085,16 @@ const VX_DIRECT = {
                 });
                 this.files = [...this.files, ...toAdd];
                 this.hasMore = data.length > 0;
+                // 标记已加载（用于后续tab切换）
+                if (this.pageNumber === 0 && !this.search) {
+                    this.filesPreloaded = true;
+                }
             } else {
                 this.hasMore = false;
             }
 
             this.renderFiles();
+            this.updateStats(); // 刷新后更新统计
         } catch (e) {
             console.error('[VX_DIRECT] loadFiles error:', e);
             VXUI.toastError('加载失败');
@@ -1028,8 +1118,15 @@ const VX_DIRECT = {
             return;
         }
 
+        // 如果有预加载缓存且不是强制重置，直接使用缓存数据渲染
+        if (this.foldersPreloaded && !reset) {
+            this.renderFolders();
+            return;
+        }
+
         if (reset) {
             this.folders = [];
+            this.foldersPreloaded = false; // 重置时清除缓存标志
         }
 
         const seq = ++this.foldersReqSeq;
@@ -1039,10 +1136,12 @@ const VX_DIRECT = {
             if (seq !== this.foldersReqSeq) return; // stale response
             if (rsp && rsp.status === 1) {
                 this.folders = rsp.data || [];
+                this.foldersPreloaded = true; // 标记已加载
             } else {
                 this.folders = [];
             }
             this.renderFolders();
+            this.updateStats(); // 刷新后更新统计
         } catch (e) {
             console.error('[VX_DIRECT] loadFolders error:', e);
             VXUI.toastError('加载失败');
@@ -1147,6 +1246,7 @@ const VX_DIRECT = {
             if (listBody) listBody.innerHTML = '';
             empty.style.display = '';
             if (listContainer) listContainer.style.display = 'none';
+            this.updateStats();
             return;
         }
 
@@ -1154,6 +1254,7 @@ const VX_DIRECT = {
             if (listBody) listBody.innerHTML = '';
             empty.style.display = '';
             if (listContainer) listContainer.style.display = 'none';
+            this.updateStats();
             return;
         }
 
@@ -1164,6 +1265,8 @@ const VX_DIRECT = {
         for (const item of this.folders) {
             listBody.appendChild(this.createDirectFolderRow(item));
         }
+        
+        this.updateStats();
     },
 
     createDirectFolderRow(item) {
@@ -1405,6 +1508,10 @@ const VX_DIRECT = {
      * 刷新
      */
     refresh() {
+        // 清除预加载缓存，强制重新加载
+        this.filesPreloaded = false;
+        this.foldersPreloaded = false;
+        
         this.showLoading();
         this.loadDetails()
             .then(() => {
@@ -1473,7 +1580,9 @@ const VX_DIRECT = {
      */
     updateStats() {
         const countEl = document.getElementById('vx-direct-count');
+        const folderCountEl = document.getElementById('vx-direct-folder-count');
         if (countEl) countEl.textContent = String(this.files.length || 0);
+        if (folderCountEl) folderCountEl.textContent = String(this.folders.length || 0);
     }
 
     ,

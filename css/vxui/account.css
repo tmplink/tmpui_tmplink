@@ -37,6 +37,21 @@
     margin: 0 auto;
 }
 
+/* Desktop: use a wider, left-aligned layout instead of a narrow centered column */
+@media (min-width: 1024px) {
+    .vx-account-content {
+        max-width: none;
+        margin: 0;
+        padding: 24px 32px;
+    }
+}
+
+@media (min-width: 1440px) {
+    .vx-account-content {
+        padding: 24px 48px;
+    }
+}
+
 /* Profile Card */
 .vx-profile-card {
     background: var(--vx-surface);
@@ -152,6 +167,7 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    margin-bottom: 12px;
 }
 
 .vx-badge {

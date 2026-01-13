@@ -11,11 +11,11 @@
             <span class="vx-nav-item-text" data-tpl="navbar_buy">商店</span>
         </a>
         <a href="javascript:;" class="vx-nav-item" id="nav-shop-purchased" onclick="VX_SHOP.showTab('purchased')">
-            <iconpark-icon name="rectangle-list"></iconpark-icon>
+            <iconpark-icon name="list-check"></iconpark-icon>
             <span class="vx-nav-item-text" data-tpl="navbar_hr_shop">已购</span>
         </a>
         <a href="javascript:;" class="vx-nav-item" onclick="VX_SHOP.redeemGiftCard()">
-            <iconpark-icon name="gift"></iconpark-icon>
+            <iconpark-icon name="gift-card"></iconpark-icon>
             <span class="vx-nav-item-text">兑换礼品卡</span>
         </a>
     </div>
@@ -30,21 +30,8 @@
         <h1 class="vx-page-title">
             <iconpark-icon name="bag-shopping"></iconpark-icon>
             <span data-tpl="navbar_buy">商店</span>
+            <span id="vx-shop-header-subtitle"></span>
         </h1>
-    </div>
-    
-    <div class="vx-header-center">
-        <!-- Tab buttons for mobile -->
-        <div class="vx-shop-tabs">
-            <button class="vx-tab-btn active" id="tab-products" onclick="VX_SHOP.showTab('products')">
-                <iconpark-icon name="bag-shopping"></iconpark-icon>
-                <span data-tpl="navbar_buy">商店</span>
-            </button>
-            <button class="vx-tab-btn" id="tab-purchased" onclick="VX_SHOP.showTab('purchased')">
-                <iconpark-icon name="rectangle-list"></iconpark-icon>
-                <span data-tpl="navbar_hr_shop">已购</span>
-            </button>
-        </div>
     </div>
     
     <div class="vx-header-right">
@@ -74,10 +61,6 @@
                     <p class="vx-shop-card-desc" data-tpl="first_time_sponsor_subtitle">第一次成为赞助者？一年仅需 36 元！</p>
                     <p class="vx-shop-card-note" data-tpl="first_time_sponsor_description">每位用户限一次！</p>
                 </div>
-                <div class="vx-shop-card-price">
-                    <span class="vx-price-value" id="vx-first-sponsor-price">36</span>
-                    <span class="vx-price-unit">元</span>
-                </div>
                 <div class="vx-shop-card-arrow">
                     <iconpark-icon name="arrow-right"></iconpark-icon>
                 </div>
@@ -85,9 +68,7 @@
         </div>
         
         <!-- Regular Products -->
-        <div class="vx-shop-section">
-            <h2 class="vx-shop-section-title">增值服务</h2>
-            
+        <div class="vx-shop-section vx-shop-section-centered">
             <!-- Sponsor -->
             <div class="vx-shop-card" onclick="VX_SHOP.openSponsor()">
                 <div class="vx-shop-card-icon vx-icon-sponsor">
@@ -96,11 +77,6 @@
                 <div class="vx-shop-card-content">
                     <h3 class="vx-shop-card-title" data-tpl="model_title_sponsor">成为赞助者</h3>
                     <p class="vx-shop-card-desc" data-tpl="model_des_sponsor">获得高速通道、蓝标认证、媒体播放等特权</p>
-                </div>
-                <div class="vx-shop-card-price">
-                    <span class="vx-price-from">起步</span>
-                    <span class="vx-price-value">6</span>
-                    <span class="vx-price-unit">元/月</span>
                 </div>
                 <div class="vx-shop-card-arrow">
                     <iconpark-icon name="arrow-right"></iconpark-icon>
@@ -116,11 +92,6 @@
                     <h3 class="vx-shop-card-title" data-tpl="model_title_buy_storage">私有空间</h3>
                     <p class="vx-shop-card-desc" data-tpl="storage_content">扩展您的私有存储空间</p>
                 </div>
-                <div class="vx-shop-card-price">
-                    <span class="vx-price-from">起步</span>
-                    <span class="vx-price-value">6</span>
-                    <span class="vx-price-unit">元/月</span>
-                </div>
                 <div class="vx-shop-card-arrow">
                     <iconpark-icon name="arrow-right"></iconpark-icon>
                 </div>
@@ -135,11 +106,6 @@
                     <h3 class="vx-shop-card-title" data-tpl="model_title_buy_direct_quota">优先配额（直链）</h3>
                     <p class="vx-shop-card-desc" data-tpl="direct_quota_content">获得更多直链配额</p>
                 </div>
-                <div class="vx-shop-card-price">
-                    <span class="vx-price-from">起步</span>
-                    <span class="vx-price-value">6</span>
-                    <span class="vx-price-unit">元/次</span>
-                </div>
                 <div class="vx-shop-card-arrow">
                     <iconpark-icon name="arrow-right"></iconpark-icon>
                 </div>
@@ -149,101 +115,12 @@
     
     <!-- Purchased Tab -->
     <div class="vx-shop-tab-content" id="vx-shop-purchased" style="display: none;">
-        <div class="vx-shop-section">
-            <h2 class="vx-shop-section-title" data-tpl="navbar_hr_shop">已购项目</h2>
-            
-            <!-- User Status -->
-            <div class="vx-user-status-card" id="vx-user-status">
-                <div class="vx-status-header">
-                    <div class="vx-status-avatar">
-                        <img src="/img/loading.svg" alt="" id="vx-user-avatar">
-                    </div>
-                    <div class="vx-status-info">
-                        <h3 class="vx-status-name" id="vx-user-name">加载中...</h3>
-                        <span class="vx-status-rank" id="vx-user-rank">--</span>
-                    </div>
-                </div>
-                
-                <div class="vx-status-items">
-                    <div class="vx-status-item">
-                        <div class="vx-status-item-icon">
-                            <iconpark-icon name="gauge-circle-bolt"></iconpark-icon>
-                        </div>
-                        <div class="vx-status-item-info">
-                            <span class="vx-status-item-label" data-tpl="user_group_highspeed">高速通道</span>
-                            <span class="vx-status-item-value" id="vx-user-highspeed">--</span>
-                        </div>
-                    </div>
-                    
-                    <div class="vx-status-item">
-                        <div class="vx-status-item-icon">
-                            <img src="/img/level/check.svg" width="20" alt="">
-                        </div>
-                        <div class="vx-status-item-info">
-                            <span class="vx-status-item-label" data-tpl="user_group_blue">蓝标认证</span>
-                            <span class="vx-status-item-value" id="vx-user-blue">--</span>
-                        </div>
-                    </div>
-                    
-                    <div class="vx-status-item">
-                        <div class="vx-status-item-icon">
-                            <img src="/img/level/play.svg" width="20" alt="">
-                        </div>
-                        <div class="vx-status-item-info">
-                            <span class="vx-status-item-label" data-tpl="user_group_dvd">媒体播放</span>
-                            <span class="vx-status-item-value" id="vx-user-dvd">--</span>
-                        </div>
-                    </div>
-                    
-                    <div class="vx-status-item">
-                        <div class="vx-status-item-icon">
-                            <img src="/img/level/like.svg" width="20" alt="">
-                        </div>
-                        <div class="vx-status-item-info">
-                            <span class="vx-status-item-label" data-tpl="myprofile_sponsor">赞助者</span>
-                            <span class="vx-status-item-value" id="vx-user-sponsor">--</span>
-                        </div>
-                    </div>
-                    
-                    <div class="vx-status-item">
-                        <div class="vx-status-item-icon">
-                            <iconpark-icon name="database"></iconpark-icon>
-                        </div>
-                        <div class="vx-status-item-info">
-                            <span class="vx-status-item-label" data-tpl="myprofile_storage_title_private">私有空间</span>
-                            <span class="vx-status-item-value" id="vx-user-storage">--</span>
-                        </div>
-                    </div>
-                    
-                    <div class="vx-status-item">
-                        <div class="vx-status-item-icon">
-                            <iconpark-icon name="share-nodes"></iconpark-icon>
-                        </div>
-                        <div class="vx-status-item-info">
-                            <span class="vx-status-item-label">直链配额</span>
-                            <span class="vx-status-item-value" id="vx-user-quota">--</span>
-                        </div>
-                    </div>
-                    
-                    <div class="vx-status-item">
-                        <div class="vx-status-item-icon">
-                            <iconpark-icon name="chart-network"></iconpark-icon>
-                        </div>
-                        <div class="vx-status-item-info">
-                            <span class="vx-status-item-label" data-tpl="user_group_value">账户价值</span>
-                            <span class="vx-status-item-value" id="vx-user-acv">--</span>
-                        </div>
-                    </div>
-                    
-                    <div class="vx-status-item">
-                        <div class="vx-status-item-icon">
-                            <iconpark-icon name="user-plus"></iconpark-icon>
-                        </div>
-                        <div class="vx-status-item-info">
-                            <span class="vx-status-item-label" data-tpl="myprofile_join">注册时间</span>
-                            <span class="vx-status-item-value" id="vx-user-join">--</span>
-                        </div>
-                    </div>
+        <div class="vx-shop-section vx-shop-section-centered">
+            <!-- Order List -->
+            <div class="vx-orders-list" id="vx-orders-list">
+                <div class="vx-orders-loading">
+                    <div class="vx-spinner"></div>
+                    <span>加载订单中...</span>
                 </div>
             </div>
         </div>
@@ -347,6 +224,21 @@
     padding: 20px;
     max-width: 800px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.vx-shop-tab-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.vx-shop-section-centered {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .vx-shop-section {
@@ -768,5 +660,90 @@
     .vx-header-shop .vx-header-left {
         display: none;
     }
+}
+
+/* Orders List Styles */
+.vx-orders-list {
+    padding: 16px;
+}
+
+.vx-orders-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: var(--vx-text-secondary);
+    gap: 12px;
+}
+
+.vx-orders-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: var(--vx-text-muted);
+    text-align: center;
+    gap: 12px;
+}
+
+.vx-orders-empty p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.vx-order-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    margin-bottom: 12px;
+}
+
+.vx-order-item:last-child {
+    margin-bottom: 0;
+}
+
+.vx-order-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vx-surface);
+    border-radius: var(--vx-radius-md);
+    flex-shrink: 0;
+}
+
+.vx-order-icon iconpark-icon {
+    font-size: 22px;
+    color: var(--vx-primary);
+}
+
+.vx-order-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.vx-order-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin-bottom: 4px;
+}
+
+.vx-order-expiry {
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+    margin-bottom: 6px;
+}
+
+.vx-order-desc {
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    line-height: 1.4;
 }
 </style>

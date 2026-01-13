@@ -68,8 +68,8 @@ window.VX_SHOP = {
     /**
      * Initialize the shop module
      */
-    init() {
-        console.log('[VX_SHOP] Initializing shop module...');
+    init(params = {}) {
+        console.log('[VX_SHOP] Initializing shop module...', params);
         
         // Check login
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
@@ -96,6 +96,31 @@ window.VX_SHOP = {
         
         // Set default payment method based on language
         this.selectedPayment = (typeof TL !== 'undefined' && TL.lang === 'cn') ? 'alipay' : 'paypal';
+        
+        // Handle action parameter - open specific modal after init
+        if (params.action) {
+            setTimeout(() => {
+                switch (params.action) {
+                    case 'quota':
+                        this.openQuota();
+                        break;
+                    case 'sponsor':
+                        this.openSponsor();
+                        break;
+                    case 'storage':
+                        this.openStorage();
+                        break;
+                }
+            }, 100);
+        }
+
+        // Restore tab from URL (deep-link)
+        const nextTab = (params && params.tab) ? String(params.tab) : 'products';
+        if (nextTab === 'purchased' || nextTab === 'products') {
+            this.showTab(nextTab);
+        } else {
+            this.showTab('products');
+        }
     },
     
     /**
@@ -122,12 +147,27 @@ window.VX_SHOP = {
      */
     showTab(tab) {
         this.currentTab = tab;
+
+        // Sync URL so products/purchased can be directly opened
+        if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.updateUrl === 'function') {
+            const currentParams = (typeof VXUI.getUrlParams === 'function') ? (VXUI.getUrlParams() || {}) : {};
+            delete currentParams.module;
+
+            if (tab === 'purchased') {
+                currentParams.tab = 'purchased';
+            } else {
+                delete currentParams.tab;
+            }
+
+            VXUI.updateUrl('shop', currentParams);
+        }
         
-        // Update tab buttons
+        // Update tab buttons (if they exist)
         document.querySelectorAll('.vx-tab-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.getElementById(`tab-${tab}`).classList.add('active');
+        const tabBtn = document.getElementById(`tab-${tab}`);
+        if (tabBtn) tabBtn.classList.add('active');
         
         // Update sidebar nav (only module dynamic area)
         document.querySelectorAll('#vx-sidebar-dynamic .vx-nav-item').forEach(item => {
@@ -136,13 +176,19 @@ window.VX_SHOP = {
         const navItem = document.getElementById(`nav-shop-${tab}`);
         if (navItem) navItem.classList.add('active');
         
+        // Update header subtitle
+        const subtitleEl = document.getElementById('vx-shop-header-subtitle');
+        if (subtitleEl) {
+            subtitleEl.textContent = tab === 'purchased' ? ' - 已购' : '';
+        }
+        
         // Show/hide content
         document.getElementById('vx-shop-products').style.display = tab === 'products' ? 'block' : 'none';
         document.getElementById('vx-shop-purchased').style.display = tab === 'purchased' ? 'block' : 'none';
         
-        // Load user status if switching to purchased tab
+        // Load orders if switching to purchased tab
         if (tab === 'purchased') {
-            this.loadUserStatus();
+            this.loadOrders();
         }
     },
     
@@ -213,108 +259,154 @@ window.VX_SHOP = {
             });
         });
     },
+
+    /**
+     * Load user status
+     * - Keep lightweight and safe: it should never throw.
+     * - Prefer reusing TL.get_details() if available.
+     */
+    loadUserStatus() {
+        try {
+            const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
+            if (!token) return;
+
+            if (typeof TL !== 'undefined' && typeof TL.get_details === 'function') {
+                TL.get_details(() => {
+                    // Optional: place future VXUI-only status rendering here.
+                });
+            }
+        } catch (e) {
+            console.warn('[VX_SHOP] loadUserStatus failed:', e);
+        }
+    },
     
     /**
-     * Load user status for purchased tab
+     * Load orders list from API
      */
-    async loadUserStatus() {
+    async loadOrders() {
+        const ordersContainer = document.getElementById('vx-orders-list');
+        if (!ordersContainer) return;
+        
+        // Show loading
+        ordersContainer.innerHTML = `
+            <div class="vx-orders-loading">
+                <div class="vx-spinner"></div>
+                <span>加载订单中...</span>
+            </div>
+        `;
+        
         try {
-            // Check if TL data is available
-            if (typeof TL === 'undefined') {
-                console.warn('[VX_SHOP] TL not available');
+            const apiUrl = (typeof TL !== 'undefined' && TL.api_user) ? TL.api_user : '/api_v2/user';
+            const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
+            
+            if (!token) {
+                ordersContainer.innerHTML = '<div class="vx-orders-empty">请先登录</div>';
                 return;
             }
             
-            // Update avatar
-            const avatarEl = document.getElementById('vx-user-avatar');
-            if (avatarEl) {
-                avatarEl.src = TL.avatar || '/img/avatar/default.png';
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=order_list&token=${token}`
+            });
+            
+            const rsp = await response.json();
+            
+            if (!rsp.data || !rsp.data.service || rsp.data.service === 0) {
+                ordersContainer.innerHTML = `
+                    <div class="vx-orders-empty">
+                        <iconpark-icon name="folder-open" style="font-size: 48px; color: var(--vx-text-muted);"></iconpark-icon>
+                        <p>暂无已购项目</p>
+                    </div>
+                `;
+                return;
             }
             
-            // Update username
-            const nameEl = document.getElementById('vx-user-name');
-            if (nameEl) {
-                nameEl.textContent = TL.uname || '--';
+            // Process orders
+            const orders = this.processOrders(rsp.data.service);
+            
+            if (Object.keys(orders).length === 0) {
+                ordersContainer.innerHTML = `
+                    <div class="vx-orders-empty">
+                        <iconpark-icon name="folder-open" style="font-size: 48px; color: var(--vx-text-muted);"></iconpark-icon>
+                        <p>暂无已购项目</p>
+                    </div>
+                `;
+                return;
             }
             
-            // Get rank text
-            const rankEl = document.getElementById('vx-user-rank');
-            if (rankEl) {
-                const isSponsor = TL.sponsor;
-                rankEl.textContent = isSponsor ? '赞助者' : '普通用户';
+            // Render orders
+            let html = '';
+            for (const key in orders) {
+                const order = orders[key];
+                html += `
+                    <div class="vx-order-item">
+                        <div class="vx-order-icon">
+                            <iconpark-icon name="${order.icon}"></iconpark-icon>
+                        </div>
+                        <div class="vx-order-info">
+                            <div class="vx-order-name">${order.name}</div>
+                            <div class="vx-order-expiry">${this.t('oders_table3', '到期时间')}:${order.etime}</div>
+                            <div class="vx-order-desc">${order.des}</div>
+                        </div>
+                    </div>
+                `;
             }
             
-            // Update status items
-            const formatDate = (timestamp) => {
-                if (!timestamp) return '--';
-                const date = new Date(timestamp * 1000);
-                return date.toLocaleDateString('zh-CN');
-            };
+            ordersContainer.innerHTML = html;
             
-            const formatExpiry = (timestamp) => {
-                if (!timestamp) return '未开通';
-                if (timestamp === -1) return '永久';
-                const now = Date.now() / 1000;
-                if (timestamp < now) return '已过期';
-                return formatDate(timestamp);
-            };
-            
-            const group = TL.user_group || {};
-            
-            // Highspeed
-            const highspeedEl = document.getElementById('vx-user-highspeed');
-            if (highspeedEl) {
-                highspeedEl.textContent = group.highspeed ? formatExpiry(group.highspeed) : '未开通';
-            }
-            
-            // Blue verification
-            const blueEl = document.getElementById('vx-user-blue');
-            if (blueEl) {
-                blueEl.textContent = group.blue ? formatExpiry(group.blue) : '未开通';
-            }
-            
-            // DVD/Media
-            const dvdEl = document.getElementById('vx-user-dvd');
-            if (dvdEl) {
-                dvdEl.textContent = group.dvd ? formatExpiry(group.dvd) : '未开通';
-            }
-            
-            // Sponsor status
-            const sponsorEl = document.getElementById('vx-user-sponsor');
-            if (sponsorEl) {
-                sponsorEl.textContent = TL.sponsor_time ? formatExpiry(TL.sponsor_time) : '未开通';
-            }
-            
-            // Storage
-            const storageEl = document.getElementById('vx-user-storage');
-            if (storageEl) {
-                const used = TL.storage_used || 0;
-                const total = TL.storage || 0;
-                storageEl.textContent = `${this.formatBytes(used)} / ${this.formatBytes(total)}`;
-            }
-            
-            // Direct quota  
-            const quotaEl = document.getElementById('vx-user-quota');
-            if (quotaEl) {
-                const acvDq = TL.user_acv_dq || TL.acv_dq;
-                quotaEl.textContent = acvDq ? acvDq : '--';
-            }
-            
-            // Account value (ACV)
-            const acvEl = document.getElementById('vx-user-acv');
-            if (acvEl) {
-                acvEl.textContent = TL.user_acv !== undefined ? `¥${TL.user_acv}` : '--';
-            }
-            
-            // Join date
-            const joinEl = document.getElementById('vx-user-join');
-            if (joinEl) {
-                joinEl.textContent = TL.user_join ? formatDate(TL.user_join) : '--';
-            }
-                
         } catch (e) {
-            console.error('[VX_SHOP] Failed to load user status:', e);
+            console.error('[VX_SHOP] Failed to load orders:', e);
+            ordersContainer.innerHTML = `
+                <div class="vx-orders-empty">
+                    <iconpark-icon name="circle-exclamation" style="font-size: 48px; color: var(--vx-danger);"></iconpark-icon>
+                    <p>加载失败</p>
+                </div>
+            `;
         }
+    },
+    
+    /**
+     * Process orders data (similar to TL.service_code)
+     */
+    processOrders(data) {
+        const orders = {};
+        for (let i in data) {
+            const item = data[i];
+            orders[i] = {
+                name: '',
+                des: '',
+                icon: '',
+                etime: item.etime
+            };
+            
+            switch (item.code) {
+                case 'hs':
+                    orders[i].name = this.t('service_code_hs', '赞助者');
+                    orders[i].des = this.t('service_code_hs_des', '感谢您为钛盘的持续进化添砖加瓦。');
+                    orders[i].icon = 'heart-circle-check';
+                    break;
+                case 'storage':
+                    const storageSize = typeof bytetoconver === 'function' ? bytetoconver(item.val, true) : `${item.val} B`;
+                    orders[i].name = `${this.t('service_code_storage', '存储包')} (${storageSize})`;
+                    orders[i].des = this.t('service_code_storage_des', '使用存储包可以长期保存上传的文件，不同容量的存储包可以叠加。');
+                    orders[i].icon = 'album-circle-plus';
+                    break;
+                case 'media-video':
+                    const mediaSize = typeof bytetoconver === 'function' ? bytetoconver(item.val, true) : `${item.val} B`;
+                    orders[i].name = `${this.t('service_code_media', '媒体配额')} (${mediaSize})`;
+                    orders[i].des = this.t('service_code_media_des', '用于在线播放视频和音频文件。');
+                    orders[i].icon = 'circle-video';
+                    break;
+                default:
+                    // Unknown code, remove item
+                    delete orders[i];
+                    break;
+            }
+        }
+        return orders;
     },
     
     /**
@@ -861,5 +953,5 @@ window.VX_SHOP = {
 // Register module
 VXUI.registerModule('shop', {
     template: '/tpl/vxui/shop.html',
-    init: () => VX_SHOP.init()
+    init: (params) => VX_SHOP.init(params)
 });
