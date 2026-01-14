@@ -34,7 +34,7 @@
             <div class="vx-profile-loading" id="vx-profile-loading">
                 <div class="vx-profile-loading-inner">
                     <div class="vx-spinner"></div>
-                    <span>加载中...</span>
+                    <span data-tpl="download_loading">加载中...</span>
                 </div>
             </div>
 
@@ -54,10 +54,10 @@
                             <h2 class="vx-profile-name" id="vx-profile-name">--</h2>
                             <p class="vx-profile-intro" id="vx-profile-intro">--</p>
                             <div class="vx-profile-badges">
-                                <span class="vx-badge vx-badge-rank" id="vx-profile-rank">普通用户</span>
+                                <span class="vx-badge vx-badge-rank" id="vx-profile-rank" data-tpl="myprofile_rank_normal">普通用户</span>
                                 <span class="vx-badge vx-badge-sponsor" id="vx-profile-sponsor-badge" style="display:none;">
                                     <img src="/img/level/like.svg" width="14" alt="">
-                                    赞助者
+                                    <span data-tpl="myprofile_sponsor">赞助者</span>
                                 </span>
                             </div>
                             <button class="vx-btn vx-btn-secondary vx-btn-sm vx-profile-edit-btn" onclick="VX_ACCOUNT.showProfileEdit()">
@@ -69,11 +69,11 @@
                         <div class="vx-profile-edit" id="vx-profile-edit" style="display:none;">
                             <div class="vx-form-group">
                                 <label data-tpl="myprofile_nickname">昵称</label>
-                                <input type="text" class="vx-input" id="vx-profile-name-input" placeholder="输入昵称" maxlength="20">
+                                <input type="text" class="vx-input" id="vx-profile-name-input" data-tpl="myprofile_nickname_placeholder" placeholder="输入昵称" maxlength="20">
                             </div>
                             <div class="vx-form-group">
                                 <label data-tpl="myprofile_intro">简介</label>
-                                <input type="text" class="vx-input" id="vx-profile-intro-input" placeholder="输入简介" maxlength="50">
+                                <input type="text" class="vx-input" id="vx-profile-intro-input" data-tpl="myprofile_intro_placeholder" placeholder="输入简介" maxlength="50">
                             </div>
                             <div class="vx-profile-edit-actions">
                                 <button class="vx-btn vx-btn-secondary" onclick="VX_ACCOUNT.cancelProfileEdit()">
@@ -202,8 +202,8 @@
                     <iconpark-icon name="bag-shopping"></iconpark-icon>
                 </div>
                 <div class="vx-stat-content">
-                    <div class="vx-stat-label" data-tpl="navbar_buy">升级服务</div>
-                    <div class="vx-stat-value">前往商店 →</div>
+                    <div class="vx-stat-label" data-tpl="navbar_upgrade">升级服务</div>
+                    <div class="vx-stat-value" data-tpl="goto_shop">前往商店 →</div>
                 </div>
             </div>
         </div>

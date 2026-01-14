@@ -37,6 +37,15 @@
     margin: 0 auto;
 }
 
+/* Mobile: full width, no padding */
+@media (max-width: 768px) {
+    .vx-content.vx-account-content {
+        max-width: none;
+        padding: 0;
+        margin: 0;
+    }
+}
+
 /* Desktop: use a wider, left-aligned layout instead of a narrow centered column */
 @media (min-width: 1024px) {
     .vx-account-content {
@@ -435,21 +444,87 @@
 /* Responsive */
 @media (max-width: 768px) {
     .vx-account-content {
-        padding: 16px;
+        padding: 0;
+    }
+
+    .vx-profile-card {
+        margin-bottom: 0;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
     }
 
     .vx-profile-header {
         flex-direction: column;
         text-align: center;
-        padding: 24px;
+        padding: 24px 20px 28px;
+        gap: 16px;
+        border-radius: 0;
+    }
+
+    .vx-profile-avatar img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .vx-profile-name {
+        font-size: 20px;
+    }
+
+    .vx-profile-intro {
+        font-size: 13px;
+        margin-bottom: 8px;
     }
 
     .vx-profile-badges {
         justify-content: center;
+        margin-bottom: 6px;
+    }
+
+    .vx-profile-display {
+        align-items: center;
+    }
+
+    .vx-profile-edit-btn {
+        margin-top: 10px;
     }
 
     .vx-stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        background: var(--vx-border);
+        border-radius: 0;
+        overflow: hidden;
+    }
+
+    .vx-stat-card {
+        padding: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        border: none;
+        border-radius: 0;
+    }
+
+    .vx-stat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--vx-radius-sm);
+    }
+
+    .vx-stat-icon iconpark-icon,
+    .vx-stat-icon img {
+        font-size: 18px;
+        width: 18px !important;
+    }
+
+    .vx-stat-label {
+        font-size: 11px;
+        margin-bottom: 2px;
+    }
+
+    .vx-stat-value {
+        font-size: 13px;
     }
 
     .vx-header-account .vx-header-left {
@@ -580,10 +655,25 @@
     }
 
     .vx-profile-edit-actions {
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .vx-profile-edit-actions .vx-btn {
+        flex: 0 0 auto;
+        min-width: 100px;
     }
 
     .vx-profile-edit-btn {
-        width: 100%;
+        width: auto;
+        padding: 10px 24px;
+    }
+
+    .vx-profile-edit {
+        align-items: stretch;
+    }
+
+    .vx-profile-edit .vx-form-group {
+        text-align: left;
     }
 }

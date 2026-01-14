@@ -1730,6 +1730,42 @@ body.vx-modal-body-open {
     .vx-toolbar > div {
         justify-content: center;
     }
+
+    /* Direct Link Summary Card - mobile layout */
+    .vx-card-body > .vx-flex.vx-items-center.vx-gap-md {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .vx-card-body > .vx-flex.vx-items-center.vx-gap-md > .vx-avatar {
+        margin-bottom: 8px;
+    }
+
+    .vx-card-body > .vx-flex.vx-items-center.vx-gap-md > .vx-flex-1 {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Domain name row - center it */
+    .vx-card-body > .vx-flex.vx-items-center.vx-gap-md > .vx-flex-1 > .vx-text-lg {
+        justify-content: center;
+    }
+
+    /* Stats row - center items */
+    .vx-card-body > .vx-flex.vx-items-center.vx-gap-md > .vx-flex-1 > .vx-flex {
+        justify-content: center;
+    }
+
+    /* Service ready text - center */
+    .vx-card-body > .vx-flex.vx-items-center.vx-gap-md > .vx-flex-1 > .vx-text-muted {
+        text-align: center;
+    }
+
+    .vx-card-body > .vx-flex.vx-items-center.vx-gap-md > #vx-direct-top-actions {
+        width: 100%;
+        justify-content: center;
+        margin-top: 12px;
+    }
 }
 
 /* Portrait tablets (e.g., iPad) should use drawer sidebar to avoid width-priority layout issues */
