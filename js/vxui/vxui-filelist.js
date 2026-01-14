@@ -1141,6 +1141,11 @@ var VX_FILELIST = VX_FILELIST || {
         if (typeof TL !== 'undefined' && typeof TL.tpl_lang === 'function') {
             TL.tpl_lang(listBody);
         }
+
+        // 重新绑定 tmpui 链接
+        if (typeof app !== 'undefined' && typeof app.linkRebind === 'function') {
+            app.linkRebind();
+        }
     },
     
     /**
@@ -1383,7 +1388,7 @@ var VX_FILELIST = VX_FILELIST || {
                     <iconpark-icon name="${iconInfo.icon}"></iconpark-icon>
                 </div>
                 <div class="vx-list-filename">
-                    <a href="javascript:;" onclick="event.stopPropagation(); VX_FILELIST.previewFile('${file.ukey}')">${this.escapeHtml(file.fname)}</a>
+                    <a href="/file?ukey=${file.ukey}" tmpui-app="true" target="_blank" onclick="event.stopPropagation();">${this.escapeHtml(file.fname)}</a>
                     ${file.hot > 0 ? '<iconpark-icon name="fire" class="vx-hot-badge"></iconpark-icon>' : ''}
                     ${file.like > 0 ? `<span class="vx-like-badge"><iconpark-icon name="like"></iconpark-icon>${file.like}</span>` : ''}
                     ${file.lefttime > 0 ? `
@@ -1818,6 +1823,11 @@ var VX_FILELIST = VX_FILELIST || {
             
             // 初始化新添加行的倒计时
             this.initLeftTimeCountdown();
+
+            // 重新绑定 tmpui 链接
+            if (typeof app !== 'undefined' && typeof app.linkRebind === 'function') {
+                app.linkRebind();
+            }
         }
         
         // 检查是否需要显示/隐藏空状态
