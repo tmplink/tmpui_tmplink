@@ -64,7 +64,10 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 检查登录状态
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
-            VXUI.navigate('login');
+            VXUI.toastWarning('请先登录');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 300);
             return;
         }
         
@@ -523,7 +526,10 @@ var VX_FILELIST = VX_FILELIST || {
             }
             
             if (rsp.status === 3) {
-                VXUI.navigate('login');
+                VXUI.toastWarning('请先登录');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 300);
                 finalize();
                 return;
             }

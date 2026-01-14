@@ -66,7 +66,10 @@ const VX_DIRECT = {
         console.log('[VX_DIRECT] Initializing...', params);
 
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
-            VXUI.navigate('login');
+            VXUI.toastWarning('请先登录');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 300);
             return;
         }
 
@@ -110,7 +113,9 @@ const VX_DIRECT = {
                 this.hideLoading();
                 if (String(err?.message || '').includes('token')) {
                     VXUI.toastError('登录状态无效，请重新登录');
-                    VXUI.navigate('login');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 300);
                 } else {
                     VXUI.toastError('加载直链信息失败');
                 }
@@ -538,7 +543,9 @@ const VX_DIRECT = {
         const token = this.getToken();
         if (!token) {
             VXUI.toastError('登录状态无效');
-            VXUI.navigate('login');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 300);
             return;
         }
 

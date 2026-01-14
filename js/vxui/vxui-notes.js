@@ -109,7 +109,10 @@ const VX_NOTES = {
     _doInit(params = {}) {
         // 检查登录状态
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
-            VXUI.navigate('login');
+            VXUI.toastWarning('请先登录');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 300);
             return;
         }
         

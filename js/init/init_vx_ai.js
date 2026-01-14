@@ -4,28 +4,7 @@
 (function() {
     'use strict';
 
-    // 注册模块到 VXUI
-    if (typeof VXUI !== 'undefined' && typeof VX_AI !== 'undefined') {
-        VXUI.registerModule('ai', {
-            init(params) {
-                if (typeof TL !== 'undefined' && TL.ready) {
-                    TL.ready(() => VX_AI.init(params));
-                } else {
-                    VX_AI.init(params);
-                }
-            },
-            destroy() {
-                if (typeof VX_AI.destroy === 'function') {
-                    VX_AI.destroy();
-                }
-            },
-            updateSidebar() {
-                if (typeof VX_AI.updateSidebar === 'function') {
-                    VX_AI.updateSidebar();
-                }
-            }
-        });
-    }
+    // 模块注册由 js/vxui/vxui-ai.js 负责；此处仅提供额外事件
 
     // 设置 AI 模块特有事件
     function setupAIEvents() {
@@ -33,6 +12,12 @@
         document.addEventListener('input', function(e) {
             if (e.target.id === 'vx-ai-input') {
                 autoResizeTextarea(e.target);
+
+                // 同步字数/发送按钮状态（防止模块内事件未及时绑定导致按钮永远禁用）
+                if (typeof VXUI !== 'undefined' && VXUI.currentModule === 'ai' && typeof VX_AI !== 'undefined') {
+                    if (typeof VX_AI.updateCharCount === 'function') VX_AI.updateCharCount();
+                    if (typeof VX_AI.updateSendButton === 'function') VX_AI.updateSendButton();
+                }
             }
         });
 
@@ -40,15 +25,6 @@
         document.addEventListener('keydown', function(e) {
             if (typeof VXUI === 'undefined' || VXUI.currentModule !== 'ai') return;
             if (typeof VX_AI === 'undefined') return;
-
-            // 在输入框中
-            if (e.target.id === 'vx-ai-input') {
-                // Enter 发送 (Shift+Enter 换行)
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    VX_AI.sendMessage();
-                }
-            }
 
             // Ctrl/Cmd + N 新对话
             if ((e.ctrlKey || e.metaKey) && e.key === 'n') {

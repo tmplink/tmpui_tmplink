@@ -18,6 +18,11 @@
             <iconpark-icon name="circle-plus"></iconpark-icon>
             <span data-tpl="ai_new">新对话</span>
         </button>
+
+        <div class="vx-ai-quota" id="vx-ai-quota-indicator" style="display:none;">
+            <div class="vx-ai-quota-bar"><div class="vx-ai-quota-progress" id="vx-ai-quota-progress"></div></div>
+            <div class="vx-ai-quota-text" id="vx-ai-quota-text">-/-</div>
+        </div>
     </div>
 </header>
 
@@ -51,10 +56,14 @@
             <div class="vx-ai-input-wrapper">
                 <textarea class="vx-ai-input" id="vx-ai-input" 
                     placeholder="输入消息... (Enter 发送, Shift+Enter 换行)"
-                    rows="1"></textarea>
+                    rows="1" maxlength="2000"></textarea>
                 <button class="vx-ai-send-btn" onclick="VX_AI.sendMessage()">
                     <iconpark-icon name="rocket-launch"></iconpark-icon>
                 </button>
+            </div>
+            <div class="vx-ai-meta">
+                <span id="vx-ai-char-count">0/2000</span>
+                <span id="vx-ai-status" class="vx-ai-status">就绪</span>
             </div>
             <div class="vx-ai-disclaimer">
                 AI 生成的内容可能存在错误，请注意甄别
@@ -68,13 +77,78 @@
 .vx-ai-container {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - var(--vx-header-height));
+    height: 100%;
+    min-height: 0;
+}
+
+/* Quota */
+.vx-ai-quota {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 12px;
+    padding: 6px 10px;
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-full);
+    background: var(--vx-surface);
+}
+
+.vx-ai-quota-bar {
+    width: 120px;
+    height: 8px;
+    border-radius: var(--vx-radius-full);
+    background: var(--vx-bg-secondary);
+    overflow: hidden;
+}
+
+.vx-ai-quota-progress {
+    height: 100%;
+    width: 0;
+    background: var(--vx-success);
+}
+
+.vx-ai-quota-text {
+    font-size: var(--vx-text-xs);
+    color: var(--vx-text-secondary);
+    white-space: nowrap;
 }
 
 .vx-ai-messages {
     flex: 1;
     overflow-y: auto;
     padding: 24px;
+    min-height: 0;
+}
+
+/* Prevent header-right overlap on narrow widths */
+.vx-header-right {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* Input meta */
+.vx-ai-meta {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 8px 0 8px;
+    font-size: var(--vx-text-xs);
+    color: var(--vx-text-muted);
+}
+
+.vx-ai-status {
+    color: var(--vx-text-secondary);
+}
+
+.vx-ai-status.vx-ai-status-error {
+    color: var(--vx-danger);
+}
+
+.vx-ai-status.vx-ai-status-warn {
+    color: var(--vx-warning);
+}
+
+.vx-ai-status.vx-ai-status-loading {
+    color: var(--vx-text-secondary);
 }
 
 /* Welcome */
@@ -145,12 +219,14 @@
     display: flex;
     gap: 12px;
     margin-bottom: 24px;
+    width: 100%;
     max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .vx-ai-message-user {
     flex-direction: row-reverse;
-    margin-left: auto;
 }
 
 .vx-ai-avatar {
@@ -201,6 +277,25 @@
     font-size: var(--vx-text-base);
     line-height: 1.6;
     color: var(--vx-text);
+}
+
+/* Markdown spacing (marked output) */
+.vx-ai-content > * {
+    margin: 0 0 10px 0;
+}
+
+.vx-ai-content > *:last-child {
+    margin-bottom: 0;
+}
+
+.vx-ai-content ul,
+.vx-ai-content ol {
+    padding-left: 18px;
+}
+
+.vx-ai-content a {
+    color: inherit;
+    text-decoration: underline;
 }
 
 .vx-ai-message-user .vx-ai-content {
@@ -267,6 +362,7 @@
     padding: 16px 24px;
     border-top: 1px solid var(--vx-border);
     background: var(--vx-surface);
+    flex-shrink: 0;
 }
 
 .vx-ai-input-wrapper {
@@ -330,6 +426,31 @@
     font-size: var(--vx-text-xs);
     color: var(--vx-text-muted);
     margin-top: 8px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.vx-ai-meta {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* System message */
+.vx-ai-message-system {
+    justify-content: center;
+}
+
+.vx-ai-message-system .vx-ai-avatar {
+    display: none;
+}
+
+.vx-ai-message-system .vx-ai-bubble {
+    background: var(--vx-bg-secondary);
+    border-color: var(--vx-border);
+    max-width: 800px;
+    width: 100%;
 }
 
 /* Responsive */

@@ -72,6 +72,17 @@ const VX_ACCOUNT = {
             TL.tpl_lang();
         }
 
+        // VXUI 可能在 TL.api_token 尚未填充时直接刷新进入 settings：兜底从存储/Cookie 恢复
+        if (typeof TL !== 'undefined' && !TL.api_token) {
+            const stored = localStorage.getItem('app_token');
+            if (stored) {
+                TL.api_token = stored;
+            } else if (typeof getCookie === 'function') {
+                const c = getCookie('token');
+                if (c) TL.api_token = c;
+            }
+        }
+
         // Load preferences + connect status (only if the section exists)
         this.loadPreferences();
         this.loadGoogleStatus();
@@ -885,6 +896,12 @@ const VX_ACCOUNT = {
 
         const apiUrl = (typeof TL !== 'undefined' && TL.api_user) ? TL.api_user : '/api_v2/user';
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
+
+        // token 可能在页面初始阶段异步填充：延迟重试，避免误判为未绑定
+        if (!token) {
+            setTimeout(() => this.loadGoogleStatus(), 300);
+            return;
+        }
         
         $.post(apiUrl, {
             action: 'oauth_google_is_connected',

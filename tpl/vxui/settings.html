@@ -29,20 +29,22 @@
                 <iconpark-icon name="lock"></iconpark-icon>
                 <span data-tpl="navbar_reset_password">修改密码</span>
             </h3>
-            <div class="vx-settings-card">
+            <form class="vx-settings-card" autocomplete="off" onsubmit="return false;">
+                <input type="text" name="vx_fake_username" autocomplete="username" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;">
+                <input type="password" name="vx_fake_password" autocomplete="current-password" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;">
                 <div class="vx-form-group">
                     <label data-tpl="model_resetpassword_new">新密码</label>
-                    <input type="password" class="vx-input" id="vx-new-password" placeholder="请输入新密码">
+                    <input type="password" class="vx-input" id="vx-new-password" name="vx_new_password_no_autofill" placeholder="请输入新密码" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" readonly onfocus="this.removeAttribute('readonly');">
                 </div>
                 <div class="vx-form-group">
                     <label data-tpl="model_resetpassword_re">确认密码</label>
-                    <input type="password" class="vx-input" id="vx-confirm-password" placeholder="请再次输入新密码">
+                    <input type="password" class="vx-input" id="vx-confirm-password" name="vx_confirm_password_no_autofill" placeholder="请再次输入新密码" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" readonly onfocus="this.removeAttribute('readonly');">
                 </div>
-                <button class="vx-btn vx-btn-primary" onclick="VX_ACCOUNT.changePassword()">
+                <button type="button" class="vx-btn vx-btn-primary" onclick="VX_ACCOUNT.changePassword()">
                     <iconpark-icon name="check"></iconpark-icon>
                     <span data-tpl="model_btn_ok">确认修改</span>
                 </button>
-            </div>
+            </form>
         </div>
 
         <!-- Email Section -->
@@ -51,25 +53,26 @@
                 <iconpark-icon name="envelope"></iconpark-icon>
                 <span data-tpl="navbar_reset_email">修改邮箱</span>
             </h3>
-            <div class="vx-settings-card">
+            <form class="vx-settings-card" autocomplete="off" onsubmit="return false;">
+                <input type="text" name="vx_fake_email" autocomplete="email" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;">
                 <div class="vx-form-group">
                     <label data-tpl="model_changeemail_new">新邮箱</label>
                     <div class="vx-input-group">
-                        <input type="email" class="vx-input" id="vx-new-email" placeholder="请输入新邮箱">
-                        <button class="vx-btn vx-btn-secondary" onclick="VX_ACCOUNT.sendEmailCode()" id="vx-send-code-btn">
+                        <input type="email" class="vx-input" id="vx-new-email" name="vx_new_email_no_autofill" placeholder="请输入新邮箱" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" readonly onfocus="this.removeAttribute('readonly');">
+                        <button type="button" class="vx-btn vx-btn-secondary" onclick="VX_ACCOUNT.sendEmailCode()" id="vx-send-code-btn">
                             <span data-tpl="form_checkcode_send">发送验证码</span>
                         </button>
                     </div>
                 </div>
                 <div class="vx-form-group">
                     <label data-tpl="form_checkcode">验证码</label>
-                    <input type="text" class="vx-input" id="vx-email-code" placeholder="请输入验证码">
+                    <input type="text" class="vx-input" id="vx-email-code" name="vx_email_code_no_autofill" placeholder="请输入验证码" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" readonly onfocus="this.removeAttribute('readonly');">
                 </div>
-                <button class="vx-btn vx-btn-primary" onclick="VX_ACCOUNT.changeEmail()">
+                <button type="button" class="vx-btn vx-btn-primary" onclick="VX_ACCOUNT.changeEmail()">
                     <iconpark-icon name="check"></iconpark-icon>
                     <span data-tpl="model_btn_ok">确认修改</span>
                 </button>
-            </div>
+            </form>
         </div>
 
         <!-- Google Connect Section -->
