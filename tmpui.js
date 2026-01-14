@@ -804,10 +804,10 @@ class tmpUI {
         this.log("languageSet : " + lang);
         var old = localStorage.getItem('tmpUI_language');
         if (old === lang) {
-            return false;
+            return Promise.resolve(false);
         } else {
             localStorage.setItem('tmpUI_language', lang);
-            this.languageBuild();
+            return this.languageBuild();
         }
     }
 

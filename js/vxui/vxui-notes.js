@@ -109,7 +109,7 @@ const VX_NOTES = {
     _doInit(params = {}) {
         // 检查登录状态
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
-            VXUI.toastWarning('请先登录');
+            VXUI.toastWarning((app && app.languageData && app.languageData.vx_need_login) || '请先登录');
             setTimeout(() => {
                 window.location.href = '/login';
             }, 300);
@@ -258,7 +258,7 @@ const VX_NOTES = {
             .catch(error => {
                 console.error('[VX_NOTES] Load error:', error);
                 this.hideLoading();
-                VXUI.toastError('加载失败');
+                VXUI.toastError((app && app.languageData && app.languageData.vx_load_failed) || '加载失败');
             });
     },
     
@@ -358,7 +358,7 @@ const VX_NOTES = {
                                 keyLength: this.key ? String(this.key).length : 0
                             });
                             // If CryptoJS never loads, don't mislabel it as an invalid key.
-                            VXUI.toastError('依赖加载失败，请刷新重试');
+                            VXUI.toastError((app && app.languageData && app.languageData.notes_dependency_failed) || '依赖加载失败，请刷新重试');
                             resolve();
                         });
                     return;
@@ -433,7 +433,9 @@ const VX_NOTES = {
      * 渲染项目
      */
     renderItem(note) {
-        const title = note.title_text || note.raw_title || '无标题';
+        const untitledText = (app && app.languageData && app.languageData.notes_untitled) || '无标题';
+        const deleteTitle = (app && app.languageData && app.languageData.notes_delete_title) || '删除';
+        const title = note.title_text || note.raw_title || untitledText;
         const preview = note.content_text || this.getContentPreview(note.raw_content || '');
         const updateTime = note.etime || '';
         const isActive = this.currentId && this.currentId === note.id;
@@ -450,7 +452,7 @@ const VX_NOTES = {
                 <div class="vx-notes-item-actions">
                     <button type="button" class="vx-btn-icon" 
                         onclick="event.stopPropagation(); VX_NOTES.deleteNote(${note.id})" 
-                        title="删除">
+                        title="${deleteTitle}">
                         <iconpark-icon name="trash"></iconpark-icon>
                     </button>
                 </div>
@@ -490,7 +492,7 @@ const VX_NOTES = {
 
         const note = this.getNoteById(numericId);
         if (!note) {
-            VXUI.toastError('密记不存在');
+            VXUI.toastError((app && app.languageData && app.languageData.notes_not_exist) || '密记不存在');
             return;
         }
 
@@ -582,7 +584,7 @@ const VX_NOTES = {
                 this.dbg('initKeyState: CryptoJS timeout', { error: err && err.message });
                 this.hideLoading();
                 // Don't mislabel as key error; show a loading/dependency error instead
-                VXUI.toastError('加密模块加载失败，请刷新页面重试');
+                VXUI.toastError((app && app.languageData && app.languageData.notes_crypto_failed) || '加密模块加载失败，请刷新页面重试');
             });
     },
 
@@ -638,7 +640,8 @@ const VX_NOTES = {
 
         // If user has encrypted notes but no local key, guide more explicitly.
         if (typeof this._cloudCount === 'number' && this._cloudCount > 0) {
-            el.textContent = `检测到云端已有 ${this._cloudCount} 条密记，请设置密钥以解密并启用功能。`;
+            const template = (app && app.languageData && app.languageData.notes_cloud_exist_hint) || '检测到云端已有 {count} 条密记，请设置密钥以解密并启用功能。';
+            el.textContent = template.replace('{count}', this._cloudCount);
             resetBtn?.classList.remove('vx-hidden');
             return;
         }
@@ -647,7 +650,7 @@ const VX_NOTES = {
 
         // Default hint (i18n will override elsewhere)
         if (!el.textContent || el.textContent.trim().length === 0) {
-            el.textContent = '尚未设置密钥，请先设置密钥。';
+            el.textContent = (app && app.languageData && app.languageData.notes_keyinit_alert) || '尚未设置密钥，请先设置密钥。';
         }
     },
 
@@ -678,7 +681,7 @@ const VX_NOTES = {
 
         if (!persisted) {
             // Avoid silent failure: otherwise user sees "works now" but "invalid after refresh".
-            VXUI.toastError('浏览器阻止保存密钥，刷新后需重新输入');
+            VXUI.toastError((app && app.languageData && app.languageData.notes_browser_block_key) || '浏览器阻止保存密钥，刷新后需重新输入');
         }
 
         this.renderKeyOk();
@@ -707,7 +710,7 @@ const VX_NOTES = {
                 this._storedKeySession = newKey;
 
                 if (!persisted) {
-                    VXUI.toastError('浏览器阻止保存密钥，刷新后需重新输入');
+                    VXUI.toastError((app && app.languageData && app.languageData.notes_browser_block_key) || '浏览器阻止保存密钥，刷新后需重新输入');
                 }
 
                 $.post(TL.api_notes, {
@@ -1009,7 +1012,7 @@ const VX_NOTES = {
 
         // init editor
         if (typeof $ === 'undefined' || typeof $.fn.trumbowyg !== 'function') {
-            VXUI.toastError('编辑器未加载');
+            VXUI.toastError((app && app.languageData && app.languageData.notes_editor_not_loaded) || '编辑器未加载');
             return;
         }
 
@@ -1158,7 +1161,7 @@ const VX_NOTES = {
         const encTitle = this.enContent(rawTitle);
         const encContent = this.enContent(rawContent);
         if (!encTitle || !encContent) {
-            VXUI.toastError('加密失败');
+            VXUI.toastError((app && app.languageData && app.languageData.notes_encrypt_failed) || '加密失败');
             return;
         }
 
@@ -1173,7 +1176,7 @@ const VX_NOTES = {
         }, (rsp) => {
             this.setEditorSaving(false);
             if (!rsp) {
-                if (!silent) VXUI.toastError('保存失败');
+                if (!silent) VXUI.toastError((app && app.languageData && app.languageData.notes_save_failed) || '保存失败');
                 return;
             }
 
@@ -1202,10 +1205,10 @@ const VX_NOTES = {
                 return;
             }
 
-            if (!silent) VXUI.toastError(rsp.message || '保存失败');
+            if (!silent) VXUI.toastError(rsp.message || ((app && app.languageData && app.languageData.notes_save_failed) || '保存失败'));
         }, 'json').fail(() => {
             this.setEditorSaving(false);
-            if (!silent) VXUI.toastError('保存失败');
+            if (!silent) VXUI.toastError((app && app.languageData && app.languageData.notes_save_failed) || '保存失败');
         });
     },
 

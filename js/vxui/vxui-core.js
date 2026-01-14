@@ -129,23 +129,45 @@ class VXUICore {
     /**
      * 设置语言（兼容旧版逻辑：优先走 TL.language -> app.languageSet）
      */
-    setLanguage(lang) {
+    async setLanguage(lang) {
         const nextLang = String(lang || '').toLowerCase();
         if (!nextLang) return;
 
+        // 清除缓存的语言就绪 Promise，强制重新等待新语言包加载
+        this._languageReadyPromise = null;
+
+        // 调用 TL.language 或 app.languageSet，并等待语言包加载完成
+        let buildPromise = null;
         if (typeof TL !== 'undefined' && TL && typeof TL.language === 'function') {
+            // TL.language 内部会调用 app.languageSet，现在它返回 Promise
             TL.language(nextLang);
         } else if (typeof app !== 'undefined' && app && typeof app.languageSet === 'function') {
-            app.languageSet(nextLang);
+            buildPromise = app.languageSet(nextLang);
         }
 
-        // Language pack load is async; ensure ready then translate everything.
-        this._languageReadyPromise = null;
-        this.ensureLanguageReady().finally(() => {
-            if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
-                TL.tpl_lang();
+        // 等待语言包加载完成（app.languageSet 现在返回 Promise）
+        if (!buildPromise && typeof app !== 'undefined' && app && app.languageBuild) {
+            // 如果通过 TL.language 调用，我们需要单独等待 languageBuild
+            // 由于 TL.language 内部调用 app.languageSet 已经触发了 languageBuild，
+            // 我们需要给一点时间让 languageBuild 开始执行，然后等待它完成
+            // 最可靠的方式是重新调用一次 languageBuild（它会检查 localStorage 并加载对应语言包）
+            try {
+                await app.languageBuild();
+            } catch (e) {
+                // ignore
             }
-        });
+        } else if (buildPromise && typeof buildPromise.then === 'function') {
+            try {
+                await buildPromise;
+            } catch (e) {
+                // ignore
+            }
+        }
+        
+        // 翻译整个页面
+        if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+            TL.tpl_lang();
+        }
     }
 
     /**
