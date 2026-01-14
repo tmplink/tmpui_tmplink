@@ -42,6 +42,40 @@ class VXUICore {
         
         // 绑定方法
         this.init = this.init.bind(this);
+
+        // i18n: avoid duplicated concurrent builds
+        this._languageReadyPromise = null;
+    }
+
+    /**
+     * Ensure language pack is loaded (best-effort).
+     */
+    ensureLanguageReady() {
+        if (this._languageReadyPromise) return this._languageReadyPromise;
+
+        // If language data already exists, treat as ready.
+        if (typeof app !== 'undefined' && app && app.languageData) {
+            this._languageReadyPromise = Promise.resolve();
+            return this._languageReadyPromise;
+        }
+
+        if (typeof app === 'undefined' || !app || typeof app.languageBuild !== 'function') {
+            this._languageReadyPromise = Promise.resolve();
+            return this._languageReadyPromise;
+        }
+
+        try {
+            const ret = app.languageBuild();
+            if (ret && typeof ret.then === 'function') {
+                this._languageReadyPromise = ret.catch(() => undefined).then(() => undefined);
+                return this._languageReadyPromise;
+            }
+        } catch (e) {
+            // ignore
+        }
+
+        this._languageReadyPromise = Promise.resolve();
+        return this._languageReadyPromise;
     }
     
     /**
@@ -68,12 +102,50 @@ class VXUICore {
         // 处理 URL 参数，加载对应模块
         this.handleRoute();
         
-        // 构建语言
-        if (typeof app !== 'undefined') {
-            app.languageBuild();
-        }
+        // i18n: ensure language pack ready, then translate
+        this.ensureLanguageReady().finally(() => {
+            // 初始化语言切换器（VXUI 顶层入口）
+            this.initLanguageSwitcher();
+
+            if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+                TL.tpl_lang();
+            }
+        });
         
         console.log('[VXUI] Core initialized');
+    }
+
+    /**
+     * 初始化语言切换（sidebar dropdown）
+     */
+    initLanguageSwitcher() {
+        // label is translated via data-tpl="language"; no dynamic language-name label
+        if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+            const el = document.getElementById('vx-lang-dropdown');
+            if (el) TL.tpl_lang(el);
+        }
+    }
+
+    /**
+     * 设置语言（兼容旧版逻辑：优先走 TL.language -> app.languageSet）
+     */
+    setLanguage(lang) {
+        const nextLang = String(lang || '').toLowerCase();
+        if (!nextLang) return;
+
+        if (typeof TL !== 'undefined' && TL && typeof TL.language === 'function') {
+            TL.language(nextLang);
+        } else if (typeof app !== 'undefined' && app && typeof app.languageSet === 'function') {
+            app.languageSet(nextLang);
+        }
+
+        // Language pack load is async; ensure ready then translate everything.
+        this._languageReadyPromise = null;
+        this.ensureLanguageReady().finally(() => {
+            if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+                TL.tpl_lang();
+            }
+        });
     }
 
     /**
@@ -208,9 +280,11 @@ class VXUICore {
 
         // 重置模块侧边栏区域（模块仅写入 dynamic 区）
         this.clearSidebarDynamic();
-        
-        // 加载模块模板
-        this.loadModuleTemplate(moduleName, () => {
+
+        // i18n: ensure language is ready BEFORE template injection
+        this.ensureLanguageReady().finally(() => {
+            // 加载模块模板
+            this.loadModuleTemplate(moduleName, () => {
             // 初始化模块（确保即使模块 init 抛错也会更新 URL）
             try {
                 if (typeof module.init === 'function') {
@@ -223,14 +297,15 @@ class VXUICore {
                 // 更新 URL
                 this.updateUrl(moduleName, params);
             }
-            
-            // 构建语言
-            if (typeof app !== 'undefined') {
-                app.languageBuild();
+
+            // i18n: translate newly injected DOM (module + dynamic sidebar)
+            if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+                setTimeout(() => TL.tpl_lang(), 0);
             }
             
             // 关闭移动端侧边栏
             this.closeSidebar();
+            });
         });
     }
     
@@ -260,7 +335,17 @@ class VXUICore {
         fetch(templatePath)
             .then(response => response.text())
             .then(html => {
-                container.innerHTML = html;
+                // 与旧版保持一致：注入前尽量先翻译，减少“先中文后闪”的观感
+                let output = html;
+                if (typeof app !== 'undefined' && app && typeof app.languageTranslateHtml === 'function') {
+                    output = app.languageTranslateHtml(html);
+                }
+                container.innerHTML = output;
+
+                // 旧版兼容：部分 VXUI 模块会依赖 TL.tpl_lang() 来刷新语言
+                if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+                    TL.tpl_lang(container);
+                }
                 if (callback) callback();
             })
             .catch(error => {
@@ -334,9 +419,13 @@ class VXUICore {
             divider.style.display = hasContent ? '' : 'none';
         }
 
-        if (typeof app !== 'undefined') {
-            app.languageBuild();
-        }
+        // i18n: translate newly inserted sidebar content
+        this._languageReadyPromise = null;
+        this.ensureLanguageReady().finally(() => {
+            if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+                TL.tpl_lang(sidebarDynamic);
+            }
+        });
     }
 
     /**
@@ -392,6 +481,34 @@ class VXUICore {
         
         // 点击侧边栏外部关闭
         document.addEventListener('click', (e) => {
+            // Language dropdown toggle
+            const langToggle = e.target && e.target.closest ? e.target.closest('[data-action="vx-lang-toggle"]') : null;
+            const langSet = e.target && e.target.closest ? e.target.closest('[data-action="vx-lang-set"]') : null;
+            const langDropdown = document.getElementById('vx-lang-dropdown');
+
+            if (langToggle && langDropdown) {
+                e.preventDefault();
+                e.stopPropagation();
+                langDropdown.classList.toggle('open');
+                return;
+            }
+
+            if (langSet) {
+                e.preventDefault();
+                e.stopPropagation();
+                const nextLang = langSet.getAttribute('data-lang');
+                if (langDropdown) langDropdown.classList.remove('open');
+                this.setLanguage(nextLang);
+                return;
+            }
+
+            // Click outside closes language dropdown
+            if (langDropdown && langDropdown.classList.contains('open')) {
+                if (!langDropdown.contains(e.target)) {
+                    langDropdown.classList.remove('open');
+                }
+            }
+
             const sidebar = document.getElementById('vx-sidebar');
             const toggleBtn = document.querySelector('[onclick*="toggleSidebar"]');
             const openBtn = document.querySelector('[onclick*="openSidebar"]');

@@ -44,6 +44,31 @@ var VX_FILELIST = VX_FILELIST || {
     // 刷新状态
     refreshing: false,
 
+    // Folder privacy toggle state
+    _privacyLoading: false,
+
+    /**
+     * Get translation text safely (prefers TL.tpl, falls back to app.languageData).
+     */
+    t(key, fallback) {
+        try {
+            if (typeof TL !== 'undefined' && TL && TL.tpl && TL.tpl[key] !== undefined) return TL.tpl[key];
+        } catch (e) { /* ignore */ }
+        try {
+            if (typeof app !== 'undefined' && app && app.languageData && app.languageData[key] !== undefined) return app.languageData[key];
+        } catch (e) { /* ignore */ }
+        return fallback;
+    },
+
+    /**
+     * Simple placeholder formatter: replaces {name} with params.name
+     */
+    fmt(key, params, fallback) {
+        const text = String(this.t(key, fallback) || '');
+        if (!params) return text;
+        return text.replace(/\{(\w+)\}/g, (m, k) => (params[k] !== undefined ? String(params[k]) : m));
+    },
+
     // ==================== Folder Direct (直链文件夹) ====================
     directDomain: null,
     directProtocol: 'http://',
@@ -64,15 +89,16 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 检查登录状态
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
-            VXUI.toastWarning('请先登录');
+            VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
             setTimeout(() => {
                 window.location.href = '/login';
             }, 300);
             return;
         }
         
-        // 获取 mrid 参数
-        this.mrid = params.mrid || this.getUrlMrid() || 0;
+        // 获取 mrid 参数（mrid=0 代表桌面，不能用 || 兜底）
+        const hasMridParam = (params && Object.prototype.hasOwnProperty.call(params, 'mrid'));
+        this.mrid = hasMridParam ? params.mrid : (this.getUrlMrid() || 0);
         
         // 获取视图模式参数或从存储恢复
         this.viewMode = params.view || localStorage.getItem('vx_view_mode') || 'list';
@@ -91,6 +117,9 @@ var VX_FILELIST = VX_FILELIST || {
         this.directDirEnabled = false;
         this.directDirKey = null;
         this.directLoading = false;
+
+        // reset folder privacy state
+        this._privacyLoading = false;
         
         // 初始化上传模块（预加载服务器列表）
         if (typeof VX_UPLOADER !== 'undefined') {
@@ -111,11 +140,6 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 绑定事件
         this.bindEvents();
-        
-        // 构建语言
-        if (typeof app !== 'undefined') {
-            app.languageBuild();
-        }
     },
     
     /**
@@ -136,12 +160,13 @@ var VX_FILELIST = VX_FILELIST || {
             VXUI.refreshSidebarDivider();
         }
 
-        if (typeof app !== 'undefined') {
-            app.languageBuild();
+        // Translate dynamic sidebar content (language should be ready via VXUI core).
+        if (typeof TL !== 'undefined' && typeof TL.tpl_lang === 'function') {
+            TL.tpl_lang(container);
         }
         
-        // 更新标题
-        const title = this.room.name || '桌面';
+        // 更新标题（桌面使用多语言）
+        const title = this.getRoomDisplayTitle();
         const sidebarTitle = document.getElementById('vx-fl-sidebar-title');
         if (sidebarTitle) {
             sidebarTitle.textContent = title;
@@ -149,9 +174,114 @@ var VX_FILELIST = VX_FILELIST || {
 
         // 同步直链侧边栏区域（模板每次都会被重建）
         this.applyDirectSidebarUI();
+
+        // 同步文件夹公开/私有开关
+        this.applyFolderPrivacyUI();
         
         // 更新相册视图控制显示
         this.updateAlbumViewControls();
+    },
+
+    applyFolderPrivacyUI() {
+        const section = document.getElementById('vx-fl-privacy-section');
+        const toggle = document.getElementById('vx-fl-privacy-toggle');
+        const stateEl = document.getElementById('vx-fl-privacy-state');
+        const hintEl = document.getElementById('vx-fl-privacy-hint');
+
+        // 仅在文件夹（非桌面）且拥有者时展示
+        const show = !!this.isOwner && !this.isDesktop && this.mrid && String(this.mrid) !== '0';
+        if (section) section.style.display = show ? '' : 'none';
+        if (!show) return;
+
+        const current = (this.room && this.room.model === 'private') ? 'private' : 'public';
+
+        if (toggle) {
+            // checked = private (开=私有)
+            toggle.checked = (current === 'private');
+            toggle.disabled = !!this._privacyLoading;
+        }
+
+        if (stateEl) {
+            stateEl.textContent = (current === 'private')
+                ? this.t('vx_privacy_private', '私有')
+                : this.t('vx_privacy_public', '公开');
+        }
+
+        if (hintEl) {
+            hintEl.textContent = (current === 'private')
+                ? this.t('modal_meetingroom_type2', '私有，仅自己可访问。')
+                : this.t('modal_meetingroom_type1', '公开，所有人都可访问。');
+        }
+    },
+
+    onFolderPrivacyToggleChange(checked) {
+        const desired = checked ? 'private' : 'public';
+        this.onFolderPrivacyChange(desired);
+    },
+
+    onFolderPrivacyChange(next) {
+        const desired = (String(next) === 'private') ? 'private' : 'public';
+
+        // 仅 owner 的非桌面文件夹可改
+        const allowed = !!this.isOwner && !this.isDesktop && this.mrid && String(this.mrid) !== '0';
+        if (!allowed) {
+            VXUI.toastWarning(this.t('vx_no_permission', '无权限'));
+            this.applyFolderPrivacyUI();
+            return;
+        }
+
+        const current = (this.room && this.room.model === 'private') ? 'private' : 'public';
+        if (desired === current) {
+            this.applyFolderPrivacyUI();
+            return;
+        }
+
+        const token = this.getToken();
+        if (!token) {
+            VXUI.toastError(this.t('vx_not_logged_in', '未登录'));
+            this.applyFolderPrivacyUI();
+            return;
+        }
+
+        const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
+
+        this._privacyLoading = true;
+        this.applyFolderPrivacyUI();
+
+        $.post(apiUrl, {
+            action: 'set_model',
+            token: token,
+            mr_id: this.mrid,
+            model: desired
+        }, (rsp) => {
+            // Legacy-compatible: some backends return plain text instead of JSON.
+            const isJson = rsp && typeof rsp === 'object';
+            const ok = !isJson || (rsp.status === 1);
+
+            if (ok) {
+                if (!this.room || typeof this.room !== 'object') this.room = {};
+                this.room.model = desired;
+                VXUI.toastSuccess(this.t('vx_update_success', '修改成功'));
+                return;
+            }
+
+            VXUI.toastError(this.t('vx_update_failed', '修改失败'));
+        }).fail(() => {
+            VXUI.toastError(this.t('vx_update_failed', '修改失败'));
+        }).always(() => {
+            this._privacyLoading = false;
+            this.applyFolderPrivacyUI();
+        });
+    },
+
+    getDesktopTitle() {
+        return this.t('navbar_meetingroom', '桌面');
+    },
+
+    getRoomDisplayTitle() {
+        const isDesktop = !!this.isDesktop || String(this.mrid) === '0' || (this.room && (this.room.top == 99 || String(this.room.mr_id) === '0'));
+        if (isDesktop) return this.getDesktopTitle();
+        return (this.room && this.room.name) ? this.room.name : this.getDesktopTitle();
     },
     
     /**
@@ -520,13 +650,13 @@ var VX_FILELIST = VX_FILELIST || {
         }, (rsp) => {
             if (rsp.status === 0) {
                 this.hideLoading();
-                VXUI.toastError('文件夹不存在');
+                VXUI.toastError(this.t('vx_folder_not_found', '文件夹不存在'));
                 finalize();
                 return;
             }
             
             if (rsp.status === 3) {
-                VXUI.toastWarning('请先登录');
+                VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
                 setTimeout(() => {
                     window.location.href = '/login';
                 }, 300);
@@ -557,6 +687,9 @@ var VX_FILELIST = VX_FILELIST || {
             // 更新 UI
             this.updateRoomUI();
 
+            // 更新侧边栏：公开/私有切换（基于最新 room/isOwner/isDesktop）
+            this.applyFolderPrivacyUI();
+
             // 加载文件夹直链状态（仅非桌面/登录且 owner 时显示）
             this.loadDirectFolderState();
             
@@ -566,7 +699,7 @@ var VX_FILELIST = VX_FILELIST || {
             finalize();
         }, 'json').fail(() => {
             this.hideLoading();
-            VXUI.toastError('加载失败');
+            VXUI.toastError(this.t('vx_load_failed', '加载失败'));
             finalize();
         });
     },
@@ -585,11 +718,11 @@ var VX_FILELIST = VX_FILELIST || {
         if (this.refreshing) {
             btn.disabled = true;
             btn.dataset.refreshing = '1';
-            if (text) text.textContent = '刷新中';
+            if (text) text.textContent = this.t('vx_refreshing', '刷新中');
         } else {
             btn.disabled = false;
             delete btn.dataset.refreshing;
-            if (text) text.textContent = '刷新';
+            if (text) text.textContent = this.t('album_refresh', '刷新');
         }
     },
     
@@ -598,7 +731,7 @@ var VX_FILELIST = VX_FILELIST || {
      */
     updateRoomUI() {
         // 标题
-        const title = this.room.name || '桌面';
+        const title = this.getRoomDisplayTitle();
         
         const titleEl = document.getElementById('vx-fl-title');
         if (titleEl) titleEl.textContent = title;
@@ -740,7 +873,7 @@ var VX_FILELIST = VX_FILELIST || {
 
         if (!this.directDomainReady) {
             toggle.checked = false;
-            VXUI.toastWarning('请先绑定直链域名');
+            VXUI.toastWarning(this.t('vx_bind_direct_domain_toast', '请先绑定直链域名'));
             return;
         }
 
@@ -749,17 +882,17 @@ var VX_FILELIST = VX_FILELIST || {
         if (!wantEnable) {
             // disable
             VXUI.confirm({
-                title: '关闭文件夹直链',
-                message: '确定要关闭此文件夹的直链分享吗？',
+                title: this.t('vx_direct_disable_title', '关闭文件夹直链'),
+                message: this.t('vx_direct_disable_confirm', '确定要关闭此文件夹的直链分享吗？'),
                 confirmClass: 'vx-btn-danger',
                 onConfirm: async () => {
                     try {
                         await this.apiDirectPost({ action: 'del_dir', direct_key: this.directDirKey });
-                        VXUI.toastSuccess('已关闭');
+                        VXUI.toastSuccess(this.t('vx_closed', '已关闭'));
                         await this.loadDirectFolderState();
                     } catch (e) {
                         console.error(e);
-                        VXUI.toastError('操作失败');
+                        VXUI.toastError(this.t('vx_operation_failed', '操作失败'));
                         toggle.checked = true;
                     }
                 },
@@ -774,15 +907,15 @@ var VX_FILELIST = VX_FILELIST || {
         try {
             const rsp = await this.apiDirectPost({ action: 'add_dir', mrid: this.mrid });
             if (rsp && rsp.status === 1) {
-                VXUI.toastSuccess('已开启');
+                VXUI.toastSuccess(this.t('vx_enabled', '已开启'));
                 await this.loadDirectFolderState();
             } else {
-                VXUI.toastError('开启失败');
+                VXUI.toastError(this.t('vx_enable_failed', '开启失败'));
                 toggle.checked = false;
             }
         } catch (e) {
             console.error(e);
-            VXUI.toastError('开启失败');
+            VXUI.toastError(this.t('vx_enable_failed', '开启失败'));
             toggle.checked = false;
         }
     },
@@ -795,16 +928,17 @@ var VX_FILELIST = VX_FILELIST || {
     copyFolderDirectLink() {
         const link = this.getFolderDirectLink();
         if (!link) {
-            VXUI.toastWarning('未开启文件夹直链');
+            VXUI.toastWarning(this.t('vx_direct_not_enabled', '未开启文件夹直链'));
             return;
         }
         VXUI.copyToClipboard(link);
+        VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
     },
 
     openFolderDirectLink() {
         const link = this.getFolderDirectLink();
         if (!link) {
-            VXUI.toastWarning('未开启文件夹直链');
+            VXUI.toastWarning(this.t('vx_direct_not_enabled', '未开启文件夹直链'));
             return;
         }
         window.open(link, '_blank');
@@ -820,12 +954,12 @@ var VX_FILELIST = VX_FILELIST || {
     copyDirectFileLinkByUkey(ukey) {
         const file = (this.fileList || []).find(f => String(f.ukey) === String(ukey));
         if (!file) {
-            VXUI.toastError('文件不存在');
+            VXUI.toastError(this.t('vx_file_not_found', '文件不存在'));
             return;
         }
         const link = this.getDirectFileShareLink(file);
         if (!link) {
-            VXUI.toastWarning('未开启文件夹直链');
+            VXUI.toastWarning(this.t('vx_direct_not_enabled', '未开启文件夹直链'));
             return;
         }
         VXUI.copyToClipboard(link);
@@ -837,8 +971,9 @@ var VX_FILELIST = VX_FILELIST || {
     updateBreadcrumb() {
         const container = document.getElementById('vx-fl-breadcrumb');
         if (!container) return;
-        
-        let html = '<a href="javascript:;" onclick="VX_FILELIST.openFolder(0)">桌面</a>';
+
+        const desktopTitle = this.getDesktopTitle();
+        let html = `<a href="javascript:;" onclick="VX_FILELIST.openFolder(0)">${this.escapeHtml(desktopTitle)}</a>`;
         
         if (this.mrid != 0 && this.room.name) {
             html += '<span class="vx-breadcrumb-sep">›</span>';
@@ -1001,6 +1136,11 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 初始化剩余时间倒计时
         this.initLeftTimeCountdown();
+
+        // Translate any dynamic rows (e.g. folder type label)
+        if (typeof TL !== 'undefined' && typeof TL.tpl_lang === 'function') {
+            TL.tpl_lang(listBody);
+        }
     },
     
     /**
@@ -1780,7 +1920,7 @@ var VX_FILELIST = VX_FILELIST || {
             VX_UPLOADER.openModal(this.mrid);
         } else {
             console.warn('[VX_FILELIST] VX_UPLOADER not loaded');
-            VXUI.toastError('上传模块未加载');
+            VXUI.toastError(this.t('vx_upload_module_not_loaded', '上传模块未加载'));
         }
     },
     
@@ -1896,7 +2036,7 @@ var VX_FILELIST = VX_FILELIST || {
                     ui.card.classList.add('downloading');
                     if (ui.overlay) ui.overlay.classList.add('active');
                     if (ui.progress) ui.progress.style.width = '8%';
-                    if (ui.status) ui.status.textContent = '准备下载...';
+                    if (ui.status) ui.status.textContent = this.t('vx_preparing_download', '准备下载...');
                     if (ui.button) {
                         ui.button.classList.add('is-downloading');
                         ui.button.innerHTML = `
@@ -1946,7 +2086,7 @@ var VX_FILELIST = VX_FILELIST || {
             },
             onComplete: () => {
                 if (ui && ui.progress) ui.progress.style.width = '100%';
-                if (ui && ui.status) ui.status.textContent = '下载完成';
+                if (ui && ui.status) ui.status.textContent = this.t('vx_download_complete_label', '下载完成');
                 // 卡片按钮完成状态
                 if (ui && ui.button) {
                     ui.button.classList.add('download-complete');
@@ -1962,11 +2102,11 @@ var VX_FILELIST = VX_FILELIST || {
                         lightboxBtn.innerHTML = '<iconpark-icon name="cloud-arrow-down"></iconpark-icon>';
                     }, 1000);
                 }
-                VXUI.toastSuccess('下载完成');
+                VXUI.toastSuccess(this.t('vx_download_complete', '下载完成'));
             },
             onError: (error) => {
                 if (ui && ui.overlay) ui.overlay.classList.add('error');
-                if (ui && ui.status) ui.status.textContent = '下载失败';
+                if (ui && ui.status) ui.status.textContent = this.t('vx_download_failed_label', '下载失败');
                 // 卡片按钮错误状态
                 if (ui && ui.button) {
                     ui.button.classList.add('download-error');
@@ -1982,7 +2122,7 @@ var VX_FILELIST = VX_FILELIST || {
                         lightboxBtn.innerHTML = '<iconpark-icon name="cloud-arrow-down"></iconpark-icon>';
                     }, 1500);
                 }
-                VXUI.toastError('下载失败，请重试');
+                VXUI.toastError(this.t('vx_download_failed_retry', '下载失败，请重试'));
             }
         };
 
@@ -2018,16 +2158,16 @@ var VX_FILELIST = VX_FILELIST || {
      * 删除文件
      */
     deleteFile(ukey) {
-        if (!confirm('确定要删除此文件吗？')) return;
+        if (!confirm(this.t('vx_confirm_delete_file', '确定要删除此文件吗？'))) return;
         
         const token = this.getToken();
 
         this._deleteFileWithFallback(ukey, token).then((ok) => {
             this.refresh();
             if (ok) {
-                VXUI.toastSuccess('删除成功');
+                VXUI.toastSuccess(this.t('vx_delete_success', '删除成功'));
             } else {
-                VXUI.toastError('删除失败，请重试');
+                VXUI.toastError(this.t('vx_delete_failed_retry', '删除失败，请重试'));
             }
         });
     },
@@ -2091,7 +2231,7 @@ var VX_FILELIST = VX_FILELIST || {
      * 删除文件夹
      */
     deleteFolder(mrid) {
-        if (!confirm('确定要删除此文件夹吗？')) return;
+        if (!confirm(this.t('vx_confirm_delete_folder', '确定要删除此文件夹吗？'))) return;
         
         const token = this.getToken();
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
@@ -2102,7 +2242,7 @@ var VX_FILELIST = VX_FILELIST || {
             mr_id: mrid
         }, () => {
             this.refresh();
-            VXUI.toastSuccess('删除成功');
+            VXUI.toastSuccess(this.t('vx_delete_success', '删除成功'));
         });
     },
     
@@ -2128,7 +2268,7 @@ var VX_FILELIST = VX_FILELIST || {
         // 如果没有传入 url，构建当前文件夹的链接
         if (!url) {
             if (this.isDesktop && !mrid) {
-                VXUI.toastWarning('桌面无法分享');
+                VXUI.toastWarning(this.t('vx_desktop_cannot_share', '桌面无法分享'));
                 return;
             }
             const targetMrid = mrid || this.mrid;
@@ -2138,15 +2278,15 @@ var VX_FILELIST = VX_FILELIST || {
         
         if (typeof VXUI !== 'undefined' && VXUI.copyToClipboard) {
             VXUI.copyToClipboard(url);
-            VXUI.toastSuccess('链接已复制');
+            VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
         } else if (typeof TL !== 'undefined' && typeof TL.bulkCopy === 'function') {
             // 使用老版的复制方法
             TL.bulkCopy(null, btoa(url), true);
         } else {
             navigator.clipboard.writeText(url).then(() => {
-                VXUI.toastSuccess('链接已复制');
+                VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
             }).catch(() => {
-                VXUI.toastError('复制失败');
+                VXUI.toastError(this.t('vx_copy_failed', '复制失败'));
             });
         }
     },
@@ -2177,7 +2317,7 @@ var VX_FILELIST = VX_FILELIST || {
                 this.updateItemCount();
                 this.updateEmptyState();
             }, 300);
-            VXUI.toastSuccess('已取消收藏');
+            VXUI.toastSuccess(this.t('vx_unfavorited', '已取消收藏'));
         });
     },
     
@@ -2327,7 +2467,7 @@ var VX_FILELIST = VX_FILELIST || {
         const files = this.selectedItems.filter(item => item.type === 'file').map(item => item.id);
         
         if (files.length === 0) {
-            VXUI.toastWarning('请选择要下载的文件');
+            VXUI.toastWarning(this.t('vx_select_files_to_download', '请选择要下载的文件'));
             return;
         }
         
@@ -2345,7 +2485,7 @@ var VX_FILELIST = VX_FILELIST || {
      */
     moveSelected() {
         if (this.selectedItems.length === 0) {
-            VXUI.toastWarning('请选择要移动的项目');
+            VXUI.toastWarning(this.t('vx_select_items_to_move', '请选择要移动的项目'));
             return;
         }
         
@@ -2454,7 +2594,7 @@ var VX_FILELIST = VX_FILELIST || {
             } else {
                 const treeRoot = document.getElementById('vx-move-tree-root');
                 if (treeRoot) {
-                    treeRoot.innerHTML = '<div class="vx-move-no-results">加载失败，请重试</div>';
+                    treeRoot.innerHTML = `<div class="vx-move-no-results">${this.t('vx_load_failed_retry', '加载失败，请重试')}</div>`;
                 }
             }
         }, 'json').fail(() => {
@@ -2463,7 +2603,7 @@ var VX_FILELIST = VX_FILELIST || {
             
             const treeRoot = document.getElementById('vx-move-tree-root');
             if (treeRoot) {
-                treeRoot.innerHTML = '<div class="vx-move-no-results">加载失败，请重试</div>';
+                treeRoot.innerHTML = `<div class="vx-move-no-results">${this.t('vx_load_failed_retry', '加载失败，请重试')}</div>`;
             }
         });
     },
@@ -2703,10 +2843,7 @@ var VX_FILELIST = VX_FILELIST || {
      */
     confirmMove() {
         if (this._moveSelectedFolderId === null || this._moveSelectedFolderId === undefined) {
-            const errorMsg = (typeof app !== 'undefined' && app.languageData && app.languageData.status_error_13) 
-                ? app.languageData.status_error_13 
-                : '请选择目标文件夹';
-            VXUI.toastWarning(errorMsg);
+            VXUI.toastWarning(this.t('vx_select_target_folder', '请选择目标文件夹'));
             return;
         }
         
@@ -2727,16 +2864,16 @@ var VX_FILELIST = VX_FILELIST || {
         }, (rsp) => {
             this.closeMoveModal();
             if (rsp && rsp.status === 1) {
-                VXUI.toastSuccess('移动成功');
+                VXUI.toastSuccess(this.t('vx_move_success', '移动成功'));
                 this.clearSelection();
                 this.refresh();
             } else {
-                const errorMsg = (rsp && rsp.message) ? rsp.message : '移动失败，请重试';
+                const errorMsg = (rsp && rsp.message) ? rsp.message : this.t('vx_move_failed_retry', '移动失败，请重试');
                 VXUI.toastError(errorMsg);
             }
         }, 'json').fail(() => {
             this.closeMoveModal();
-            VXUI.toastError('移动失败，请重试');
+            VXUI.toastError(this.t('vx_move_failed_retry', '移动失败，请重试'));
         });
     },
     
@@ -2745,7 +2882,7 @@ var VX_FILELIST = VX_FILELIST || {
      */
     deleteSelected() {
         if (this.selectedItems.length === 0) return;
-        if (!confirm(`确定要删除 ${this.selectedItems.length} 个项目吗？`)) return;
+        if (!confirm(this.fmt('vx_confirm_delete_items', { count: this.selectedItems.length }, `确定要删除 ${this.selectedItems.length} 个项目吗？`))) return;
         
         const token = this.getToken();
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
@@ -2772,9 +2909,9 @@ var VX_FILELIST = VX_FILELIST || {
             this.refresh();
 
             if (okCount === total) {
-                VXUI.toastSuccess('删除成功');
+                VXUI.toastSuccess(this.t('vx_delete_success', '删除成功'));
             } else {
-                VXUI.toastError(`删除完成：成功 ${okCount} / ${total}，部分失败`);
+                VXUI.toastError(this.fmt('vx_delete_partial', { ok: okCount, total }, `删除完成：成功 ${okCount} / ${total}，部分失败`));
             }
         });
     },
@@ -2792,7 +2929,7 @@ var VX_FILELIST = VX_FILELIST || {
         menu.innerHTML = `
             <div class="vx-context-item" id="vx-fl-menu-open" onclick="VX_FILELIST.openContextItem()">
                 <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
-                <span>打开</span>
+                <span data-tpl="vx_open">打开</span>
             </div>
             <div class="vx-context-item" id="vx-fl-menu-download" onclick="VX_FILELIST.downloadContextItem()">
                 <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
@@ -2804,26 +2941,26 @@ var VX_FILELIST = VX_FILELIST || {
             </div>
             <div class="vx-context-item" id="vx-fl-menu-direct-share" onclick="VX_FILELIST.directShareContextItem()">
                 <iconpark-icon name="share-from-square"></iconpark-icon>
-                <span>通过直链分享</span>
+                <span data-tpl="vx_direct_share">通过直链分享</span>
             </div>
 
             <div class="vx-context-divider" id="vx-fl-menu-expire-divider"></div>
-            <div class="vx-context-label" id="vx-fl-menu-expire-label">修改有效期</div>
+            <div class="vx-context-label" id="vx-fl-menu-expire-label" data-tpl="on_select_change_model">修改有效期</div>
             <div class="vx-context-item" id="vx-fl-menu-expire-3" onclick="VX_FILELIST.setExpireContextItem(99)">
                 <iconpark-icon name="infinity"></iconpark-icon>
-                <span>永久保存</span>
+                <span data-tpl="modal_settings_upload_model99">永久保存</span>
             </div>
             <div class="vx-context-item" id="vx-fl-menu-expire-0" onclick="VX_FILELIST.setExpireContextItem(0)">
                 <iconpark-icon name="clock"></iconpark-icon>
-                <span>24 小时</span>
+                <span data-tpl="modal_settings_upload_model1">24 小时</span>
             </div>
             <div class="vx-context-item" id="vx-fl-menu-expire-1" onclick="VX_FILELIST.setExpireContextItem(1)">
                 <iconpark-icon name="clock"></iconpark-icon>
-                <span>3 天</span>
+                <span data-tpl="modal_settings_upload_model2">3 天</span>
             </div>
             <div class="vx-context-item" id="vx-fl-menu-expire-2" onclick="VX_FILELIST.setExpireContextItem(2)">
                 <iconpark-icon name="clock"></iconpark-icon>
-                <span>7 天</span>
+                <span data-tpl="modal_settings_upload_model3">7 天</span>
             </div>
 
             <div class="vx-context-divider"></div>
@@ -2834,6 +2971,11 @@ var VX_FILELIST = VX_FILELIST || {
         `;
 
         document.body.appendChild(menu);
+
+        // 翻译动态创建的菜单
+        if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+            TL.tpl_lang(menu);
+        }
         return menu;
     },
 
@@ -3042,7 +3184,7 @@ var VX_FILELIST = VX_FILELIST || {
             return;
         }
         if (!this.isOwner) {
-            VXUI.toastWarning('无权限');
+            VXUI.toastWarning(this.t('vx_no_permission', '无权限'));
             this.hideContextMenu();
             return;
         }
@@ -3053,7 +3195,7 @@ var VX_FILELIST = VX_FILELIST || {
     changeFileModel(ukey, model) {
         const token = this.getToken();
         if (!token) {
-            VXUI.toastError('未登录');
+            VXUI.toastError(this.t('vx_not_logged_in', '未登录'));
             return;
         }
 
@@ -3069,18 +3211,18 @@ var VX_FILELIST = VX_FILELIST || {
             model: model
         }, (rsp) => {
             if (rsp && rsp.status === 1) {
-                VXUI.toastSuccess('修改成功');
+                VXUI.toastSuccess(this.t('vx_update_success', '修改成功'));
                 this.refresh();
                 return;
             }
             // 处理不同的错误状态
             if (rsp && rsp.status === 2) {
-                VXUI.toastError('存储空间不足');
+                VXUI.toastError(this.t('vx_storage_insufficient', '存储空间不足'));
             } else {
-                VXUI.toastError('修改失败');
+                VXUI.toastError(this.t('vx_update_failed', '修改失败'));
             }
         }, 'json').fail(() => {
-            VXUI.toastError('修改失败');
+            VXUI.toastError(this.t('vx_update_failed', '修改失败'));
         });
     },
     
@@ -3143,7 +3285,7 @@ var VX_FILELIST = VX_FILELIST || {
     createFolder() {
         const name = document.getElementById('vx-fl-folder-name')?.value?.trim();
         if (!name) {
-            VXUI.toastWarning('请输入文件夹名称');
+            VXUI.toastWarning(this.t('vx_enter_folder_name', '请输入文件夹名称'));
             return;
         }
         
@@ -3183,9 +3325,9 @@ var VX_FILELIST = VX_FILELIST || {
             if (rsp.status === 1) {
                 this.closeCreateModal();
                 this.refresh();
-                VXUI.toastSuccess('创建成功');
+                VXUI.toastSuccess(this.t('vx_create_success', '创建成功'));
             } else {
-                VXUI.toastError('创建失败');
+                VXUI.toastError(this.t('vx_create_failed', '创建失败'));
             }
         });
     },
@@ -3222,7 +3364,7 @@ var VX_FILELIST = VX_FILELIST || {
         
         const name = document.getElementById('vx-fl-rename-input')?.value?.trim();
         if (!name) {
-            VXUI.toastWarning('请输入新名称');
+            VXUI.toastWarning(this.t('vx_enter_new_name', '请输入新名称'));
             return;
         }
         
@@ -3238,7 +3380,7 @@ var VX_FILELIST = VX_FILELIST || {
             }, () => {
                 this.closeRenameModal();
                 this.refresh();
-                VXUI.toastSuccess('重命名成功');
+                VXUI.toastSuccess(this.t('vx_rename_success', '重命名成功'));
             });
         } else {
             if (typeof TL !== 'undefined' && TL.file_rename) {

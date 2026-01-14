@@ -14,6 +14,15 @@ const VX_AI = {
     conversations: [],
     userStats: null,
     maxInputLength: 2000,
+
+    /**
+     * Get language text safely
+     */
+    lang(key, fallback) {
+        return (typeof app !== 'undefined' && app.languageData && app.languageData[key] !== undefined)
+            ? app.languageData[key]
+            : fallback;
+    },
     
     /**
      * 初始化模块
@@ -23,7 +32,7 @@ const VX_AI = {
         
         // 检查登录状态
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
-            VXUI.toastWarning('请先登录');
+            VXUI.toastWarning(this.lang('status_need_login', '请先登录'));
             setTimeout(() => {
                 window.location.href = '/login';
             }, 300);
@@ -70,7 +79,7 @@ const VX_AI = {
         this.messages = [];
         this.isLoading = false;
         // conversations/userStats 不清空：用于侧边栏与配额显示
-        this.setStatusText('就绪');
+        this.setStatusText(this.lang('ai_status_ready', '就绪'));
         this.updateCharCount();
         this.updateSendButton();
     },
@@ -190,25 +199,29 @@ const VX_AI = {
                 <div class="vx-nav-title" data-tpl="ai_actions">操作</div>
                 <a href="javascript:;" class="vx-nav-item" onclick="VX_AI.newConversation()">
                     <iconpark-icon name="circle-plus"></iconpark-icon>
-                    <span class="vx-nav-item-text" data-tpl="ai_new">新对话</span>
+                    <span class="vx-nav-item-text" data-tpl="ai_new_conversation">新建对话</span>
                 </a>
                 <a href="javascript:;" class="vx-nav-item" onclick="VX_AI.clearHistory()">
                     <iconpark-icon name="trash"></iconpark-icon>
-                    <span class="vx-nav-item-text" data-tpl="ai_clear">清空当前</span>
+                    <span class="vx-nav-item-text" data-tpl="ai_clear_current">清空当前</span>
                 </a>
             </div>
 
             <div class="vx-nav-section">
-                <div class="vx-nav-title">对话历史</div>
+                <div class="vx-nav-title" data-tpl="ai_conversation_history">对话历史</div>
                 <div id="vx-ai-conversation-list"></div>
                 <a href="javascript:;" class="vx-nav-item vx-ai-nav-danger" onclick="VX_AI.deleteAllConversationsUI()">
                     <iconpark-icon name="delete"></iconpark-icon>
-                    <span class="vx-nav-item-text">删除全部对话</span>
+                    <span class="vx-nav-item-text" data-tpl="ai_delete_all_conversations">删除全部对话</span>
                 </a>
             </div>
 
             <style>
                 .vx-ai-nav-danger { color: var(--vx-danger); }
+
+        if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+            TL.tpl_lang(sidebarDynamic);
+        }
                 .vx-ai-nav-danger:hover { background: rgba(239, 68, 68, 0.08); }
                 .vx-ai-conv-item { position: relative; flex-direction: column; align-items: stretch; gap: 6px; }
                 .vx-ai-conv-top { display: flex; align-items: center; gap: 12px; }
@@ -340,8 +353,8 @@ const VX_AI = {
         if (!message || this.isLoading) return;
 
         if (!this.canSendMessage()) {
-            VXUI.toastError('您的 AI 配额已耗尽，请稍后再试');
-            this.setStatusText('配额耗尽', 'warn');
+            VXUI.toastError(this.lang('ai_quota_exceeded', '您的 AI 配额已耗尽，请稍后再试'));
+            this.setStatusText(this.lang('ai_quota_exhausted_short', '配额耗尽'), 'warn');
             this.updateSendButton();
             return;
         }
@@ -392,10 +405,13 @@ const VX_AI = {
                         <div class="vx-ai-welcome-icon">
                             <iconpark-icon name="user-robot"></iconpark-icon>
                         </div>
-                        <h3>加载中…</h3>
-                        <p>正在获取对话内容</p>
+                        <h3 data-tpl="ai_loading_conversation">加载中…</h3>
+                        <p data-tpl="ai_loading_detail">正在获取对话内容</p>
                     </div>
                 `;
+                if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+                    TL.tpl_lang(container);
+                }
                 return;
             }
             container.innerHTML = `
@@ -403,21 +419,24 @@ const VX_AI = {
                     <div class="vx-ai-welcome-icon">
                         <iconpark-icon name="robot"></iconpark-icon>
                     </div>
-                    <h3>AI 助手</h3>
-                    <p>有什么我可以帮助你的吗？</p>
+                    <h3 data-tpl="ai_start_chat_greeting">开始与智能小薇对话吧！</h3>
+                    <p data-tpl="ai_mobile_intro">我是您的AI助手，有什么可以帮助您的吗？</p>
                     <div class="vx-ai-suggestions">
-                        <button class="vx-ai-suggestion" onclick="VX_AI.useSuggestion('帮我分析一下我的文件使用情况')">
+                        <button class="vx-ai-suggestion" data-tpl="ai_suggest_usage_label" onclick="VX_AI.useSuggestionKey('ai_suggest_usage_prompt')">
                             分析文件使用情况
                         </button>
-                        <button class="vx-ai-suggestion" onclick="VX_AI.useSuggestion('如何创建一个共享文件夹？')">
+                        <button class="vx-ai-suggestion" data-tpl="ai_suggest_share_label" onclick="VX_AI.useSuggestionKey('ai_suggest_share_prompt')">
                             创建共享文件夹
                         </button>
-                        <button class="vx-ai-suggestion" onclick="VX_AI.useSuggestion('什么是直链，如何使用？')">
+                        <button class="vx-ai-suggestion" data-tpl="ai_suggest_direct_label" onclick="VX_AI.useSuggestionKey('ai_suggest_direct_prompt')">
                             了解直链功能
                         </button>
                     </div>
                 </div>
             `;
+            if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+                TL.tpl_lang(container);
+            }
             return;
         }
         
@@ -507,6 +526,16 @@ const VX_AI = {
             this.updateSendButton();
         }
     },
+
+    /**
+     * 使用建议（按语言 key 取文案）
+     */
+    useSuggestionKey(key) {
+        const k = String(key || '').trim();
+        if (!k) return;
+        const text = this.lang(k, '');
+        if (text) this.useSuggestion(text);
+    },
     
     /**
      * 调用 AI API
@@ -514,7 +543,7 @@ const VX_AI = {
     callAI(message) {
         const isNewConversation = !this.conversationId;
         this.isLoading = true;
-        this.setStatusText('思考中…', 'loading');
+        this.setStatusText(this.lang('ai_thinking', '思考中…'), 'loading');
         this.renderMessages();
         this.scrollToBottom();
         this.updateSendButton();
@@ -527,7 +556,7 @@ const VX_AI = {
         this.apiPost(action, payload, { retryIfNoToken: true })
             .then((data) => {
                 this.isLoading = false;
-                this.setStatusText('就绪');
+                this.setStatusText(this.lang('ai_status_ready', '就绪'));
 
                 // 更新配额
                 if (data && data.user_stats) {
@@ -565,9 +594,9 @@ const VX_AI = {
             })
             .catch((err) => {
                 this.isLoading = false;
-                this.setStatusText('发送失败', 'error');
+                this.setStatusText(this.lang('ai_send_message_failed', '发送失败'), 'error');
 
-                const msg = (err && err.message) ? err.message : '网络错误，请检查连接后重试。';
+                const msg = (err && err.message) ? err.message : this.lang('ai_network_error', '网络错误，请检查连接后重试。');
                 this.addMessage('assistant', msg);
                 this.loadStatus(false);
                 this.updateSendButton();
@@ -579,8 +608,8 @@ const VX_AI = {
      */
     newConversation() {
         VXUI.confirm({
-            title: '新建对话',
-            message: '确定要开始新对话吗？当前对话将被保存。',
+            title: this.lang('ai_new_conversation', '新建对话'),
+            message: this.lang('ai_confirm_new_conversation', '确定要开始新对话吗？当前对话将被保存。'),
             onConfirm: () => {
                 this.resetState();
                 this.renderMessages();
@@ -594,14 +623,14 @@ const VX_AI = {
      */
     clearHistory() {
         VXUI.confirm({
-            title: '清空对话',
-            message: '确定要清空当前对话显示吗？（不会删除服务器上的历史对话）',
+            title: this.lang('ai_clear_current', '清空对话'),
+            message: this.lang('ai_clear_current_confirm', '确定要清空当前对话显示吗？（不会删除服务器上的历史对话）'),
             confirmClass: 'vx-btn-danger',
             onConfirm: () => {
                 this.messages = [];
                 this.renderMessages();
-                VXUI.toastSuccess('对话已清空');
-                this.setStatusText('就绪');
+                VXUI.toastSuccess(this.lang('ai_cleared', '对话已清空'));
+                this.setStatusText(this.lang('ai_status_ready', '就绪'));
                 this.updateSendButton();
             }
         });
@@ -631,16 +660,19 @@ const VX_AI = {
                 <div class="vx-nav-stats">
                     <div class="vx-nav-stat-item">
                         <iconpark-icon name="inbox"></iconpark-icon>
-                        <span>暂无历史对话</span>
+                        <span data-tpl="ai_no_conversations">暂无对话历史</span>
                     </div>
                 </div>
             `;
+            if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+                TL.tpl_lang(container);
+            }
             return;
         }
 
         container.innerHTML = this.conversations.map(conv => {
             const id = conv.conversation_id;
-            const title = (conv.title || '新对话').toString();
+            const title = (conv.title || this.lang('ai_new_conversation', '新建对话')).toString();
             const time = (conv.time || '').toString();
             const activeClass = (this.conversationId && id === this.conversationId) ? 'active' : '';
             return `
@@ -648,7 +680,7 @@ const VX_AI = {
                     <div class="vx-ai-conv-top">
                         <iconpark-icon name="message-circle"></iconpark-icon>
                         <span class="vx-ai-conv-title">${this.escapeHtml(title)}</span>
-                        <button type="button" class="vx-ai-conv-del" title="删除" onclick="event.stopPropagation(); VX_AI.deleteConversationUI('${id}')">
+                        <button type="button" class="vx-ai-conv-del" title="${this.escapeAttr(this.lang('ai_delete_conversation', '删除对话'))}" onclick="event.stopPropagation(); VX_AI.deleteConversationUI('${id}')">
                             <iconpark-icon name="trash"></iconpark-icon>
                         </button>
                     </div>
@@ -675,14 +707,14 @@ const VX_AI = {
         this.conversationId = conversationId;
         this.messages = [];
         this.isLoading = true;
-        this.setStatusText('加载对话…', 'loading');
+        this.setStatusText(this.lang('ai_loading_conversation', '加载对话中...'), 'loading');
         this.renderMessages();
         this.highlightActiveConversation();
 
         this.apiPost('get_conversation', { conversation_id: conversationId }, { retryIfNoToken: true })
             .then((conversation) => {
                 this.isLoading = false;
-                this.setStatusText('就绪');
+                this.setStatusText(this.lang('ai_status_ready', '就绪'));
                 const msgs = (conversation && Array.isArray(conversation.messages)) ? conversation.messages : [];
                 this.messages = msgs.map(m => ({
                     role: this.normalizeRole(m && m.role),
@@ -696,8 +728,8 @@ const VX_AI = {
             })
             .catch((err) => {
                 this.isLoading = false;
-                this.setStatusText('加载失败', 'error');
-                const msg = (err && err.message) ? err.message : '加载对话失败';
+                this.setStatusText(this.lang('ai_load_failed', '加载失败'), 'error');
+                const msg = (err && err.message) ? err.message : this.lang('ai_get_detail_failed', '获取对话详情失败');
                 this.messages = [{ role: 'assistant', content: msg, time: Date.now() }];
                 this.renderMessages();
                 this.updateSendButton();
@@ -707,8 +739,8 @@ const VX_AI = {
     deleteConversationUI(conversationId) {
         if (!conversationId) return;
         VXUI.confirm({
-            title: '删除对话',
-            message: '确定要删除这个对话吗？此操作不可撤销。',
+            title: this.lang('ai_delete_conversation', '删除对话'),
+            message: this.lang('ai_confirm_delete', '确定要删除这个对话吗？此操作无法撤销。'),
             confirmClass: 'vx-btn-danger',
             onConfirm: () => {
                 this.apiPost('delete', { conversation_id: conversationId }, { retryIfNoToken: true })
@@ -718,10 +750,10 @@ const VX_AI = {
                             this.renderMessages();
                         }
                         this.loadConversationHistory();
-                        VXUI.toastSuccess('已删除');
+                        VXUI.toastSuccess(this.lang('ai_deleted', '已删除'));
                     })
                     .catch((err) => {
-                        VXUI.toastError((err && err.message) ? err.message : '删除失败');
+                        VXUI.toastError((err && err.message) ? err.message : this.lang('ai_delete_failed', '删除对话失败'));
                     });
             }
         });
@@ -729,17 +761,17 @@ const VX_AI = {
 
     deleteAllConversationsUI() {
         if (!this.conversations || this.conversations.length === 0) {
-            VXUI.toastError('没有可删除的对话');
+            VXUI.toastError(this.lang('ai_no_conversations', '暂无对话历史'));
             return;
         }
         VXUI.confirm({
-            title: '删除全部对话',
-            message: '确定要删除全部历史对话吗？此操作不可撤销。',
+            title: this.lang('ai_delete_all_conversations', '删除全部对话'),
+            message: this.lang('ai_confirm_delete_all_conversations', '确定要删除全部历史对话吗？此操作无法撤销。'),
             confirmClass: 'vx-btn-danger',
             onConfirm: async () => {
                 // 逐个删除：与老版一致，避免后端无 delete_all action
                 const ids = this.conversations.map(c => c.conversation_id).filter(Boolean);
-                this.setStatusText('删除中…', 'loading');
+                this.setStatusText(this.lang('ai_deleting', '删除中…'), 'loading');
                 for (const id of ids) {
                     try {
                         // eslint-disable-next-line no-await-in-loop
@@ -751,7 +783,7 @@ const VX_AI = {
                 this.resetState();
                 this.renderMessages();
                 this.loadConversationHistory();
-                VXUI.toastSuccess('已删除全部对话');
+                VXUI.toastSuccess(this.lang('ai_deleted_all_conversations', '已删除全部对话'));
             }
         });
     },
@@ -794,7 +826,7 @@ const VX_AI = {
         progress.style.background = color;
 
         if (remaining <= 0) {
-            this.setStatusText('配额耗尽', 'warn');
+            this.setStatusText(this.lang('ai_quota_exhausted_short', '配额耗尽'), 'warn');
         }
     },
 

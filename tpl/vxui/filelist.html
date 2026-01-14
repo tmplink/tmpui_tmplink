@@ -7,7 +7,7 @@
         <div class="vx-drag-overlay-icon">
             <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
         </div>
-        <div class="vx-drag-overlay-text">松开以上传文件</div>
+        <div class="vx-drag-overlay-text" data-tpl="vx_drop_to_upload">松开以上传文件</div>
     </div>
 </div>
 
@@ -15,37 +15,56 @@
 <template id="vx-filelist-sidebar-tpl">
     <!-- Current Folder Info -->
     <div class="vx-nav-section">
-        <div class="vx-nav-title">当前文件夹</div>
+        <div class="vx-nav-title" data-tpl="vx_current_folder">当前文件夹</div>
         <div class="vx-sidebar-module-info">
-            <h3 class="vx-sidebar-folder-name" id="vx-fl-sidebar-title">桌面</h3>
+            <h3 class="vx-sidebar-folder-name" id="vx-fl-sidebar-title" data-tpl="navbar_meetingroom">桌面</h3>
             <div class="vx-sidebar-meta">
                 <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
-                <span id="vx-fl-item-count">0</span> <span>项</span>
+                <span id="vx-fl-item-count">0</span> <span data-tpl="vx_item_unit">项</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Folder Privacy (public/private) -->
+    <div class="vx-nav-section" id="vx-fl-privacy-section" style="display:none;">
+        <div class="vx-nav-title" data-tpl="vx_folder_privacy">文件夹权限</div>
+        <div class="vx-sidebar-module-info">
+            <div style="display:flex; align-items:center; justify-content: space-between; gap: 12px;">
+                <div style="min-width:0;">
+                    <div class="vx-text-sm" id="vx-fl-privacy-state" data-tpl="vx_privacy_public">公开</div>
+                    <div class="vx-text-muted" style="margin-top: 4px; font-size: var(--vx-text-xs);">
+                        <span id="vx-fl-privacy-hint" i18n="modal_meetingroom_type1" i18n-only="html">公开，所有人都可访问。</span>
+                    </div>
+                </div>
+                <label class="vx-switch" style="flex-shrink:0;">
+                    <input type="checkbox" id="vx-fl-privacy-toggle" onchange="VX_FILELIST.onFolderPrivacyToggleChange(this.checked)">
+                    <span class="vx-switch-slider"></span>
+                </label>
             </div>
         </div>
     </div>
 
     <!-- Direct Controls (folder share) -->
     <div class="vx-nav-section" id="vx-fl-direct-section" style="display:none;">
-        <div class="vx-nav-title">直链</div>
+        <div class="vx-nav-title" data-tpl="nav_direct">直链</div>
         <div class="vx-sidebar-module-info">
             <label class="vx-checkbox" style="margin: 0;">
                 <input type="checkbox" id="vx-fl-direct-toggle" onchange="VX_FILELIST.toggleDirectForFolder()">
-                <span>允许文件夹直链</span>
+                <span data-tpl="vx_allow_folder_direct_link">允许文件夹直链</span>
             </label>
             <div id="vx-fl-direct-disabled" class="vx-text-muted" style="margin-top: 8px; font-size: var(--vx-text-xs); display:none;">
-                请先在直链模块绑定域名。
+                <span data-tpl="vx_bind_direct_domain_first">请先在直链模块绑定域名。</span>
             </div>
             <div id="vx-fl-direct-link-wrap" style="margin-top: 10px; display:none;">
                 <div id="vx-fl-direct-link" style="padding: 8px 10px; background: var(--vx-bg-secondary); border-radius: var(--vx-radius); font-family: var(--vx-font-mono); font-size: var(--vx-text-xs); user-select: all; word-break: break-all;"></div>
                 <div style="display:flex; gap: 8px; margin-top: 8px;">
                     <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.copyFolderDirectLink()" title="复制">
                         <iconpark-icon name="copy"></iconpark-icon>
-                        <span>复制</span>
+                        <span data-tpl="copy">复制</span>
                     </button>
                     <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.openFolderDirectLink()" title="打开">
                         <iconpark-icon name="link"></iconpark-icon>
-                        <span>打开</span>
+                        <span data-tpl="vx_open">打开</span>
                     </button>
                 </div>
             </div>
@@ -56,49 +75,49 @@
 <!-- Header -->
 <header class="vx-header vx-header-minimal">
     <div class="vx-header-left">
-        <button class="vx-btn-icon vx-portrait-sidebar-btn" onclick="VXUI.toggleSidebar()" title="菜单">
+        <button class="vx-btn-icon vx-portrait-sidebar-btn" onclick="VXUI.toggleSidebar()" title="." i18n="vx_menu" i18n-only="title">
             <iconpark-icon name="bars"></iconpark-icon>
         </button>
-        <button class="vx-btn-icon" onclick="VX_FILELIST.goToParent()" id="vx-fl-back-btn" style="display: none;" title="返回">
+        <button class="vx-btn-icon" onclick="VX_FILELIST.goToParent()" id="vx-fl-back-btn" style="display: none;" title="." i18n="vx_back" i18n-only="title">
             <iconpark-icon name="arrow-circle-left"></iconpark-icon>
         </button>
         <nav class="vx-breadcrumb" id="vx-fl-breadcrumb">
-            <a href="javascript:;" onclick="VX_FILELIST.openFolder(0)">桌面</a>
+            <a href="javascript:;" onclick="VX_FILELIST.openFolder(0)"><span data-tpl="navbar_meetingroom">桌面</span></a>
         </nav>
     </div>
     
     <div class="vx-header-right">
         <!-- 视图切换按钮组 -->
         <div class="vx-btn-group vx-view-toggle">
-            <button class="vx-btn-icon active" id="vx-fl-view-list" onclick="VX_FILELIST.setViewMode('list')" title="列表视图">
+            <button class="vx-btn-icon active" id="vx-fl-view-list" onclick="VX_FILELIST.setViewMode('list')" title="." i18n="vx_view_list" i18n-only="title">
                 <iconpark-icon name="list"></iconpark-icon>
             </button>
-            <button class="vx-btn-icon" id="vx-fl-view-album" onclick="VX_FILELIST.setViewMode('album')" title="相册视图">
+            <button class="vx-btn-icon" id="vx-fl-view-album" onclick="VX_FILELIST.setViewMode('album')" title="." i18n="vx_view_album" i18n-only="title">
                 <iconpark-icon name="images"></iconpark-icon>
             </button>
         </div>
         
         <!-- 相册模式下的网格大小控制 -->
         <div class="vx-btn-group vx-album-controls" id="vx-fl-album-controls" style="display: none;">
-            <button class="vx-btn-icon" onclick="VX_FILELIST.setGridSize('normal')" id="view-normal" title="标准网格">
+            <button class="vx-btn-icon" onclick="VX_FILELIST.setGridSize('normal')" id="view-normal" title="." i18n="album_grid_normal" i18n-only="title">
                 <iconpark-icon name="list-radio"></iconpark-icon>
             </button>
-            <button class="vx-btn-icon active" onclick="VX_FILELIST.setGridSize('small')" id="view-small" title="紧凑模式">
+            <button class="vx-btn-icon active" onclick="VX_FILELIST.setGridSize('small')" id="view-small" title="." i18n="album_grid_small" i18n-only="title">
                 <iconpark-icon name="list"></iconpark-icon>
             </button>
         </div>
 
-        <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.upload()" title="上传文件">
+        <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.upload()" title="." i18n="nav_upload" i18n-only="title">
             <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
             <span data-tpl="nav_upload">上传文件</span>
         </button>
-        <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.showCreateModal()" title="新建文件夹">
+        <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.showCreateModal()" title="." i18n="model_title_folder_title" i18n-only="title">
             <iconpark-icon name="folder-plus"></iconpark-icon>
             <span data-tpl="model_title_folder_title">新建文件夹</span>
         </button>
-        <button class="vx-btn vx-btn-ghost" id="vx-fl-refresh-btn" onclick="VX_FILELIST.refresh()" title="刷新">
+        <button class="vx-btn vx-btn-ghost" id="vx-fl-refresh-btn" onclick="VX_FILELIST.refresh()" title="." i18n="album_refresh" i18n-only="title">
             <iconpark-icon name="rotate" data-role="refresh-icon"></iconpark-icon>
-            <span data-role="refresh-text">刷新</span>
+            <span data-role="refresh-text" data-tpl="album_refresh">刷新</span>
         </button>
     </div>
 </header>
@@ -115,7 +134,7 @@
         <!-- List Header -->
         <div class="vx-list-header">
             <div class="vx-list-col vx-list-col-name">
-                <div class="vx-list-checkbox" id="vx-fl-select-all" onclick="event.stopPropagation(); VX_FILELIST.toggleSelectAllFromHeader()" title="全选"></div>
+                <div class="vx-list-checkbox" id="vx-fl-select-all" onclick="event.stopPropagation(); VX_FILELIST.toggleSelectAllFromHeader()" title="." i18n="on_select_all" i18n-only="title"></div>
                 <span data-tpl="filename">文件名</span>
             </div>
             <div class="vx-list-col vx-list-col-size">
@@ -147,8 +166,8 @@
         <div class="vx-empty-icon">
             <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
         </div>
-        <h3 class="vx-empty-title" data-tpl="page_no_files">空文件夹</h3>
-        <p class="vx-empty-text">拖放文件到这里或点击上传按钮</p>
+        <h3 class="vx-empty-title" data-tpl="vx_empty_folder_title">空文件夹</h3>
+        <p class="vx-empty-text" data-tpl="page_no_files">拖放文件到这里或点击上传按钮</p>
         <button class="vx-btn vx-btn-primary" onclick="VX_FILELIST.upload()">
             <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
             <span data-tpl="nav_upload">上传文件</span>
@@ -159,7 +178,7 @@
 <!-- Selection Bar -->
 <div class="vx-selection-bar" id="vx-fl-selection-bar" style="display: none;">
     <div class="vx-selection-info">
-        <span class="vx-selection-count">已选择 <strong id="vx-fl-selected-count">0</strong> 项</span>
+        <span class="vx-selection-count"><span data-tpl="vx_selected_prefix">已选择</span> <strong id="vx-fl-selected-count">0</strong> <span data-tpl="vx_item_unit">项</span></span>
     </div>
     <div class="vx-selection-actions">
         <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.downloadSelected()">
@@ -184,7 +203,7 @@
 <div class="vx-context-menu" id="vx-fl-context-menu">
     <div class="vx-context-item" id="vx-fl-menu-open" onclick="VX_FILELIST.openContextItem()">
         <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
-        <span>打开</span>
+        <span data-tpl="vx_open">打开</span>
     </div>
     <div class="vx-context-item" id="vx-fl-menu-download" onclick="VX_FILELIST.downloadContextItem()">
         <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
@@ -196,26 +215,26 @@
     </div>
     <div class="vx-context-item" id="vx-fl-menu-direct-share" onclick="VX_FILELIST.directShareContextItem()">
         <iconpark-icon name="share-from-square"></iconpark-icon>
-        <span>通过直链分享</span>
+        <span data-tpl="vx_direct_share">通过直链分享</span>
     </div>
 
     <div class="vx-context-divider" id="vx-fl-menu-expire-divider"></div>
-    <div class="vx-context-label" id="vx-fl-menu-expire-label">修改有效期</div>
+    <div class="vx-context-label" id="vx-fl-menu-expire-label" data-tpl="on_select_change_model">修改有效期</div>
     <div class="vx-context-item" id="vx-fl-menu-expire-3" onclick="VX_FILELIST.setExpireContextItem(99)">
         <iconpark-icon name="infinity"></iconpark-icon>
-        <span>永久保存</span>
+        <span data-tpl="modal_settings_upload_model99">永久保存</span>
     </div>
     <div class="vx-context-item" id="vx-fl-menu-expire-0" onclick="VX_FILELIST.setExpireContextItem(0)">
         <iconpark-icon name="clock"></iconpark-icon>
-        <span>24 小时</span>
+        <span data-tpl="modal_settings_upload_model1">24 小时</span>
     </div>
     <div class="vx-context-item" id="vx-fl-menu-expire-1" onclick="VX_FILELIST.setExpireContextItem(1)">
         <iconpark-icon name="clock"></iconpark-icon>
-        <span>3 天</span>
+        <span data-tpl="modal_settings_upload_model2">3 天</span>
     </div>
     <div class="vx-context-item" id="vx-fl-menu-expire-2" onclick="VX_FILELIST.setExpireContextItem(2)">
         <iconpark-icon name="clock"></iconpark-icon>
-        <span>7 天</span>
+        <span data-tpl="modal_settings_upload_model3">7 天</span>
     </div>
 
     <div class="vx-context-divider"></div>
@@ -236,10 +255,10 @@
             </button>
         </div>
         <div class="vx-modal-body">
-            <div class="vx-text-sm vx-text-muted vx-mb-md" i18n="model_meetingroom_create_notice">创建新的文件夹</div>
+            <div class="vx-text-sm vx-text-muted vx-mb-md" data-tpl="vx_create_folder_notice">创建新的文件夹</div>
             <div class="vx-form-group">
-                <label class="vx-label" data-tpl="modal_meetingroom_newname">文件夹名称</label>
-                <input type="text" class="vx-input" id="vx-fl-folder-name" placeholder="请输入文件夹名称">
+                <label class="vx-label" data-tpl="model_meetingroom_create_name">文件夹名称</label>
+                <input type="text" class="vx-input" id="vx-fl-folder-name" data-tpl="model_title_folder_name" placeholder="请输入文件夹名称">
             </div>
             <div class="vx-form-group">
                 <label class="vx-label" i18n="modal_meetingroom_create_type">权限</label>
@@ -268,7 +287,7 @@
         </div>
         <div class="vx-modal-body">
             <div class="vx-form-group">
-                <label class="vx-label">新名称</label>
+                <label class="vx-label" data-tpl="vx_new_name">新名称</label>
                 <input type="text" class="vx-input" id="vx-fl-rename-input">
             </div>
         </div>
@@ -295,7 +314,7 @@
                 <div class="vx-move-search-input-wrapper">
                     <iconpark-icon name="search" class="vx-move-search-icon"></iconpark-icon>
                     <input type="text" id="vx-move-search-input" class="vx-move-search-input" 
-                           placeholder="搜索文件夹..." data-tpl-placeholder="move_folder_search_placeholder"
+                              placeholder="搜索文件夹..." data-tpl="move_folder_search_placeholder"
                            oninput="VX_FILELIST.searchMoveFolder(this.value)">
                     <button type="button" id="vx-move-search-clear" class="vx-move-search-clear" 
                             onclick="VX_FILELIST.clearMoveSearch()" style="display: none;">
@@ -357,7 +376,7 @@
                         <select class="vx-select" id="vx-upload-server" onchange="VX_UPLOADER.onServerChange(this.value)">
                             <!-- 服务器列表由JS填充 -->
                         </select>
-                        <div class="vx-upload-setting-hint">赞助者专用功能</div>
+                        <div class="vx-upload-setting-hint" data-tpl="model_title_upload_servers_des">赞助者专用功能</div>
                     </div>
                 </div>
                 <div class="vx-upload-settings-note">
@@ -371,17 +390,15 @@
                 <div class="vx-upload-dropzone-icon">
                     <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
                 </div>
-                <div class="vx-upload-dropzone-text">
-                    拖动文件到此位置，或者选择文件上传，或者按下 Ctrl + V 粘贴文件。
-                </div>
+                <div class="vx-upload-dropzone-text" data-tpl="upload_or_drag">拖动文件到此位置，或者选择文件上传，或者按下 Ctrl + V 粘贴文件。</div>
                 <div class="vx-upload-dropzone-actions">
                     <button class="vx-btn vx-btn-primary" onclick="VX_UPLOADER.selectFiles()">
                         <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
-                        <span>选择文件</span>
+                        <span data-tpl="model_btn_select">选择文件</span>
                     </button>
                     <button class="vx-btn vx-btn-secondary" onclick="VX_UPLOADER.selectFolder()">
                         <iconpark-icon name="folder-plus"></iconpark-icon>
-                        <span>上传文件夹</span>
+                        <span data-tpl="upload_dirs">上传文件夹</span>
                     </button>
                 </div>
             </div>
@@ -398,13 +415,13 @@
     <header class="lightbox-header">
         <h2 class="lightbox-title" id="vx-fl-lightbox-title"></h2>
         <div class="lightbox-actions">
-            <button class="lightbox-action" onclick="VX_FILELIST.downloadCurrentPhoto()" title="下载">
+            <button class="lightbox-action" onclick="VX_FILELIST.downloadCurrentPhoto()" title="." i18n="on_select_download" i18n-only="title">
                 <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
             </button>
-            <button class="lightbox-action" onclick="VX_FILELIST.rotateLightbox()" title="旋转">
+            <button class="lightbox-action" onclick="VX_FILELIST.rotateLightbox()" title="." i18n="vx_rotate" i18n-only="title">
                 <iconpark-icon name="rotate"></iconpark-icon>
             </button>
-            <button class="lightbox-action" onclick="VX_FILELIST.closeLightbox()" title="关闭">
+            <button class="lightbox-action" onclick="VX_FILELIST.closeLightbox()" title="." i18n="btn_close" i18n-only="title">
                 <iconpark-icon name="x-square"></iconpark-icon>
             </button>
         </div>

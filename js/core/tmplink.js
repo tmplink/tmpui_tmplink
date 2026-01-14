@@ -136,6 +136,33 @@ class tmplink {
 
         this.upload_model_selected_val = localStorage.getItem('app_upload_model') === null ? 0 : localStorage.getItem('app_upload_model');
 
+        // ---- VXUI / legacy i18n compatibility ----
+        // VXUI 代码中存在对 TL.lang / TL.tpl / TL.tpl_lang 的依赖（旧版兼容接口）。
+        // 旧版实际语言数据来源于 app.languageData（tmpUI 语言包）。
+        try {
+            if (!Object.getOwnPropertyDescriptor(this, 'lang')) {
+                Object.defineProperty(this, 'lang', {
+                    configurable: true,
+                    enumerable: true,
+                    get: () => this.currentLanguage,
+                    set: (v) => {
+                        if (typeof v === 'string' && v && v !== this.currentLanguage) {
+                            this.language(v);
+                        }
+                    }
+                });
+            }
+            if (!Object.getOwnPropertyDescriptor(this, 'tpl')) {
+                Object.defineProperty(this, 'tpl', {
+                    configurable: true,
+                    enumerable: true,
+                    get: () => (typeof app !== 'undefined' ? app.languageData : null)
+                });
+            }
+        } catch (e) {
+            // ignore (older browsers / sealed objects)
+        }
+
         // 在开始网络请求前显示加载图标
         this.loading_box_on();
 
@@ -2115,6 +2142,120 @@ class tmplink {
             span_lang = '日本語';
         }
         $('.selected_lang').html(span_lang);
+    }
+
+    /**
+     * 旧版兼容：对当前页面（或指定容器）执行 i18n 翻译。
+     * VXUI 中部分模块会调用 TL.tpl_lang() 来刷新语言。
+     * @param {Element|string} root 可选：DOM 元素或选择器，默认 document
+     */
+    tpl_lang(root) {
+        const translateScope = () => {
+            if (typeof app === 'undefined' || !app || !app.languageData) return false;
+            const i18nLang = app.languageData;
+
+            let scope = root;
+            if (!scope) scope = document;
+            if (typeof scope === 'string') scope = document.querySelector(scope);
+            if (!scope) scope = document;
+
+            const applyOne = (dom) => {
+                if (!dom || !dom.getAttribute) return;
+                const key = dom.getAttribute('i18n');
+                if (!key || i18nLang[key] === undefined) return;
+                const val = i18nLang[key];
+                const i18nOnly = dom.getAttribute('i18n-only');
+
+                // innerHTML
+                if (dom.innerHTML != null && dom.innerHTML !== '') {
+                    if (!i18nOnly || i18nOnly === 'html') {
+                        dom.innerHTML = val;
+                    }
+                }
+                // placeholder
+                if (dom.getAttribute('placeholder') != null && dom.getAttribute('placeholder') !== '') {
+                    if (!i18nOnly || i18nOnly === 'placeholder') {
+                        dom.setAttribute('placeholder', val);
+                    }
+                }
+                // content
+                if (dom.getAttribute('content') != null && dom.getAttribute('content') !== '') {
+                    if (!i18nOnly || i18nOnly === 'content') {
+                        dom.setAttribute('content', val);
+                    }
+                }
+                // title
+                if (dom.getAttribute('title') != null && dom.getAttribute('title') !== '') {
+                    if (!i18nOnly || i18nOnly === 'title') {
+                        dom.setAttribute('title', val);
+                    }
+                }
+                // value (only when explicitly specified)
+                if (dom.value != null && dom.value !== '') {
+                    if (i18nOnly === 'value') {
+                        dom.value = val;
+                    }
+                }
+            };
+
+            // VXUI uses data-tpl="key" for most UI texts
+            const applyTpl = (dom) => {
+                if (!dom || !dom.getAttribute) return;
+                const key = dom.getAttribute('data-tpl');
+                if (!key || i18nLang[key] === undefined) return;
+                const val = i18nLang[key];
+
+                const tag = (dom.tagName || '').toUpperCase();
+
+                // title
+                if (dom.getAttribute('title') != null && dom.getAttribute('title') !== '') {
+                    dom.setAttribute('title', val);
+                }
+
+                // inputs: prefer placeholder
+                if (tag === 'INPUT' || tag === 'TEXTAREA') {
+                    if (dom.getAttribute('placeholder') != null) {
+                        dom.setAttribute('placeholder', val);
+                    } else if (dom.value != null) {
+                        dom.value = val;
+                    }
+                    return;
+                }
+
+                // Only translate leaf nodes to avoid breaking icon+text layouts
+                if (dom.children && dom.children.length > 0) return;
+                dom.textContent = val;
+            };
+
+            // 支持传入 Element：先翻译自身，再翻译其子节点
+            if (scope instanceof Element) {
+                if (scope.hasAttribute && scope.hasAttribute('i18n')) applyOne(scope);
+                scope.querySelectorAll('[i18n]').forEach(applyOne);
+
+                if (scope.hasAttribute && scope.hasAttribute('data-tpl')) applyTpl(scope);
+                scope.querySelectorAll('[data-tpl]').forEach(applyTpl);
+            } else {
+                document.querySelectorAll('[i18n]').forEach(applyOne);
+                document.querySelectorAll('[data-tpl]').forEach(applyTpl);
+            }
+
+            return true;
+        };
+
+        // 若语言包尚未就绪，先触发构建
+        if (typeof app !== 'undefined' && app && typeof app.languageBuild === 'function' && !app.languageData) {
+            try {
+                const p = app.languageBuild();
+                if (p && typeof p.then === 'function') {
+                    p.then(() => translateScope());
+                    return;
+                }
+            } catch (e) {
+                // ignore
+            }
+        }
+
+        translateScope();
     }
 
     logout() {

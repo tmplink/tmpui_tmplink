@@ -322,6 +322,7 @@ html.vx-dark {
 
 .vx-list-icon iconpark-icon {
     font-size: 24px;
+    color: var(--vx-primary) !important;
 }
 
 .vx-list-size,
@@ -464,7 +465,17 @@ html.vx-dark {
     flex-direction: column;
     z-index: var(--vx-z-fixed);
     transition: var(--vx-transition-slow);
-    overflow: hidden;
+    /* Allow menus (e.g., language dropdown) to overflow outside sidebar */
+    overflow: visible;
+}
+
+/* Language switcher: use dropup in sidebar footer to avoid viewport clipping */
+#vx-lang-dropdown .vx-dropdown-menu {
+    top: auto;
+    bottom: 100%;
+    margin-bottom: 8px;
+    max-height: min(320px, 50vh);
+    overflow-y: auto;
 }
 
 .vx-sidebar-header {

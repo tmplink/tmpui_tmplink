@@ -16,7 +16,7 @@
     <div class="vx-header-right">
         <button class="vx-btn vx-btn-secondary vx-btn-sm" onclick="VX_AI.newConversation()">
             <iconpark-icon name="circle-plus"></iconpark-icon>
-            <span data-tpl="ai_new">新对话</span>
+            <span data-tpl="ai_new_conversation">新建对话</span>
         </button>
 
         <div class="vx-ai-quota" id="vx-ai-quota-indicator" style="display:none;">
@@ -35,16 +35,16 @@
                 <div class="vx-ai-welcome-icon">
                     <iconpark-icon name="user-robot"></iconpark-icon>
                 </div>
-                <h3>助手</h3>
-                <p>有什么我可以帮助你的吗？</p>
+                <h3 data-tpl="ai_start_chat_greeting">开始与智能小薇对话吧！</h3>
+                <p data-tpl="ai_mobile_intro">我是您的AI助手，有什么可以帮助您的吗？</p>
                 <div class="vx-ai-suggestions">
-                    <button class="vx-ai-suggestion" onclick="VX_AI.useSuggestion('帮我分析一下我的文件使用情况')">
+                    <button class="vx-ai-suggestion" data-tpl="ai_suggest_usage_label" onclick="VX_AI.useSuggestionKey('ai_suggest_usage_prompt')">
                         分析文件使用情况
                     </button>
-                    <button class="vx-ai-suggestion" onclick="VX_AI.useSuggestion('如何创建一个共享文件夹？')">
+                    <button class="vx-ai-suggestion" data-tpl="ai_suggest_share_label" onclick="VX_AI.useSuggestionKey('ai_suggest_share_prompt')">
                         创建共享文件夹
                     </button>
-                    <button class="vx-ai-suggestion" onclick="VX_AI.useSuggestion('什么是直链，如何使用？')">
+                    <button class="vx-ai-suggestion" data-tpl="ai_suggest_direct_label" onclick="VX_AI.useSuggestionKey('ai_suggest_direct_prompt')">
                         了解直链功能
                     </button>
                 </div>
@@ -54,7 +54,7 @@
         <!-- Input Area -->
         <div class="vx-ai-input-area">
             <div class="vx-ai-input-wrapper">
-                <textarea class="vx-ai-input" id="vx-ai-input" 
+                <textarea class="vx-ai-input" id="vx-ai-input" data-tpl="ai_input_placeholder_full"
                     placeholder="输入消息... (Enter 发送, Shift+Enter 换行)"
                     rows="1" maxlength="2000"></textarea>
                 <button class="vx-ai-send-btn" onclick="VX_AI.sendMessage()">
@@ -63,11 +63,9 @@
             </div>
             <div class="vx-ai-meta">
                 <span id="vx-ai-char-count">0/2000</span>
-                <span id="vx-ai-status" class="vx-ai-status">就绪</span>
+                <span id="vx-ai-status" class="vx-ai-status" data-tpl="ai_status_ready">就绪</span>
             </div>
-            <div class="vx-ai-disclaimer">
-                AI 生成的内容可能存在错误，请注意甄别
-            </div>
+            <div class="vx-ai-disclaimer" data-tpl="ai_disclaimer">AI 生成的内容可能存在错误，请注意甄别</div>
         </div>
     </div>
 </div>
