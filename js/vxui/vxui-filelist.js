@@ -420,6 +420,8 @@ var VX_FILELIST = VX_FILELIST || {
         document.addEventListener('dragenter', this._onDragEnter = (e) => {
             e.preventDefault();
             e.stopPropagation();
+            // 非所有者不显示拖拽上传提示
+            if (!this.isOwner) return;
             this._dragCounter = (this._dragCounter || 0) + 1;
             const overlay = document.getElementById('vx-drag-overlay');
             if (overlay) overlay.classList.add('active');
@@ -448,6 +450,9 @@ var VX_FILELIST = VX_FILELIST || {
             const overlay = document.getElementById('vx-drag-overlay');
             if (overlay) overlay.classList.remove('active');
             
+            // 非所有者不允许拖拽上传
+            if (!this.isOwner) return;
+            
             // 处理拖拽文件
             if (typeof VX_UPLOADER !== 'undefined') {
                 VX_UPLOADER.current_mrid = this.mrid;
@@ -459,6 +464,9 @@ var VX_FILELIST = VX_FILELIST || {
         document.addEventListener('paste', this._onPaste = (e) => {
             // 忽略在输入框中的粘贴
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            // 非所有者不允许粘贴上传
+            if (!this.isOwner) return;
             
             if (typeof VX_UPLOADER !== 'undefined') {
                 VX_UPLOADER.current_mrid = this.mrid;
@@ -804,6 +812,12 @@ var VX_FILELIST = VX_FILELIST || {
         if (shareBtn) {
             shareBtn.style.display = this.isDesktop ? 'none' : '';
         }
+        
+        // 根据是否为文件夹所有者控制上传/创建文件夹按钮的显示
+        // 非所有者不应看到这些操作按钮
+        document.querySelectorAll('[data-owner="true"]').forEach((el) => {
+            el.style.display = this.isOwner ? '' : 'none';
+        });
     },
 
     // ==================== Folder Direct (直链文件夹) ====================
@@ -1467,7 +1481,6 @@ var VX_FILELIST = VX_FILELIST || {
         
         const iconInfo = this.getFileIcon(file.ftype);
         const lefttimeId = `lefttime_${file.ukey}`;
-        const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
         const isPermanent = Number(file.model) === 99;
         
         row.innerHTML = `
@@ -1501,12 +1514,12 @@ var VX_FILELIST = VX_FILELIST || {
                 <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.shareFile('${file.ukey}')" title="${this.t('on_select_share', '复制分享链接')}">
                     <iconpark-icon name="share-from-square"></iconpark-icon>
                 </button>
-                ${(isLoggedIn && this.directDomainReady && this.directDirEnabled && this.directDirKey) ? `
+                ${(this.isOwner && this.directDomainReady && this.directDirEnabled && this.directDirKey) ? `
                     <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.copyDirectFileLinkByUkey('${file.ukey}')" title="复制直链">
                         <iconpark-icon name="copy"></iconpark-icon>
                     </button>
                 ` : ''}
-                ${isLoggedIn ? `
+                ${this.isOwner ? `
                     <button type="button" class="vx-list-action-btn vx-more-btn" onclick="event.stopPropagation(); VX_FILELIST.openMoreMenu(event, this.closest('.vx-list-row'))" title="更多">
                         <iconpark-icon name="ellipsis"></iconpark-icon>
                     </button>
@@ -2032,6 +2045,11 @@ var VX_FILELIST = VX_FILELIST || {
      * 上传文件
      */
     upload() {
+        // 非所有者不允许上传
+        if (!this.isOwner) {
+            VXUI.toastWarning(this.t('vx_no_permission', '无权限'));
+            return;
+        }
         this.trackUI(`vui_upload[${this.getRoomDisplayTitle()}]`);
         if (typeof VX_UPLOADER !== 'undefined') {
             VX_UPLOADER.openModal(this.mrid);
@@ -2678,6 +2696,11 @@ var VX_FILELIST = VX_FILELIST || {
      * 移动选中项
      */
     moveSelected() {
+        // 非所有者不允许移动
+        if (!this.isOwner) {
+            VXUI.toastWarning(this.t('vx_no_permission', '无权限'));
+            return;
+        }
         if (this.selectedItems.length === 0) {
             VXUI.toastWarning(this.t('vx_select_items_to_move', '请选择要移动的项目'));
             return;
@@ -3075,6 +3098,11 @@ var VX_FILELIST = VX_FILELIST || {
      * 删除选中项
      */
     deleteSelected() {
+        // 非所有者不允许删除
+        if (!this.isOwner) {
+            VXUI.toastWarning(this.t('vx_no_permission', '无权限'));
+            return;
+        }
         if (this.selectedItems.length === 0) return;
         if (!confirm(this.fmt('vx_confirm_delete_items', { count: this.selectedItems.length }, `确定要删除 ${this.selectedItems.length} 个项目吗？`))) return;
         
@@ -3436,6 +3464,11 @@ var VX_FILELIST = VX_FILELIST || {
     // ==================== 模态框 ====================
     
     showCreateModal() {
+        // 非所有者不允许创建文件夹
+        if (!this.isOwner) {
+            VXUI.toastWarning(this.t('vx_no_permission', '无权限'));
+            return;
+        }
         const modalId = 'vx-fl-create-modal';
         const modal = document.getElementById(modalId);
         const input = document.getElementById('vx-fl-folder-name');
