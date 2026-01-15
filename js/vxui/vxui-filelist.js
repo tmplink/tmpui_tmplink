@@ -41,6 +41,9 @@ var VX_FILELIST = VX_FILELIST || {
     // 下载器
     downloader: null,
 
+    // 批量下载器
+    batchDownloader: null,
+
     // 刷新状态
     refreshing: false,
 
@@ -144,6 +147,11 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 绑定事件
         this.bindEvents();
+
+        // 同步登录态显示（模块内容已加载）
+        if (typeof VXUI !== 'undefined' && typeof VXUI.applyAuthVisibility === 'function') {
+            VXUI.applyAuthVisibility();
+        }
     },
     
     /**
@@ -347,14 +355,9 @@ var VX_FILELIST = VX_FILELIST || {
             this.openMoreMenu(e, row);
         }, true);
 
-        // 右键菜单
-        document.addEventListener('contextmenu', this._onContextMenu = (e) => {
-            const row = e.target.closest('.vx-list-row');
-            if (row) {
-                e.preventDefault();
-                // 使用 clientX/clientY（视口坐标），因为菜单是 position: fixed
-                this.showContextMenu(e.clientX, e.clientY, row);
-            }
+        // 右键菜单（已禁用）
+        document.addEventListener('contextmenu', this._onContextMenu = () => {
+            return;
         });
         
         // 点击隐藏右键菜单（点菜单本身/更多按钮时不关闭）
@@ -1401,6 +1404,8 @@ var VX_FILELIST = VX_FILELIST || {
         
         const iconInfo = this.getFileIcon(file.ftype);
         const lefttimeId = `lefttime_${file.ukey}`;
+        const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
+        const isPermanent = Number(file.model) === 99;
         
         row.innerHTML = `
             <div class="vx-list-checkbox" onclick="event.stopPropagation(); VX_FILELIST.toggleItemSelect(this.parentNode)"></div>
@@ -1412,7 +1417,7 @@ var VX_FILELIST = VX_FILELIST || {
                     <a href="/file?ukey=${file.ukey}" tmpui-app="true" target="_blank" onclick="event.stopPropagation();">${this.escapeHtml(file.fname)}</a>
                     ${file.hot > 0 ? '<iconpark-icon name="fire" class="vx-hot-badge"></iconpark-icon>' : ''}
                     ${file.like > 0 ? `<span class="vx-like-badge"><iconpark-icon name="like"></iconpark-icon>${file.like}</span>` : ''}
-                    ${file.lefttime > 0 ? `
+                    ${(file.lefttime > 0 && !isPermanent) ? `
                         <span class="vx-lefttime" data-tmplink-lefttime="${file.lefttime}">
                             <iconpark-icon name="clock"></iconpark-icon>
                             <span id="${lefttimeId}">--</span>
@@ -1427,17 +1432,22 @@ var VX_FILELIST = VX_FILELIST || {
                 ${file.ctime || '--'}
             </div>
             <div class="vx-list-actions">
-                <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.downloadFile('${file.ukey}')" title="下载">
+                <button class="vx-list-action-btn" data-role="download-btn" data-ukey="${file.ukey}" onclick="event.stopPropagation(); VX_FILELIST.downloadFile('${file.ukey}')" title="下载">
                     <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
                 </button>
-                ${(this.directDomainReady && this.directDirEnabled && this.directDirKey) ? `
+                <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.shareFile('${file.ukey}')" title="${this.t('on_select_share', '复制分享链接')}">
+                    <iconpark-icon name="share-from-square"></iconpark-icon>
+                </button>
+                ${(isLoggedIn && this.directDomainReady && this.directDirEnabled && this.directDirKey) ? `
                     <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.copyDirectFileLinkByUkey('${file.ukey}')" title="复制直链">
                         <iconpark-icon name="copy"></iconpark-icon>
                     </button>
                 ` : ''}
-                <button type="button" class="vx-list-action-btn vx-more-btn" onclick="event.stopPropagation(); VX_FILELIST.openMoreMenu(event, this.closest('.vx-list-row'))" title="更多">
-                    <iconpark-icon name="ellipsis"></iconpark-icon>
-                </button>
+                ${isLoggedIn ? `
+                    <button type="button" class="vx-list-action-btn vx-more-btn" onclick="event.stopPropagation(); VX_FILELIST.openMoreMenu(event, this.closest('.vx-list-row'))" title="更多">
+                        <iconpark-icon name="ellipsis"></iconpark-icon>
+                    </button>
+                ` : ''}
             </div>
         `;
         
@@ -1990,7 +2000,11 @@ var VX_FILELIST = VX_FILELIST || {
      * 下载文件
      */
     downloadFile(ukey, filename) {
-        this.downloadByUkey(ukey, { filename });
+        if (typeof VXUI !== 'undefined' && typeof VXUI.toastInfo === 'function') {
+            VXUI.toastInfo(this.t('vx_download_start', '开始下载'));
+        }
+        const listBtn = document.querySelector(`.vx-list-row[data-ukey="${ukey}"] [data-role="download-btn"]`);
+        this.downloadByUkey(ukey, { filename, listBtn });
     },
     
     /**
@@ -2052,10 +2066,18 @@ var VX_FILELIST = VX_FILELIST || {
      */
     async downloadByUkey(ukey, options = {}) {
         this.ensureDownloader();
+
+        const listBtn = options.listBtn;
+        const setListBtnState = (isDownloading) => {
+            if (!listBtn) return;
+            listBtn.classList.toggle('is-downloading', !!isDownloading);
+        };
         
         // 如果没有下载器，使用简单下载
         if (!this.downloader) {
+            setListBtnState(true);
             this.simpleDownload(ukey);
+            setTimeout(() => setListBtnState(false), 1200);
             return;
         }
 
@@ -2070,6 +2092,7 @@ var VX_FILELIST = VX_FILELIST || {
 
         const uiCallbacks = {
             onStart: () => {
+                setListBtnState(true);
                 // 图片卡片 UI
                 if (ui) {
                     ui.card.classList.add('downloading');
@@ -2124,6 +2147,7 @@ var VX_FILELIST = VX_FILELIST || {
                 if (ui && ui.status) ui.status.textContent = total ? `${loadedText} / ${totalText}` : loadedText;
             },
             onComplete: () => {
+                setTimeout(() => setListBtnState(false), 600);
                 if (ui && ui.progress) ui.progress.style.width = '100%';
                 if (ui && ui.status) ui.status.textContent = this.t('vx_download_complete_label', '下载完成');
                 // 卡片按钮完成状态
@@ -2144,6 +2168,7 @@ var VX_FILELIST = VX_FILELIST || {
                 VXUI.toastSuccess(this.t('vx_download_complete', '下载完成'));
             },
             onError: (error) => {
+                setTimeout(() => setListBtnState(false), 600);
                 if (ui && ui.overlay) ui.overlay.classList.add('error');
                 if (ui && ui.status) ui.status.textContent = this.t('vx_download_failed_label', '下载失败');
                 // 卡片按钮错误状态
@@ -2329,6 +2354,30 @@ var VX_FILELIST = VX_FILELIST || {
             });
         }
     },
+
+    /**
+     * 分享文件（复制链接）
+     * @param {string} ukey - 文件 UKEY
+     */
+    shareFile(ukey) {
+        if (!ukey) return;
+        const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
+        const safeKey = encodeURIComponent(String(ukey));
+        const url = `https://${domain}/file?ukey=${safeKey}`;
+
+        if (typeof VXUI !== 'undefined' && VXUI.copyToClipboard) {
+            VXUI.copyToClipboard(url);
+            VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
+        } else if (typeof TL !== 'undefined' && typeof TL.bulkCopy === 'function') {
+            TL.bulkCopy(null, btoa(url), true);
+        } else {
+            navigator.clipboard.writeText(url).then(() => {
+                VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
+            }).catch(() => {
+                VXUI.toastError(this.t('vx_copy_failed', '复制失败'));
+            });
+        }
+    },
     
     /**
      * 取消收藏文件夹
@@ -2502,21 +2551,58 @@ var VX_FILELIST = VX_FILELIST || {
     /**
      * 下载选中项
      */
-    downloadSelected() {
-        const files = this.selectedItems.filter(item => item.type === 'file').map(item => item.id);
-        
-        if (files.length === 0) {
+    async downloadSelected() {
+        if (!this.selectedItems || this.selectedItems.length === 0) {
             VXUI.toastWarning(this.t('vx_select_files_to_download', '请选择要下载的文件'));
             return;
         }
-        
-        if (typeof TL !== 'undefined' && TL.download && TL.download.selectDownload) {
-            TL.download.selectDownload(files);
-        } else {
-            files.forEach(ukey => {
-                window.open(`/file?ukey=${ukey}`, '_blank');
-            });
+
+        this.ensureBatchDownloader();
+        if (!this.batchDownloader || typeof this.batchDownloader.folder_download !== 'function') {
+            VXUI.toastError(this.t('vx_download_module_not_loaded', '下载模块未加载'));
+            return;
         }
+
+        const selectData = this.selectedItems.map(item => ({
+            id: item.id,
+            type: item.type === 'folder' ? 'dir' : 'file'
+        }));
+
+        await this.batchDownloader.folder_download(selectData);
+    },
+
+    /**
+     * 确保批量下载器已初始化
+     */
+    ensureBatchDownloader() {
+        if (this.batchDownloader || typeof VXUIDownload === 'undefined') return;
+        const apiFile = (typeof TL !== 'undefined' && TL.api_file)
+            ? TL.api_file
+            : ((typeof TL !== 'undefined' && TL.api_url) ? (TL.api_url + '/file') : '/api_v2/file');
+        const apiMr = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
+
+        this.batchDownloader = new VXUIDownload();
+        this.batchDownloader.init({
+            api_file: apiFile,
+            api_mr: apiMr,
+            getToken: () => this.getToken(),
+            recaptcha_do_async: (action) => {
+                if (typeof TL !== 'undefined' && typeof TL.recaptcha_do_async === 'function') {
+                    return TL.recaptcha_do_async(action);
+                }
+                return Promise.resolve('');
+            },
+            alert: (msg) => {
+                if (typeof VXUI !== 'undefined' && typeof VXUI.toastError === 'function') {
+                    VXUI.toastError(msg);
+                } else {
+                    alert(msg);
+                }
+            },
+            getFileByUkey: (ukey) => {
+                return (this.fileList || []).find(f => String(f.ukey) === String(ukey));
+            }
+        });
     },
     
     /**
@@ -3113,6 +3199,8 @@ var VX_FILELIST = VX_FILELIST || {
         const type = target.dataset.type;
         const isFile = type === 'file';
         const canOwnerOps = !!this.isOwner;
+        const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
+        const canDirectShare = isFile && isLoggedIn && this.directDomainReady && this.directDirEnabled && this.directDirKey;
 
         const elOpen = document.getElementById('vx-fl-menu-open');
         const elDownload = document.getElementById('vx-fl-menu-download');
@@ -3136,7 +3224,7 @@ var VX_FILELIST = VX_FILELIST || {
         }
 
         // 文件夹：隐藏直链与有效期
-        if (elDirectShare) elDirectShare.style.display = isFile ? '' : 'none';
+        if (elDirectShare) elDirectShare.style.display = canDirectShare ? '' : 'none';
         if (elExpireDivider) elExpireDivider.style.display = isFile ? '' : 'none';
 
         // 获取当前文件的 model（有效期）

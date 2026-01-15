@@ -144,6 +144,12 @@ class VXUICore {
         document.querySelectorAll('[data-auth="logged-out"]').forEach((el) => {
             el.style.display = loggedIn ? 'none' : '';
         });
+
+        const layout = document.getElementById('vx-layout');
+        if (layout) {
+            layout.classList.toggle('vx-logged-in', loggedIn);
+            layout.classList.toggle('vx-logged-out', !loggedIn);
+        }
     }
 
     /**

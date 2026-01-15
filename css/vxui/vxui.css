@@ -625,6 +625,15 @@ html.vx-dark {
     flex-shrink: 0;
 }
 
+/* Logged-out: remove empty menu divider above language selector */
+.vx-layout.vx-logged-out .vx-sidebar-bottom-menu {
+    display: none;
+}
+
+.vx-layout.vx-logged-out .vx-sidebar-footer {
+    border-top: none;
+}
+
 /* Sidebar collapsed state */
 .vx-layout.sidebar-collapsed .vx-sidebar {
     width: var(--vx-sidebar-width-collapsed);
