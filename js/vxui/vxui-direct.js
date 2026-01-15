@@ -406,7 +406,17 @@ const VX_DIRECT = {
         const domainText = document.getElementById('vx-direct-domain-text');
         const lock = document.getElementById('vx-direct-domain-lock');
         if (domainText) {
-            domainText.textContent = this.domain && this.domain !== 0 ? String(this.domain) : '未绑定域名';
+            const noDomainText = (typeof app !== 'undefined' && app.languageData && app.languageData.direct_no_domain)
+                ? app.languageData.direct_no_domain
+                : '未绑定域名';
+            if (this.domain && this.domain !== 0) {
+                domainText.textContent = String(this.domain);
+                // prevent i18n from overriding actual domain
+                domainText.removeAttribute('data-tpl');
+            } else {
+                domainText.textContent = noDomainText;
+                domainText.setAttribute('data-tpl', 'direct_no_domain');
+            }
         }
         if (lock) {
             lock.style.display = (this.ssl || this.ssl_acme) ? '' : 'none';
