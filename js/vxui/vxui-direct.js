@@ -900,41 +900,68 @@ const VX_DIRECT = {
                 this.usageChart = null;
             }
 
-            const options = {
+            const ld = (typeof app !== 'undefined' && app.languageData) ? app.languageData : {};
+            let options = {
                 series: [{
-                    name: '流量',
+                    name: ld.direct_total_transfer || '传输',
                     data: traffic
                 }],
                 chart: {
-                    height: 220,
+                    height: 200,
                     type: 'bar',
                     toolbar: { show: false }
                 },
                 plotOptions: {
                     bar: {
-                        borderRadius: 8,
+                        borderRadius: 10,
                         dataLabels: { position: 'top' }
                     }
                 },
+                tooltip: { enabled: false },
                 dataLabels: {
                     enabled: true,
-                    formatter: (val) => this.formatBytes(val, true),
-                    offsetY: -14,
-                    style: { fontSize: '12px' }
+                    formatter: (val) => (typeof bytetoconver === 'function' ? bytetoconver(val, true) : this.formatBytes(val, true)),
+                    offsetY: -20,
+                    style: {
+                        fontSize: '12px',
+                        colors: ['#304758']
+                    }
                 },
-                tooltip: { enabled: false },
                 xaxis: {
                     categories: time,
+                    position: 'top',
                     axisBorder: { show: false },
-                    axisTicks: { show: false }
+                    axisTicks: { show: false },
+                    crosshairs: {
+                        fill: {
+                            type: 'gradient',
+                            gradient: {
+                                colorFrom: '#D8E3F0',
+                                colorTo: '#BED1E6',
+                                stops: [0, 100],
+                                opacityFrom: 0.4,
+                                opacityTo: 0.5
+                            }
+                        }
+                    },
+                    tooltip: { enabled: false }
                 },
                 yaxis: {
+                    axisBorder: { show: false },
+                    axisTicks: { show: false },
                     labels: { show: false }
                 },
-                grid: {
-                    strokeDashArray: 4
+                title: {
+                    floating: true,
+                    offsetY: 330,
+                    align: 'center',
+                    style: { color: '#444' }
                 }
             };
+
+            if (typeof getChartThemeOptions === 'function') {
+                options = getChartThemeOptions(options);
+            }
 
             this.usageChart = new ApexCharts(container, options);
             await this.usageChart.render();
