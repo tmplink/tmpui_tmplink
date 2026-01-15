@@ -663,18 +663,24 @@ class tmpUI {
             }
 
             if (contentType === 'html' && contentType === type) {
+                // 在注入 HTML 之前先进行语言翻译
+                let translatedContent = content;
+                if (this.languageData) {
+                    translatedContent = this.languageTranslateHtml(content);
+                }
+                
                 if (this.config.path[url].res[i].target.type === "append") {
                     this.htmlAppend('#tmpui_body', `<!--[${i}]-->`);
-                    this.htmlAppend('#tmpui_body', content);
+                    this.htmlAppend('#tmpui_body', translatedContent);
                 }
                 if (this.config.path[url].res[i].target.type === "body") {
                     this.htmlAppend('#tmpui_body', `<!--[${i}]-->`);
-                    this.htmlRewrite('#tmpui_body', content);
+                    this.htmlRewrite('#tmpui_body', translatedContent);
                 }
                 if (this.config.path[url].res[i].target.type === "id") {
                     let id = this.config.path[url].res[i].target.val;
                     this.htmlAppend('#' + id, `<!--[${i}]-->`);
-                    this.htmlReplaceWith('#' + id, content);
+                    this.htmlReplaceWith('#' + id, translatedContent);
                 }
             }
         }
@@ -804,10 +810,10 @@ class tmpUI {
         this.log("languageSet : " + lang);
         var old = localStorage.getItem('tmpUI_language');
         if (old === lang) {
-            return false;
+            return Promise.resolve(false);
         } else {
             localStorage.setItem('tmpUI_language', lang);
-            this.languageBuild();
+            return this.languageBuild();
         }
     }
 
@@ -891,11 +897,52 @@ class tmpUI {
                 }
             }
         });
+
+        // 处理 [data-tpl] 属性 (VXUI 使用的翻译属性)
+        this.domSelect('[data-tpl]', (dom) => {
+            const key = dom.getAttribute('data-tpl');
+            if (!key || i18nLang[key] === undefined) return;
+            const val = i18nLang[key];
+            const tag = (dom.tagName || '').toUpperCase();
+
+            // title 属性
+            if (dom.getAttribute('title') != null && dom.getAttribute('title') !== '') {
+                dom.setAttribute('title', val);
+            }
+
+            // inputs: prefer placeholder
+            if (tag === 'INPUT' || tag === 'TEXTAREA') {
+                if (dom.getAttribute('placeholder') != null) {
+                    dom.setAttribute('placeholder', val);
+                } else if (dom.value != null) {
+                    dom.value = val;
+                }
+                return;
+            }
+
+            // 只翻译叶子节点，避免破坏 icon+text 布局
+            if (dom.children && dom.children.length > 0) return;
+            dom.textContent = val;
+        });
+
+        // 处理 [data-tpl-placeholder] 属性 - 仅翻译 placeholder
+        this.domSelect('[data-tpl-placeholder]', (dom) => {
+            const key = dom.getAttribute('data-tpl-placeholder');
+            if (!key || i18nLang[key] === undefined) return;
+            dom.setAttribute('placeholder', i18nLang[key]);
+        });
+
+        // 处理 [data-tpl-title] 属性 - 仅翻译 title
+        this.domSelect('[data-tpl-title]', (dom) => {
+            const key = dom.getAttribute('data-tpl-title');
+            if (!key || i18nLang[key] === undefined) return;
+            dom.setAttribute('title', i18nLang[key]);
+        });
     }
 
     /**
      * 在返回模板内容前进行即时语言替换，避免先出现原始中文再闪烁为目标语言。
-     * 仅对带有 i18n 属性的元素按与 languageBuild 相同规则替换，不修改缓存原文。
+     * 对带有 i18n 或 data-tpl 属性的元素按与 languageBuild / TL.tpl_lang 相同规则替换，不修改缓存原文。
      * @param {string} html 原始模板 HTML
      * @returns {string} 翻译后的 HTML
      */
@@ -907,6 +954,8 @@ class tmpUI {
             const doc = parser.parseFromString(`<div id="__tmp_lang_wrap">${html}</div>`, 'text/html');
             const wrap = doc.getElementById('__tmp_lang_wrap');
             const i18nLang = this.languageData;
+
+            // 处理 [i18n] 属性
             wrap.querySelectorAll('[i18n]').forEach(dom => {
                 const key = dom.getAttribute('i18n');
                 if (!key || i18nLang[key] === undefined) return; // 未找到键保持原样
@@ -932,6 +981,48 @@ class tmpUI {
                     dom.value = i18nLang[key];
                 }
             });
+
+            // 处理 [data-tpl] 属性 (VXUI 使用的翻译属性)
+            wrap.querySelectorAll('[data-tpl]').forEach(dom => {
+                const key = dom.getAttribute('data-tpl');
+                if (!key || i18nLang[key] === undefined) return;
+                const val = i18nLang[key];
+                const tag = (dom.tagName || '').toUpperCase();
+
+                // title 属性
+                if (dom.getAttribute('title') != null && dom.getAttribute('title') !== '') {
+                    dom.setAttribute('title', val);
+                }
+
+                // inputs: prefer placeholder
+                if (tag === 'INPUT' || tag === 'TEXTAREA') {
+                    if (dom.getAttribute('placeholder') != null) {
+                        dom.setAttribute('placeholder', val);
+                    } else if (dom.value != null) {
+                        dom.value = val;
+                    }
+                    return;
+                }
+
+                // 只翻译叶子节点，避免破坏 icon+text 布局
+                if (dom.children && dom.children.length > 0) return;
+                dom.textContent = val;
+            });
+
+            // 处理 [data-tpl-placeholder] 属性 - 仅翻译 placeholder
+            wrap.querySelectorAll('[data-tpl-placeholder]').forEach(dom => {
+                const key = dom.getAttribute('data-tpl-placeholder');
+                if (!key || i18nLang[key] === undefined) return;
+                dom.setAttribute('placeholder', i18nLang[key]);
+            });
+
+            // 处理 [data-tpl-title] 属性 - 仅翻译 title
+            wrap.querySelectorAll('[data-tpl-title]').forEach(dom => {
+                const key = dom.getAttribute('data-tpl-title');
+                if (!key || i18nLang[key] === undefined) return;
+                dom.setAttribute('title', i18nLang[key]);
+            });
+
             return wrap.innerHTML;
         } catch (e) {
             console.warn('languageTranslateHtml error', e);

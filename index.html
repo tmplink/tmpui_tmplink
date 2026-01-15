@@ -51,10 +51,18 @@
             });
         }
 
-        // 检查，如果域名开头不是 www. 跳转到 www. 127.0.0.1 时跳过
-        if (window.location.host.indexOf('www.') != 0 && window.location.host !== '127.0.0.1' && window.location.host !== 'localhost') {
-            window.location.href = 'https://www.' + window.location.host + window.location.pathname + window.location.search;
-        }
+        // 检查，如果域名开头不是 www. 跳转到 www.
+        // 注意：开发环境 (localhost / 127.0.0.1 / IP) 跳过；同时必须使用 hostname（host 会包含端口，导致误判）。
+        (function () {
+            var hostname = window.location.hostname;
+
+            // Skip localhost / loopback / IPs
+            if (hostname === 'localhost' || hostname === '127.0.0.1') return;
+            if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname)) return;
+            if (hostname.indexOf('www.') === 0) return;
+
+            window.location.href = 'https://www.' + hostname + window.location.pathname + window.location.search + window.location.hash;
+        })();
 
     </script>
 
@@ -66,7 +74,7 @@
     <script type="text/javascript" src="./tmpui.js?v=53"></script>
     <script type="text/javascript">
         let config = {
-            "version": 1653,
+            "version": 1655,
             "siteroot": "/",
             "loadingIcon": "/img/ico/logo-new.svg",
             "loadingText": "TMP.LINK",
@@ -256,6 +264,40 @@
                         "/tpl/file.html": { "type": "html", "target": { "type": "body" } },
                         "/tpl/file_desktop.html": { "type": "file" },
                         "/tpl/file_mobile.html": { "type": "file" },
+                    }
+                },
+                "/vx": {
+                    "title": "TMP.link - VXUI",
+                    "preload": ["init"],
+                    "append": ["tmplink"],
+                    "body": {
+                        "/css/vxui/vxui.css": { "type": "css", "reload": false },
+                        "/css/vxui/account.css": { "type": "css", "reload": false },
+                        "/css/photo-album.css": { "type": "css", "reload": false },
+                        "/js/vxui/vxui-core.js": { "type": "js" },
+                        "/js/vxui/vxui-direct.js": { "type": "js" },
+                        "/js/vxui/vxui-notes.js": { "type": "js" },
+                        "/js/vxui/vxui-uploader.js": { "type": "js" },
+                        "/js/vxui/vxui-download.js": { "type": "js" },
+                        "/js/vxui/vxui-filelist.js": { "type": "js" },
+                        "/js/vxui/vxui-ai.js": { "type": "js" },
+                        "/js/vxui/vxui-shop.js": { "type": "js" },
+                        "/js/vxui/vxui-account.js": { "type": "js" },
+                        "/js/init/init_vx_direct.js": { "type": "js" },
+                        "/js/init/init_vx_notes.js": { "type": "js" },
+                        "/js/init/init_vx_filelist.js": { "type": "js" },
+                        "/js/init/init_vx_ai.js": { "type": "js" },
+                        "/js/init/init_vx_shop.js": { "type": "js" },
+                        "/js/init/init_vx_account.js": { "type": "js" },
+                        "/js/init/init_vx.js": { "type": "js" },
+                        "/tpl/vxui/index.html": { "type": "html", "target": { "type": "body" } },
+                        "/tpl/vxui/direct.html": { "type": "file" },
+                        "/tpl/vxui/notes.html": { "type": "file" },
+                        "/tpl/vxui/filelist.html": { "type": "file" },
+                        "/tpl/vxui/ai.html": { "type": "file" },
+                        "/tpl/vxui/shop.html": { "type": "file" },
+                        "/tpl/vxui/profile.html": { "type": "file" },
+                        "/tpl/vxui/settings.html": { "type": "file" }
                     }
                 }
             }

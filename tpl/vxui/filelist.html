@@ -1,0 +1,1876 @@
+<!-- VXUI FileList Module Template - 支持列表/相册双视图 -->
+<link rel="stylesheet" href="/css/photo-album.css">
+
+<!-- Drag Overlay -->
+<div class="vx-drag-overlay" id="vx-drag-overlay">
+    <div class="vx-drag-overlay-content">
+        <div class="vx-drag-overlay-icon">
+            <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
+        </div>
+        <div class="vx-drag-overlay-text" data-tpl="vx_drop_to_upload">松开以上传文件</div>
+    </div>
+</div>
+
+<!-- Dynamic Sidebar Content -->
+<template id="vx-filelist-sidebar-tpl">
+    <!-- Current Folder Info -->
+    <div class="vx-nav-section">
+        <div class="vx-nav-title" data-tpl="vx_current_folder">当前文件夹</div>
+        <div class="vx-sidebar-module-info">
+            <h3 class="vx-sidebar-folder-name" id="vx-fl-sidebar-title" data-tpl="navbar_meetingroom">桌面</h3>
+            <div class="vx-sidebar-meta">
+                <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+                <span id="vx-fl-item-count">0</span> <span data-tpl="vx_item_unit">项</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Folder Privacy (public/private) -->
+    <div class="vx-nav-section" id="vx-fl-privacy-section" style="display:none;">
+        <div class="vx-nav-title" data-tpl="vx_folder_privacy">文件夹权限</div>
+        <div class="vx-sidebar-module-info">
+            <div style="display:flex; align-items:center; justify-content: space-between; gap: 12px;">
+                <div style="min-width:0;">
+                    <div class="vx-text-sm" id="vx-fl-privacy-state" data-tpl="vx_privacy_public">公开</div>
+                    <div class="vx-text-muted" style="margin-top: 4px; font-size: var(--vx-text-xs);">
+                        <span id="vx-fl-privacy-hint" i18n="modal_meetingroom_type1" i18n-only="html">公开，所有人都可访问。</span>
+                    </div>
+                </div>
+                <label class="vx-switch" style="flex-shrink:0;">
+                    <input type="checkbox" id="vx-fl-privacy-toggle" onchange="VX_FILELIST.onFolderPrivacyToggleChange(this.checked)">
+                    <span class="vx-switch-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Direct Controls (folder share) -->
+    <div class="vx-nav-section" id="vx-fl-direct-section" style="display:none;">
+        <div class="vx-nav-title" data-tpl="nav_direct">直链</div>
+        <div class="vx-sidebar-module-info">
+            <label class="vx-checkbox" style="margin: 0;">
+                <input type="checkbox" id="vx-fl-direct-toggle" onchange="VX_FILELIST.toggleDirectForFolder()">
+                <span data-tpl="vx_allow_folder_direct_link">允许文件夹直链</span>
+            </label>
+            <div id="vx-fl-direct-disabled" class="vx-text-muted" style="margin-top: 8px; font-size: var(--vx-text-xs); display:none;">
+                <span data-tpl="vx_bind_direct_domain_first">请先在直链模块绑定域名。</span>
+            </div>
+            <div id="vx-fl-direct-link-wrap" style="margin-top: 10px; display:none;">
+                <div id="vx-fl-direct-link" style="padding: 8px 10px; background: var(--vx-bg-secondary); border-radius: var(--vx-radius); font-family: var(--vx-font-mono); font-size: var(--vx-text-xs); user-select: all; word-break: break-all;"></div>
+                <div style="display:flex; gap: 8px; margin-top: 8px;">
+                    <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.copyFolderDirectLink()" title="复制">
+                        <iconpark-icon name="copy"></iconpark-icon>
+                        <span data-tpl="copy">复制</span>
+                    </button>
+                    <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.openFolderDirectLink()" title="打开">
+                        <iconpark-icon name="link"></iconpark-icon>
+                        <span data-tpl="vx_open">打开</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Header -->
+<header class="vx-header vx-header-minimal">
+    <div class="vx-header-left">
+        <button class="vx-btn-icon vx-portrait-sidebar-btn" onclick="VXUI.toggleSidebar()" title="." i18n="vx_menu" i18n-only="title">
+            <iconpark-icon name="bars"></iconpark-icon>
+        </button>
+        <button class="vx-btn-icon" onclick="VX_FILELIST.goToParent()" id="vx-fl-back-btn" style="display: none;" title="." i18n="vx_back" i18n-only="title">
+            <iconpark-icon name="arrow-circle-left"></iconpark-icon>
+        </button>
+        <nav class="vx-breadcrumb" id="vx-fl-breadcrumb">
+            <a href="javascript:;" onclick="VX_FILELIST.openFolder(0)"><span data-tpl="navbar_meetingroom">桌面</span></a>
+        </nav>
+    </div>
+    
+    <div class="vx-header-right">
+        <!-- 视图切换按钮组 -->
+        <div class="vx-btn-group vx-view-toggle">
+            <button class="vx-btn-icon active" id="vx-fl-view-list" onclick="VX_FILELIST.setViewMode('list')" title="." i18n="vx_view_list" i18n-only="title">
+                <iconpark-icon name="list"></iconpark-icon>
+            </button>
+            <button class="vx-btn-icon" id="vx-fl-view-album" onclick="VX_FILELIST.setViewMode('album')" title="." i18n="vx_view_album" i18n-only="title">
+                <iconpark-icon name="images"></iconpark-icon>
+            </button>
+        </div>
+        
+        <!-- 相册模式下的网格大小控制 -->
+        <div class="vx-btn-group vx-album-controls" id="vx-fl-album-controls" style="display: none;">
+            <button class="vx-btn-icon" onclick="VX_FILELIST.setGridSize('normal')" id="view-normal" title="." i18n="album_grid_normal" i18n-only="title">
+                <iconpark-icon name="list-radio"></iconpark-icon>
+            </button>
+            <button class="vx-btn-icon active" onclick="VX_FILELIST.setGridSize('small')" id="view-small" title="." i18n="album_grid_small" i18n-only="title">
+                <iconpark-icon name="list"></iconpark-icon>
+            </button>
+        </div>
+
+        <button class="vx-btn vx-btn-ghost" data-auth="logged-in" onclick="VX_FILELIST.upload()" title="." i18n="nav_upload" i18n-only="title">
+            <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
+            <span data-tpl="nav_upload">上传文件</span>
+        </button>
+        <button class="vx-btn vx-btn-ghost" data-auth="logged-in" onclick="VX_FILELIST.showCreateModal()" title="." i18n="model_title_folder_title" i18n-only="title">
+            <iconpark-icon name="folder-plus"></iconpark-icon>
+            <span data-tpl="model_title_folder_title">新建文件夹</span>
+        </button>
+        <button class="vx-btn vx-btn-ghost" id="vx-fl-refresh-btn" onclick="VX_FILELIST.refresh()" title="." i18n="album_refresh" i18n-only="title">
+            <iconpark-icon name="rotate" data-role="refresh-icon"></iconpark-icon>
+            <span data-role="refresh-text" data-tpl="album_refresh">刷新</span>
+        </button>
+    </div>
+</header>
+
+<!-- Content -->
+<div class="vx-content vx-content-list">
+    <!-- Loading State -->
+    <div class="vx-loading" id="vx-fl-loading">
+        <div class="vx-spinner vx-spinner-lg"></div>
+    </div>
+    
+    <!-- 列表视图容器 -->
+    <div class="vx-list-container" id="vx-fl-list" style="display: none;">
+        <!-- List Header -->
+        <div class="vx-list-header">
+            <div class="vx-list-col vx-list-col-name">
+                <div class="vx-list-checkbox" id="vx-fl-select-all" onclick="event.stopPropagation(); VX_FILELIST.toggleSelectAllFromHeader()" title="." i18n="on_select_all" i18n-only="title"></div>
+                <span data-tpl="filename">文件名</span>
+            </div>
+            <div class="vx-list-col vx-list-col-size">
+                <span data-tpl="filesize">大小</span>
+            </div>
+            <div class="vx-list-col vx-list-col-date vx-hide-mobile">
+                <span data-tpl="filedate">日期</span>
+            </div>
+            <div class="vx-list-col vx-list-col-actions">
+                <span data-tpl="actions">操作</span>
+            </div>
+        </div>
+        
+        <!-- List Body -->
+        <div class="vx-list-body" id="vx-fl-list-body">
+            <!-- Items will be inserted here -->
+        </div>
+    </div>
+    
+    <!-- 相册视图容器 -->
+    <div class="vx-album-container" id="vx-fl-album" style="display: none;">
+        <div class="album-grid" id="vx-fl-album-grid">
+            <!-- Photos and folders will be inserted here -->
+        </div>
+    </div>
+    
+    <!-- Empty State -->
+    <div class="vx-empty" id="vx-fl-empty" style="display: none;">
+        <div class="vx-empty-icon">
+            <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+        </div>
+        <h3 class="vx-empty-title" data-tpl="vx_empty_folder_title">空文件夹</h3>
+        <p class="vx-empty-text" data-tpl="page_no_files">拖放文件到这里或点击上传按钮</p>
+        <button class="vx-btn vx-btn-primary" data-auth="logged-in" onclick="VX_FILELIST.upload()">
+            <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
+            <span data-tpl="nav_upload">上传文件</span>
+        </button>
+    </div>
+</div>
+
+<!-- Selection Bar -->
+<div class="vx-selection-bar" id="vx-fl-selection-bar" style="display: none;">
+    <div class="vx-selection-info">
+        <span class="vx-selection-count"><span data-tpl="vx_selected_prefix">已选择</span> <strong id="vx-fl-selected-count">0</strong> <span data-tpl="vx_item_unit">项</span></span>
+    </div>
+    <div class="vx-selection-actions">
+        <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.downloadSelected()">
+            <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+            <span data-tpl="on_select_download">下载</span>
+        </button>
+        <button class="vx-btn vx-btn-ghost" data-auth="logged-in" onclick="VX_FILELIST.moveSelected()">
+            <iconpark-icon name="folder-plus"></iconpark-icon>
+            <span data-tpl="on_select_move">移动</span>
+        </button>
+        <button class="vx-btn vx-btn-ghost vx-text-danger" data-auth="logged-in" onclick="VX_FILELIST.deleteSelected()">
+            <iconpark-icon name="trash"></iconpark-icon>
+            <span data-tpl="on_select_delete">删除</span>
+        </button>
+        <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.clearSelection()">
+            <span data-tpl="on_select_cancel">取消</span>
+        </button>
+    </div>
+</div>
+
+<!-- 批量下载 -->
+<div class="modal" id="multipleDownloadModel">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    <iconpark-icon name="laptop-arrow-down"></iconpark-icon>
+                    <span i18n="multi_download_modal_title">下载管理器</span>
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="multiple_download_prepare" class="text-center">
+                    <img src="/img/loading-outline.svg" style="height:120px;" />
+                </div>
+                <div id="multiple_download_processing" style="display: none;">
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                            id="multiple_download_process-bar" role="progressbar" style="width: 0%;" aria-valuenow="0"
+                            aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div id="multiple_download_info" class="mt-3 font-monospace"
+                        style="max-height: 50vh; overflow-y: auto;">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" i18n="model_btn_cancel">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Context Menu -->
+<div class="vx-context-menu" id="vx-fl-context-menu">
+    <div class="vx-context-item" id="vx-fl-menu-open" onclick="VX_FILELIST.openContextItem()">
+        <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+        <span data-tpl="vx_open">打开</span>
+    </div>
+    <div class="vx-context-item" id="vx-fl-menu-download" onclick="VX_FILELIST.downloadContextItem()">
+        <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+        <span data-tpl="on_select_download">下载</span>
+    </div>
+    <div class="vx-context-item" id="vx-fl-menu-rename" onclick="VX_FILELIST.renameContextItem()">
+        <iconpark-icon name="pen-to-square"></iconpark-icon>
+        <span data-tpl="menu_rename">重命名</span>
+    </div>
+    <div class="vx-context-item" id="vx-fl-menu-direct-share" onclick="VX_FILELIST.directShareContextItem()">
+        <iconpark-icon name="share-from-square"></iconpark-icon>
+        <span data-tpl="vx_direct_share">通过直链分享</span>
+    </div>
+
+    <div class="vx-context-divider" id="vx-fl-menu-expire-divider"></div>
+    <div class="vx-context-label" id="vx-fl-menu-expire-label" data-tpl="on_select_change_model">修改有效期</div>
+    <div class="vx-context-item" id="vx-fl-menu-expire-3" onclick="VX_FILELIST.setExpireContextItem(99)">
+        <iconpark-icon name="infinity"></iconpark-icon>
+        <span data-tpl="modal_settings_upload_model99">永久保存</span>
+    </div>
+    <div class="vx-context-item" id="vx-fl-menu-expire-0" onclick="VX_FILELIST.setExpireContextItem(0)">
+        <iconpark-icon name="clock"></iconpark-icon>
+        <span data-tpl="modal_settings_upload_model1">24 小时</span>
+    </div>
+    <div class="vx-context-item" id="vx-fl-menu-expire-1" onclick="VX_FILELIST.setExpireContextItem(1)">
+        <iconpark-icon name="clock"></iconpark-icon>
+        <span data-tpl="modal_settings_upload_model2">3 天</span>
+    </div>
+    <div class="vx-context-item" id="vx-fl-menu-expire-2" onclick="VX_FILELIST.setExpireContextItem(2)">
+        <iconpark-icon name="clock"></iconpark-icon>
+        <span data-tpl="modal_settings_upload_model3">7 天</span>
+    </div>
+
+    <div class="vx-context-divider"></div>
+    <div class="vx-context-item vx-text-danger" id="vx-fl-menu-delete" onclick="VX_FILELIST.deleteContextItem()">
+        <iconpark-icon name="trash"></iconpark-icon>
+        <span data-tpl="menu_delete">删除</span>
+    </div>
+</div>
+
+<!-- Create Folder Modal -->
+<div class="vx-modal" id="vx-fl-create-modal">
+    <div class="vx-modal-overlay" onclick="VX_FILELIST.closeCreateModal()"></div>
+    <div class="vx-modal-container">
+        <div class="vx-modal-header">
+            <h3 class="vx-modal-title" data-tpl="model_title_folder_title">新建文件夹</h3>
+            <button class="vx-modal-close" onclick="VX_FILELIST.closeCreateModal()">
+                <iconpark-icon name="circle-xmark"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-modal-body">
+            <div class="vx-text-sm vx-text-muted vx-mb-md" data-tpl="vx_create_folder_notice">创建新的文件夹</div>
+            <div class="vx-form-group">
+                <label class="vx-label" data-tpl="model_meetingroom_create_name">文件夹名称</label>
+                <input type="text" class="vx-input" id="vx-fl-folder-name" data-tpl="model_title_folder_name" placeholder="请输入文件夹名称">
+            </div>
+            <div class="vx-form-group">
+                <label class="vx-label" i18n="modal_meetingroom_create_type">权限</label>
+                <select class="vx-select" id="vx-fl-folder-model">
+                    <option value="0" i18n-only="html" i18n="modal_meetingroom_type1">公开，所有人都可访问。</option>
+                    <option value="1" i18n-only="html" i18n="modal_meetingroom_type2">私有，仅自己可访问。</option>
+                </select>
+            </div>
+        </div>
+        <div class="vx-modal-footer">
+            <button class="vx-btn vx-btn-secondary" onclick="VX_FILELIST.closeCreateModal()" data-tpl="model_btn_close">取消</button>
+            <button class="vx-btn vx-btn-primary" onclick="VX_FILELIST.createFolder()" data-tpl="model_btn_create">创建</button>
+        </div>
+    </div>
+</div>
+
+<!-- Rename Modal -->
+<div class="vx-modal" id="vx-fl-rename-modal">
+    <div class="vx-modal-overlay" onclick="VX_FILELIST.closeRenameModal()"></div>
+    <div class="vx-modal-container">
+        <div class="vx-modal-header">
+            <h3 class="vx-modal-title" data-tpl="menu_rename">重命名</h3>
+            <button class="vx-modal-close" onclick="VX_FILELIST.closeRenameModal()">
+                <iconpark-icon name="circle-xmark"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-modal-body">
+            <div class="vx-form-group">
+                <label class="vx-label" data-tpl="vx_new_name">新名称</label>
+                <input type="text" class="vx-input" id="vx-fl-rename-input">
+            </div>
+        </div>
+        <div class="vx-modal-footer">
+            <button class="vx-btn vx-btn-secondary" onclick="VX_FILELIST.closeRenameModal()" data-tpl="model_btn_close">取消</button>
+            <button class="vx-btn vx-btn-primary" onclick="VX_FILELIST.confirmRename()" data-tpl="model_btn_confirm">确定</button>
+        </div>
+    </div>
+</div>
+
+<!-- Move to Folder Modal -->
+<div class="vx-modal" id="vx-fl-move-modal">
+    <div class="vx-modal-overlay" onclick="VX_FILELIST.closeMoveModal()"></div>
+    <div class="vx-modal-container">
+        <div class="vx-modal-header">
+            <h3 class="vx-modal-title" data-tpl="model_title_move_to">移动到文件夹</h3>
+            <button class="vx-modal-close" onclick="VX_FILELIST.closeMoveModal()">
+                <iconpark-icon name="circle-xmark"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-modal-body">
+            <!-- 搜索框 -->
+            <div class="vx-move-search-wrapper">
+                <div class="vx-move-search-input-wrapper">
+                    <iconpark-icon name="search" class="vx-move-search-icon"></iconpark-icon>
+                    <input type="text" id="vx-move-search-input" class="vx-move-search-input" 
+                              placeholder="搜索文件夹..." data-tpl="move_folder_search_placeholder"
+                           oninput="VX_FILELIST.searchMoveFolder(this.value)">
+                    <button type="button" id="vx-move-search-clear" class="vx-move-search-clear" 
+                            onclick="VX_FILELIST.clearMoveSearch()" style="display: none;">
+                        <iconpark-icon name="close-small"></iconpark-icon>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 搜索结果区域 -->
+            <div id="vx-move-search-results" class="vx-move-search-results" style="display: none;"></div>
+            
+            <!-- 树形结构区域 -->
+            <div id="vx-move-tree-wrapper" class="vx-move-tree-wrapper">
+                <div id="vx-move-tree-root" class="vx-move-tree-root"></div>
+            </div>
+            
+            <!-- 加载状态 -->
+            <div id="vx-move-loading" class="vx-move-loading" style="display: none;">
+                <div class="vx-spinner"></div>
+            </div>
+        </div>
+        <div class="vx-modal-footer">
+            <button class="vx-btn vx-btn-secondary" onclick="VX_FILELIST.closeMoveModal()" data-tpl="model_btn_cancel">取消</button>
+            <button class="vx-btn vx-btn-primary" onclick="VX_FILELIST.confirmMove()" data-tpl="model_btn_ok">确定</button>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="vx-modal" id="vx-upload-modal">
+    <div class="vx-modal-overlay" onclick="VX_UPLOADER.closeModal()"></div>
+    <div class="vx-modal-container vx-modal-lg">
+        <div class="vx-modal-header">
+            <h3 class="vx-modal-title" data-tpl="model_title_upload">上传文件</h3>
+            <button class="vx-modal-close" onclick="VX_UPLOADER.closeModal()">
+                <iconpark-icon name="circle-xmark"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-modal-body">
+            <!-- 当前设置 -->
+            <div class="vx-upload-settings">
+                <div class="vx-upload-settings-header">
+                    <iconpark-icon name="circle-check" class="text-success"></iconpark-icon>
+                    <span data-tpl="upload_settings_current">当前设置</span>
+                </div>
+                <div class="vx-upload-settings-grid">
+                    <div class="vx-upload-setting-item">
+                        <label class="vx-label" data-tpl="upload_settings_validity">文件有效期</label>
+                        <select class="vx-select" id="vx-upload-model" onchange="VX_UPLOADER.onModelChange(this.value)">
+                            <option value="0" data-tpl="modal_settings_upload_model1">24 小时</option>
+                            <option value="1" selected data-tpl="modal_settings_upload_model2">3 天</option>
+                            <option value="2" data-tpl="modal_settings_upload_model3">7 天</option>
+                            <option value="99" data-tpl="modal_settings_upload_model99">永久保存</option>
+                        </select>
+                        <div class="vx-upload-setting-hint" data-tpl="modal_settings_upload_model2_des">将在有人下载时自动延长这个期限。</div>
+                    </div>
+                    <div class="vx-upload-setting-item">
+                        <label class="vx-label" data-tpl="upload_settings_server">服务器</label>
+                        <select class="vx-select" id="vx-upload-server" onchange="VX_UPLOADER.onServerChange(this.value)">
+                            <!-- 服务器列表由JS填充 -->
+                        </select>
+                        <div class="vx-upload-setting-hint" data-tpl="model_title_upload_servers_des">赞助者专用功能</div>
+                    </div>
+                </div>
+                <div class="vx-upload-settings-note">
+                    <iconpark-icon name="circle-info"></iconpark-icon>
+                    <span data-tpl="upload_settings_more_hint">进阶选项已移动至"更多 -> 效率设定"</span>
+                </div>
+            </div>
+            
+            <!-- 上传区域 -->
+            <div class="vx-upload-dropzone" id="vx-upload-dropzone">
+                <div class="vx-upload-dropzone-icon">
+                    <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
+                </div>
+                <div class="vx-upload-dropzone-text" data-tpl="upload_or_drag">拖动文件到此位置，或者选择文件上传，或者按下 Ctrl + V 粘贴文件。</div>
+                <div class="vx-upload-dropzone-actions">
+                    <button class="vx-btn vx-btn-primary" onclick="VX_UPLOADER.selectFiles()">
+                        <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+                        <span data-tpl="model_btn_select">选择文件</span>
+                    </button>
+                    <button class="vx-btn vx-btn-secondary" onclick="VX_UPLOADER.selectFolder()">
+                        <iconpark-icon name="folder-plus"></iconpark-icon>
+                        <span data-tpl="upload_dirs">上传文件夹</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 隐藏的文件输入 -->
+            <input type="file" id="vx-upload-file-input" multiple style="display: none;" onchange="VX_UPLOADER.onFilesSelected(this)">
+            <input type="file" id="vx-upload-folder-input" webkitdirectory style="display: none;" onchange="VX_UPLOADER.onFolderSelected(this)">
+        </div>
+    </div>
+</div>
+
+<!-- Lightbox for Album View -->
+<div class="album-lightbox" id="vx-fl-lightbox">
+    <header class="lightbox-header">
+        <h2 class="lightbox-title" id="vx-fl-lightbox-title"></h2>
+        <div class="lightbox-actions">
+            <button class="lightbox-action" onclick="VX_FILELIST.downloadCurrentPhoto()" title="." i18n="on_select_download" i18n-only="title">
+                <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+            </button>
+            <button class="lightbox-action" onclick="VX_FILELIST.rotateLightbox()" title="." i18n="vx_rotate" i18n-only="title">
+                <iconpark-icon name="rotate"></iconpark-icon>
+            </button>
+            <button class="lightbox-action" onclick="VX_FILELIST.closeLightbox()" title="." i18n="btn_close" i18n-only="title">
+                <iconpark-icon name="x-square"></iconpark-icon>
+            </button>
+        </div>
+    </header>
+    
+    <div class="lightbox-content">
+        <div class="lightbox-loading" id="vx-fl-lightbox-loading"></div>
+        <img class="lightbox-image" id="vx-fl-lightbox-image" src="" alt="">
+    </div>
+    
+    <button class="lightbox-nav prev" onclick="VX_FILELIST.lightboxPrev()">
+        <iconpark-icon name="left-c"></iconpark-icon>
+    </button>
+    <button class="lightbox-nav next" onclick="VX_FILELIST.lightboxNext()">
+        <iconpark-icon name="left-c" style="transform: rotate(180deg)"></iconpark-icon>
+    </button>
+    
+    <footer class="lightbox-footer">
+        <div class="lightbox-thumbnails" id="vx-fl-lightbox-thumbnails"></div>
+        <span class="lightbox-counter" id="vx-fl-lightbox-counter">1 / 10</span>
+    </footer>
+</div>
+
+<!-- Photo Card Template -->
+<script type="text/template" id="tpl-vx-photo-card">
+    <div class="photo-card" data-index="{index}" data-fid="{fid}" onclick="VX_FILELIST.photoCardClick(event, {index})">
+        <img class="photo-card-image" src="{thumbnail}" alt="{name}" loading="lazy">
+        <div class="photo-card-loading" data-role="photo-loading">
+            <div class="photo-loading-spinner"></div>
+        </div>
+        <div class="photo-card-overlay">
+            <div class="photo-card-info">
+                <p class="photo-card-name">{name}</p>
+                <div class="photo-card-meta">
+                    <span>{size}</span>
+                </div>
+            </div>
+        </div>
+        <div class="photo-download-overlay">
+            <div class="photo-download-progress">
+                <div class="photo-download-progress-bar"></div>
+            </div>
+            <span class="photo-download-status" data-role="download-status"></span>
+        </div>
+        <div class="photo-card-actions">
+            <button class="photo-card-action" data-role="download-btn" onclick="event.stopPropagation(); VX_FILELIST.downloadPhoto({index})" title="下载">
+                <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
+            </button>
+        </div>
+        <div class="photo-card-select" onclick="event.stopPropagation(); VX_FILELIST.togglePhotoSelect({index})">
+            <iconpark-icon name="check"></iconpark-icon>
+        </div>
+    </div>
+</script>
+
+<!-- Folder Card Template -->
+<script type="text/template" id="tpl-vx-folder-card">
+    <div class="album-folder-card" data-mrid="{mrid}" onclick="VX_FILELIST.openFolder('{mrid}')">
+        <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+        <span class="album-folder-card-name">{name}</span>
+        <span class="album-folder-card-count">{count} 项</span>
+    </div>
+</script>
+
+<style>
+/* FileList Module Styles - 双视图支持 */
+
+/* Sidebar Module Info */
+.vx-sidebar-module-info {
+    padding: 8px 12px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    margin: 0 4px;
+}
+
+.vx-sidebar-folder-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin: 0 0 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vx-sidebar-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-sidebar-meta iconpark-icon {
+    font-size: 14px;
+}
+
+/* Active nav item */
+.vx-nav-item.active {
+    background: var(--vx-primary-light);
+    color: var(--vx-primary);
+}
+
+/* View Toggle Button Group */
+.vx-view-toggle {
+    display: flex;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    padding: 2px;
+    margin-right: 8px;
+}
+
+.vx-view-toggle .vx-btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--vx-radius-sm);
+}
+
+.vx-view-toggle .vx-btn-icon.active {
+    background: var(--vx-primary);
+    color: white;
+}
+
+.vx-album-controls {
+    display: flex;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    padding: 2px;
+    margin-right: 8px;
+}
+
+.vx-album-controls .vx-btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--vx-radius-sm);
+}
+
+.vx-album-controls .vx-btn-icon.active {
+    background: var(--vx-primary);
+    color: white;
+}
+
+.vx-content-list {
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Album Container */
+.vx-album-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0;
+}
+
+/* 使用 photo-album.css 的网格样式 */
+.vx-album-container .album-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0;
+}
+
+.vx-album-container .album-grid.large {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.vx-album-container .album-grid.small {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+/* List Container */
+.vx-list-container {
+    width: 100%;
+    flex: 1;
+    background: var(--vx-surface);
+    border-radius: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* List Header */
+.vx-list-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--vx-bg-secondary);
+    border-bottom: 1px solid var(--vx-border);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--vx-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* List Columns */
+.vx-list-col {
+    flex-shrink: 0;
+}
+
+.vx-list-col-name {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+}
+
+.vx-list-col-size {
+    width: 100px;
+    text-align: right;
+}
+
+.vx-list-col-date {
+    width: 150px;
+    text-align: right;
+}
+
+.vx-list-col-actions {
+    width: 120px;
+    text-align: right;
+}
+
+/* List Body */
+.vx-list-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* List Row */
+.vx-list-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--vx-border);
+    transition: background 0.15s ease, opacity 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+}
+
+.vx-list-row:hover {
+    background: var(--vx-surface-hover);
+}
+
+.vx-list-row:last-child {
+    border-bottom: none;
+}
+
+.vx-list-row.selected {
+    background: var(--vx-primary-light);
+}
+
+/* List Row Animation */
+.vx-list-row.vx-row-adding {
+    animation: vx-row-slide-in 0.3s ease forwards;
+}
+
+.vx-list-row.vx-row-removing {
+    animation: vx-row-slide-out 0.3s ease forwards;
+}
+
+@keyframes vx-row-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+        background: var(--vx-primary-light);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        background: transparent;
+    }
+}
+
+@keyframes vx-row-slide-out {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+}
+
+/* Photo Card Animation */
+.photo-card.vx-card-adding {
+    animation: vx-card-fade-in 0.3s ease forwards;
+}
+
+.photo-card.vx-card-removing {
+    animation: vx-card-fade-out 0.3s ease forwards;
+}
+
+@keyframes vx-card-fade-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes vx-card-fade-out {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+/* List Row Checkbox */
+.vx-list-checkbox {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    border: 2px solid var(--vx-border-hover);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.vx-select-mode .vx-list-checkbox {
+    display: flex;
+}
+
+.vx-list-checkbox:hover {
+    border-color: var(--vx-primary);
+}
+
+.vx-list-row.selected .vx-list-checkbox {
+    background: var(--vx-primary);
+    border-color: var(--vx-primary);
+}
+
+.vx-list-row.selected .vx-list-checkbox::after {
+    content: '';
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+}
+
+/* Header Select All Checkbox States */
+.vx-list-checkbox.vx-checked {
+    background: var(--vx-primary);
+    border-color: var(--vx-primary);
+}
+
+.vx-list-checkbox.vx-checked::after {
+    content: '';
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.vx-list-checkbox.vx-indeterminate {
+    background: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+}
+
+.vx-list-checkbox.vx-indeterminate::after {
+    content: '';
+    width: 10px;
+    height: 2px;
+    background: var(--vx-primary);
+    border-radius: 1px;
+}
+
+/* List Row Name */
+.vx-list-name {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.vx-list-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.vx-list-icon iconpark-icon {
+    font-size: 24px;
+}
+
+.vx-list-icon.vx-icon-folder iconpark-icon {
+    color: #4A90E2;
+}
+
+.vx-list-icon.vx-icon-file iconpark-icon {
+    color: var(--vx-text-secondary);
+}
+
+/* File type specific colors */
+.vx-list-icon.vx-icon-image iconpark-icon { color: #E91E63; }
+.vx-list-icon.vx-icon-video iconpark-icon { color: #9C27B0; }
+.vx-list-icon.vx-icon-audio iconpark-icon { color: #FF9800; }
+.vx-list-icon.vx-icon-document iconpark-icon { color: #2196F3; }
+.vx-list-icon.vx-icon-archive iconpark-icon { color: #795548; }
+.vx-list-icon.vx-icon-code iconpark-icon { color: #00BCD4; }
+
+/* List Row Meta */
+.vx-list-size,
+.vx-list-date {
+    color: var(--vx-text-secondary);
+    font-size: 13px;
+}
+
+.vx-list-size {
+    width: 100px;
+    text-align: right;
+}
+
+.vx-list-date {
+    width: 150px;
+    text-align: right;
+}
+
+/* List Row Actions */
+.vx-list-actions {
+    width: 120px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.vx-list-action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    border-radius: var(--vx-radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--vx-text-secondary);
+    transition: all 0.15s ease;
+}
+
+.vx-list-action-btn.is-downloading {
+    background: var(--vx-primary-light);
+    color: var(--vx-primary);
+}
+
+.vx-list-action-btn.is-downloading iconpark-icon {
+    animation: vx-spin 0.9s linear infinite;
+}
+
+.vx-list-action-btn:hover {
+    background: var(--vx-bg-secondary);
+    color: var(--vx-primary);
+}
+
+.vx-list-action-btn.vx-action-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+}
+
+@keyframes vx-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Folder indicator */
+.vx-list-row[data-type="folder"] .vx-list-filename a {
+    font-weight: 600;
+}
+
+/* Lefttime Badge */
+.vx-lefttime {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 12px;
+    padding: 2px 8px;
+    background: var(--vx-bg-secondary);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.vx-lefttime iconpark-icon {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* Filename with badges inline */
+.vx-list-filename {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.vx-list-filename a {
+    color: var(--vx-text);
+    text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.vx-list-filename a:hover {
+    color: var(--vx-primary);
+}
+
+/* Hot Badge */
+.vx-hot-badge {
+    color: #EF4444;
+    margin-left: 4px;
+}
+
+/* Like Badge */
+.vx-like-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 8px;
+    color: #EC4899;
+    font-size: 12px;
+}
+
+/* Breadcrumb */
+.vx-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+}
+
+.vx-breadcrumb a {
+    color: var(--vx-text-secondary);
+    text-decoration: none;
+}
+
+.vx-breadcrumb a:hover {
+    color: var(--vx-primary);
+}
+
+.vx-breadcrumb-sep {
+    color: var(--vx-text-muted);
+    margin: 0 4px;
+}
+
+/* Header */
+.vx-header-minimal {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 12px 20px;
+    background: var(--vx-surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--vx-border);
+    margin-bottom: 0;
+}
+
+/* 深色模式半透明背景 */
+@supports (backdrop-filter: blur(12px)) {
+    .vx-header-minimal {
+        background: rgba(30, 41, 59, 0.85);
+    }
+    
+    @media (prefers-color-scheme: light) {
+        html:not(.vx-dark) .vx-header-minimal {
+            background: rgba(255, 255, 255, 0.85);
+        }
+    }
+    
+    html.vx-light .vx-header-minimal {
+        background: rgba(255, 255, 255, 0.85);
+    }
+}
+
+.vx-header-minimal .vx-page-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Loading spinner fix */
+.vx-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Refresh button feedback */
+#vx-fl-refresh-btn[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+#vx-fl-refresh-btn[data-refreshing="1"] [data-role="refresh-icon"] {
+    animation: vxFlSpin 0.85s linear infinite;
+}
+
+@keyframes vxFlSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Empty state */
+.vx-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.vx-empty-icon {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vx-empty-icon iconpark-icon {
+    font-size: 64px;
+    color: var(--vx-text-muted);
+}
+
+.vx-empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin-bottom: 8px;
+}
+
+.vx-empty-text {
+    color: var(--vx-text-secondary);
+    margin-bottom: 20px;
+}
+
+/* Folder type label */
+.vx-type-folder {
+    color: var(--vx-text-muted);
+    font-size: 12px;
+}
+
+/* ==================== Move Folder Modal Styles ==================== */
+
+/* Move modal body */
+#vx-fl-move-modal .vx-modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 16px 20px;
+}
+
+/* Search wrapper */
+.vx-move-search-wrapper {
+    position: sticky;
+    top: 0;
+    background: var(--vx-surface);
+    z-index: 10;
+    padding-bottom: 12px;
+    margin-bottom: 8px;
+}
+
+.vx-move-search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.vx-move-search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--vx-text-muted);
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.vx-move-search-input {
+    width: 100%;
+    padding: 10px 36px 10px 38px;
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    font-size: 14px;
+    color: var(--vx-text);
+    background-color: var(--vx-bg-secondary);
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.vx-move-search-input:focus {
+    border-color: var(--vx-primary);
+    background-color: var(--vx-surface);
+    box-shadow: 0 0 0 3px var(--vx-primary-light);
+}
+
+.vx-move-search-input::placeholder {
+    color: var(--vx-text-muted);
+}
+
+.vx-move-search-clear {
+    position: absolute;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--vx-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.vx-move-search-clear:hover {
+    background-color: var(--vx-bg-secondary);
+    color: var(--vx-text-secondary);
+}
+
+/* Tree wrapper */
+.vx-move-tree-wrapper {
+    padding: 0;
+}
+
+.vx-move-tree-root {
+    margin: 0;
+    padding: 0;
+}
+
+/* Folder item */
+.vx-move-folder-item {
+    cursor: pointer;
+    border-radius: var(--vx-radius-md);
+    transition: all 0.2s ease;
+    padding: 10px 14px;
+    margin: 2px 0;
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.vx-move-folder-item:hover {
+    background-color: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+}
+
+.vx-move-folder-item.selected {
+    background-color: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+}
+
+.vx-move-folder-item.selected .vx-move-folder-name {
+    color: var(--vx-primary);
+    font-weight: 500;
+}
+
+/* Folder icon */
+.vx-move-folder-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    margin-right: 8px;
+}
+
+.vx-move-folder-icon iconpark-icon {
+    font-size: 18px;
+    color: var(--vx-primary);
+}
+
+.vx-move-folder-item.selected .vx-move-folder-icon iconpark-icon {
+    color: var(--vx-primary);
+}
+
+/* Folder name */
+.vx-move-folder-name {
+    font-size: 14px;
+    color: var(--vx-text);
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+/* Subtree (nested folders) */
+.vx-move-subtree {
+    padding-left: 20px;
+    margin-bottom: 0;
+}
+
+/* Search results */
+.vx-move-search-results {
+    padding: 0;
+}
+
+.vx-move-search-item {
+    cursor: pointer;
+    border-radius: var(--vx-radius-md);
+    transition: all 0.2s ease;
+    padding: 10px 14px;
+    margin: 2px 0;
+    display: flex;
+    align-items: flex-start;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.vx-move-search-item:hover {
+    background-color: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+}
+
+.vx-move-search-item.selected {
+    background-color: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+}
+
+.vx-move-search-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.vx-move-search-item .vx-move-folder-name {
+    font-weight: 500;
+}
+
+.vx-move-folder-path {
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vx-move-search-item.selected .vx-move-folder-name {
+    color: var(--vx-primary);
+}
+
+.vx-move-search-item.selected .vx-move-folder-path {
+    color: var(--vx-primary);
+    opacity: 0.8;
+}
+
+/* No results */
+.vx-move-no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--vx-text-muted);
+    font-size: 14px;
+}
+
+/* Loading */
+.vx-move-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+/* Mobile responsive */
+@media (max-width: 576px) {
+    #vx-fl-move-modal .vx-modal-container {
+        margin: 0;
+        max-width: 100%;
+        height: 100%;
+        border-radius: 0;
+    }
+
+    #vx-fl-move-modal .vx-modal-body {
+        max-height: calc(100vh - 140px);
+        padding: 12px 16px;
+    }
+
+    .vx-move-folder-item {
+        padding: 12px 14px;
+    }
+
+    .vx-move-folder-name {
+        font-size: 15px;
+    }
+}
+
+/* Context Menu */
+.vx-context-menu {
+    position: fixed;
+    z-index: 1000;
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    box-shadow: var(--vx-shadow-lg);
+    min-width: 160px;
+    padding: 6px 0;
+    display: none;
+}
+
+.vx-context-menu.show {
+    display: block;
+}
+
+.vx-context-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    color: var(--vx-text);
+    cursor: pointer;
+    transition: background 0.15s ease;
+    font-size: 14px;
+}
+
+.vx-context-item:hover {
+    background: var(--vx-surface-hover);
+}
+
+.vx-context-item iconpark-icon {
+    font-size: 16px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-context-item.vx-text-danger {
+    color: #EF4444;
+}
+
+.vx-context-item.vx-text-danger iconpark-icon {
+    color: #EF4444;
+}
+
+.vx-context-divider {
+    height: 1px;
+    background: var(--vx-border);
+    margin: 6px 0;
+}
+
+.vx-context-label {
+    padding: 6px 16px 4px;
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    font-weight: 500;
+}
+
+/* Selection Bar */
+.vx-selection-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--vx-surface);
+    background: color-mix(in srgb, var(--vx-surface) 80%, transparent);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    box-shadow: var(--vx-shadow-lg);
+    padding: 12px 20px;
+    display: none;
+    align-items: center;
+    gap: 16px;
+    z-index: 100;
+}
+
+.vx-selection-info {
+    font-weight: 500;
+    color: var(--vx-text);
+}
+
+.vx-selection-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .vx-hide-mobile {
+        display: none !important;
+    }
+    
+    .vx-list-col-size {
+        width: 80px;
+    }
+    
+    .vx-list-col-actions {
+        width: 80px;
+    }
+    
+    .vx-list-actions {
+        gap: 0;
+    }
+    
+    .vx-list-row {
+        padding: 10px 12px;
+    }
+    
+    .vx-selection-bar {
+        left: 10px;
+        right: 10px;
+        transform: none;
+        flex-wrap: wrap;
+    }
+    
+    .vx-album-container .album-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}
+
+/* 灯箱下载按钮状态 */
+.lightbox-action.is-downloading {
+    position: relative;
+    pointer-events: none;
+}
+
+.lightbox-action .spin {
+    animation: vx-spin 1s linear infinite;
+}
+
+/* 圆形进度条 - 通用样式 */
+.lightbox-download-progress,
+.card-download-progress {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+.card-download-progress {
+    width: 32px;
+    height: 32px;
+}
+
+.lightbox-download-progress .progress-bg,
+.card-download-progress .progress-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.2);
+    stroke-width: 2;
+}
+
+.lightbox-download-progress .progress-bar,
+.card-download-progress .progress-bar {
+    fill: none;
+    stroke: #10b981;
+    stroke-width: 2;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.2s ease;
+}
+
+.lightbox-action.is-downloading .progress-icon,
+.photo-card-action.is-downloading .progress-icon {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* 下载完成状态 */
+.lightbox-action.download-complete,
+.photo-card-action.download-complete {
+    background: rgba(16, 185, 129, 0.5) !important;
+    border-color: #10b981 !important;
+}
+
+.lightbox-action.download-complete iconpark-icon,
+.photo-card-action.download-complete iconpark-icon {
+    color: #fff;
+}
+
+/* 下载失败状态 */
+.lightbox-action.download-error,
+.photo-card-action.download-error {
+    background: rgba(239, 68, 68, 0.5) !important;
+    border-color: #ef4444 !important;
+}
+
+.lightbox-action.download-error iconpark-icon,
+.photo-card-action.download-error iconpark-icon {
+    color: #fff;
+}
+
+/* 卡片下载按钮进度状态 */
+.photo-card-action.is-downloading {
+    position: relative;
+    pointer-events: none;
+    opacity: 1 !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+}
+
+@keyframes vx-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ==================== Upload Modal Styles ==================== */
+.vx-modal-lg .vx-modal-container {
+    max-width: 560px;
+}
+
+/* Upload Settings */
+.vx-upload-settings {
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.vx-upload-settings-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin-bottom: 16px;
+}
+
+.vx-upload-settings-header iconpark-icon {
+    font-size: 18px;
+}
+
+.vx-upload-settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.vx-upload-setting-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.vx-upload-setting-item .vx-label {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+    margin: 0;
+}
+
+.vx-upload-setting-item .vx-select {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.vx-upload-setting-hint {
+    font-size: 11px;
+    color: var(--vx-text-muted);
+}
+
+.vx-upload-settings-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 10px 12px;
+    background: var(--vx-info-light);
+    border-radius: var(--vx-radius-sm);
+    font-size: 12px;
+    color: var(--vx-info);
+}
+
+.vx-upload-settings-note iconpark-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+/* Upload Dropzone */
+.vx-upload-dropzone {
+    border: 2px dashed var(--vx-border-hover);
+    border-radius: var(--vx-radius-lg);
+    padding: 40px 20px;
+    text-align: center;
+    transition: all 0.2s ease;
+    background: var(--vx-surface);
+}
+
+.vx-upload-dropzone:hover,
+.vx-upload-dropzone.dragover {
+    border-color: var(--vx-primary);
+    background: var(--vx-primary-light);
+}
+
+.vx-upload-dropzone-icon {
+    margin-bottom: 16px;
+}
+
+.vx-upload-dropzone-icon iconpark-icon {
+    font-size: 48px;
+    color: var(--vx-text-muted);
+}
+
+.vx-upload-dropzone:hover .vx-upload-dropzone-icon iconpark-icon,
+.vx-upload-dropzone.dragover .vx-upload-dropzone-icon iconpark-icon {
+    color: var(--vx-primary);
+}
+
+.vx-upload-dropzone-text {
+    font-size: 14px;
+    color: var(--vx-text-secondary);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.vx-upload-dropzone-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* ==================== Upload Row Styles ==================== */
+.vx-upload-row {
+    background: var(--vx-primary-light);
+}
+
+.vx-upload-row:hover {
+    background: var(--vx-primary-light);
+}
+
+.vx-upload-row .vx-list-checkbox {
+    visibility: hidden;
+}
+
+.vx-upload-filename {
+    color: var(--vx-text);
+}
+
+.vx-upload-validity {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    background: var(--vx-primary);
+    color: white;
+    font-size: 11px;
+    border-radius: 10px;
+}
+
+/* Upload Progress Cell */
+.vx-upload-progress-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    width: 160px !important;
+}
+
+.vx-upload-progress-wrap {
+    width: 100%;
+    height: 6px;
+    background: var(--vx-border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.vx-upload-progress-bar {
+    height: 100%;
+    background: var(--vx-primary);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.vx-upload-progress-text {
+    font-size: 11px;
+    color: var(--vx-text-secondary);
+    white-space: nowrap;
+}
+
+/* Upload Status */
+.vx-upload-status {
+    width: 80px !important;
+}
+
+.vx-upload-status-text {
+    font-size: 12px;
+    color: var(--vx-primary);
+}
+
+/* Upload Row States */
+.vx-upload-row.preparing .vx-upload-progress-bar {
+    background: var(--vx-warning);
+    animation: vx-pulse 1.5s infinite;
+}
+
+.vx-upload-row.uploading .vx-upload-progress-bar {
+    background: var(--vx-primary);
+}
+
+.vx-upload-row.merging .vx-upload-progress-bar {
+    background: var(--vx-info);
+    width: 100% !important;
+    animation: vx-pulse 1.5s infinite;
+}
+
+.vx-upload-row.completed {
+    background: var(--vx-success-light);
+}
+
+.vx-upload-row.completed .vx-upload-progress-bar {
+    background: var(--vx-success);
+    width: 100% !important;
+}
+
+.vx-upload-row.completed .vx-upload-status-text {
+    color: var(--vx-success);
+}
+
+.vx-upload-row.failed {
+    background: var(--vx-danger-light);
+}
+
+.vx-upload-row.failed .vx-upload-progress-bar {
+    background: var(--vx-danger);
+}
+
+.vx-upload-row.failed .vx-upload-status-text,
+.vx-upload-row.failed .vx-upload-progress-text {
+    color: var(--vx-danger);
+}
+
+/* Upload Row Remove Animation */
+.vx-upload-row-removing {
+    animation: vx-fade-out 0.3s ease forwards;
+}
+
+@keyframes vx-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes vx-fade-out {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+}
+
+/* Drag Overlay */
+.vx-drag-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(37, 99, 235, 0.1);
+    border: 4px dashed var(--vx-primary);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.vx-drag-overlay.active {
+    display: flex;
+}
+
+.vx-drag-overlay-content {
+    text-align: center;
+    padding: 40px;
+    background: var(--vx-surface);
+    border-radius: var(--vx-radius-lg);
+    box-shadow: var(--vx-shadow-xl);
+}
+
+.vx-drag-overlay-icon {
+    font-size: 64px;
+    color: var(--vx-primary);
+    margin-bottom: 16px;
+}
+
+.vx-drag-overlay-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--vx-text);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .vx-upload-settings-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .vx-upload-dropzone-actions {
+        flex-direction: column;
+    }
+    
+    .vx-upload-progress-cell {
+        width: 100px !important;
+    }
+}
+</style>

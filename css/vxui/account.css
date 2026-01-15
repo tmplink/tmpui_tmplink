@@ -1,0 +1,679 @@
+/*
+ * VXUI Account Module Styles
+ * Extracted from the legacy account template (now removed) to be shared by profile/settings modules.
+ */
+
+/* Account Module Styles */
+
+.vx-header-account {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 8px 20px;
+    background: var(--vx-surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--vx-border);
+}
+
+.vx-header-account .vx-page-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.vx-header-account .vx-page-title iconpark-icon {
+    font-size: 22px;
+    color: var(--vx-primary);
+}
+
+/* Account Content */
+.vx-account-content {
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Mobile: full width, no padding */
+@media (max-width: 768px) {
+    .vx-content.vx-account-content {
+        max-width: none;
+        padding: 0;
+        margin: 0;
+    }
+}
+
+/* Desktop: use a wider, left-aligned layout instead of a narrow centered column */
+@media (min-width: 1024px) {
+    .vx-account-content {
+        max-width: none;
+        margin: 0;
+        padding: 24px 32px;
+    }
+}
+
+@media (min-width: 1440px) {
+    .vx-account-content {
+        padding: 24px 48px;
+    }
+}
+
+/* Profile Card */
+.vx-profile-card {
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    overflow: hidden;
+    margin-bottom: 24px;
+    position: relative;
+    min-height: 200px;
+}
+
+/* Profile Loading */
+.vx-profile-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--vx-primary), #6366f1);
+    z-index: 10;
+}
+
+.vx-profile-loading-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    font-size: 14px;
+}
+
+.vx-profile-loading .vx-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.vx-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 32px;
+    background: linear-gradient(135deg, var(--vx-primary), #6366f1);
+    color: white;
+}
+
+.vx-profile-avatar {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.vx-profile-avatar img {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--vx-radius-lg);
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    object-fit: cover;
+}
+
+.vx-avatar-edit {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--vx-shadow-md);
+    transition: transform 0.2s ease;
+}
+
+.vx-avatar-edit:hover {
+    transform: scale(1.1);
+}
+
+.vx-avatar-edit iconpark-icon {
+    font-size: 16px;
+    color: var(--vx-primary);
+}
+
+.vx-profile-info {
+    flex: 1;
+}
+
+.vx-profile-name {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+
+.vx-profile-intro {
+    font-size: 14px;
+    opacity: 0.9;
+    margin: 0 0 12px 0;
+}
+
+.vx-profile-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.vx-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.vx-badge-rank {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.vx-badge-sponsor {
+    background: linear-gradient(135deg, #ffd700, #ffb347);
+    color: #5d4037;
+}
+
+/* Stats Grid */
+.vx-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.vx-stat-card {
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.vx-stat-card-action {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vx-stat-card-action:hover {
+    border-color: var(--vx-primary);
+    box-shadow: var(--vx-shadow-sm);
+}
+
+.vx-stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    flex-shrink: 0;
+}
+
+.vx-stat-icon iconpark-icon {
+    font-size: 24px;
+    color: var(--vx-primary);
+}
+
+.vx-stat-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.vx-stat-label {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+    margin-bottom: 4px;
+}
+
+.vx-stat-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vx-text);
+}
+
+/* Settings Sections */
+.vx-settings-section {
+    margin-bottom: 32px;
+}
+
+.vx-settings-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin-bottom: 16px;
+}
+
+.vx-settings-title iconpark-icon {
+    font-size: 20px;
+    color: var(--vx-primary);
+}
+
+.vx-settings-card {
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    padding: 24px;
+}
+
+/* Form Groups */
+.vx-form-group {
+    margin-bottom: 16px;
+}
+
+.vx-form-group:last-of-type {
+    margin-bottom: 20px;
+}
+
+.vx-form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--vx-text);
+    margin-bottom: 8px;
+}
+
+.vx-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    background: var(--vx-bg);
+    color: var(--vx-text);
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.vx-input:focus {
+    outline: none;
+    border-color: var(--vx-primary);
+}
+
+.vx-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.vx-input-group .vx-input {
+    flex: 1;
+}
+
+/* Switch Item */
+.vx-switch-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--vx-border);
+    cursor: pointer;
+}
+
+.vx-switch-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.vx-switch-item:first-child {
+    padding-top: 0;
+}
+
+.vx-switch-label {
+    font-size: 14px;
+    color: var(--vx-text);
+}
+
+.vx-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--vx-bg-secondary);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.vx-switch:checked {
+    background: var(--vx-primary);
+}
+
+.vx-switch::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: var(--vx-shadow-sm);
+}
+
+.vx-switch:checked::before {
+    transform: translateX(20px);
+}
+
+/* Connect Item */
+.vx-connect-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.vx-connect-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.vx-connect-icon {
+    font-size: 28px;
+    color: var(--vx-text);
+}
+
+.vx-connect-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.vx-connect-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--vx-text);
+}
+
+.vx-connect-status {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-connect-status.connected {
+    color: var(--vx-success);
+}
+
+.vx-connect-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Buttons */
+.vx-btn-danger-outline {
+    background: transparent;
+    border: 1px solid var(--vx-danger);
+    color: var(--vx-danger);
+}
+
+.vx-btn-danger-outline:hover {
+    background: var(--vx-danger);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .vx-account-content {
+        padding: 0;
+    }
+
+    .vx-profile-card {
+        margin-bottom: 0;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+
+    .vx-profile-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 24px 20px 28px;
+        gap: 16px;
+        border-radius: 0;
+    }
+
+    .vx-profile-avatar img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .vx-profile-name {
+        font-size: 20px;
+    }
+
+    .vx-profile-intro {
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+
+    .vx-profile-badges {
+        justify-content: center;
+        margin-bottom: 6px;
+    }
+
+    .vx-profile-display {
+        align-items: center;
+    }
+
+    .vx-profile-edit-btn {
+        margin-top: 10px;
+    }
+
+    .vx-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        background: var(--vx-border);
+        border-radius: 0;
+        overflow: hidden;
+    }
+
+    .vx-stat-card {
+        padding: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        border: none;
+        border-radius: 0;
+    }
+
+    .vx-stat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--vx-radius-sm);
+    }
+
+    .vx-stat-icon iconpark-icon,
+    .vx-stat-icon img {
+        font-size: 18px;
+        width: 18px !important;
+    }
+
+    .vx-stat-label {
+        font-size: 11px;
+        margin-bottom: 2px;
+    }
+
+    .vx-stat-value {
+        font-size: 13px;
+    }
+
+    .vx-header-account .vx-header-left {
+        display: none;
+    }
+
+    .vx-connect-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .vx-connect-actions {
+        justify-content: flex-end;
+    }
+}
+
+/* Profile Edit */
+.vx-profile-display {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.vx-profile-edit-btn {
+    margin-top: 8px;
+    width: fit-content;
+}
+
+.vx-profile-edit {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.vx-profile-edit .vx-form-group {
+    margin-bottom: 0;
+}
+
+.vx-profile-edit .vx-form-group label {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.vx-profile-edit .vx-input {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.vx-profile-edit .vx-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.vx-profile-edit .vx-input:focus {
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.vx-profile-edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.vx-profile-edit-actions .vx-btn {
+    flex: 1;
+}
+
+/* Profile Publish */
+.vx-profile-publish {
+    padding: 16px 32px 24px;
+    background: var(--vx-surface);
+}
+
+.vx-profile-publish-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.vx-profile-publish .vx-switch-item {
+    border-bottom: none;
+    padding: 0;
+}
+
+.vx-profile-publish .vx-switch-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vx-profile-publish .vx-switch-label iconpark-icon {
+    font-size: 18px;
+    color: var(--vx-primary);
+}
+
+/* Publish status icon */
+.vx-publish-status-icon {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 4px;
+}
+
+.vx-publish-icon {
+    font-size: 16px;
+}
+
+.vx-publish-icon-ok {
+    color: var(--vx-success);
+}
+
+.vx-publish-icon-reject {
+    color: var(--vx-danger);
+}
+
+.vx-publish-icon-wait {
+    color: var(--vx-info);
+}
+
+.vx-publish-icon-review {
+    color: var(--vx-warning);
+}
+
+@media (max-width: 768px) {
+    .vx-profile-publish {
+        padding: 16px;
+    }
+
+    .vx-profile-edit-actions {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .vx-profile-edit-actions .vx-btn {
+        flex: 0 0 auto;
+        min-width: 100px;
+    }
+
+    .vx-profile-edit-btn {
+        width: auto;
+        padding: 10px 24px;
+    }
+
+    .vx-profile-edit {
+        align-items: stretch;
+    }
+
+    .vx-profile-edit .vx-form-group {
+        text-align: left;
+    }
+}

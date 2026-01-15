@@ -1,0 +1,749 @@
+<!-- VXUI Shop Module Template -->
+<link rel="stylesheet" href="/css/photo-album.css">
+
+<!-- Dynamic Sidebar Content -->
+<template id="vx-shop-sidebar-tpl">
+    <!-- Shop Operations -->
+    <div class="vx-nav-section">
+        <div class="vx-nav-title" data-tpl="navbar_buy">商店</div>
+        <a href="javascript:;" class="vx-nav-item active" id="nav-shop-products" onclick="VX_SHOP.showTab('products')">
+            <iconpark-icon name="bag-shopping"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="navbar_buy">商店</span>
+        </a>
+        <a href="javascript:;" class="vx-nav-item" id="nav-shop-purchased" onclick="VX_SHOP.showTab('purchased')">
+            <iconpark-icon name="list-check"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="navbar_hr_shop">已购</span>
+        </a>
+        <a href="javascript:;" class="vx-nav-item" onclick="VX_SHOP.redeemGiftCard()">
+            <iconpark-icon name="gift-card"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="vx_giftcard_title">兑换礼品卡</span>
+        </a>
+    </div>
+</template>
+
+<!-- Header -->
+<header class="vx-header vx-header-shop">
+    <div class="vx-header-left">
+        <button class="vx-btn-icon vx-portrait-sidebar-btn" onclick="VXUI.toggleSidebar()" data-title-tpl="vx_menu" title="菜单">
+            <iconpark-icon name="bars"></iconpark-icon>
+        </button>
+        <h1 class="vx-page-title">
+            <iconpark-icon name="bag-shopping"></iconpark-icon>
+            <span data-tpl="navbar_buy">商店</span>
+            <span id="vx-shop-header-subtitle"></span>
+        </h1>
+    </div>
+    
+    <div class="vx-header-right">
+        <button class="vx-btn-icon" onclick="VX_SHOP.refresh()" data-title-tpl="vx_refresh" title="刷新">
+            <iconpark-icon name="rotate"></iconpark-icon>
+        </button>
+    </div>
+</header>
+
+<!-- Content -->
+<div class="vx-content vx-shop-content">
+    <!-- Loading State -->
+    <div class="vx-loading" id="vx-shop-loading" style="display: none;">
+        <div class="vx-spinner vx-spinner-lg"></div>
+    </div>
+    
+    <!-- Products Tab -->
+    <div class="vx-shop-tab-content" id="vx-shop-products">
+        <!-- First Time Sponsor Special -->
+        <div class="vx-shop-section" id="vx-shop-special" style="display: none;">
+            <div class="vx-shop-card vx-shop-card-gold" onclick="VX_SHOP.buyFirstTimeSponsor()">
+                <div class="vx-shop-card-icon">
+                    <iconpark-icon name="circle-heart"></iconpark-icon>
+                </div>
+                <div class="vx-shop-card-content">
+                    <h3 class="vx-shop-card-title" data-tpl="first_time_sponsor_title">初次赞助特典</h3>
+                    <p class="vx-shop-card-desc" data-tpl="first_time_sponsor_subtitle">第一次成为赞助者？一年仅需 36 元！</p>
+                    <p class="vx-shop-card-note" data-tpl="first_time_sponsor_description">每位用户限一次！</p>
+                </div>
+                <div class="vx-shop-card-arrow">
+                    <iconpark-icon name="arrow-right"></iconpark-icon>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Regular Products -->
+        <div class="vx-shop-section vx-shop-section-centered">
+            <!-- Sponsor -->
+            <div class="vx-shop-card" onclick="VX_SHOP.openSponsor()">
+                <div class="vx-shop-card-icon vx-icon-sponsor">
+                    <iconpark-icon name="heart-circle-plus"></iconpark-icon>
+                </div>
+                <div class="vx-shop-card-content">
+                    <h3 class="vx-shop-card-title" data-tpl="model_title_sponsor">成为赞助者</h3>
+                    <p class="vx-shop-card-desc" data-tpl="model_des_sponsor">获得高速通道、蓝标认证、媒体播放等特权</p>
+                </div>
+                <div class="vx-shop-card-arrow">
+                    <iconpark-icon name="arrow-right"></iconpark-icon>
+                </div>
+            </div>
+            
+            <!-- Storage -->
+            <div class="vx-shop-card" onclick="VX_SHOP.openStorage()">
+                <div class="vx-shop-card-icon vx-icon-storage">
+                    <iconpark-icon name="album-circle-plus"></iconpark-icon>
+                </div>
+                <div class="vx-shop-card-content">
+                    <h3 class="vx-shop-card-title" data-tpl="model_title_buy_storage">私有空间</h3>
+                    <p class="vx-shop-card-desc" data-tpl="storage_content">扩展您的私有存储空间</p>
+                </div>
+                <div class="vx-shop-card-arrow">
+                    <iconpark-icon name="arrow-right"></iconpark-icon>
+                </div>
+            </div>
+            
+            <!-- Direct Quota -->
+            <div class="vx-shop-card" id="vx-shop-direct" onclick="VX_SHOP.openQuota()">
+                <div class="vx-shop-card-icon vx-icon-direct">
+                    <iconpark-icon name="share-nodes"></iconpark-icon>
+                </div>
+                <div class="vx-shop-card-content">
+                    <h3 class="vx-shop-card-title" data-tpl="model_title_buy_direct_quota">优先配额（直链）</h3>
+                    <p class="vx-shop-card-desc" data-tpl="direct_quota_content">获得更多直链配额</p>
+                </div>
+                <div class="vx-shop-card-arrow">
+                    <iconpark-icon name="arrow-right"></iconpark-icon>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Purchased Tab -->
+    <div class="vx-shop-tab-content" id="vx-shop-purchased" style="display: none;">
+        <div class="vx-shop-section vx-shop-section-centered">
+            <!-- Order List -->
+            <div class="vx-orders-list" id="vx-orders-list">
+                <div class="vx-orders-loading">
+                    <div class="vx-spinner"></div>
+                    <span data-tpl="vx_orders_loading">加载订单中...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Purchase Modal -->
+<div class="vx-modal" id="vx-shop-modal">
+    <div class="vx-modal-overlay" onclick="VX_SHOP.closeModal()"></div>
+    <div class="vx-modal-container vx-modal-lg">
+        <div class="vx-modal-header">
+            <h3 class="vx-modal-title" id="vx-modal-title">购买</h3>
+            <button class="vx-modal-close" onclick="VX_SHOP.closeModal()">
+                <iconpark-icon name="circle-xmark"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-modal-body" id="vx-modal-body">
+            <!-- Dynamic content -->
+        </div>
+        <div class="vx-modal-footer">
+            <div class="vx-modal-price">
+                <span class="vx-price-label" data-tpl="payment_total">合计：</span>
+                <span class="vx-price-unit-display" id="vx-modal-unit">¥</span>
+                <span class="vx-price-total" id="vx-modal-total">0</span>
+            </div>
+            <div class="vx-modal-actions">
+                <button class="vx-btn vx-btn-secondary" onclick="VX_SHOP.closeModal()" data-tpl="model_btn_cancel">取消</button>
+                <button class="vx-btn vx-btn-primary" onclick="VX_SHOP.makeOrder()" data-tpl="model_buy_btn">立即购买</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Shop Module Styles */
+
+.vx-header-shop {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 8px 20px;
+    background: var(--vx-surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--vx-border);
+}
+
+.vx-header-shop .vx-page-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.vx-header-shop .vx-page-title iconpark-icon {
+    font-size: 22px;
+    color: var(--vx-primary);
+}
+
+/* Shop Tabs */
+.vx-shop-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    padding: 4px;
+}
+
+.vx-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    border-radius: var(--vx-radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--vx-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vx-tab-btn:hover {
+    color: var(--vx-text);
+}
+
+.vx-tab-btn.active {
+    background: var(--vx-primary);
+    color: white;
+}
+
+.vx-tab-btn iconpark-icon {
+    font-size: 16px;
+}
+
+/* Shop Content */
+.vx-shop-content {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.vx-shop-tab-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.vx-shop-section-centered {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.vx-shop-section {
+    margin-bottom: 32px;
+}
+
+.vx-shop-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--vx-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+    padding-left: 4px;
+}
+
+/* Shop Card */
+.vx-shop-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vx-shop-card:hover {
+    border-color: var(--vx-primary);
+    box-shadow: var(--vx-shadow-md);
+    transform: translateY(-2px);
+}
+
+.vx-shop-card-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--vx-radius-md);
+    background: var(--vx-bg-secondary);
+    flex-shrink: 0;
+}
+
+.vx-shop-card-icon iconpark-icon {
+    font-size: 24px;
+    color: var(--vx-primary);
+}
+
+.vx-icon-sponsor iconpark-icon { color: #E91E63; }
+.vx-icon-storage iconpark-icon { color: #2196F3; }
+.vx-icon-direct iconpark-icon { color: #FF9800; }
+
+.vx-shop-card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.vx-shop-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin: 0 0 4px 0;
+}
+
+.vx-shop-card-desc {
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+    margin: 0;
+}
+
+.vx-shop-card-note {
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    margin: 4px 0 0 0;
+}
+
+.vx-shop-card-price {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.vx-price-from {
+    display: block;
+    font-size: 11px;
+    color: var(--vx-text-muted);
+}
+
+.vx-price-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--vx-primary);
+}
+
+.vx-price-unit {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-shop-card-arrow {
+    color: var(--vx-text-muted);
+    transition: transform 0.2s ease;
+}
+
+.vx-shop-card:hover .vx-shop-card-arrow {
+    transform: translateX(4px);
+    color: var(--vx-primary);
+}
+
+/* Gold Special Card */
+.vx-shop-card-gold {
+    background: linear-gradient(135deg, #c9a96e, #f4e99c, #d4af37, #b8860b);
+    border: none;
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+}
+
+.vx-shop-card-gold .vx-shop-card-icon {
+    background: rgba(139, 69, 19, 0.2);
+}
+
+.vx-shop-card-gold .vx-shop-card-icon iconpark-icon {
+    color: #5d4037;
+}
+
+.vx-shop-card-gold .vx-shop-card-title,
+.vx-shop-card-gold .vx-shop-card-desc,
+.vx-shop-card-gold .vx-shop-card-note {
+    color: #2c1810;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.vx-shop-card-gold .vx-price-value {
+    color: #5d4037;
+}
+
+.vx-shop-card-gold .vx-price-unit,
+.vx-shop-card-gold .vx-shop-card-arrow {
+    color: #5d4037;
+}
+
+/* User Status Card */
+.vx-user-status-card {
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    overflow: hidden;
+}
+
+.vx-status-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 24px;
+    background: linear-gradient(135deg, var(--vx-primary), #6366f1);
+    color: white;
+}
+
+.vx-status-avatar img {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--vx-radius-md);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.vx-status-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+}
+
+.vx-status-rank {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.vx-status-items {
+    padding: 16px;
+}
+
+.vx-status-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid var(--vx-border);
+}
+
+.vx-status-item:last-child {
+    border-bottom: none;
+}
+
+.vx-status-item-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.vx-status-item-icon iconpark-icon {
+    font-size: 20px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-status-item-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vx-status-item-label {
+    font-size: 14px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-status-item-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--vx-text);
+}
+
+/* Modal Styles */
+.vx-modal-lg .vx-modal-container {
+    max-width: 600px;
+}
+
+.vx-modal-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.vx-price-label {
+    font-size: 14px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-price-unit-display {
+    font-size: 16px;
+    color: var(--vx-text);
+}
+
+.vx-price-total {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--vx-primary);
+}
+
+.vx-modal-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Purchase Options in Modal */
+.vx-purchase-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.vx-purchase-option {
+    padding: 16px;
+    background: var(--vx-bg-secondary);
+    border: 2px solid transparent;
+    border-radius: var(--vx-radius-md);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.vx-purchase-option:hover {
+    border-color: var(--vx-border-hover);
+}
+
+.vx-purchase-option.selected {
+    border-color: var(--vx-primary);
+    background: rgba(var(--vx-primary-rgb), 0.1);
+}
+
+.vx-purchase-option h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vx-text);
+}
+
+.vx-purchase-option .vx-option-price {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+    margin-top: 4px;
+}
+
+/* Payment Methods */
+.vx-payment-methods {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.vx-payment-method {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    background: var(--vx-bg-secondary);
+    border: 2px solid transparent;
+    border-radius: var(--vx-radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vx-payment-method:hover {
+    border-color: var(--vx-border-hover);
+}
+
+.vx-payment-method.selected {
+    border-color: var(--vx-primary);
+    background: rgba(var(--vx-primary-rgb), 0.1);
+}
+
+.vx-payment-method iconpark-icon {
+    font-size: 24px;
+}
+
+.vx-payment-method span {
+    font-weight: 500;
+}
+
+/* Quantity Input */
+.vx-quantity-input {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.vx-quantity-input label {
+    font-size: 14px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-quantity-input input {
+    width: 100%;
+    max-width: 200px;
+    padding: 12px 16px;
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    background: var(--vx-bg-secondary);
+    color: var(--vx-text);
+    font-size: 18px;
+    text-align: center;
+}
+
+.vx-quantity-input input:focus {
+    outline: none;
+    border-color: var(--vx-primary);
+}
+
+/* Section Title in Modal */
+.vx-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--vx-text-secondary);
+    margin: 20px 0 12px 0;
+}
+
+.vx-section-title:first-child {
+    margin-top: 0;
+}
+
+/* Payment Icons */
+.vx-pay-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+}
+
+.vx-pay-alipay {
+    background: linear-gradient(135deg, #1677FF, #009CFF);
+}
+
+.vx-pay-paypal {
+    background: linear-gradient(135deg, #003087, #009CDE);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .vx-shop-content {
+        padding: 16px;
+    }
+    
+    .vx-shop-card {
+        padding: 16px;
+    }
+    
+    .vx-purchase-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .vx-payment-methods {
+        flex-direction: column;
+    }
+    
+    .vx-header-shop .vx-header-left {
+        display: none;
+    }
+}
+
+/* Orders List Styles */
+.vx-orders-list {
+    padding: 16px;
+}
+
+.vx-orders-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: var(--vx-text-secondary);
+    gap: 12px;
+}
+
+.vx-orders-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: var(--vx-text-muted);
+    text-align: center;
+    gap: 12px;
+}
+
+.vx-orders-empty p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.vx-order-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    margin-bottom: 12px;
+}
+
+.vx-order-item:last-child {
+    margin-bottom: 0;
+}
+
+.vx-order-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vx-surface);
+    border-radius: var(--vx-radius-md);
+    flex-shrink: 0;
+}
+
+.vx-order-icon iconpark-icon {
+    font-size: 22px;
+    color: var(--vx-primary);
+}
+
+.vx-order-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.vx-order-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin-bottom: 4px;
+}
+
+.vx-order-expiry {
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+    margin-bottom: 6px;
+}
+
+.vx-order-desc {
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    line-height: 1.4;
+}
+</style>

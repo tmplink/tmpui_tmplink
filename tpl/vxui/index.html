@@ -1,0 +1,144 @@
+<!-- VXUI Framework Entry Template -->
+<div class="vx-app" id="vx-app">
+    <div class="vx-layout" id="vx-layout">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="vx-sidebar-overlay" onclick="VXUI.closeSidebar()"></div>
+        
+        <!-- Sidebar -->
+        <aside class="vx-sidebar" id="vx-sidebar">
+            <div class="vx-sidebar-header">
+                <a href="/" class="vx-sidebar-brand">
+                    <img src="/img/ico/logo-new.svg" alt="Logo" class="vx-sidebar-brand-logo">
+                    <span class="vx-sidebar-brand-text" data-tpl="product_name">钛盘</span>
+                </a>
+            </div>
+            
+            <nav class="vx-sidebar-nav" id="vx-sidebar-nav">
+                <!-- Static navigation - hidden when module has custom sidebar -->
+                <div class="vx-nav-static" id="vx-sidebar-static">
+                    <div class="vx-nav-section">
+                        <a href="javascript:;" class="vx-nav-item" data-module="filelist" onclick="VXUI.navigate('filelist')">
+                            <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+                            <span class="vx-nav-item-text" data-tpl="nav_files">文件</span>
+                        </a>
+                        <a href="javascript:;" class="vx-nav-item" data-module="direct" data-auth="logged-in" onclick="VXUI.navigate('direct')">
+                            <iconpark-icon name="link"></iconpark-icon>
+                            <span class="vx-nav-item-text" data-tpl="nav_direct">直链</span>
+                        </a>
+                        <a href="javascript:;" class="vx-nav-item" data-module="notes" data-auth="logged-in" onclick="VXUI.navigate('notes')">
+                            <iconpark-icon name="memo-pad"></iconpark-icon>
+                            <span class="vx-nav-item-text" data-tpl="nav_notes">密记</span>
+                        </a>
+                        <a href="javascript:;" class="vx-nav-item" data-module="ai" data-auth="logged-in" onclick="VXUI.navigate('ai')">
+                            <iconpark-icon name="user-robot"></iconpark-icon>
+                            <span class="vx-nav-item-text" data-tpl="nav_ai">助手</span>
+                        </a>
+                        <a href="/?tmpui_page=/app&listview=login" class="vx-nav-item" data-auth="logged-out">
+                            <iconpark-icon name="user"></iconpark-icon>
+                            <span class="vx-nav-item-text" data-tpl="navbar_login">登录</span>
+                        </a>
+                        <a href="/?tmpui_page=/app&listview=reg" class="vx-nav-item" data-auth="logged-out">
+                            <iconpark-icon name="user-plus"></iconpark-icon>
+                            <span class="vx-nav-item-text" data-tpl="navbar_reg">注册</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="vx-nav-divider" id="vx-sidebar-divider" style="display: none;"></div>
+                
+                <!-- Dynamic sidebar content will be inserted here -->
+                <div id="vx-sidebar-dynamic"></div>
+            </nav>
+            
+            <!-- Persistent Bottom Menu -->
+            <div class="vx-sidebar-bottom-menu">
+                <div class="vx-nav-section">
+                    <a href="javascript:;" class="vx-nav-item" data-module="shop" data-auth="logged-in" onclick="VXUI.navigate('shop')">
+                        <iconpark-icon name="bag-shopping"></iconpark-icon>
+                        <span class="vx-nav-item-text" data-tpl="nav_shop">商店</span>
+                    </a>
+                    <a href="javascript:;" class="vx-nav-item" data-module="profile" data-auth="logged-in" onclick="VXUI.navigate('profile')">
+                        <iconpark-icon name="user"></iconpark-icon>
+                        <span class="vx-nav-item-text" data-tpl="nav_info">信息</span>
+                    </a>
+                    <a href="javascript:;" class="vx-nav-item" data-module="settings" data-auth="logged-in" onclick="VXUI.navigate('settings')">
+                        <iconpark-icon name="gear"></iconpark-icon>
+                        <span class="vx-nav-item-text" data-tpl="nav_settings">设定</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="vx-sidebar-footer">
+                <!-- Language Switcher (legacy-compatible) -->
+                <div class="vx-dropdown" id="vx-lang-dropdown" style="width:100%;">
+                    <a href="javascript:;" class="vx-nav-item" data-action="vx-lang-toggle" title="Language">
+                        <iconpark-icon name="globe"></iconpark-icon>
+                        <span class="vx-nav-item-text" id="vx-lang-label">Language / 语言</span>
+                    </a>
+                    <div class="vx-dropdown-menu" style="left:0; right:auto; width:100%;">
+                        <div class="vx-dropdown-item" data-action="vx-lang-set" data-lang="en">English</div>
+                        <div class="vx-dropdown-item" data-action="vx-lang-set" data-lang="cn">简体中文</div>
+                        <div class="vx-dropdown-item" data-action="vx-lang-set" data-lang="hk">繁体中文</div>
+                        <div class="vx-dropdown-item" data-action="vx-lang-set" data-lang="jp">日本語</div>
+                    </div>
+                </div>
+
+                <a href="javascript:;" class="vx-nav-item" data-auth="logged-in" onclick="if(typeof VXUI !== 'undefined') VXUI.switchToClassic();">
+                    <iconpark-icon name="list-radio"></iconpark-icon>
+                    <span class="vx-nav-item-text" data-tpl="nav_switch_classic">切换到经典版</span>
+                </a>
+                <a href="javascript:;" class="vx-nav-item" data-auth="logged-in" onclick="if(typeof TL !== 'undefined') TL.logout();">
+                    <iconpark-icon name="right-from-bracket"></iconpark-icon>
+                    <span class="vx-nav-item-text" data-tpl="nav_logout">退出登录</span>
+                </a>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="vx-main">
+            <!-- Mobile Header -->
+            <div class="vx-mobile-header">
+                <button class="vx-btn-icon" onclick="VXUI.openSidebar()">
+                    <iconpark-icon name="bars"></iconpark-icon>
+                </button>
+                <span class="vx-mobile-title" id="vx-mobile-title" data-tpl="product_name">钛盘</span>
+                <button class="vx-btn-icon" onclick="VXUI.toggleDarkMode()">
+                    <iconpark-icon name="moon"></iconpark-icon>
+                </button>
+            </div>
+            
+            <!-- Module Container - Modules will be loaded here -->
+            <div id="vx-module-container">
+                <!-- Default loading state -->
+                <div class="vx-loading">
+                    <div class="vx-spinner vx-spinner-lg"></div>
+                    <span class="vx-loading-text" data-tpl="loading">加载中...</span>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Mobile Bottom Bar -->
+    <div class="vx-mobile-bar">
+        <button class="vx-mobile-btn" data-module="filelist" onclick="VXUI.navigate('filelist')">
+            <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+            <span data-tpl="nav_files">文件</span>
+        </button>
+        <button class="vx-mobile-btn" data-module="direct" data-auth="logged-in" onclick="VXUI.navigate('direct')">
+            <iconpark-icon name="link"></iconpark-icon>
+            <span data-tpl="nav_direct">直链</span>
+        </button>
+        <button class="vx-mobile-btn" data-module="profile" data-auth="logged-in" onclick="VXUI.navigate('profile')">
+            <iconpark-icon name="user"></iconpark-icon>
+            <span data-tpl="nav_info">我的</span>
+        </button>
+        <a class="vx-mobile-btn" data-auth="logged-out" href="/?tmpui_page=/app&listview=login">
+            <iconpark-icon name="user"></iconpark-icon>
+            <span data-tpl="navbar_login">登录</span>
+        </a>
+        <a class="vx-mobile-btn" data-auth="logged-out" href="/?tmpui_page=/app&listview=reg">
+            <iconpark-icon name="user-plus"></iconpark-icon>
+            <span data-tpl="navbar_reg">注册</span>
+        </a>
+    </div>
+</div>

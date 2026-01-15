@@ -930,7 +930,7 @@ var PHOTO = {
 
         this.track('ShareLink');
 
-        const url = `${window.location.origin}/?tmpui_page=/app&listview=photo&mrid=${encodeURIComponent(this.mrid)}`;
+        const url = `${window.location.origin}/vx_photo/${encodeURIComponent(this.mrid)}`;
         const onSuccess = () => {
             this.shareButtonFeedback('success');
             TL.alert(app.languageData.album_share_copied || '相册链接已复制');

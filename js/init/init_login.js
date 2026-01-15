@@ -1,5 +1,11 @@
 function INIT_login() {
+    if (typeof TL !== 'undefined' && TL.loading_box_off) {
+        TL.loading_box_off();
+    }
     TL.ready(() => {
+        if (typeof TL !== 'undefined' && TL.loading_box_off) {
+            TL.loading_box_off();
+        }
         app.languageBuild();
         $('title').html(app.languageData.title_login);
         $('meta[name=description]').html(app.languageData.des_login);
@@ -11,8 +17,8 @@ function INIT_login() {
         }
 
         if (TL.isLogin()) {
-            // 已登录，跳转到 room 页面
-            app.open('/app&listview=room&mrid=0');
+            // 已登录，跳转到 VXUI 页面
+            app.open('/vx');
         }else{
             //初始化谷歌登陆按钮
             TL.oauth.google_login();

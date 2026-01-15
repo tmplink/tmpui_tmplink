@@ -1,5 +1,11 @@
 function INIT_reg() {
+    if (typeof TL !== 'undefined' && TL.loading_box_off) {
+        TL.loading_box_off();
+    }
     TL.ready(() => {
+        if (typeof TL !== 'undefined' && TL.loading_box_off) {
+            TL.loading_box_off();
+        }
         app.languageBuild();
         $('title').html(app.languageData.title_reg);
         $('meta[name=description]').html(app.languageData.des_reg);
