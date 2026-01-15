@@ -1303,6 +1303,15 @@ var VX_FILELIST = VX_FILELIST || {
     },
     
     /**
+     * 构建文件夹分享链接
+     */
+    buildFolderShareUrl(mrid) {
+        const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : location.host;
+        const pathPrefix = this.viewMode === 'album' ? 'vx_photo' : 'vx_dir';
+        return `https://${domain}/${pathPrefix}/${mrid}`;
+    },
+
+    /**
      * 创建文件夹行
      */
     createFolderRow(folder) {
@@ -1325,7 +1334,7 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 分享按钮 - 公开或已发布的文件夹显示
         if (canShare) {
-            const shareUrl = `https://${typeof TL !== 'undefined' && TL.site_domain ? TL.site_domain : location.host}/room/${folder.mr_id}`;
+            const shareUrl = this.buildFolderShareUrl(folder.mr_id);
             actionsHtml += `
                 <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.shareFolder('${folder.mr_id}', '${this.escapeHtml(shareUrl)}')" title="分享">
                     <iconpark-icon name="share-from-square"></iconpark-icon>
@@ -2336,8 +2345,7 @@ var VX_FILELIST = VX_FILELIST || {
                 return;
             }
             const targetMrid = mrid || this.mrid;
-            const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
-            url = `https://${domain}/room/${targetMrid}`;
+            url = this.buildFolderShareUrl(targetMrid);
         }
         
         if (typeof VXUI !== 'undefined' && VXUI.copyToClipboard) {
