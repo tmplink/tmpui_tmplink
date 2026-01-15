@@ -848,15 +848,15 @@ window.VX_SHOP = {
      */
     redeemGiftCard() {
         const modalTitle = document.getElementById('vx-modal-title');
-        modalTitle.innerHTML = '<iconpark-icon name="gift"></iconpark-icon> 兑换礼品卡';
+        modalTitle.innerHTML = `<iconpark-icon name="gift"></iconpark-icon> ${this.t('vx_giftcard_title', '兑换礼品卡')}`;
         
         const modalBody = document.getElementById('vx-modal-body');
         modalBody.innerHTML = `
-            <p class="vx-modal-desc">输入您的礼品卡兑换码</p>
+            <p class="vx-modal-desc">${this.t('vx_giftcard_desc', '输入您的礼品卡兑换码')}</p>
             
             <div class="vx-form-group">
                 <input type="text" class="vx-input" id="vx-giftcard-code" 
-                    placeholder="请输入兑换码" style="text-transform: uppercase;">
+                    placeholder="${this.t('vx_giftcard_placeholder', '请输入兑换码')}" style="text-transform: uppercase;">
             </div>
         `;
         
@@ -867,8 +867,8 @@ window.VX_SHOP = {
         modalFooter.innerHTML = `
             <div></div>
             <div class="vx-modal-actions">
-                <button class="vx-btn vx-btn-secondary" onclick="VX_SHOP.closeModal(); VX_SHOP.restoreModalFooter()">取消</button>
-                <button class="vx-btn vx-btn-primary" onclick="VX_SHOP.submitGiftCard()">兑换</button>
+                <button class="vx-btn vx-btn-secondary" onclick="VX_SHOP.closeModal(); VX_SHOP.restoreModalFooter()">${this.t('btn_cancel', '取消')}</button>
+                <button class="vx-btn vx-btn-primary" onclick="VX_SHOP.submitGiftCard()">${this.t('vx_giftcard_redeem', '兑换')}</button>
             </div>
         `;
         
@@ -946,7 +946,7 @@ window.VX_SHOP = {
     refresh() {
         this.checkFirstTimeSponsor();
         this.loadUserStatus();
-        VXUI.toastInfo('已刷新');
+        VXUI.toastInfo(this.t('vx_refreshed', '已刷新'));
     }
 };
 

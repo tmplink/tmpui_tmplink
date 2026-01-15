@@ -1087,5 +1087,15 @@
     "ai_introduce_yourself": "自己紹介してください",
     "ai_weather_today": "今日の天気はどうですか？",
     "ai_write_poem": "詩を書いてください",
-    "navbar_ai": "AI"
+    "navbar_ai": "AI",
+    "vx_giftcard_title": "ギフトカードを引き換える",
+    "vx_giftcard_desc": "ギフトカードの引き換えコードを入力してください",
+    "vx_giftcard_placeholder": "引き換えコードを入力",
+    "vx_giftcard_redeem": "引き換える",
+    "vx_refreshed": "更新しました",
+    "vx_refresh": "更新",
+    "error_empty_giftcard": "引き換えコードを入力してください",
+    "giftcard_success": "引き換えが完了しました！",
+    "giftcard_error": "引き換えに失敗しました",
+    "error_network": "ネットワークエラー"
 }

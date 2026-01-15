@@ -1069,5 +1069,15 @@
     "ai_introduce_yourself": "介绍一下你自己",
     "ai_weather_today": "今天天气怎么样？",
     "ai_write_poem": "帮我写一首诗",
-    "navbar_ai": "智能"
+    "navbar_ai": "智能",
+    "vx_giftcard_title": "兑换礼品卡",
+    "vx_giftcard_desc": "输入您的礼品卡兑换码",
+    "vx_giftcard_placeholder": "请输入兑换码",
+    "vx_giftcard_redeem": "兑换",
+    "vx_refreshed": "已刷新",
+    "vx_refresh": "刷新",
+    "error_empty_giftcard": "请输入兑换码",
+    "giftcard_success": "兑换成功！",
+    "giftcard_error": "兑换失败",
+    "error_network": "网络错误"
 }

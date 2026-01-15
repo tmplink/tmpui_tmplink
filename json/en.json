@@ -1087,5 +1087,15 @@
     "ai_introduce_yourself": "Introduce yourself",
     "ai_weather_today": "How's the weather today?",
     "ai_write_poem": "Write me a poem",
-    "navbar_ai": "AI"
+    "navbar_ai": "AI",
+    "vx_giftcard_title": "Redeem Gift Card",
+    "vx_giftcard_desc": "Enter your gift card redemption code",
+    "vx_giftcard_placeholder": "Enter redemption code",
+    "vx_giftcard_redeem": "Redeem",
+    "vx_refreshed": "Refreshed",
+    "vx_refresh": "Refresh",
+    "error_empty_giftcard": "Please enter the redemption code",
+    "giftcard_success": "Redeemed successfully!",
+    "giftcard_error": "Redemption failed",
+    "error_network": "Network error"
 }

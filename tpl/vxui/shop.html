@@ -16,7 +16,7 @@
         </a>
         <a href="javascript:;" class="vx-nav-item" onclick="VX_SHOP.redeemGiftCard()">
             <iconpark-icon name="gift-card"></iconpark-icon>
-            <span class="vx-nav-item-text">兑换礼品卡</span>
+            <span class="vx-nav-item-text" data-tpl="vx_giftcard_title">兑换礼品卡</span>
         </a>
     </div>
 </template>
@@ -24,7 +24,7 @@
 <!-- Header -->
 <header class="vx-header vx-header-shop">
     <div class="vx-header-left">
-        <button class="vx-btn-icon vx-portrait-sidebar-btn" onclick="VXUI.toggleSidebar()" title="菜单">
+        <button class="vx-btn-icon vx-portrait-sidebar-btn" onclick="VXUI.toggleSidebar()" data-title-tpl="vx_menu" title="菜单">
             <iconpark-icon name="bars"></iconpark-icon>
         </button>
         <h1 class="vx-page-title">
@@ -35,7 +35,7 @@
     </div>
     
     <div class="vx-header-right">
-        <button class="vx-btn-icon" onclick="VX_SHOP.refresh()" title="刷新">
+        <button class="vx-btn-icon" onclick="VX_SHOP.refresh()" data-title-tpl="vx_refresh" title="刷新">
             <iconpark-icon name="rotate"></iconpark-icon>
         </button>
     </div>

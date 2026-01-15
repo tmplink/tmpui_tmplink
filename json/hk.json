@@ -1074,5 +1074,15 @@
     "ai_introduce_yourself": "介紹一下你自己",
     "ai_weather_today": "今天天氣怎麼樣？",
     "ai_write_poem": "幫我寫一首詩",
-    "navbar_ai": "智能"
+    "navbar_ai": "智能",
+    "vx_giftcard_title": "兑換禮品卡",
+    "vx_giftcard_desc": "輸入您的禮品卡兑換碼",
+    "vx_giftcard_placeholder": "請輸入兑換碼",
+    "vx_giftcard_redeem": "兑換",
+    "vx_refreshed": "已刷新",
+    "vx_refresh": "刷新",
+    "error_empty_giftcard": "請輸入兑換碼",
+    "giftcard_success": "兑換成功！",
+    "giftcard_error": "兑換失敗",
+    "error_network": "網絡錯誤"
 }
