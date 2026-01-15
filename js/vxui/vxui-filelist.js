@@ -87,8 +87,13 @@ var VX_FILELIST = VX_FILELIST || {
         this.unbindEvents();
         this.hideContextMenu();
         
-        // 检查登录状态
-        if (typeof TL !== 'undefined' && !TL.isLogin()) {
+        // 获取 mrid 参数（mrid=0 代表桌面，不能用 || 兜底）
+        const hasMridParam = (params && Object.prototype.hasOwnProperty.call(params, 'mrid'));
+        const targetMrid = hasMridParam ? params.mrid : (this.getUrlMrid() || 0);
+        
+        // 检查登录状态：访问桌面(mrid=0)需要登录，访问子文件夹允许未登录（公开文件夹）
+        const isDesktopAccess = String(targetMrid) === '0' || targetMrid === 0;
+        if (isDesktopAccess && typeof TL !== 'undefined' && !TL.isLogin()) {
             VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
             setTimeout(() => {
                 window.location.href = '/login';
@@ -96,9 +101,8 @@ var VX_FILELIST = VX_FILELIST || {
             return;
         }
         
-        // 获取 mrid 参数（mrid=0 代表桌面，不能用 || 兜底）
-        const hasMridParam = (params && Object.prototype.hasOwnProperty.call(params, 'mrid'));
-        this.mrid = hasMridParam ? params.mrid : (this.getUrlMrid() || 0);
+        // mrid 已在上面获取
+        this.mrid = targetMrid;
         
         // 获取视图模式参数或从存储恢复
         this.viewMode = params.view || localStorage.getItem('vx_view_mode') || 'list';
@@ -631,7 +635,12 @@ var VX_FILELIST = VX_FILELIST || {
             this.showLoading();
         }
 
-        const token = this.getToken();
+        // 获取 token（可能是登录用户的 token 或访客 token）
+        // 访客也可以通过 TL.api_token 访问公开文件夹
+        let token = this.getToken();
+        if (!token && typeof TL !== 'undefined' && TL.api_token) {
+            token = TL.api_token;
+        }
         
         if (!token) {
             console.warn('[VX_FILELIST] No token available');
@@ -747,7 +756,11 @@ var VX_FILELIST = VX_FILELIST || {
         // 显示/隐藏返回按钮
         const backBtn = document.getElementById('vx-fl-back-btn');
         if (backBtn) {
-            backBtn.style.display = this.mrid != 0 ? '' : 'none';
+            const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
+            // 不在桌面时显示返回按钮，但未登录且父文件夹是桌面时隐藏
+            const hasParent = this.room && this.room.parent && String(this.room.parent) !== '0';
+            const showBack = this.mrid != 0 && (isLoggedIn || hasParent);
+            backBtn.style.display = showBack ? '' : 'none';
         }
         
         // 更新分享按钮显示（桌面隐藏）
@@ -972,11 +985,19 @@ var VX_FILELIST = VX_FILELIST || {
         const container = document.getElementById('vx-fl-breadcrumb');
         if (!container) return;
 
+        const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
         const desktopTitle = this.getDesktopTitle();
-        let html = `<a href="javascript:;" onclick="VX_FILELIST.openFolder(0)">${this.escapeHtml(desktopTitle)}</a>`;
+        let html = '';
+        
+        // 未登录时不显示桌面链接（桌面需要登录才能访问）
+        if (isLoggedIn) {
+            html = `<a href="javascript:;" onclick="VX_FILELIST.openFolder(0)">${this.escapeHtml(desktopTitle)}</a>`;
+        }
         
         if (this.mrid != 0 && this.room.name) {
-            html += '<span class="vx-breadcrumb-sep">›</span>';
+            if (html) {
+                html += '<span class="vx-breadcrumb-sep">›</span>';
+            }
             html += `<a href="javascript:;">${this.escapeHtml(this.room.name)}</a>`;
         }
         
@@ -1677,10 +1698,18 @@ var VX_FILELIST = VX_FILELIST || {
      * 返回上级
      */
     goToParent() {
-        if (this.room && this.room.parent) {
+        const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
+        
+        if (this.room && this.room.parent && String(this.room.parent) !== '0') {
+            // 有父文件夹且不是桌面，直接返回父文件夹
             this.openFolder(this.room.parent);
-        } else {
+        } else if (isLoggedIn) {
+            // 已登录，可以返回桌面
             this.openFolder(0);
+        } else {
+            // 未登录且没有可返回的父文件夹，不执行任何操作
+            // 或者可以提示用户登录
+            VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
         }
     },
     

@@ -21,17 +21,25 @@
                             <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
                             <span class="vx-nav-item-text" data-tpl="nav_files">文件</span>
                         </a>
-                        <a href="javascript:;" class="vx-nav-item" data-module="direct" onclick="VXUI.navigate('direct')">
+                        <a href="javascript:;" class="vx-nav-item" data-module="direct" data-auth="logged-in" onclick="VXUI.navigate('direct')">
                             <iconpark-icon name="link"></iconpark-icon>
                             <span class="vx-nav-item-text" data-tpl="nav_direct">直链</span>
                         </a>
-                        <a href="javascript:;" class="vx-nav-item" data-module="notes" onclick="VXUI.navigate('notes')">
+                        <a href="javascript:;" class="vx-nav-item" data-module="notes" data-auth="logged-in" onclick="VXUI.navigate('notes')">
                             <iconpark-icon name="memo-pad"></iconpark-icon>
                             <span class="vx-nav-item-text" data-tpl="nav_notes">密记</span>
                         </a>
-                        <a href="javascript:;" class="vx-nav-item" data-module="ai" onclick="VXUI.navigate('ai')">
+                        <a href="javascript:;" class="vx-nav-item" data-module="ai" data-auth="logged-in" onclick="VXUI.navigate('ai')">
                             <iconpark-icon name="user-robot"></iconpark-icon>
                             <span class="vx-nav-item-text" data-tpl="nav_ai">助手</span>
+                        </a>
+                        <a href="/login" class="vx-nav-item" data-auth="logged-out">
+                            <iconpark-icon name="user"></iconpark-icon>
+                            <span class="vx-nav-item-text" data-tpl="navbar_login">登录</span>
+                        </a>
+                        <a href="/reg" class="vx-nav-item" data-auth="logged-out">
+                            <iconpark-icon name="user-plus"></iconpark-icon>
+                            <span class="vx-nav-item-text" data-tpl="navbar_reg">注册</span>
                         </a>
                     </div>
                 </div>
@@ -45,15 +53,15 @@
             <!-- Persistent Bottom Menu -->
             <div class="vx-sidebar-bottom-menu">
                 <div class="vx-nav-section">
-                    <a href="javascript:;" class="vx-nav-item" data-module="shop" onclick="VXUI.navigate('shop')">
+                    <a href="javascript:;" class="vx-nav-item" data-module="shop" data-auth="logged-in" onclick="VXUI.navigate('shop')">
                         <iconpark-icon name="bag-shopping"></iconpark-icon>
                         <span class="vx-nav-item-text" data-tpl="nav_shop">商店</span>
                     </a>
-                    <a href="javascript:;" class="vx-nav-item" data-module="profile" onclick="VXUI.navigate('profile')">
+                    <a href="javascript:;" class="vx-nav-item" data-module="profile" data-auth="logged-in" onclick="VXUI.navigate('profile')">
                         <iconpark-icon name="user"></iconpark-icon>
                         <span class="vx-nav-item-text" data-tpl="nav_info">信息</span>
                     </a>
-                    <a href="javascript:;" class="vx-nav-item" data-module="settings" onclick="VXUI.navigate('settings')">
+                    <a href="javascript:;" class="vx-nav-item" data-module="settings" data-auth="logged-in" onclick="VXUI.navigate('settings')">
                         <iconpark-icon name="gear"></iconpark-icon>
                         <span class="vx-nav-item-text" data-tpl="nav_settings">设定</span>
                     </a>
@@ -75,11 +83,11 @@
                     </div>
                 </div>
 
-                <a href="javascript:;" class="vx-nav-item" onclick="if(typeof VXUI !== 'undefined') VXUI.switchToClassic();">
+                <a href="javascript:;" class="vx-nav-item" data-auth="logged-in" onclick="if(typeof VXUI !== 'undefined') VXUI.switchToClassic();">
                     <iconpark-icon name="list-radio"></iconpark-icon>
                     <span class="vx-nav-item-text" data-tpl="nav_switch_classic">切换到经典版</span>
                 </a>
-                <a href="javascript:;" class="vx-nav-item" onclick="if(typeof TL !== 'undefined') TL.logout();">
+                <a href="javascript:;" class="vx-nav-item" data-auth="logged-in" onclick="if(typeof TL !== 'undefined') TL.logout();">
                     <iconpark-icon name="right-from-bracket"></iconpark-icon>
                     <span class="vx-nav-item-text" data-tpl="nav_logout">退出登录</span>
                 </a>
@@ -116,13 +124,21 @@
             <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
             <span data-tpl="nav_files">文件</span>
         </button>
-        <button class="vx-mobile-btn" data-module="direct" onclick="VXUI.navigate('direct')">
+        <button class="vx-mobile-btn" data-module="direct" data-auth="logged-in" onclick="VXUI.navigate('direct')">
             <iconpark-icon name="link"></iconpark-icon>
             <span data-tpl="nav_direct">直链</span>
         </button>
-        <button class="vx-mobile-btn" data-module="profile" onclick="VXUI.navigate('profile')">
+        <button class="vx-mobile-btn" data-module="profile" data-auth="logged-in" onclick="VXUI.navigate('profile')">
             <iconpark-icon name="user"></iconpark-icon>
             <span data-tpl="nav_info">我的</span>
         </button>
+        <a class="vx-mobile-btn" data-auth="logged-out" href="/login">
+            <iconpark-icon name="user"></iconpark-icon>
+            <span data-tpl="navbar_login">登录</span>
+        </a>
+        <a class="vx-mobile-btn" data-auth="logged-out" href="/reg">
+            <iconpark-icon name="user-plus"></iconpark-icon>
+            <span data-tpl="navbar_reg">注册</span>
+        </a>
     </div>
 </div>

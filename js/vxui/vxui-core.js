@@ -95,6 +95,9 @@ class VXUICore {
 
         // 处理竖屏平板等场景：侧边栏使用抽屉模式
         this.applySidebarResponsiveMode();
+
+        // 根据登录状态调整侧边栏导航
+        this.applyAuthVisibility();
         
         // 初始化提示框容器
         this.initToastContainer();
@@ -113,6 +116,34 @@ class VXUICore {
         });
         
         console.log('[VXUI] Core initialized');
+    }
+
+    /**
+     * 当前是否登录
+     */
+    isLoggedIn() {
+        if (typeof TL !== 'undefined' && TL && typeof TL.isLogin === 'function') {
+            try {
+                return !!TL.isLogin();
+            } catch (e) {
+                return false;
+            }
+        }
+        const login = localStorage.getItem('app_login');
+        return login !== null && login !== '0' && login !== 0;
+    }
+
+    /**
+     * 根据登录状态显示/隐藏导航项
+     */
+    applyAuthVisibility() {
+        const loggedIn = this.isLoggedIn();
+        document.querySelectorAll('[data-auth="logged-in"]').forEach((el) => {
+            el.style.display = loggedIn ? '' : 'none';
+        });
+        document.querySelectorAll('[data-auth="logged-out"]').forEach((el) => {
+            el.style.display = loggedIn ? 'none' : '';
+        });
     }
 
     /**
@@ -281,6 +312,19 @@ class VXUICore {
      * 导航到指定模块
      */
     navigate(moduleName, params = {}) {
+        // 未登录时仅允许文件夹浏览（filelist）；其余模块跳转登录
+        const restrictedModules = new Set(['direct', 'notes', 'ai', 'shop', 'profile', 'settings']);
+        if (restrictedModules.has(moduleName) && !this.isLoggedIn()) {
+            if (typeof this.toastWarning === 'function') {
+                const msg = (typeof app !== 'undefined' && app.languageData && app.languageData.vx_need_login)
+                    ? app.languageData.vx_need_login
+                    : '请先登录';
+                this.toastWarning(msg);
+            }
+            window.location.href = '/login';
+            return;
+        }
+
         // photo 模块已整合到 filelist(album) 中：兼容旧入口
         if (moduleName === 'photo') {
             moduleName = 'filelist';
@@ -321,6 +365,9 @@ class VXUICore {
         
         // 更新导航状态
         this.updateNavState(moduleName, params);
+
+        // 登录状态可能变化，刷新导航可见性
+        this.applyAuthVisibility();
 
         // 重置模块侧边栏区域（模块仅写入 dynamic 区）
         this.clearSidebarDynamic();
@@ -516,6 +563,13 @@ class VXUICore {
         // 窗口大小变化
         window.addEventListener('resize', () => {
             this.applySidebarResponsiveMode();
+        });
+
+        // 监听登录状态变化（跨标签页）
+        window.addEventListener('storage', (event) => {
+            if (event && event.key === 'app_login') {
+                this.applyAuthVisibility();
+            }
         });
 
         // 设备旋转（iPad 等）
