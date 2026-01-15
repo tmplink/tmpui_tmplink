@@ -2258,6 +2258,15 @@ class tmplink {
         translateScope();
     }
 
+    /**
+     * 切换到新版界面 (VXUI)
+     * 保存用户偏好到 localStorage 并跳转到新版界面
+     */
+    switchToNewUI() {
+        localStorage.setItem('tmplink_ui_preference', 'vxui');
+        window.location.href = '/?tmpui_page=/vx';
+    }
+
     logout() {
         localStorage.setItem('app_login', 0);
         this.uid = 0;

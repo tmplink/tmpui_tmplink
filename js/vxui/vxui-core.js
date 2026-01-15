@@ -640,6 +640,15 @@ class VXUICore {
         localStorage.setItem('vxui-dark-mode', this.darkMode);
         this.applyDarkMode();
     }
+
+    /**
+     * 切换到经典版界面
+     * 保存用户偏好到 localStorage 并跳转到经典版界面
+     */
+    switchToClassic() {
+        localStorage.setItem('tmplink_ui_preference', 'classic');
+        window.location.href = '/?tmpui_page=/app&listview=index';
+    }
     
     // ==================== Toast 提示 ====================
     

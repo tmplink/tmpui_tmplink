@@ -798,6 +798,8 @@
     "nav_info": "Profile",
     "nav_settings": "Settings",
     "nav_logout": "Sign Out",
+    "nav_switch_classic": "Switch to Classic",
+    "nav_switch_new": "Switch to New UI",
     "language": "Language",
     "loading": "Loading...",
     "foot_about": "TMP.link is committed to provide the most easy-to-use file sharing service on the market. <br> We're working hard to improve it on a weekly basis.",

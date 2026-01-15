@@ -186,6 +186,8 @@
     "nav_info": "信息",
     "nav_settings": "设定",
     "nav_logout": "退出登录",
+    "nav_switch_classic": "切换到经典版",
+    "nav_switch_new": "切换到新版界面",
     "language": "语言",
     "loading": "加载中...",
     "foot_about": "钛盘 致力于提供一个简单易用的文件中转服务，协同工作时更便捷地传递文件。<br>我们将持续更新此项目，并让它变得更好！",

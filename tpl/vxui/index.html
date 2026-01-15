@@ -17,7 +17,6 @@
                 <!-- Static navigation - hidden when module has custom sidebar -->
                 <div class="vx-nav-static" id="vx-sidebar-static">
                     <div class="vx-nav-section">
-                        <div class="vx-nav-title" data-tpl="nav_main">主功能</div>
                         <a href="javascript:;" class="vx-nav-item" data-module="filelist" onclick="VXUI.navigate('filelist')">
                             <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
                             <span class="vx-nav-item-text" data-tpl="nav_files">文件</span>
@@ -46,7 +45,6 @@
             <!-- Persistent Bottom Menu -->
             <div class="vx-sidebar-bottom-menu">
                 <div class="vx-nav-section">
-                    <div class="vx-nav-title" data-tpl="nav_account">账户</div>
                     <a href="javascript:;" class="vx-nav-item" data-module="shop" onclick="VXUI.navigate('shop')">
                         <iconpark-icon name="bag-shopping"></iconpark-icon>
                         <span class="vx-nav-item-text" data-tpl="nav_shop">商店</span>
@@ -67,7 +65,7 @@
                 <div class="vx-dropdown" id="vx-lang-dropdown" style="width:100%;">
                     <a href="javascript:;" class="vx-nav-item" data-action="vx-lang-toggle" title="Language">
                         <iconpark-icon name="globe"></iconpark-icon>
-                        <span class="vx-nav-item-text" id="vx-lang-label" data-tpl="language">语言</span>
+                        <span class="vx-nav-item-text" id="vx-lang-label">Language / 语言</span>
                     </a>
                     <div class="vx-dropdown-menu" style="left:0; right:auto; width:100%;">
                         <div class="vx-dropdown-item" data-action="vx-lang-set" data-lang="en">English</div>
@@ -77,6 +75,10 @@
                     </div>
                 </div>
 
+                <a href="javascript:;" class="vx-nav-item" onclick="if(typeof VXUI !== 'undefined') VXUI.switchToClassic();">
+                    <iconpark-icon name="list-radio"></iconpark-icon>
+                    <span class="vx-nav-item-text" data-tpl="nav_switch_classic">切换到经典版</span>
+                </a>
                 <a href="javascript:;" class="vx-nav-item" onclick="if(typeof TL !== 'undefined') TL.logout();">
                     <iconpark-icon name="right-from-bracket"></iconpark-icon>
                     <span class="vx-nav-item-text" data-tpl="nav_logout">退出登录</span>

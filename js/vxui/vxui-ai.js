@@ -196,19 +196,13 @@ const VX_AI = {
         
         sidebarDynamic.innerHTML = `
             <div class="vx-nav-section">
-                <div class="vx-nav-title" data-tpl="ai_actions">操作</div>
                 <a href="javascript:;" class="vx-nav-item" onclick="VX_AI.newConversation()">
                     <iconpark-icon name="circle-plus"></iconpark-icon>
                     <span class="vx-nav-item-text" data-tpl="ai_new_conversation">新建对话</span>
                 </a>
-                <a href="javascript:;" class="vx-nav-item" onclick="VX_AI.clearHistory()">
-                    <iconpark-icon name="trash"></iconpark-icon>
-                    <span class="vx-nav-item-text" data-tpl="ai_clear_current">清空当前</span>
-                </a>
             </div>
 
             <div class="vx-nav-section">
-                <div class="vx-nav-title" data-tpl="ai_conversation_history">对话历史</div>
                 <div id="vx-ai-conversation-list"></div>
                 <a href="javascript:;" class="vx-nav-item vx-ai-nav-danger" onclick="VX_AI.deleteAllConversationsUI()">
                     <iconpark-icon name="delete"></iconpark-icon>
@@ -218,15 +212,12 @@ const VX_AI = {
 
             <style>
                 .vx-ai-nav-danger { color: var(--vx-danger); }
-
-        if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
-            TL.tpl_lang(sidebarDynamic);
-        }
                 .vx-ai-nav-danger:hover { background: rgba(239, 68, 68, 0.08); }
                 .vx-ai-conv-item { position: relative; flex-direction: column; align-items: stretch; gap: 6px; }
-                .vx-ai-conv-top { display: flex; align-items: center; gap: 12px; }
+                .vx-ai-conv-top { display: flex; align-items: center; gap: 8px; }
+                .vx-ai-conv-top > iconpark-icon { flex-shrink: 0; width: 20px; display: none; }
                 .vx-ai-conv-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-                .vx-ai-conv-time { font-size: var(--vx-text-xs); color: var(--vx-text-muted); padding-left: 32px; }
+                .vx-ai-conv-time { font-size: var(--vx-text-xs); color: var(--vx-text-muted); }
                 .vx-ai-conv-del {
                     margin-left: auto;
                     border: none;
@@ -242,6 +233,10 @@ const VX_AI = {
                 .vx-ai-conv-del:hover { color: var(--vx-danger); background: rgba(239, 68, 68, 0.08); }
             </style>
         `;
+
+        if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+            TL.tpl_lang(sidebarDynamic);
+        }
         
         if (typeof app !== 'undefined') {
             app.languageBuild();
@@ -640,12 +635,16 @@ const VX_AI = {
      * 加载历史对话
      */
     loadConversationHistory(limit = 20) {
+        console.log('[VX_AI] loadConversationHistory called, limit:', limit);
         this.apiPost('history', { limit: String(limit) }, { retryIfNoToken: true })
             .then((list) => {
+                console.log('[VX_AI] history response:', list, 'isArray:', Array.isArray(list));
                 this.conversations = Array.isArray(list) ? list : [];
+                console.log('[VX_AI] conversations set to:', this.conversations);
                 this.renderConversationList();
             })
-            .catch(() => {
+            .catch((err) => {
+                console.error('[VX_AI] history error:', err);
                 this.conversations = [];
                 this.renderConversationList();
             });
@@ -678,7 +677,6 @@ const VX_AI = {
             return `
                 <a href="javascript:;" class="vx-nav-item vx-ai-conv-item ${activeClass}" data-conversation-id="${id}" onclick="VX_AI.switchConversation('${id}')">
                     <div class="vx-ai-conv-top">
-                        <iconpark-icon name="message-circle"></iconpark-icon>
                         <span class="vx-ai-conv-title">${this.escapeHtml(title)}</span>
                         <button type="button" class="vx-ai-conv-del" title="${this.escapeAttr(this.lang('ai_delete_conversation', '删除对话'))}" onclick="event.stopPropagation(); VX_AI.deleteConversationUI('${id}')">
                             <iconpark-icon name="trash"></iconpark-icon>
@@ -835,6 +833,13 @@ const VX_AI = {
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    },
+
+    escapeAttr(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
     },

@@ -130,8 +130,15 @@ class dynamic {
                     //未登录，跳转到登录页
                     this.login();
                 } else {
-                    //已登录，进入 VXUI 界面
-                    window.location.href = '/?tmpui_page=/vx';
+                    //已登录，根据用户偏好选择界面
+                    const uiPreference = localStorage.getItem('tmplink_ui_preference');
+                    if (uiPreference === 'classic') {
+                        // 用户选择了经典版
+                        this.room();
+                    } else {
+                        // 默认使用新版界面 (vxui) 或用户选择了新版
+                        window.location.href = '/?tmpui_page=/vx';
+                    }
                 }
             }
         );

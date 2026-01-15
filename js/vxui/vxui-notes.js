@@ -178,7 +178,6 @@ const VX_NOTES = {
         
         sidebarDynamic.innerHTML = `
             <div class="vx-nav-section">
-                <div class="vx-nav-title">统计</div>
                 <div class="vx-nav-stats">
                     <div class="vx-nav-stat-item">
                         <iconpark-icon name="memo-pad"></iconpark-icon>

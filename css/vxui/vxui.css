@@ -548,6 +548,15 @@ html.vx-dark {
     cursor: pointer;
     transition: var(--vx-transition-fast);
     font-size: var(--vx-text-sm);
+    outline: none;
+}
+
+.vx-nav-item:focus {
+    outline: none;
+}
+
+.vx-nav-item:focus-visible {
+    box-shadow: 0 0 0 2px var(--vx-primary-light);
 }
 
 .vx-nav-item:hover {
@@ -592,7 +601,7 @@ html.vx-dark {
 
 /* Sidebar Bottom Menu - Persistent account navigation */
 .vx-sidebar-bottom-menu {
-    padding: 12px 0 0 0;
+    padding: 12px 0;
     border-top: 1px solid var(--vx-border);
     flex-shrink: 0;
     margin-top: auto;
