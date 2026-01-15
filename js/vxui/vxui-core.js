@@ -168,6 +168,23 @@ class VXUICore {
         if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
             TL.tpl_lang();
         }
+
+        // 通知当前模块刷新动态文本（如状态文本等通过 JS 设置的内容）
+        this.refreshCurrentModuleDynamicText();
+    }
+
+    /**
+     * 刷新当前模块的动态文本
+     * 用于语言切换后更新通过 JS 动态设置的文本内容
+     */
+    refreshCurrentModuleDynamicText() {
+        const mod = this.currentModule;
+        if (!mod) return;
+
+        // 直链模块：刷新品牌状态文本
+        if (mod === 'direct' && typeof VX_DIRECT !== 'undefined' && VX_DIRECT.applyBrandToUI) {
+            VX_DIRECT.applyBrandToUI();
+        }
     }
 
     /**

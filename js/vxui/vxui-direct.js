@@ -521,15 +521,17 @@ const VX_DIRECT = {
 
     brandStatusText(status) {
         const s = String(status || '').toLowerCase();
+        // 使用翻译系统获取状态文本
+        const lang = (typeof app !== 'undefined' && app.languageData) ? app.languageData : {};
         switch (s) {
             case 'ok':
-                return '已通过';
+                return lang['brand_status_ok'] || '已通过';
             case 'reject':
-                return '已拒绝';
+                return lang['brand_status_reject'] || '已拒绝';
             case 'wait':
-                return '待提交';
+                return lang['brand_status_wait'] || '待提交';
             case 'review':
-                return '审核中';
+                return lang['brand_status_review'] || '审核中';
             default:
                 return '-';
         }

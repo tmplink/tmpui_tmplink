@@ -897,6 +897,33 @@ class tmpUI {
                 }
             }
         });
+
+        // 处理 [data-tpl] 属性 (VXUI 使用的翻译属性)
+        this.domSelect('[data-tpl]', (dom) => {
+            const key = dom.getAttribute('data-tpl');
+            if (!key || i18nLang[key] === undefined) return;
+            const val = i18nLang[key];
+            const tag = (dom.tagName || '').toUpperCase();
+
+            // title 属性
+            if (dom.getAttribute('title') != null && dom.getAttribute('title') !== '') {
+                dom.setAttribute('title', val);
+            }
+
+            // inputs: prefer placeholder
+            if (tag === 'INPUT' || tag === 'TEXTAREA') {
+                if (dom.getAttribute('placeholder') != null) {
+                    dom.setAttribute('placeholder', val);
+                } else if (dom.value != null) {
+                    dom.value = val;
+                }
+                return;
+            }
+
+            // 只翻译叶子节点，避免破坏 icon+text 布局
+            if (dom.children && dom.children.length > 0) return;
+            dom.textContent = val;
+        });
     }
 
     /**

@@ -5,19 +5,19 @@
     <div class="vx-nav-section">
         <a href="javascript:;" class="vx-nav-item" id="vx-direct-nav-dashboard" onclick="VX_DIRECT.showTab('dashboard')">
             <iconpark-icon name="gauge-circle-bolt"></iconpark-icon>
-            <span class="vx-nav-item-text">仪表盘</span>
+            <span class="vx-nav-item-text" data-tpl="direct_nav_dashboard">仪表盘</span>
         </a>
         <a href="javascript:;" class="vx-nav-item" id="vx-direct-nav-files" onclick="VX_DIRECT.showTab('files')">
             <iconpark-icon name="file"></iconpark-icon>
-            <span class="vx-nav-item-text">文件</span>
+            <span class="vx-nav-item-text" data-tpl="file">文件</span>
         </a>
         <a href="javascript:;" class="vx-nav-item" id="vx-direct-nav-folders" onclick="VX_DIRECT.showTab('folders')">
             <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
-            <span class="vx-nav-item-text">文件夹</span>
+            <span class="vx-nav-item-text" data-tpl="folder">文件夹</span>
         </a>
         <a href="javascript:;" class="vx-nav-item" id="vx-direct-nav-domain" onclick="VX_DIRECT.showTab('domain')">
             <iconpark-icon name="globe"></iconpark-icon>
-            <span class="vx-nav-item-text">域名设置</span>
+            <span class="vx-nav-item-text" data-tpl="direct_nav_domain">域名设置</span>
         </a>
         <a href="javascript:;" class="vx-nav-item" id="vx-direct-nav-api" onclick="VX_DIRECT.showTab('api')">
             <iconpark-icon name="key"></iconpark-icon>
@@ -82,14 +82,14 @@
                                 <iconpark-icon id="vx-direct-domain-lock" name="lock-solid" style="display:none;"></iconpark-icon>
                             </div>
                             <div class="vx-flex vx-items-center vx-gap-md vx-mt-sm vx-text-muted" style="gap: 12px; flex-wrap: wrap;">
-                                <span><iconpark-icon name="link"></iconpark-icon> <span id="vx-direct-count">0</span> 个直链</span>
-                                <span><iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon> <span id="vx-direct-folder-count">0</span> 个文件夹</span>
+                                <span><iconpark-icon name="link"></iconpark-icon> <span id="vx-direct-count">0</span> <span data-tpl="direct_unit_links">个直链</span></span>
+                                <span><iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon> <span id="vx-direct-folder-count">0</span> <span data-tpl="direct_unit_folders">个文件夹</span></span>
                                 <span><iconpark-icon name="battery-three-quarters"></iconpark-icon> <span id="vx-direct-quota">0</span></span>
                                 <span><iconpark-icon name="arrow-up-arrow-down"></iconpark-icon> <span id="vx-direct-total-transfer">0</span></span>
                                 <span><iconpark-icon name="download"></iconpark-icon> <span id="vx-direct-total-downloads">0</span></span>
                             </div>
                             <div id="vx-direct-ready" class="vx-text-muted" style="margin-top: 10px; display:none;">
-                                <span>服务已就绪</span>
+                                <span data-tpl="direct_service_ready">服务已就绪</span>
                             </div>
                             <div id="vx-direct-progress" style="margin-top: 10px; display:none;">
                                 <div style="height: 6px; background: var(--vx-bg-secondary); border-radius: var(--vx-radius); overflow: hidden;">
@@ -101,15 +101,15 @@
                         <div class="vx-flex" id="vx-direct-top-actions" style="display:flex; gap: 8px; align-items:center; flex-wrap: wrap; justify-content: flex-end;">
                             <button class="vx-btn vx-btn-ghost" id="vx-direct-top-brand" onclick="VX_DIRECT.openBrandSettings()" title="品牌设置">
                                 <iconpark-icon name="setting-two"></iconpark-icon>
-                                <span>品牌</span>
+                                <span data-tpl="direct_brand">品牌</span>
                             </button>
                             <button class="vx-btn vx-btn-secondary" id="vx-direct-top-quota" onclick="VX_DIRECT.openQuotaPurchase()" title="购买直链配额">
                                 <iconpark-icon name="battery-bolt"></iconpark-icon>
-                                <span>购买配额</span>
+                                <span data-tpl="direct_buy_quota">购买配额</span>
                             </button>
                             <button class="vx-btn vx-btn-secondary" id="vx-direct-top-domain" onclick="VX_DIRECT.showTab('domain')" title="域名设置">
                                 <iconpark-icon name="signal-stream"></iconpark-icon>
-                                <span>域名设置</span>
+                                <span data-tpl="direct_nav_domain">域名设置</span>
                             </button>
                         </div>
                     </div>
@@ -124,14 +124,14 @@
 
             <div class="vx-card vx-mb-md" id="vx-direct-usage-card">
                 <div class="vx-card-header">
-                    <div class="vx-card-title">流量统计</div>
+                    <div class="vx-card-title" data-tpl="direct_traffic_stats">流量统计</div>
                 </div>
                 <div class="vx-card-body">
-                    <div class="vx-text-muted" style="margin-bottom: 10px;">展示直链下载流量（按时间统计）。</div>
+                    <div class="vx-text-muted" style="margin-bottom: 10px;" data-tpl="direct_traffic_desc">展示直链下载流量（按时间统计）。</div>
                     <div style="display:flex; gap: 8px; flex-wrap: wrap; align-items:center; margin-bottom: 10px;">
-                        <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.loadUsage(2)">24小时</button>
-                        <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.loadUsage(3)">过去一周</button>
-                        <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.loadUsage(4)">最近30天</button>
+                        <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.loadUsage(2)" data-tpl="direct_24h">24小时</button>
+                        <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.loadUsage(3)" data-tpl="direct_week">过去一周</button>
+                        <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.loadUsage(4)" data-tpl="direct_30days">最近30天</button>
                     </div>
                     <div id="vx-direct-usage-chart" style="max-width: 100%;"></div>
                 </div>
@@ -139,14 +139,14 @@
 
             <div class="vx-card" id="vx-direct-brand-card" style="margin-top: 16px;">
                 <div class="vx-card-header">
-                    <div class="vx-card-title">品牌设置</div>
+                    <div class="vx-card-title" data-tpl="direct_brand_settings">品牌设置</div>
                 </div>
                 <div class="vx-card-body">
-                    <div class="vx-text-muted" style="margin-bottom: 12px;">自定义直链页面的品牌信息（Logo / 标题 / 描述）。</div>
+                    <div class="vx-text-muted" style="margin-bottom: 12px;" data-tpl="direct_brand_desc">自定义直链页面的品牌信息（Logo / 标题 / 描述）。</div>
 
                     <div style="display:flex; gap: 12px; flex-wrap: wrap; align-items: flex-start;">
                         <div style="min-width: 220px;">
-                            <div class="vx-text-sm" style="margin-bottom: 6px;">当前 Logo</div>
+                            <div class="vx-text-sm" style="margin-bottom: 6px;" data-tpl="direct_current_logo">当前 Logo</div>
                             <div id="vx-direct-brand-logo-preview" style="width: 72px; height: 72px; border-radius: var(--vx-radius-md); background: var(--vx-bg-secondary); display:flex; align-items:center; justify-content:center; overflow:hidden;">
                                 <iconpark-icon name="image" style="font-size: 28px; color: var(--vx-text-muted);"></iconpark-icon>
                             </div>
@@ -157,26 +157,26 @@
                         </div>
 
                         <div style="flex: 1; min-width: 260px;">
-                            <label class="vx-text-sm" style="display:block; margin-bottom: 6px;">品牌标题</label>
-                            <input id="vx-direct-brand-title" class="vx-input" placeholder="请输入品牌标题" />
+                            <label class="vx-text-sm" style="display:block; margin-bottom: 6px;" data-tpl="brand_title">品牌标题</label>
+                            <input id="vx-direct-brand-title" class="vx-input" data-tpl="direct_brand_title_placeholder" placeholder="请输入品牌标题" />
 
-                            <label class="vx-text-sm" style="display:block; margin: 12px 0 6px;">品牌描述</label>
-                            <textarea id="vx-direct-brand-content" class="vx-input" style="min-height: 110px; resize: vertical;" placeholder="请输入品牌描述"></textarea>
+                            <label class="vx-text-sm" style="display:block; margin: 12px 0 6px;" data-tpl="brand_content">品牌描述</label>
+                            <textarea id="vx-direct-brand-content" class="vx-input" style="min-height: 110px; resize: vertical;" data-tpl="direct_brand_content_placeholder" placeholder="请输入品牌描述"></textarea>
 
                             <div style="margin-top: 12px; display:flex; gap: 8px; flex-wrap: wrap; align-items: center;">
                                 <button class="vx-btn vx-btn-primary" onclick="VX_DIRECT.brandSet()">
                                     <iconpark-icon name="floppy-disk"></iconpark-icon>
-                                    <span>保存品牌</span>
+                                    <span data-tpl="brand_save">保存品牌</span>
                                 </button>
                                 <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.brandReview()">
                                     <iconpark-icon name="paper-plane"></iconpark-icon>
-                                    <span>提交审核</span>
+                                    <span data-tpl="brand_submit">提交审核</span>
                                 </button>
                                 <span id="vx-direct-brand-save-status" class="vx-text-muted" style="font-size: var(--vx-text-xs);"></span>
                             </div>
 
                             <div style="margin-top: 12px;">
-                                <span class="vx-text-sm">当前状态：</span>
+                                <span class="vx-text-sm" data-tpl="direct_current_status">当前状态：</span>
                                 <span id="vx-direct-brand-status" class="vx-text-muted">-</span>
                             </div>
                         </div>
@@ -190,8 +190,8 @@
         <section id="vx-direct-panel-files" style="display:none;">
             <div id="vx-direct-files-empty" class="vx-empty" style="display:none;">
                 <div class="vx-empty-icon"><iconpark-icon name="link"></iconpark-icon></div>
-                <h3 class="vx-empty-title">暂无直链文件</h3>
-                <p class="vx-empty-text">可在文件列表中创建直链，然后在此处管理。</p>
+                <h3 class="vx-empty-title" data-tpl="direct_no_files">暂无直链文件</h3>
+                <p class="vx-empty-text" data-tpl="direct_no_files_desc">可在文件列表中创建直链，然后在此处管理。</p>
                 <button class="vx-btn vx-btn-primary" onclick="VXUI.navigate('filelist')">
                     <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
                     <span data-tpl="nav_files">查看文件</span>
@@ -242,8 +242,8 @@
         <section id="vx-direct-panel-folders" style="display:none;">
             <div id="vx-direct-folders-empty" class="vx-empty" style="display:none;">
                 <div class="vx-empty-icon"><iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon></div>
-                <h3 class="vx-empty-title">暂无直链文件夹</h3>
-                <p class="vx-empty-text">已开启直链的文件夹会出现在这里。</p>
+                <h3 class="vx-empty-title" data-tpl="direct_no_folders">暂无直链文件夹</h3>
+                <p class="vx-empty-text" data-tpl="direct_no_folders_desc">已开启直链的文件夹会出现在这里。</p>
             </div>
 
             <div class="vx-list-container" id="vx-direct-folders-list" style="display:none;">
