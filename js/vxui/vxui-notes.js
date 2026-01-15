@@ -79,6 +79,35 @@ const VX_NOTES = {
         this.dbg('persistKey failed', { len: keyStr.length, fp: this.keyFingerprint(keyStr) });
         return false;
     },
+
+    /**
+     * 记录 UI 行为（event_ui）
+     */
+    trackUI(title) {
+        try {
+            if (!title) return;
+            if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.trackUI === 'function') {
+                VXUI.trackUI(title);
+                return;
+            }
+            if (typeof TL !== 'undefined' && TL && typeof TL.ga === 'function') {
+                TL.ga(title);
+            }
+        } catch (e) {
+            // ignore
+        }
+    },
+
+    getNoteTitleById(id) {
+        if (!id || !Array.isArray(this.notesList)) return '';
+        const note = this.notesList.find(n => String(n.id) === String(id));
+        return note && note.title ? String(note.title) : '';
+    },
+
+    trackNote(title) {
+        const safeTitle = title || '未命名';
+        this.trackUI(`vui_notes[${safeTitle}]`);
+    },
     
     /**
      * 初始化模块
@@ -488,6 +517,9 @@ const VX_NOTES = {
 
         const numericId = parseInt(id, 10) || 0;
         if (!numericId) return;
+
+        const title = this.getNoteTitleById(numericId) || '未命名';
+        this.trackNote(title);
 
         const note = this.getNoteById(numericId);
         if (!note) {
@@ -1122,6 +1154,8 @@ const VX_NOTES = {
             return;
         }
 
+        this.trackNote('新建笔记');
+
         // 老版：open(0) 进入空白编辑器，保存时 write(action=write,id=0)
         this.openEditor(0);
     },
@@ -1331,6 +1365,9 @@ const VX_NOTES = {
     doDelete(id) {
         const numericId = parseInt(id, 10) || 0;
         if (!numericId) return;
+
+        const title = this.getNoteTitleById(numericId) || '未命名';
+        this.trackNote(title);
 
         $.post(TL.api_notes, {
             action: 'delete',

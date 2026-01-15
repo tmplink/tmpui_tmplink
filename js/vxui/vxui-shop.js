@@ -64,6 +64,24 @@ window.VX_SHOP = {
     isCN() {
         return typeof TL !== 'undefined' && TL.lang === 'cn';
     },
+
+    /**
+     * 记录 UI 行为（event_ui）
+     */
+    trackUI(title) {
+        try {
+            if (!title) return;
+            if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.trackUI === 'function') {
+                VXUI.trackUI(title);
+                return;
+            }
+            if (typeof TL !== 'undefined' && TL && typeof TL.ga === 'function') {
+                TL.ga(title);
+            }
+        } catch (e) {
+            // ignore
+        }
+    },
     
     /**
      * Initialize the shop module
@@ -147,6 +165,8 @@ window.VX_SHOP = {
      */
     showTab(tab) {
         this.currentTab = tab;
+
+        this.trackUI(`vui_shop[${tab}]`);
 
         // Sync URL so products/purchased can be directly opened
         if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.updateUrl === 'function') {
@@ -427,6 +447,7 @@ window.VX_SHOP = {
      * Open sponsor purchase modal
      */
     openSponsor() {
+        this.trackUI('vui_shop[sponsor]');
         this.purchaseType = 'addon';
         this.selectedProduct = 'sponsor';
         this.selectedCode = 'HS';
@@ -469,6 +490,7 @@ window.VX_SHOP = {
      * Open storage purchase modal
      */
     openStorage() {
+        this.trackUI('vui_shop[storage]');
         this.purchaseType = 'addon';
         this.selectedProduct = 'storage';
         this.selectedCode = '256GB';
@@ -531,6 +553,7 @@ window.VX_SHOP = {
      * Open direct quota purchase modal
      */
     openQuota() {
+        this.trackUI('vui_shop[quota]');
         this.purchaseType = 'direct';
         this.selectedProduct = 'direct';
         this.selectedCode = 'D20';

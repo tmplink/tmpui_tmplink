@@ -57,6 +57,24 @@ var VX_UPLOADER = VX_UPLOADER || {
     },
 
     /**
+     * 记录 UI 行为（event_ui）
+     */
+    trackUI(title) {
+        try {
+            if (!title) return;
+            if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.trackUI === 'function') {
+                VXUI.trackUI(title);
+                return;
+            }
+            if (typeof TL !== 'undefined' && TL && typeof TL.ga === 'function') {
+                TL.ga(title);
+            }
+        } catch (e) {
+            // ignore
+        }
+    },
+
+    /**
      * 加载本地保存的设置
      */
     loadSettings() {
@@ -502,6 +520,8 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 开始上传
      */
     startUpload(task) {
+        const name = (task && task.filename) ? task.filename : 'file';
+        this.trackUI(`vui_upload[${name}]`);
         task.status = 'preparing';
         this.updateUploadRow(task);
         
