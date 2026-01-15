@@ -185,6 +185,11 @@ class VXUICore {
         if (mod === 'direct' && typeof VX_DIRECT !== 'undefined' && VX_DIRECT.applyBrandToUI) {
             VX_DIRECT.applyBrandToUI();
         }
+
+        // 商店模块：刷新动态文本（标题、订单列表等）
+        if (mod === 'shop' && typeof VX_SHOP !== 'undefined' && VX_SHOP.refreshDynamicText) {
+            VX_SHOP.refreshDynamicText();
+        }
     }
 
     /**

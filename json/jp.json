@@ -1183,5 +1183,7 @@
     "direct_api_err_1002": "失敗、内部エラー",
     "direct_api_err_1003": "失敗、対応するダイレクトリンクが見つかりません",
     "direct_api_err_1005": "失敗、ファイルがまだ準備できていません。後で再試行してください",
-    "direct_api_delete_file": "ファイルも同時に削除"
+    "direct_api_delete_file": "ファイルも同時に削除",
+    "vx_orders_loading": "注文を読み込み中...",
+    "vx_orders_empty": "購入済みの項目はありません"
 }

@@ -1183,5 +1183,7 @@
     "direct_api_err_1002": "Failed, internal error",
     "direct_api_err_1003": "Failed, corresponding direct link not found",
     "direct_api_err_1005": "Failed, file not ready yet, please try again later",
-    "direct_api_delete_file": "Also delete file"
+    "direct_api_delete_file": "Also delete file",
+    "vx_orders_loading": "Loading orders...",
+    "vx_orders_empty": "No purchased items"
 }

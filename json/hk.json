@@ -1170,5 +1170,7 @@
     "direct_api_err_1002": "失敗，內部錯誤",
     "direct_api_err_1003": "失敗，沒有找到對應的直連",
     "direct_api_err_1005": "失敗，檔案尚未就緒，請稍後再添加",
-    "direct_api_delete_file": "同時刪除檔案"
+    "direct_api_delete_file": "同時刪除檔案",
+    "vx_orders_loading": "載入訂單中...",
+    "vx_orders_empty": "暫無已購項目"
 }

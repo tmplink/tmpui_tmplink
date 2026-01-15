@@ -1165,5 +1165,7 @@
     "direct_api_err_1002": "失败，内部错误",
     "direct_api_err_1003": "失败，没有找到对应的直链",
     "direct_api_err_1005": "失败，文件尚未就绪，请稍后再添加",
-    "direct_api_delete_file": "同时删除文件"
+    "direct_api_delete_file": "同时删除文件",
+    "vx_orders_loading": "加载订单中...",
+    "vx_orders_empty": "暂无已购项目"
 }

@@ -73,7 +73,7 @@ window.VX_SHOP = {
         
         // Check login
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
-            VXUI.toastWarning('请先登录');
+            VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
             setTimeout(() => {
                 window.location.href = '/login';
             }, 1000);
@@ -179,7 +179,7 @@ window.VX_SHOP = {
         // Update header subtitle
         const subtitleEl = document.getElementById('vx-shop-header-subtitle');
         if (subtitleEl) {
-            subtitleEl.textContent = tab === 'purchased' ? ' - 已购' : '';
+            subtitleEl.textContent = tab === 'purchased' ? ' - ' + this.t('navbar_hr_shop', '已购') : '';
         }
         
         // Show/hide content
@@ -291,7 +291,7 @@ window.VX_SHOP = {
         ordersContainer.innerHTML = `
             <div class="vx-orders-loading">
                 <div class="vx-spinner"></div>
-                <span>加载订单中...</span>
+                <span>${this.t('vx_orders_loading', '加载订单中...')}</span>
             </div>
         `;
         
@@ -300,7 +300,7 @@ window.VX_SHOP = {
             const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
             
             if (!token) {
-                ordersContainer.innerHTML = '<div class="vx-orders-empty">请先登录</div>';
+                ordersContainer.innerHTML = `<div class="vx-orders-empty">${this.t('vx_need_login', '请先登录')}</div>`;
                 return;
             }
             
@@ -318,7 +318,7 @@ window.VX_SHOP = {
                 ordersContainer.innerHTML = `
                     <div class="vx-orders-empty">
                         <iconpark-icon name="folder-open" style="font-size: 48px; color: var(--vx-text-muted);"></iconpark-icon>
-                        <p>暂无已购项目</p>
+                        <p>${this.t('vx_orders_empty', '暂无已购项目')}</p>
                     </div>
                 `;
                 return;
@@ -331,7 +331,7 @@ window.VX_SHOP = {
                 ordersContainer.innerHTML = `
                     <div class="vx-orders-empty">
                         <iconpark-icon name="folder-open" style="font-size: 48px; color: var(--vx-text-muted);"></iconpark-icon>
-                        <p>暂无已购项目</p>
+                        <p>${this.t('vx_orders_empty', '暂无已购项目')}</p>
                     </div>
                 `;
                 return;
@@ -362,7 +362,7 @@ window.VX_SHOP = {
             ordersContainer.innerHTML = `
                 <div class="vx-orders-empty">
                     <iconpark-icon name="circle-exclamation" style="font-size: 48px; color: var(--vx-danger);"></iconpark-icon>
-                    <p>加载失败</p>
+                    <p>${this.t('vx_load_failed', '加载失败')}</p>
                 </div>
             `;
         }
@@ -947,6 +947,22 @@ window.VX_SHOP = {
         this.checkFirstTimeSponsor();
         this.loadUserStatus();
         VXUI.toastInfo(this.t('vx_refreshed', '已刷新'));
+    },
+
+    /**
+     * Refresh dynamic text content (called on language change)
+     */
+    refreshDynamicText() {
+        // Update header subtitle
+        const subtitleEl = document.getElementById('vx-shop-header-subtitle');
+        if (subtitleEl && this.currentTab === 'purchased') {
+            subtitleEl.textContent = ' - ' + this.t('navbar_hr_shop', '已购');
+        }
+        
+        // Reload orders if on purchased tab to refresh translated content
+        if (this.currentTab === 'purchased') {
+            this.loadOrders();
+        }
     }
 };
 
