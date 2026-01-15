@@ -119,6 +119,21 @@ class VXUICore {
     }
 
     /**
+     * 记录 UI 行为（event_ui）
+     * @param {string} title
+     */
+    trackUI(title) {
+        try {
+            if (!title) return;
+            if (typeof TL !== 'undefined' && TL && typeof TL.ga === 'function') {
+                TL.ga(title);
+            }
+        } catch (e) {
+            // ignore
+        }
+    }
+
+    /**
      * 当前是否登录
      */
     isLoggedIn() {

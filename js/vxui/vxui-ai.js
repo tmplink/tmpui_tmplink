@@ -23,6 +23,35 @@ const VX_AI = {
             ? app.languageData[key]
             : fallback;
     },
+
+    /**
+     * 记录 UI 行为（event_ui）
+     */
+    trackUI(title) {
+        try {
+            if (!title) return;
+            if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.trackUI === 'function') {
+                VXUI.trackUI(title);
+                return;
+            }
+            if (typeof TL !== 'undefined' && TL && typeof TL.ga === 'function') {
+                TL.ga(title);
+            }
+        } catch (e) {
+            // ignore
+        }
+    },
+
+    getConversationTitleById(conversationId) {
+        if (!conversationId || !Array.isArray(this.conversations)) return '';
+        const conv = this.conversations.find(c => String(c.conversation_id) === String(conversationId));
+        return conv && conv.title ? String(conv.title) : '';
+    },
+
+    trackConversation(conversationId, fallbackTitle) {
+        const title = this.getConversationTitleById(conversationId) || fallbackTitle || this.lang('ai_new_conversation', '新建对话');
+        this.trackUI(`vui_ai[${title}]`);
+    },
     
     /**
      * 初始化模块
@@ -362,6 +391,9 @@ const VX_AI = {
         
         // 添加用户消息
         this.addMessage('user', message);
+
+        // 记录对话发送（使用对话标题）
+        this.trackConversation(this.conversationId, this.lang('ai_new_conversation', '新建对话'));
         
         // 发送到 AI
         this.callAI(message);
@@ -609,6 +641,7 @@ const VX_AI = {
                 this.resetState();
                 this.renderMessages();
                 this.highlightActiveConversation();
+                this.trackConversation(null, this.lang('ai_new_conversation', '新建对话'));
             }
         });
     },
@@ -708,6 +741,9 @@ const VX_AI = {
         this.setStatusText(this.lang('ai_loading_conversation', '加载对话中...'), 'loading');
         this.renderMessages();
         this.highlightActiveConversation();
+
+        // 记录对话切换
+        this.trackConversation(conversationId);
 
         this.apiPost('get_conversation', { conversation_id: conversationId }, { retryIfNoToken: true })
             .then((conversation) => {

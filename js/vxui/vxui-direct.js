@@ -61,6 +61,22 @@ const VX_DIRECT = {
 
     allow_ext: ['mp4', 'm4v', 'webm', 'mov', 'ogg', 'mp3'],
 
+    // ==================== Analytics ====================
+    trackUI(title) {
+        try {
+            if (!title) return;
+            if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.trackUI === 'function') {
+                VXUI.trackUI(title);
+                return;
+            }
+            if (typeof TL !== 'undefined' && TL && typeof TL.ga === 'function') {
+                TL.ga(title);
+            }
+        } catch (e) {
+            // ignore
+        }
+    },
+
     // ==================== Lifecycle ====================
     init(params = {}) {
         console.log('[VX_DIRECT] Initializing...', params);
@@ -212,6 +228,8 @@ const VX_DIRECT = {
         this.activeTab = next;
         this.updateTabUI();
         this.applyGateUI();
+
+        this.trackUI(`vui_direct[${this.activeTab}]`);
 
         this.loadCurrentTab(true);
     },

@@ -72,6 +72,33 @@ var VX_FILELIST = VX_FILELIST || {
         return text.replace(/\{(\w+)\}/g, (m, k) => (params[k] !== undefined ? String(params[k]) : m));
     },
 
+    /**
+     * 记录 UI 行为（event_ui）
+     */
+    trackUI(title) {
+        try {
+            if (!title) return;
+            if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.trackUI === 'function') {
+                VXUI.trackUI(title);
+                return;
+            }
+            if (typeof TL !== 'undefined' && TL && typeof TL.ga === 'function') {
+                TL.ga(title);
+            }
+        } catch (e) {
+            // ignore
+        }
+    },
+
+    /**
+     * 记录当前目录/相册浏览
+     */
+    trackRoomView() {
+        const name = this.getRoomDisplayTitle();
+        const prefix = (this.viewMode === 'album') ? 'vui_photo' : 'vui_dir';
+        this.trackUI(`${prefix}[${name}]`);
+    },
+
     // ==================== Folder Direct (直链文件夹) ====================
     directDomain: null,
     directProtocol: 'http://',
@@ -531,6 +558,9 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 应用视图模式
         this.applyViewMode();
+
+        // 记录视图切换后的浏览
+        this.trackRoomView();
         
         // 重新渲染
         this.render();
@@ -662,7 +692,7 @@ var VX_FILELIST = VX_FILELIST || {
         }, (rsp) => {
             if (rsp.status === 0) {
                 this.hideLoading();
-                VXUI.toastError(this.t('vx_folder_not_found', '文件夹不存在'));
+                this.showFolderNotFound();
                 finalize();
                 return;
             }
@@ -698,6 +728,9 @@ var VX_FILELIST = VX_FILELIST || {
             
             // 更新 UI
             this.updateRoomUI();
+
+            // 记录目录/相册浏览
+            this.trackRoomView();
 
             // 更新侧边栏：公开/私有切换（基于最新 room/isOwner/isDesktop）
             this.applyFolderPrivacyUI();
@@ -1105,6 +1138,27 @@ var VX_FILELIST = VX_FILELIST || {
         if (list) list.style.display = 'none';
         if (album) album.style.display = 'none';
         if (empty) empty.style.display = 'flex';
+    },
+
+    /**
+     * 显示“文件夹不存在”状态（替代弹窗提示）
+     */
+    showFolderNotFound() {
+        const empty = document.getElementById('vx-fl-empty');
+        if (!empty) {
+            this.showEmpty();
+            return;
+        }
+
+        const titleEl = empty.querySelector('.vx-empty-title');
+        const textEl = empty.querySelector('.vx-empty-text');
+        const btnEl = empty.querySelector('button');
+
+        if (titleEl) titleEl.textContent = this.t('vx_folder_not_found', '文件夹不存在');
+        if (textEl) textEl.textContent = this.t('vx_folder_not_found_desc', '该文件夹可能已删除或暂无访问权限');
+        if (btnEl) btnEl.style.display = 'none';
+
+        this.showEmpty();
     },
     
     /**
@@ -1546,6 +1600,8 @@ var VX_FILELIST = VX_FILELIST || {
     downloadPhoto(index) {
         const photo = this.photoList[index];
         if (!photo) return;
+        const name = photo.fname || photo.ukey || 'photo';
+        this.trackUI(`vui_download[${name}]`);
         this.downloadByUkey(photo.ukey, {
             index,
             filename: photo.fname
@@ -1693,6 +1749,8 @@ var VX_FILELIST = VX_FILELIST || {
     downloadCurrentPhoto() {
         const photo = this.photoList[this.lightboxIndex];
         if (!photo) return;
+        const name = photo.fname || photo.ukey || 'photo';
+        this.trackUI(`vui_download[${name}]`);
         
         // 获取灯箱下载按钮
         const btn = document.querySelector('#vx-fl-lightbox .lightbox-action[onclick*="downloadCurrentPhoto"]');
@@ -1974,6 +2032,7 @@ var VX_FILELIST = VX_FILELIST || {
      * 上传文件
      */
     upload() {
+        this.trackUI(`vui_upload[${this.getRoomDisplayTitle()}]`);
         if (typeof VX_UPLOADER !== 'undefined') {
             VX_UPLOADER.openModal(this.mrid);
         } else {
@@ -2009,6 +2068,8 @@ var VX_FILELIST = VX_FILELIST || {
      * 下载文件
      */
     downloadFile(ukey, filename) {
+        const name = filename || ukey || 'file';
+        this.trackUI(`vui_download[${name}]`);
         if (typeof VXUI !== 'undefined' && typeof VXUI.toastInfo === 'function') {
             VXUI.toastInfo(this.t('vx_download_start', '开始下载'));
         }

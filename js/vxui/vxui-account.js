@@ -101,6 +101,24 @@ const VX_ACCOUNT = {
     lang(key, fallback) {
         return (typeof app !== 'undefined' && app.languageData && app.languageData[key]) ? app.languageData[key] : fallback;
     },
+
+    /**
+     * 记录 UI 行为（event_ui）
+     */
+    trackUI(title) {
+        try {
+            if (!title) return;
+            if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.trackUI === 'function') {
+                VXUI.trackUI(title);
+                return;
+            }
+            if (typeof TL !== 'undefined' && TL && typeof TL.ga === 'function') {
+                TL.ga(title);
+            }
+        } catch (e) {
+            // ignore
+        }
+    },
     
     /**
      * Initialize the account module
@@ -202,6 +220,8 @@ const VX_ACCOUNT = {
      */
     showTab(tab) {
         this.currentTab = tab;
+
+        this.trackUI(`vui_account[${tab}]`);
         
         // Update sidebar nav (only module dynamic area)
         document.querySelectorAll('#vx-sidebar-dynamic .vx-nav-item').forEach(item => {
