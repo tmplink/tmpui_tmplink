@@ -924,6 +924,20 @@ class tmpUI {
             if (dom.children && dom.children.length > 0) return;
             dom.textContent = val;
         });
+
+        // 处理 [data-tpl-placeholder] 属性 - 仅翻译 placeholder
+        this.domSelect('[data-tpl-placeholder]', (dom) => {
+            const key = dom.getAttribute('data-tpl-placeholder');
+            if (!key || i18nLang[key] === undefined) return;
+            dom.setAttribute('placeholder', i18nLang[key]);
+        });
+
+        // 处理 [data-tpl-title] 属性 - 仅翻译 title
+        this.domSelect('[data-tpl-title]', (dom) => {
+            const key = dom.getAttribute('data-tpl-title');
+            if (!key || i18nLang[key] === undefined) return;
+            dom.setAttribute('title', i18nLang[key]);
+        });
     }
 
     /**
@@ -993,6 +1007,20 @@ class tmpUI {
                 // 只翻译叶子节点，避免破坏 icon+text 布局
                 if (dom.children && dom.children.length > 0) return;
                 dom.textContent = val;
+            });
+
+            // 处理 [data-tpl-placeholder] 属性 - 仅翻译 placeholder
+            wrap.querySelectorAll('[data-tpl-placeholder]').forEach(dom => {
+                const key = dom.getAttribute('data-tpl-placeholder');
+                if (!key || i18nLang[key] === undefined) return;
+                dom.setAttribute('placeholder', i18nLang[key]);
+            });
+
+            // 处理 [data-tpl-title] 属性 - 仅翻译 title
+            wrap.querySelectorAll('[data-tpl-title]').forEach(dom => {
+                const key = dom.getAttribute('data-tpl-title');
+                if (!key || i18nLang[key] === undefined) return;
+                dom.setAttribute('title', i18nLang[key]);
             });
 
             return wrap.innerHTML;
