@@ -33,16 +33,58 @@ body.file-page {
     flex-direction: column;
 }
 
-body.file-page #tpl_footer {
+body.file-page #tpl_footer,
+body.file-page #footer {
     padding: 20px;
-    font-size: 12px;
-    color: var(--file-text-sub);
+    font-size: 13px;
+    color: #334155;
     text-align: left;
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
     line-height: 1.6;
-    opacity: 0.6;
+    opacity: 1;
+    font-weight: 500;
+}
+
+body.file-page #tpl_footer a,
+body.file-page #tpl_footer .btn-pointer,
+body.file-page #footer a,
+body.file-page #footer .btn-pointer {
+    color: #334155;
+}
+
+body.file-page #tpl_footer a:hover,
+body.file-page #tpl_footer .btn-pointer:hover,
+body.file-page #footer a:hover,
+body.file-page #footer .btn-pointer:hover {
+    color: var(--file-text-main);
+    text-decoration: underline;
+}
+
+body.file-page #tpl_footer .d-none.d-sm-block,
+body.file-page #footer .d-none.d-sm-block {
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+}
+
+body.file-page #footer {
+    color: #334155;
+}
+
+body.file-page #footer a,
+body.file-page #footer .btn-pointer {
+    color: #334155;
+}
+
+body.file-page #footer a:hover,
+body.file-page #footer .btn-pointer:hover {
+    color: var(--file-text-main);
+}
+
+body.file-page #footer .container {
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .file-screen {
