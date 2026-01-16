@@ -29,9 +29,16 @@ body.file-page {
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: var(--file-bg);
+    background-image: none !important;
     color: var(--file-text-main);
     display: flex;
     flex-direction: column;
+}
+
+body.file-page #hero,
+body.file-page .hero-bg-image,
+body.file-page .hero-bg-overlay {
+    display: none !important;
 }
 
 body.file-page #tpl_footer,
@@ -46,6 +53,12 @@ body.file-page #footer {
     line-height: 1.6;
     opacity: 1;
     font-weight: 500;
+}
+
+body.file-page #tmpui,
+body.file-page #tmpui_body {
+    background: var(--file-bg) !important;
+    background-image: none !important;
 }
 
 body.file-page #tpl_footer a,
@@ -97,6 +110,13 @@ body.file-page #footer .container {
     margin: 0 auto;
     width: 100%;
     height: 100%; 
+}
+
+.file-page-root {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    background: var(--file-bg);
 }
 
 /* Header */
