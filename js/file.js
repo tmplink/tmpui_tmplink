@@ -93,6 +93,16 @@ class FilePageController {
         this.$btnLabel = this.$downloadBtn?.querySelector('.download-btn-label');
     }
 
+    isMobileContext() {
+        if (typeof isMobileScreen === 'function') {
+            return isMobileScreen();
+        }
+        if (typeof window !== 'undefined' && window.matchMedia) {
+            return window.matchMedia('(max-width: 675px)').matches;
+        }
+        return false;
+    }
+
     bindEvents() {
         // 下载按钮点击事件由 tmplink.js 绑定（因涉及 API token/recaptcha）
         // 这里只处理 UI 层面的事件
@@ -509,6 +519,14 @@ class FilePageController {
             // 对于快速下载模式，直接尝试多线程下载
             // startMultiThreadDownload 内部会自行检测文件大小和 Range 支持，失败则自动回退
             if (mode === 'fast') {
+                if (this.isMobileContext()) {
+                    window.location.href = url;
+                    setTimeout(() => {
+                        this.setButtonLoading(false);
+                        this.updateButtonText(app?.languageData?.file_btn_download_fast || '高速下载');
+                    }, 3000);
+                    return true;
+                }
                 console.log('[FilePageController] Fast mode: attempting multi-thread download');
                 // 立即恢复按钮状态，避免长时间显示 loading
                 this.setButtonLoading(false);
@@ -550,6 +568,14 @@ class FilePageController {
             this.updateButtonText('<img src="/img/loading-outline.svg" style="height:1.2em"/>');
 
             if (mode === 'fast') {
+                if (this.isMobileContext()) {
+                    window.location.href = url;
+                    setTimeout(() => {
+                        this.setButtonLoading(false);
+                        this.updateButtonText(app?.languageData?.file_btn_download_fast || '高速下载');
+                    }, 3000);
+                    return true;
+                }
                 const headResponse = await fetch(url, { method: 'HEAD' });
                 if (headResponse.ok) {
                     const fileSize = parseInt(headResponse.headers.get('content-length'));
