@@ -1201,47 +1201,86 @@ class tmplink {
                             this.ui_hs_change('enhanced');
                         }
 
-                        const uiCallbacks = {
-                            updateButtonText: (text) => {
-                                const $fastBtn = $('#file_download_btn_fast');
-                                // IMPORTANT: do NOT overwrite the whole button HTML,
-                                // otherwise progress DOM (#progress_thread_1/#download_progress_container) is destroyed.
-                                const $labelTarget = $fastBtn.find('.download-btn-label');
-                                const $legacyTextTarget = $fastBtn.find('.download-btn-text');
-
-                                if ($labelTarget.length) {
-                                    $labelTarget.html(text);
-                                } else if ($legacyTextTarget.length) {
-                                    $legacyTextTarget.html(text);
+                        // 使用新的 filePage 控制器处理下载
+                        // filePage 由 file.js 提供，负责 UI 和多线程下载
+                        if (typeof window.filePage !== 'undefined') {
+                            const getDownloadUrl = async () => {
+                                // 如果已预加载，直接返回
+                                if (this.current_file_download_url) {
+                                    return this.current_file_download_url;
                                 }
-
-                                if ((typeof text === 'string') && /<img/i.test(text)) {
-                                    $fastBtn.addClass('is-loading');
-                                } else {
-                                    $fastBtn.removeClass('is-loading');
+                                // 否则请求 API
+                                try {
+                                    const recaptcha = await this.recaptcha_do_async('download_req');
+                                    return new Promise((resolve, reject) => {
+                                        $.post(this.api_file, {
+                                            action: 'download_req',
+                                            ukey: params.ukey,
+                                            token: this.api_token,
+                                            captcha: recaptcha
+                                        }, (response) => {
+                                            if (response.status === 1) {
+                                                this.current_file_download_url = response.data;
+                                                resolve(response.data);
+                                            } else {
+                                                reject(new Error(app.languageData.status_file_2 || '下载请求失败'));
+                                            }
+                                        }, 'json').fail((xhr, status, error) => {
+                                            reject(new Error(error || '网络请求失败'));
+                                        });
+                                    });
+                                } catch (err) {
+                                    throw new Error(err.message || '获取下载链接失败');
                                 }
-                            },
-                            updateButtonState: (disabled) => $('#file_download_btn_fast').prop('disabled', !!disabled),
-                            updateButtonClass: (removeClass, addClass) => {
-                                $('#file_download_btn_fast').removeClass(removeClass).addClass(addClass);
-                            },
-                            showError: (message) => this.alert(message)
-                        };
+                            };
 
-                        // 如果已经预加载了下载链接，直接使用
-                        if (this.current_file_download_url) {
-                            this.download.startDirectDownload({
-                                url: this.current_file_download_url,
-                                filename: fileinfo.name,
-                                mode: 'fast'
-                            }, uiCallbacks);
-                        } else {
-                            // 否则走正常流程，通过 API 获取链接
-                            this.download.handleFileDownload({
+                            window.filePage.handleDownload({
                                 ukey: params.ukey,
                                 filename: fileinfo.name,
                                 mode: 'fast'
-                            }, uiCallbacks);
+                            }, getDownloadUrl).catch(err => {
+                                this.alert(err.message || app.languageData.status_file_2);
+                            });
+                        } else {
+                            // 回退：使用旧的 download.js 方式
+                            const uiCallbacks = {
+                                updateButtonText: (text) => {
+                                    const $fastBtn = $('#file_download_btn_fast');
+                                    const $labelTarget = $fastBtn.find('.download-btn-label');
+                                    const $legacyTextTarget = $fastBtn.find('.download-btn-text');
+
+                                    if ($labelTarget.length) {
+                                        $labelTarget.html(text);
+                                    } else if ($legacyTextTarget.length) {
+                                        $legacyTextTarget.html(text);
+                                    }
+
+                                    if ((typeof text === 'string') && /<img/i.test(text)) {
+                                        $fastBtn.addClass('is-loading');
+                                    } else {
+                                        $fastBtn.removeClass('is-loading');
+                                    }
+                                },
+                                updateButtonState: (disabled) => $('#file_download_btn_fast').prop('disabled', !!disabled),
+                                updateButtonClass: (removeClass, addClass) => {
+                                    $('#file_download_btn_fast').removeClass(removeClass).addClass(addClass);
+                                },
+                                showError: (message) => this.alert(message)
+                            };
+
+                            if (this.current_file_download_url) {
+                                this.download.startDirectDownload({
+                                    url: this.current_file_download_url,
+                                    filename: fileinfo.name,
+                                    mode: 'fast'
+                                }, uiCallbacks);
+                            } else {
+                                this.download.handleFileDownload({
+                                    ukey: params.ukey,
+                                    filename: fileinfo.name,
+                                    mode: 'fast'
+                                }, uiCallbacks);
+                            }
                         }
                     };
 

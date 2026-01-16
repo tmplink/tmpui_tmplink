@@ -107,11 +107,11 @@
             </button>
         </div>
 
-        <button class="vx-btn vx-btn-ghost" data-auth="logged-in" onclick="VX_FILELIST.upload()" title="." i18n="nav_upload" i18n-only="title">
+        <button class="vx-btn vx-btn-ghost" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.upload()" title="." i18n="nav_upload" i18n-only="title">
             <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
             <span data-tpl="nav_upload">上传文件</span>
         </button>
-        <button class="vx-btn vx-btn-ghost" data-auth="logged-in" onclick="VX_FILELIST.showCreateModal()" title="." i18n="model_title_folder_title" i18n-only="title">
+        <button class="vx-btn vx-btn-ghost" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.showCreateModal()" title="." i18n="model_title_folder_title" i18n-only="title">
             <iconpark-icon name="folder-plus"></iconpark-icon>
             <span data-tpl="model_title_folder_title">新建文件夹</span>
         </button>
@@ -168,7 +168,7 @@
         </div>
         <h3 class="vx-empty-title" data-tpl="vx_empty_folder_title">空文件夹</h3>
         <p class="vx-empty-text" data-tpl="page_no_files">拖放文件到这里或点击上传按钮</p>
-        <button class="vx-btn vx-btn-primary" data-auth="logged-in" onclick="VX_FILELIST.upload()">
+        <button class="vx-btn vx-btn-primary" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.upload()">
             <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
             <span data-tpl="nav_upload">上传文件</span>
         </button>
@@ -185,11 +185,11 @@
             <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
             <span data-tpl="on_select_download">下载</span>
         </button>
-        <button class="vx-btn vx-btn-ghost" data-auth="logged-in" onclick="VX_FILELIST.moveSelected()">
+        <button class="vx-btn vx-btn-ghost" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.moveSelected()">
             <iconpark-icon name="folder-plus"></iconpark-icon>
             <span data-tpl="on_select_move">移动</span>
         </button>
-        <button class="vx-btn vx-btn-ghost vx-text-danger" data-auth="logged-in" onclick="VX_FILELIST.deleteSelected()">
+        <button class="vx-btn vx-btn-ghost vx-text-danger" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.deleteSelected()">
             <iconpark-icon name="trash"></iconpark-icon>
             <span data-tpl="on_select_delete">删除</span>
         </button>

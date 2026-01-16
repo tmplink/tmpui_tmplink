@@ -686,6 +686,11 @@ class download {
                 $fastButton.addClass('download-btn-progress-active').attr('aria-busy', 'true');
             }
             
+            // 显示进度容器
+            if ($progressContainer.length) {
+                $progressContainer.addClass('is-active').show();
+            }
+            
             // 重置进度条
             $('#progress_thread_1').css('width', '0%').removeClass('bg-warning');
     
@@ -1012,7 +1017,7 @@ class download {
         const $fastButton = $('#file_download_btn_fast');
 
         if ($progressContainer.length) {
-            $progressContainer.removeClass('is-active');
+            $progressContainer.removeClass('is-active').hide();
         }
 
         if ($fastButton.length) {

@@ -1,18 +1,27 @@
-<link rel="stylesheet" href="/css/file-mobile-v2.css?v=2">
+<link rel="stylesheet" href="/css/file.css?v=1">
+<link rel="stylesheet" href="/css/file-mobile-v2.css?v=1">
+<script src="/js/file.js?v=1"></script>
 <script src="/js/core/mobile-file.js?v=1"></script>
 
-<div class="mobile-download-shell">
-    <!-- Header -->
+<div class="file-screen mobile-download-shell" id="file_screen">
     <header class="mobile-header">
-        <div class="mobile-brand">
-            <a href="/"><img id="top_loggo" src="/img/loading.svg" alt="tmp.link"></a>
-        </div>
-        <div class="header-actions">
+        <a class="mobile-brand" href="/">
+            <img id="top_loggo" src="/img/loading.svg" alt="tmp.link">
+        </a>
+        <div class="header-actions" id="index_lang" style="display: none;">
+            <button class="lang-chip hs-enabled" type="button" style="display: none;">
+                <iconpark-icon name="gauge-circle-bolt"></iconpark-icon>
+                <span i18n="hs_enabled">.</span>
+            </button>
+            <button class="lang-chip showOpenInMenubarX" type="button" onclick="TL.openInMenubarXofIndex()" style="display: none;">
+                <img src="/img/menubarx/icon.svg" alt="menubarx" />
+                <span i18n="open_in_menubarx">.</span>
+            </button>
             <div class="dropdown">
-                <button class="lang-toggle-minimal" data-toggle="dropdown">
+                <button class="lang-toggle-minimal dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <iconpark-icon name="language"></iconpark-icon>
                 </button>
-                <div class="dropdown-menu dropdown-menu-right shadow-lg" style="border-radius: 16px; border: none;">
+                <div class="dropdown-menu dropdown-menu-right shadow-lg">
                     <a class="dropdown-item" href="javascript:void(0)" onclick="TL.language('cn');">简体中文</a>
                     <a class="dropdown-item" href="javascript:void(0)" onclick="TL.language('hk');">繁体中文</a>
                     <a class="dropdown-item" href="javascript:void(0)" onclick="TL.language('en');">English</a>
@@ -22,73 +31,75 @@
         </div>
     </header>
 
-    <!-- Messenger (Login/Error) Overlay -->
     <div id="file_messenger" style="display: none;">
         <div class="messenger-card">
             <div class="messenger-icon" id="file_messenger_icon"></div>
             <div class="messenger-msg" id="file_messenger_msg"></div>
-            <div id="file_messenger_msg_login" style="display: none; padding: 0 20px;">
-                <button class="btn btn-primary btn-lg btn-block mb-3" style="border-radius: 14px;" onclick="app.open('/app&listview=login');" i18n="index_b3">Login</button>
-                <button class="btn btn-light btn-lg btn-block" style="border-radius: 14px;" onclick="app.open('/app&listview=reg');" i18n="index_b2">Register</button>
+            <div class="file-message-actions" id="file_messenger_msg_login" style="display: none;">
+                <button class="file-btn primary" type="button" onclick="app.open('/app&listview=login');" i18n="index_b3">Login</button>
+                <button class="file-btn ghost" type="button" onclick="app.open('/app&listview=reg');" i18n="index_b2">Register</button>
             </div>
         </div>
     </div>
 
-    <!-- Loading (shown before file details are ready) -->
-    <div class="mobile-content" id="file_loading_box">
+    <div id="file_loading_box" style="display: none;">
         <div class="mobile-loading" role="status" aria-live="polite">
             <img class="mobile-loading-icon" src="/img/loading.svg" alt="Loading">
         </div>
     </div>
 
-    <!-- Main Content -->
     <main class="mobile-content" id="file_box" style="display: none;">
-        <!-- File Preview -->
-        <div class="file-preview-area" id="file_info">
+        <section class="file-preview-area" id="file_info">
+            <div class="file-alert" id="wechat_notice" role="alert" style="display: none;" i18n="filepage_mobile_notice">.</div>
+            <div class="d-none" id="report_ukey"></div>
+
             <div class="file-icon-wrapper">
                 <iconpark-icon name="file-lines" id="file-icon"></iconpark-icon>
             </div>
-            
-            <h1 class="file-title" id="filename">Loading...</h1>
-            
+
+            <h1 class="file-title" id="filename">.</h1>
+
             <div class="file-meta-row">
-                <span class="meta-item">
-                    <span id="filesize">--</span>
-                </span>
+                <div class="meta-item">
+                    <iconpark-icon name="compact-disc"></iconpark-icon>
+                    <span id="filesize">.</span>
+                </div>
                 <span class="meta-dot"></span>
-                <span class="meta-item hs-model">
+                <button class="meta-item" id="likes" type="button" onclick="mobileLikeFile()">
+                    <iconpark-icon name="like"></iconpark-icon>
+                    <span id="likes_count">0</span>
+                </button>
+                <span class="meta-dot"></span>
+                <div class="meta-item hs-model">
                     <iconpark-icon name="gauge-circle-bolt"></iconpark-icon>
-                    <span class="hs-model-title" i18n="hs_title">Standard</span>
-                </span>
-                <span class="meta-dot hot-flag" style="display: none;"></span>
-                <span class="meta-item hot-flag" style="display: none;">
+                    <span class="hs-model-title" i18n="hs_title">.</span>
+                </div>
+                <div class="meta-item hot-flag" style="display: none;">
                     <iconpark-icon name="fire" style="color: #ef4444;"></iconpark-icon>
-                </span>
+                </div>
             </div>
-            
-            <div class="file-meta-row" id="lefttime_show" style="display: none;">
+
+            <div id="lefttime_show" style="display: none;">
                 <iconpark-icon name="timer"></iconpark-icon>
                 <span id="lefttime">--</span>
             </div>
 
-            <!-- NSFW Alert -->
             <div id="nsfw_alert" style="display: none;">
                 <iconpark-icon name="circle-exclamation"></iconpark-icon>
-                <span i18n="filepage_nsfw_alert">NSFW Content</span>
+                <span i18n="filepage_nsfw_alert">NSFW!</span>
             </div>
 
-            <!-- User Info -->
-            <div class="publisher-card userinfo" style="display: none;">
+            <div class="publisher-card file-publisher userinfo" style="display: none;">
                 <div class="publisher-icon">
                     <img class="userinfo_avatar_card_img" src="/img/loading.svg" alt="Avatar">
                 </div>
                 <div class="publisher-content">
                     <div class="publisher-name-row">
                         <span class="userinfo_nickname userinfo_card_nickname"></span>
+                        <span class="userinfo_sd" style="display: none;"></span>
                         <span class="userinfo_pro userinfo_card_pro" style="display: none;">
                             <iconpark-icon name="circle-check"></iconpark-icon>
                         </span>
-                        <span class="userinfo_sd" style="display: none;"></span>
                     </div>
                     <div class="publisher-intro">
                         <span class="userinfo_card_intro">个人介绍信息</span>
@@ -96,63 +107,102 @@
                 </div>
                 <div class="publisher-badge" i18n="filepage_sharer_badge">分享者</div>
             </div>
+        </section>
+
+        <div id="file_download_area">
+            <div id="file_op" style="display: none;">
+                <div class="action-grid">
+                    <div class="dropdown">
+                        <button class="action-item dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="action-icon-box">
+                                <iconpark-icon name="laptop-arrow-down"></iconpark-icon>
+                            </span>
+                            <span class="action-label" id="file_btn_download_opt" i18n="file_btn_download_opt">.</span>
+                        </button>
+                        <div class="dropdown-menu shadow">
+                            <button class="dropdown-item btn_copy_downloadurl_for_other" type="button">
+                                <iconpark-icon name="rectangle-terminal" class="fa-fw"></iconpark-icon>
+                                <span i18n="file_btn_download_opt_link">.</span>
+                            </button>
+                            <button class="dropdown-item btn_copy_downloadurl_for_curl" type="button">
+                                <iconpark-icon name="rectangle-terminal" class="fa-fw"></iconpark-icon>
+                                <span i18n="file_btn_download_opt_curl">.</span>
+                            </button>
+                            <button class="dropdown-item btn_copy_downloadurl_for_wget" type="button">
+                                <iconpark-icon name="rectangle-terminal" class="fa-fw"></iconpark-icon>
+                                <span i18n="file_btn_download_opt_wget">.</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="action-item" id="file_download_by_qrcode" type="button">
+                        <span class="action-icon-box">
+                            <iconpark-icon name="mobile-signal"></iconpark-icon>
+                        </span>
+                        <span class="action-label" i18n="file_btn_qr_mobile">.</span>
+                    </button>
+
+                    <button class="action-item btn_copy_fileurl" id="btn_copy_fileurl_mobile" type="button" onclick="mobileCopyFileUrl()">
+                        <span class="action-icon-box" id="btn_copy_fileurl_icon">
+                            <iconpark-icon name="share-all"></iconpark-icon>
+                        </span>
+                        <span class="action-label" i18n="file_btn_copy">.</span>
+                    </button>
+
+                    <button class="action-item btn_play" type="button" style="display: none;" onclick="$('#openWithPlayerModal').modal('show');">
+                        <span class="action-icon-box">
+                            <iconpark-icon name="play"></iconpark-icon>
+                        </span>
+                        <span class="action-label" i18n="file_btn_play">.</span>
+                    </button>
+
+                    <button class="action-item" id="btn_add_to_workspace_mobile" type="button" onclick="mobileAddToWorkspace()">
+                        <span class="action-icon-box" id="btn_add_to_workspace_icon">
+                            <iconpark-icon name="file-collection-one"></iconpark-icon>
+                        </span>
+                        <span class="action-label" i18n="file_btn_collect">.</span>
+                    </button>
+
+                    <button class="action-item" id="btn_highdownload" type="button">
+                        <span class="action-icon-box">
+                            <iconpark-icon name="rocket-launch"></iconpark-icon>
+                        </span>
+                        <span class="action-label" i18n="file_btn_upup">.</span>
+                    </button>
+
+                    <button class="action-item" id="btn_report_file" type="button">
+                        <span class="action-icon-box" style="color: #ef4444;">
+                            <iconpark-icon name="circle-exclamation"></iconpark-icon>
+                        </span>
+                        <span class="action-label" i18n="file_btn_report">.</span>
+                    </button>
+                </div>
+
+                <div class="legal-text" id="downloadAlert" onclick="$('#downloadAlertModal').modal('show')" style="display: none;">
+                    <iconpark-icon name="triangle-exclamation-solid"></iconpark-icon>
+                    <span i18n="da_file">.</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Action Grid (Secondary Actions) -->
-        <div class="action-grid" id="file_op">
-            <button class="action-item" id="likes" onclick="mobileLikeFile()">
-                <div class="action-icon-box">
-                    <iconpark-icon name="like"></iconpark-icon>
-                </div>
-                <span class="action-label" id="likes_count">0</span>
-            </button>
-
-            <button class="action-item" id="btn_add_to_workspace_mobile" onclick="mobileAddToWorkspace()">
-                <div class="action-icon-box">
-                    <iconpark-icon name="folder-plus"></iconpark-icon>
-                </div>
-                <span class="action-label" i18n="file_btn_collect">Save</span>
-            </button>
-
-            <button class="action-item" id="btn_copy_fileurl_mobile" onclick="mobileCopyFileUrl()">
-                <div class="action-icon-box">
-                    <iconpark-icon name="share-all"></iconpark-icon>
-                </div>
-                <span class="action-label" i18n="file_btn_copy">Copy</span>
-            </button>
-
-            <button class="action-item" id="btn_report_file" onclick="$('#reportModal').modal('show')">
-                <div class="action-icon-box" style="color: #ef4444;">
-                    <iconpark-icon name="circle-exclamation"></iconpark-icon>
-                </div>
-                <span class="action-label" i18n="file_btn_report">Report</span>
-            </button>
+        <div id="wx_notice" class="file-wx-note" style="display: none;">
+            <h5 i18n="filepage_weixin_notice">.</h5>
         </div>
-        
-        <!-- Hidden elements for JS compatibility -->
-        <div class="d-none" id="report_ukey"></div>
-        <div class="d-none" id="wechat_notice"></div>
-        <div class="d-none" id="wx_notice"></div>
-        <div class="d-none" id="index_lang"></div>
-        <span class="d-none userinfo_avatar"></span>
     </main>
 
-    <!-- Footer / Bottom Sheet -->
     <footer class="mobile-footer" style="display: none;">
         <button type="button" id="file_download_btn_fast">
             <span class="download-progress-fill" id="progress_thread_1"></span>
             <span class="download-btn-label">
                 <span class="download-btn-text" i18n="file_btn_download_fast">Download</span>
             </span>
-            <span class="download-btn-status" id="download_progress_container" aria-live="polite">
+            <span class="download-btn-status" id="download_progress_container" aria-live="polite" style="display: none;">
                 <span id="download_speed">0 KB/s</span>
                 <span class="status-separator">•</span>
                 <span id="download_progress">0 MB / 0 MB</span>
             </span>
         </button>
-        
-        <div class="legal-text" id="downloadAlert" style="display: none;" onclick="$('#downloadAlertModal').modal('show')">
-            <span i18n="da_file">Disclaimer: User generated content.</span>
-        </div>
     </footer>
+
+    <div id="file_loading" style="display: none;"></div>
 </div>
