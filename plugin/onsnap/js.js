@@ -67,7 +67,7 @@
         autoHideDelay: 2000,
         hideSpeed: 100,
         noticeClass: '',
-        noticeClose: '<div>X</div>',
+        noticeClose: '',
         noticeCloseClass: 'ntf-notice-close',
         autoShowDelay: 0,
         shown: null,

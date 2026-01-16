@@ -740,3 +740,276 @@ body.file-page #footer .container {
 .file-screen.is-compact .file-title {
     font-size: 18px;
 }
+
+/* ==================== Dark Mode ==================== */
+body.file-page.dark-mode {
+    --file-bg: #0f172a;
+    --file-card-bg: #111827;
+    --file-sidebar-bg: #0f172a;
+    --file-border: #1f2937;
+    --file-text-main: #f8fafc;
+    --file-text-sub: #94a3b8;
+    --file-accent: #8b5cf6;
+    --file-accent-hover: #7c3aed;
+    --file-danger: #f87171;
+    --file-shadow: 0 20px 40px -4px rgba(0, 0, 0, 0.45), 0 8px 16px -4px rgba(0, 0, 0, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+    body.file-page {
+        --file-bg: #0f172a;
+        --file-card-bg: #111827;
+        --file-sidebar-bg: #0f172a;
+        --file-border: #1f2937;
+        --file-text-main: #f8fafc;
+        --file-text-sub: #94a3b8;
+        --file-accent: #8b5cf6;
+        --file-accent-hover: #7c3aed;
+        --file-danger: #f87171;
+        --file-shadow: 0 20px 40px -4px rgba(0, 0, 0, 0.45), 0 8px 16px -4px rgba(0, 0, 0, 0.35);
+    }
+}
+
+body.file-page.dark-mode #tpl_footer,
+body.file-page.dark-mode #footer,
+body.file-page.dark-mode #footer a,
+body.file-page.dark-mode #footer .btn-pointer,
+body.file-page.dark-mode #tpl_footer a,
+body.file-page.dark-mode #tpl_footer .btn-pointer {
+    color: var(--file-text-sub);
+}
+
+body.file-page.dark-mode #footer a:hover,
+body.file-page.dark-mode #footer .btn-pointer:hover,
+body.file-page.dark-mode #tpl_footer a:hover,
+body.file-page.dark-mode #tpl_footer .btn-pointer:hover {
+    color: var(--file-text-main);
+}
+
+body.file-page.dark-mode .file-info-panel {
+    background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+    border-right-color: var(--file-border);
+}
+
+body.file-page.dark-mode .file-action-panel {
+    background: var(--file-card-bg);
+}
+
+body.file-page.dark-mode .file-icon,
+body.file-page.dark-mode .action-icon,
+body.file-page.dark-mode .file-meta-item,
+body.file-page.dark-mode .file-message-card,
+body.file-page.dark-mode .dropdown-menu {
+    background: #0b1220;
+    border-color: var(--file-border);
+}
+
+body.file-page.dark-mode .file-icon {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+body.file-page.dark-mode .file-meta-item {
+    color: var(--file-text-sub);
+}
+
+body.file-page.dark-mode .file-alert {
+    background: rgba(248, 113, 113, 0.12);
+    border-color: rgba(248, 113, 113, 0.35);
+    color: #fecaca;
+}
+
+body.file-page.dark-mode .file-publisher {
+    background: #0b1220;
+    border-color: var(--file-border);
+}
+
+body.file-page.dark-mode .publisher-avatar {
+    background: #1f2937;
+}
+
+body.file-page.dark-mode .publisher-badge {
+    background: rgba(139, 92, 246, 0.18);
+    color: #c4b5fd;
+}
+
+body.file-page.dark-mode .file-disclaimer {
+    background: rgba(251, 146, 60, 0.14);
+    border-color: rgba(251, 146, 60, 0.3);
+    color: #fdba74;
+}
+
+body.file-page.dark-mode .file-disclaimer:hover {
+    background: rgba(251, 146, 60, 0.2);
+    border-color: rgba(251, 146, 60, 0.4);
+}
+
+body.file-page.dark-mode .file-action-item:hover {
+    background: #1f2937;
+    color: var(--file-accent);
+}
+
+body.file-page.dark-mode .action-icon {
+    color: var(--file-text-main);
+}
+
+body.file-page.dark-mode .file-action-item:hover .action-icon {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+}
+
+body.file-page.dark-mode .dropdown-item {
+    color: var(--file-text-main);
+}
+
+body.file-page.dark-mode .dropdown-item:hover {
+    background: #1f2937;
+}
+
+body.file-page.dark-mode .file-overlay {
+    background: rgba(15, 23, 42, 0.75);
+}
+
+body.file-page.dark-mode .file-message-text {
+    color: var(--file-text-main);
+}
+
+body.file-page.dark-mode .file-btn.ghost {
+    color: var(--file-accent);
+    border-color: var(--file-accent);
+}
+
+body.file-page.dark-mode .lang-chip,
+body.file-page.dark-mode .lang-toggle {
+    background: #0b1220;
+    border-color: var(--file-border);
+    color: var(--file-text-sub);
+}
+
+body.file-page.dark-mode .lang-chip:hover,
+body.file-page.dark-mode .lang-toggle:hover {
+    background: #111827;
+    color: var(--file-text-main);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+    body.file-page #tpl_footer,
+    body.file-page #footer,
+    body.file-page #footer a,
+    body.file-page #footer .btn-pointer,
+    body.file-page #tpl_footer a,
+    body.file-page #tpl_footer .btn-pointer {
+        color: var(--file-text-sub);
+    }
+
+    body.file-page #footer a:hover,
+    body.file-page #footer .btn-pointer:hover,
+    body.file-page #tpl_footer a:hover,
+    body.file-page #tpl_footer .btn-pointer:hover {
+        color: var(--file-text-main);
+    }
+
+    body.file-page .file-info-panel {
+        background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+        border-right-color: var(--file-border);
+    }
+
+    body.file-page .file-action-panel {
+        background: var(--file-card-bg);
+    }
+
+    body.file-page .file-icon,
+    body.file-page .action-icon,
+    body.file-page .file-meta-item,
+    body.file-page .file-message-card,
+    body.file-page .dropdown-menu {
+        background: #0b1220;
+        border-color: var(--file-border);
+    }
+
+    body.file-page .file-icon {
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    body.file-page .file-meta-item {
+        color: var(--file-text-sub);
+    }
+
+    body.file-page .file-alert {
+        background: rgba(248, 113, 113, 0.12);
+        border-color: rgba(248, 113, 113, 0.35);
+        color: #fecaca;
+    }
+
+    body.file-page .file-publisher {
+        background: #0b1220;
+        border-color: var(--file-border);
+    }
+
+    body.file-page .publisher-avatar {
+        background: #1f2937;
+    }
+
+    body.file-page .publisher-badge {
+        background: rgba(139, 92, 246, 0.18);
+        color: #c4b5fd;
+    }
+
+    body.file-page .file-disclaimer {
+        background: rgba(251, 146, 60, 0.14);
+        border-color: rgba(251, 146, 60, 0.3);
+        color: #fdba74;
+    }
+
+    body.file-page .file-disclaimer:hover {
+        background: rgba(251, 146, 60, 0.2);
+        border-color: rgba(251, 146, 60, 0.4);
+    }
+
+    body.file-page .file-action-item:hover {
+        background: #1f2937;
+        color: var(--file-accent);
+    }
+
+    body.file-page .action-icon {
+        color: var(--file-text-main);
+    }
+
+    body.file-page .file-action-item:hover .action-icon {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    body.file-page .dropdown-item {
+        color: var(--file-text-main);
+    }
+
+    body.file-page .dropdown-item:hover {
+        background: #1f2937;
+    }
+
+    body.file-page .file-overlay {
+        background: rgba(15, 23, 42, 0.75);
+    }
+
+    body.file-page .file-message-text {
+        color: var(--file-text-main);
+    }
+
+    body.file-page .file-btn.ghost {
+        color: var(--file-accent);
+        border-color: var(--file-accent);
+    }
+
+    body.file-page .lang-chip,
+    body.file-page .lang-toggle {
+        background: #0b1220;
+        border-color: var(--file-border);
+        color: var(--file-text-sub);
+    }
+
+    body.file-page .lang-chip:hover,
+    body.file-page .lang-toggle:hover {
+        background: #111827;
+        color: var(--file-text-main);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+}

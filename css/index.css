@@ -302,6 +302,15 @@ _:-moz-tree-row(hover), .msie, .win { display:none; }
     background-color: rgb(220, 236, 245);
 }
 
+/* 列表操作按钮去除点击后的外圈高亮（避免图标按钮出现蓝色描边） */
+.list-bar .btn.btn-light:focus,
+.list-bar .btn.btn-light.focus,
+.list-bar .btn.btn-light:active:focus,
+.list-bar .btn.btn-light.active:focus {
+    box-shadow: none;
+    outline: none;
+}
+
 .media-card {
     border-radius: 8px;
     color: #343a40;
