@@ -2450,7 +2450,7 @@ var VX_FILELIST = VX_FILELIST || {
         if (!ukey) return;
         const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
         const safeKey = encodeURIComponent(String(ukey));
-        const url = `https://${domain}/file?ukey=${safeKey}`;
+        const url = `https://${domain}/f/${safeKey}`;
 
         if (typeof VXUI !== 'undefined' && VXUI.copyToClipboard) {
             VXUI.copyToClipboard(url);

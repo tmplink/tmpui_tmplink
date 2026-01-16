@@ -1229,40 +1229,49 @@ body.vx-modal-body-open {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
-    background: var(--vx-surface);
-    border: 1px solid var(--vx-border);
-    border-radius: var(--vx-radius);
-    box-shadow: var(--vx-shadow-lg);
-    transform: translateX(120%);
-    transition: transform 0.3s ease;
+    padding: 12px 14px;
+    background: color-mix(in srgb, var(--vx-surface) 92%, #ffffff 8%);
+    border: 1px solid color-mix(in srgb, var(--vx-border) 70%, transparent 30%);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transform: translateY(-6px) translateX(20px);
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
 .vx-toast.vx-toast-show {
-    transform: translateX(0);
+    transform: translateY(0) translateX(0);
+    opacity: 1;
 }
 
 .vx-toast-icon {
     font-size: 20px;
     flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
 }
 
 .vx-toast-message {
     flex: 1;
     font-size: var(--vx-text-sm);
     color: var(--vx-text);
+    font-weight: 500;
 }
 
-.vx-toast-close {
+    background: rgba(0, 0, 0, 0.02);
     display: flex;
     align-items: center;
     justify-content: center;
     width: 24px;
     height: 24px;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
     background: transparent;
     border: none;
     border-radius: var(--vx-radius-sm);
-    color: var(--vx-text-muted);
+    background: var(--vx-surface-hover);
+    color: var(--vx-text);
+    transform: scale(1.05);
     cursor: pointer;
     flex-shrink: 0;
 }

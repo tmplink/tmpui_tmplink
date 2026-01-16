@@ -365,7 +365,7 @@ const VX_ACCOUNT = {
             if (nameEl) nameEl.textContent = nickname;
             if (introEl) introEl.textContent = intro;
             
-            // Badges - if sponsor, only show sponsor badge; otherwise show rank badge
+            // Badges - if sponsor, only show sponsor badge; otherwise show rank badge (rank uses UID like legacy)
             const rankEl = document.getElementById('vx-profile-rank');
             const sponsorBadge = document.getElementById('vx-profile-sponsor-badge');
             
@@ -377,7 +377,9 @@ const VX_ACCOUNT = {
                 // Not sponsor: show rank badge, hide sponsor badge
                 if (rankEl) {
                     rankEl.style.display = 'inline-flex';
-                    rankEl.textContent = this.lang('myprofile_rank_normal', '普通用户');
+                    rankEl.textContent = (TL.uid !== undefined && TL.uid !== null && TL.uid !== '')
+                        ? String(TL.uid)
+                        : this.lang('myprofile_rank_normal', '普通用户');
                 }
                 if (sponsorBadge) sponsorBadge.style.display = 'none';
             }
@@ -418,14 +420,10 @@ const VX_ACCOUNT = {
             const acvEl = document.getElementById('vx-stat-acv');
             if (acvEl) acvEl.textContent = TL.user_acv || 0;
             
-            // Storage - display total storage space (formatted)
+            // Storage - display total private storage space (formatted, legacy behavior)
             const storageEl = document.getElementById('vx-stat-storage');
             if (storageEl) {
-                // Use user_group.storage if available and > 0, otherwise show total storage
-                const groupStorage = (TL.user_group && TL.user_group.storage) ? TL.user_group.storage : 0;
-                if (groupStorage > 0) {
-                    storageEl.textContent = `${groupStorage} GB`;
-                } else if (TL.storage) {
+                if (TL.storage) {
                     // Format total storage from bytes
                     storageEl.textContent = bytetoconver(TL.storage, true);
                 } else {
@@ -447,6 +445,16 @@ const VX_ACCOUNT = {
             const joinEl = document.getElementById('vx-stat-join');
             if (joinEl) {
                 joinEl.textContent = TL.user_join || '--';
+            }
+
+            // Sponsor time (legacy behavior: show date if sponsor)
+            const sponsorTimeEl = document.getElementById('vx-stat-sponsor-time');
+            if (sponsorTimeEl) {
+                if (TL.sponsor && TL.sponsor_time) {
+                    sponsorTimeEl.textContent = TL.sponsor_time;
+                } else {
+                    sponsorTimeEl.textContent = this.lang('opt_disable', '未启用');
+                }
             }
             
             // Show publish section for sponsors or users with high share value
