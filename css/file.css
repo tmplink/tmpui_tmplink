@@ -1,0 +1,675 @@
+:root {
+    --file-bg: #eef2f6;
+    --file-card-bg: #ffffff;
+    --file-sidebar-bg: #f8fafc;
+    --file-border: #e2e8f0;
+    --file-text-main: #1e293b;
+    --file-text-sub: #64748b;
+    --file-accent: #6366f1;
+    --file-accent-hover: #4f46e5;
+    --file-danger: #ef4444;
+    --file-radius: 24px;
+    --file-shadow: 0 20px 40px -4px rgba(0, 0, 0, 0.08), 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:focus {
+    outline: none !important;
+}
+
+html.file-page,
+body.file-page {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--file-bg);
+    color: var(--file-text-main);
+    display: flex;
+    flex-direction: column;
+}
+
+body.file-page #tpl_footer {
+    padding: 20px;
+    font-size: 12px;
+    color: var(--file-text-sub);
+    text-align: left;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    line-height: 1.6;
+    opacity: 0.6;
+}
+
+.file-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    height: 100%; 
+}
+
+/* Header */
+.file-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0 30px;
+    flex-shrink: 0;
+}
+
+.file-logo {
+    transition: transform 0.2s;
+}
+.file-logo:hover {
+    transform: scale(1.05);
+}
+
+.file-logo img {
+    height: 40px;
+    width: auto;
+}
+
+.file-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.lang-chip,
+.lang-toggle {
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.06);
+    color: var(--file-text-sub);
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.lang-chip:hover,
+.lang-toggle:hover {
+    background: #fff;
+    color: var(--file-text-main);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transform: translateY(-1px);
+}
+
+/* Main Layout - The Card */
+.file-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0; 
+    padding-bottom: 40px; 
+}
+
+.file-content {
+    background: var(--file-card-bg);
+    border-radius: var(--file-radius);
+    box-shadow: var(--file-shadow);
+    display: flex;
+    flex-direction: row; /* Side by side on desktop */
+    width: 100%;
+    max-width: 960px;
+    overflow: hidden;
+    min-height: 520px;
+    /* Adjust height auto for content but keep min height for look */
+    height: auto; 
+    align-self: center;
+    transition: all 0.3s ease;
+}
+
+/* Panel Common */
+.file-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 48px;
+    min-width: 0; /* Prevent flex overflow */
+}
+
+/* Left Panel - Visual/Info */
+.file-info-panel {
+    flex: 0 0 40%;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-right: 1px solid var(--file-border);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Right Panel - Actions */
+.file-action-panel {
+    flex: 1;
+    background: #fff;
+    justify-content: center;
+    gap: 32px;
+    padding: 48px 64px; /* More horizontal padding on desktop */
+}
+
+/* File Icon */
+.file-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 32px;
+    background: #fff;
+    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    color: var(--file-accent);
+    margin-bottom: 8px;
+    border: 1px solid rgba(0,0,0,0.02);
+}
+
+.file-icon iconpark-icon {
+    display: flex;
+}
+
+/* File Title */
+.file-title {
+    font-size: 20px;
+    line-height: 1.4;
+    font-weight: 700;
+    color: var(--file-text-main);
+    margin: 0;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    padding: 0 10px;
+}
+
+/* Meta Chips */
+.file-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.file-meta-item {
+    font-size: 12px;
+    color: var(--file-text-sub);
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.05);
+    padding: 6px 14px;
+    border-radius: 99px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.file-meta-like {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.file-meta-like:hover {
+    border-color: var(--file-danger);
+    color: var(--file-danger);
+}
+
+.hs-model-title {
+    color: var(--file-accent);
+}
+
+/* Alerts */
+.file-alert {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fee2e2;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.5;
+    width: 100%;
+}
+
+/* User Info Card */
+.file-publisher {
+    margin-top: auto; /* Push to bottom if space permits */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    padding: 10px 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    width: 100%;
+    max-width: 280px;
+}
+
+.publisher-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #f1f5f9;
+    flex-shrink: 0;
+}
+
+.publisher-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.publisher-details {
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+}
+
+.publisher-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--file-text-main);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.publisher-intro {
+    font-size: 11px;
+    color: var(--file-text-sub);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.publisher-badge {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--file-accent);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+/* Actions Section */
+
+/* Download Button Container */
+.mobile-footer {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.file-download-btn {
+    width: 100%;
+    height: 64px;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    border-radius: 18px;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    justify-content: center;
+    box-shadow: 0 12px 24px -6px rgba(79, 70, 229, 0.4);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none !important;
+}
+
+.file-download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -8px rgba(79, 70, 229, 0.5);
+}
+
+.file-download-btn:active {
+    transform: scale(0.98);
+}
+
+.action-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: inherit;
+    width: 100%;
+    outline: none !important;
+}
+
+.download-btn-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    transition: opacity 0.2s;
+}
+
+/* 下载进行中时，标签文字居中 */
+.file-download-btn.download-btn-progress-active .download-btn-label {
+    align-items: center;
+    flex: 1;
+}
+
+.download-btn-text {
+    font-size: 18px;
+    transition: opacity 0.2s;
+}
+
+/* 下载进行中时隐藏原按钮文字 */
+.file-download-btn.download-btn-progress-active .download-btn-text {
+    display: none;
+}
+
+.download-btn-text-placeholder {
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* 下载进行中时，隐藏原始文字（由JS动态更新） */
+.file-download-btn.download-btn-progress-active .download-btn-text {
+    /* 保持可见，JS会更新内容 */
+}
+
+.download-btn-sub {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.download-btn-status {
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 2;
+    padding: 8px 16px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    /* 默认隐藏，下载时通过JS显示 */
+}
+
+#download_speed {
+    display: inline-block;
+    min-width: 90px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+#download_progress {
+    display: inline-block;
+    min-width: 180px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.download-btn-status.is-active {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Fix for download progress visibility */
+.download-progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.2);
+    z-index: 1;
+    width: 0%;
+    transition: width 0.15s linear;
+    border-radius: inherit;
+}
+
+.file-download-btn.download-btn-progress-active {
+    pointer-events: none;
+    justify-content: center;
+}
+
+.file-download-btn.download-btn-progress-active .download-btn-label {
+    flex: 0 0 auto;
+    align-items: center;
+}
+
+.file-download-btn.download-btn-progress-active .download-btn-status {
+    margin-left: 16px;
+}
+
+
+/* Disclaimer Banner */
+.file-disclaimer {
+    margin-top: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #fff8f1;
+    border: 1px solid #ffedd5;
+    border-radius: 12px;
+    color: #9a3412;
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    max-width: 400px;
+    margin: 16px auto 0;
+}
+
+.file-disclaimer:hover {
+    background: #ffedd5;
+    border-color: #fed7aa;
+}
+
+.file-disclaimer iconpark-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    color: #f97316;
+}
+
+/* Secondary Actions Grid */
+.file-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.file-action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--file-text-sub);
+    padding: 8px;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.file-action-item:hover {
+    background: #f8fafc;
+    color: var(--file-accent);
+}
+
+.action-icon {
+    width: 48px;
+    height: 48px;
+    background: #fff;
+    border: 1px solid var(--file-border);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.2s;
+    color: var(--file-text-main);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.file-action-item:hover .action-icon {
+    border-color: var(--file-accent);
+    color: var(--file-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.1);
+}
+
+.action-label {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Dropdown override */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15);
+    border-radius: 16px;
+    padding: 8px;
+    min-width: 200px;
+    z-index: 1000;
+    background: #fff;
+    position: absolute;
+    /* Basic bootstrap override if needed */
+}
+
+.dropdown-item {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--file-text-main);
+}
+.dropdown-item:hover {
+    background: #f1f5f9;
+}
+
+/* Loading Overlay */
+.file-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(4px);
+}
+.file-loading img { width: 48px; }
+
+/* Message Overlay */
+.file-message-card {
+    background: #fff;
+    padding: 32px;
+    border-radius: 24px;
+    box-shadow: var(--file-shadow);
+    text-align: center;
+    max-width: 90%;
+    width: 320px;
+}
+.file-message-text {
+    margin: 16px 0;
+    color: var(--file-text-main);
+    font-weight: 500;
+}
+.file-message-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+.file-btn {
+    padding: 8px 20px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+.file-btn.primary { background: var(--file-accent); color: #fff; }
+.file-btn.ghost { background: transparent; color: var(--file-accent); border: 1px solid var(--file-accent); }
+
+
+/* Responsive: Mobile View */
+@media (max-width: 800px) {
+    .file-screen {
+        padding: 16px;
+    }
+    
+    .file-content {
+        flex-direction: column;
+        height: auto;
+        min-height: auto;
+        align-self: flex-start; /* Let it flow naturally */
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .file-info-panel {
+        flex: none;
+        border-right: none;
+        border-bottom: 1px solid var(--file-border);
+        padding: 40px 24px 32px;
+    }
+
+    .file-action-panel {
+        flex: none;
+        padding: 32px 24px 40px;
+    }
+
+    .file-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 36px;
+    }
+
+    .file-title {
+        font-size: 18px;
+    }
+    
+    .file-publisher {
+        display: none; /* Hide publisher on mobile small view to save space, or simplify */
+    }
+}
+
+/* Compact Mode Optimization */
+.file-screen.is-compact .file-panel {
+    padding: 24px;
+}
+.file-screen.is-compact .file-icon {
+    width: 72px;
+    height: 72px;
+    font-size: 32px;
+}
+.file-screen.is-compact .file-title {
+    font-size: 18px;
+}

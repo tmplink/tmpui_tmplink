@@ -1,4 +1,8 @@
 app.ready(() => {
+    // 文件页独立初始化 TL 对象
+    if (typeof window.TL === 'undefined') {
+        window.TL = new tmplink();
+    }
 
     if (isMobileScreen()) {
         $('#file-view').html(app.getFile('/tpl/file_mobile.html'));

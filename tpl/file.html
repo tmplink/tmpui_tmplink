@@ -1,28 +1,6 @@
-<style>
-/* 覆盖全局背景，包括 body 和 footer */
-body {
-    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%) !important;
-}
-
-.light-file-page {
-    min-height: 100vh;
-    background: transparent;
-}
-
-/* Footer 透明化处理 */
-#tpl_footer {
-    background: transparent !important;
-}
-
-#tpl_footer * {
-    background: transparent !important;
-}
-</style>
-
-<div class="light-file-page">
+<div class="file-page-root">
     <div class="container d-flex flex-grow-1">
-        <div class="align-self-center w-100" id="file-view">
-        </div>
+        <div class="align-self-center w-100" id="file-view"></div>
     </div>
 </div>
 <div id="tpl_footer"></div>
