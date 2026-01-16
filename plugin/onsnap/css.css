@@ -30,15 +30,7 @@
 }
 
 .ntf-notice-close {
-    bottom: 0px;
-    cursor: pointer;
-    display: inline;
-    font-size: 15px;
-    font-weight: bold;
-    padding: 10px 20px;
-    position: absolute;
-    right: 0px;
-    top: 0px;
+    display: none;
 }
 
 .ntf-warning {

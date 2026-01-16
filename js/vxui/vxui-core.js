@@ -782,7 +782,7 @@ class VXUICore {
             <iconpark-icon name="${icons[type] || 'info-circle'}" class="vx-toast-icon"></iconpark-icon>
             <span class="vx-toast-message">${message}</span>
             <button class="vx-toast-close" onclick="this.parentElement.remove()">
-                <iconpark-icon name="close"></iconpark-icon>
+                <iconpark-icon name="close-one"></iconpark-icon>
             </button>
         `;
         
