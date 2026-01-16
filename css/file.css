@@ -10,6 +10,7 @@
     --file-danger: #ef4444;
     --file-radius: 24px;
     --file-shadow: 0 20px 40px -4px rgba(0, 0, 0, 0.08), 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+    --file-shell-width: 960px;
 }
 
 * {
@@ -39,7 +40,7 @@ body.file-page #footer {
     font-size: 13px;
     color: #334155;
     text-align: left;
-    max-width: 1200px;
+    max-width: var(--file-shell-width);
     margin: 0 auto;
     width: 100%;
     line-height: 1.6;
@@ -92,7 +93,7 @@ body.file-page #footer .container {
     display: flex;
     flex-direction: column;
     padding: 20px;
-    max-width: 1200px;
+    max-width: var(--file-shell-width);
     margin: 0 auto;
     width: 100%;
     height: 100%; 
@@ -168,7 +169,7 @@ body.file-page #footer .container {
     display: flex;
     flex-direction: row; /* Side by side on desktop */
     width: 100%;
-    max-width: 960px;
+    max-width: var(--file-shell-width);
     overflow: hidden;
     min-height: 520px;
     /* Adjust height auto for content but keep min height for look */
@@ -663,6 +664,10 @@ body.file-page #footer .container {
 
 /* Responsive: Mobile View */
 @media (max-width: 800px) {
+    :root {
+        --file-shell-width: 500px;
+    }
+
     .file-screen {
         padding: 16px;
     }
