@@ -772,10 +772,10 @@ class VXUICore {
         toast.className = `vx-toast vx-toast-${type}`;
         
         const icons = {
-            success: 'check-circle',
-            error: 'x-circle',
-            warning: 'warning-circle',
-            info: 'info-circle'
+            success: 'circle-check',
+            error: 'circle-xmark',
+            warning: 'circle-exclamation',
+            info: 'circle-exclamation'
         };
         
         toast.innerHTML = `
