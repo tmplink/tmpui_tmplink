@@ -1325,3 +1325,89 @@
     color: var(--album-text);
     font-weight: 500;
 }
+
+/* ==================== VXUI Compatibility ==================== */
+/* Compatibility variables for VXUI components used in FileList template */
+:root {
+    --vx-text: var(--album-text);
+    --vx-text-secondary: var(--album-text-secondary);
+    --vx-text-muted: var(--album-text-muted);
+    --vx-text-inverse: #ffffff;
+    
+    --vx-bg-secondary: var(--album-surface);
+    --vx-surface: var(--album-card-bg);
+    --vx-surface-hover: var(--album-surface-hover);
+    
+    --vx-border: var(--album-border);
+    --vx-border-hover: var(--album-text-secondary);
+    
+    --vx-primary: var(--album-accent);
+    --vx-primary-light: var(--album-accent-glow);
+    --vx-danger: var(--album-danger);
+    --vx-success: var(--album-success);
+    
+    --vx-radius-md: 8px;
+    --vx-radius-sm: 4px;
+    --vx-radius: 6px;
+    
+    --vx-text-xs: 12px;
+    --vx-text-sm: 13px;
+    --vx-transition: all 0.3s ease;
+    --vx-shadow-sm: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Text Utilities */
+.vx-text-sm { font-size: var(--vx-text-sm); }
+.vx-text-muted { color: var(--vx-text-muted); }
+.vx-text-xs { font-size: var(--vx-text-xs); }
+
+/* Switch Component */
+.vx-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.vx-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.vx-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    width: 44px;
+    height: 24px;
+    background: var(--vx-border);
+    border-radius: 12px;
+    transition: var(--vx-transition);
+}
+
+.vx-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: var(--vx-transition);
+    box-shadow: var(--vx-shadow-sm);
+}
+
+.vx-switch input:checked + .vx-switch-slider {
+    background: var(--vx-primary);
+}
+
+.vx-switch input:checked + .vx-switch-slider:before {
+    transform: translateX(20px);
+}

@@ -1870,3 +1870,105 @@ body.file-page.dark-mode .lang-toggle:hover {
         background: rgba(255, 255, 255, 0.05);
     }
 }
+
+/* VXUI Compatibility Layer for File Module (Added by Copilot) */
+:root {
+    /* Map VX variables to File variables to unify colors */
+    --vx-primary: var(--file-accent, #6366f1);
+    --vx-primary-hover: var(--file-accent-hover, #4f46e5);
+    --vx-border: var(--file-border, #e2e8f0);
+    --vx-text: var(--file-text-main, #1e293b);
+    --vx-text-secondary: var(--file-text-sub, #64748b);
+    --vx-text-muted: #94a3b8;
+    --vx-text-xs: 12px;
+    --vx-text-sm: 13px;
+    --vx-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --vx-radius-sm: 6px;
+    --vx-bg-secondary: #f1f5f9;
+    --vx-radius: 8px;
+    --vx-transition: all 0.2s ease;
+    --vx-font-mono: 'SF Mono', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+/* Utilities */
+.vx-text-xs { font-size: var(--vx-text-xs); }
+.vx-text-sm { font-size: var(--vx-text-sm); }
+.vx-text-muted { color: var(--vx-text-muted); }
+
+/* Switch Component */
+.vx-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    display: inline-block;
+    flex-shrink: 0;
+}
+.vx-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.vx-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    width: 44px;
+    height: 24px;
+    background: var(--vx-border);
+    border-radius: 12px;
+    transition: var(--vx-transition);
+}
+.vx-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: var(--vx-transition);
+    box-shadow: var(--vx-shadow-sm);
+}
+.vx-switch input:checked + .vx-switch-slider {
+    background: var(--vx-primary);
+}
+.vx-switch input:checked + .vx-switch-slider:before {
+    transform: translateX(20px);
+}
+
+/* Sidebar Layout & Typography */
+.vx-nav-section {
+    padding: 0 12px;
+    margin-bottom: 8px;
+}
+.vx-nav-title {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    font-size: var(--vx-text-xs);
+    font-weight: 600;
+    color: var(--vx-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.vx-sidebar-module-info {
+    padding: 10px 16px;
+}
+.vx-sidebar-folder-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin: 0 0 4px 0;
+}
+.vx-sidebar-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--vx-text-secondary);
+    font-size: 13px;
+}

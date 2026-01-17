@@ -518,13 +518,45 @@ body.vx-sidebar-open .vx-sidebar {
     overflow: visible;
 }
 
-/* Language switcher: use dropup in sidebar footer to avoid viewport clipping */
+/* Language switcher: positioned above the button */
+#vx-lang-dropdown {
+    position: relative;
+}
+
 #vx-lang-dropdown .vx-dropdown-menu {
-    top: auto;
-    bottom: 100%;
-    margin-bottom: 8px;
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    width: 100%;
     max-height: min(320px, 50vh);
     overflow-y: auto;
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius);
+    box-shadow: var(--vx-shadow-lg);
+    padding: 6px;
+    z-index: calc(var(--vx-z-fixed) + 10);
+}
+
+#vx-lang-dropdown.open .vx-dropdown-menu {
+    display: block;
+}
+
+#vx-lang-dropdown .vx-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: var(--vx-radius-sm);
+    font-size: var(--vx-text-sm);
+    color: var(--vx-text);
+    cursor: pointer;
+    transition: var(--vx-transition-fast);
+}
+
+#vx-lang-dropdown .vx-dropdown-item:hover {
+    background: var(--vx-surface-hover);
+    color: var(--vx-primary);
 }
 
 .vx-sidebar-header {
@@ -672,6 +704,8 @@ body.vx-sidebar-open .vx-sidebar {
     padding: 12px;
     border-top: 1px solid var(--vx-border);
     flex-shrink: 0;
+    position: relative;
+    overflow: visible;
 }
 
 /* Logged-out: remove empty menu divider above language selector */
@@ -2250,12 +2284,16 @@ body.vx-modal-body-open {
     width: 44px;
     height: 24px;
     display: inline-block;
+    flex-shrink: 0;
 }
 
 .vx-switch input {
     opacity: 0;
     width: 0;
     height: 0;
+    position: absolute;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .vx-switch-slider {
@@ -2263,10 +2301,10 @@ body.vx-modal-body-open {
     cursor: pointer;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
+    width: 44px;
+    height: 24px;
     background: var(--vx-border);
-    border-radius: var(--vx-radius-full);
+    border-radius: 12px;
     transition: var(--vx-transition);
 }
 
@@ -2276,7 +2314,7 @@ body.vx-modal-body-open {
     height: 18px;
     width: 18px;
     left: 3px;
-    bottom: 3px;
+    top: 3px;
     background: white;
     border-radius: 50%;
     transition: var(--vx-transition);

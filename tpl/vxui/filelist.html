@@ -48,10 +48,15 @@
     <div class="vx-nav-section" id="vx-fl-direct-section" style="display:none;">
         <div class="vx-nav-title" data-tpl="nav_direct">直链</div>
         <div class="vx-sidebar-module-info">
-            <label class="vx-checkbox" style="margin: 0;">
-                <input type="checkbox" id="vx-fl-direct-toggle" onchange="VX_FILELIST.toggleDirectForFolder()">
-                <span data-tpl="vx_allow_folder_direct_link">允许文件夹直链</span>
-            </label>
+            <div style="display:flex; align-items:center; justify-content: space-between; gap: 12px;">
+                <div style="min-width:0;">
+                    <div class="vx-text-sm" data-tpl="vx_allow_folder_direct_link">允许文件夹直链</div>
+                </div>
+                <label class="vx-switch" style="flex-shrink:0;">
+                    <input type="checkbox" id="vx-fl-direct-toggle" onchange="VX_FILELIST.toggleDirectForFolder()">
+                    <span class="vx-switch-slider"></span>
+                </label>
+            </div>
             <div id="vx-fl-direct-disabled" class="vx-text-muted" style="margin-top: 8px; font-size: var(--vx-text-xs); display:none;">
                 <span data-tpl="vx_bind_direct_domain_first">请先在直链模块绑定域名。</span>
             </div>
@@ -1490,6 +1495,11 @@
     
     .vx-album-container .album-grid {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    /* 移动端未登录时隐藏多选功能 */
+    .vx-logged-out .vx-list-header .vx-list-checkbox {
+        display: none;
     }
 }
 
