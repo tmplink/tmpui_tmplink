@@ -6,6 +6,7 @@
     --app-success: #22c55e;
     --app-border: #e2e8f0;
     --app-surface: #f8fafc;
+    --mobile-side-pad: 20px;
 }
 
 /* 深色模式 - 自动检测系统偏好 */
@@ -45,6 +46,30 @@ body {
 
 body.file-page {
     display: block;
+    background: var(--app-bg) !important;
+    --file-bg: var(--app-bg);
+    --file-card-bg: var(--app-bg);
+}
+
+html.file-page {
+    background: var(--app-bg) !important;
+}
+
+body.file-page #tmpui,
+body.file-page #tmpui_body {
+    background: var(--app-bg) !important;
+}
+
+/* Override bootstrap container centering/padding on mobile file page */
+body.file-page .file-page-root,
+body.file-page .file-page-root > .container {
+    padding: 0 !important;
+    margin: 0 !important;
+    align-items: stretch !important;
+}
+
+body.file-page .file-page-root .align-self-center {
+    align-self: stretch !important;
 }
 
 .mobile-download-shell {
@@ -64,7 +89,8 @@ body.file-page {
 
 /* Header */
 .mobile-header {
-    padding: 16px 20px;
+    padding: 10px var(--mobile-side-pad) 12px;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -86,7 +112,7 @@ body.file-page {
 .mobile-content {
     flex: 1;
     overflow-y: auto;
-    padding: 16px 24px 24px;
+    padding: 16px var(--mobile-side-pad) 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -282,9 +308,9 @@ body.file-page {
 
 /* Bottom Sheet / Footer */
 .mobile-footer {
-    padding: 20px 24px 36px; /* Extra bottom padding for home indicator */
-    background: var(--app-bg);
-    border-top: 1px solid var(--app-border);
+    padding: 16px var(--mobile-side-pad) 32px; /* Extra bottom padding for home indicator */
+    background: transparent;
+    border-top: none;
     flex-shrink: 0;
     z-index: 10;
 }
