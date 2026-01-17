@@ -98,8 +98,11 @@
         <main class="vx-main">
             <!-- Mobile Header -->
             <div class="vx-mobile-header">
-                <button class="vx-btn-icon" onclick="VXUI.openSidebar()">
+                <button class="vx-btn-icon vx-btn-menu" id="vx-mobile-menu" onclick="VXUI.openSidebar()">
                     <iconpark-icon name="bars"></iconpark-icon>
+                </button>
+                <button class="vx-btn-icon vx-btn-back" id="vx-mobile-back" onclick="VX_FILELIST.goToParent()" style="display: none;">
+                    <iconpark-icon name="arrow-circle-left"></iconpark-icon>
                 </button>
                 <span class="vx-mobile-title" id="vx-mobile-title" data-tpl="product_name">钛盘</span>
                 <button class="vx-btn-icon" onclick="VXUI.toggleDarkMode()">

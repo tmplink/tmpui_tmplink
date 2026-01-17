@@ -668,13 +668,18 @@ class uploader {
     model_selected(model) {
         model = this.normalizeModelValue(model);
 
-        if (this.storage_used >= this.storage) {
+        // 检查是否已登录且存储空间已初始化
+        const isLoggedIn = this.parent_op && this.parent_op.logined === 1;
+        const storageInitialized = this.storage > 0;
+        const isStorageFull = storageInitialized && this.storage_used >= this.storage;
+
+        if (isStorageFull) {
             $('#upload_model_select option[value="99"]').attr('disabled', 'disabled');
         } else {
             $('#upload_model_select option[value="99"]').removeAttr('disabled');
         }
 
-        if (model === 99 && this.storage_used >= this.storage) {
+        if (model === 99 && isLoggedIn && isStorageFull) {
             alert('私有空间已经用完，请考虑购买私有空间扩展包。');
             $('#upload_model_select').val(String($('#upload_model').val() || 0));
             return false;

@@ -1,7 +1,16 @@
 app.ready(() => {
     // 文件页独立初始化 TL 对象
     if (typeof window.TL === 'undefined') {
-        window.TL = new tmplink();
+        if (typeof window.tmplink_api !== 'undefined') {
+            window.TL = new tmplink_api();
+        } else {
+            window.TL = new tmplink();
+        }
+    }
+
+    if (typeof TL !== 'undefined' && typeof stream === 'function' && !TL.stream) {
+        TL.stream = new stream();
+        TL.stream.init(TL);
     }
 
     if (isMobileScreen()) {
@@ -15,8 +24,13 @@ app.ready(() => {
     $('meta[name=description]').html(app.languageData.des_file);
 
     TL.ready(() => {
-        TL.file_details();
-        TL.head_set();
+        if (typeof window.filePage !== 'undefined' && typeof window.filePage.loadFileDetails === 'function') {
+            window.filePage.loadFileDetails();
+        }
+
+        if (typeof TL.report !== 'function' && typeof window.filePage !== 'undefined' && typeof window.filePage.reportFile === 'function') {
+            TL.report = () => window.filePage.reportFile();
+        }
         
         // 添加用户信息卡片的鼠标悬停事件
         initUserInfoCard();

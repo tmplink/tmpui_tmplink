@@ -919,6 +919,7 @@
     "status_error_16": "下載已開始，但是您所選中的檔案中包含了檔案夾，檔案夾不會被下載，除非您通過「打包下載」功能來進行下載。",
     "confirm_delete": "確定要刪除嗎？",
     "menu_delete": "刪除檔案",
+    "menu_delete_folder": "刪除資料夾",
     "menu_rename": "重命名",
     "filename": "檔案名稱",
     "filesize": "大小",

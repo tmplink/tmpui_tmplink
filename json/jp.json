@@ -478,6 +478,7 @@
     "service_code_media": "メディアライブラリ",
     "service_code_media_des": "メディアライブラリサービス、さまざまなライブラリ容量を重ね合わせることができます。",
     "menu_delete": "削除",
+    "menu_delete_folder": "フォルダを削除",
     "menu_rename": "名前変更",
     "filename": "ファイル名",
     "filesize": "サイズ",

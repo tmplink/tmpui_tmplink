@@ -855,6 +855,7 @@
     "user_review_notice2": "您每天可以提交一次审核。",
     "user_review_notice_vip": "赞助者尊享无限制提交审核特权，10 分钟内完成审核。",
     "menu_delete": "删除文件",
+    "menu_delete_folder": "删除文件夹",
     "menu_addlink": "通过直链分享",
     "menu_rename": "重命名",
     "filename": "文件名",

@@ -490,6 +490,7 @@
     "service_code_media": "Media Library",
     "service_code_media_des": "Media library service, different library capacities can be stacked.",
     "menu_delete": "Delete file",
+    "menu_delete_folder": "Delete folder",
     "menu_rename": "Rename",
     "filename": "File name",
     "filesize": "File size",

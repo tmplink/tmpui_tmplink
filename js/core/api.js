@@ -5,37 +5,7 @@
 
 'use strict';
 
-class tmplink_v2_download {
-    constructor(parent) {
-        this.parent_op = parent;
-    }
-
-    async get_download_url(ukey) {
-        if (!this.parent_op) throw new Error('parent not ready');
-        const api = this.parent_op.api_file;
-        const token = this.parent_op.api_token;
-        if (!api || !token) throw new Error('missing api/token');
-
-        const recaptcha = (typeof this.parent_op.recaptcha_do_async === 'function')
-            ? await this.parent_op.recaptcha_do_async('download_req')
-            : '';
-
-        const response = await $.post(api, {
-            action: 'download_req',
-            ukey: ukey,
-            token: token,
-            captcha: recaptcha
-        });
-
-        if (response && response.status === 1) return response.data;
-        if (response && response.status === 3) {
-            throw new Error((app && app.languageData && app.languageData.status_need_login) || '需要登录');
-        }
-        throw new Error((app && app.languageData && app.languageData.status_error_0) || '请求失败');
-    }
-}
-
-class tmplink_v2 {
+class tmplink_api {
     api_url = 'https://tmplink-sec.vxtrans.com/api_v2';
     api_url_sec = 'https://tmplink-sec.vxtrans.com/api_v2';
     api_url_upload = null;
@@ -51,6 +21,11 @@ class tmplink_v2 {
     api_tokx = null;
     api_token = null;
     site_domain = null;
+
+    current_file_details = null;
+    current_file_download_url = null;
+    current_file_curl_command = null;
+    current_file_wget_command = null;
 
     recaptcha_op = false;
     recaptcha = '6LfqxcsUAAAAABAABxf4sIs8CnHLWZO4XDvRJyN5';
@@ -92,8 +67,6 @@ class tmplink_v2 {
         this.setDomain();
         this.setThemeColor();
         this.initLanguageAliases();
-
-        this.download = new tmplink_v2_download(this);
 
         this.bootstrapToken();
     }
@@ -312,6 +285,29 @@ class tmplink_v2 {
         return false;
     }
 
+    async get_download_url(ukey) {
+        const api = this.api_file;
+        const token = this.api_token;
+        if (!api || !token) throw new Error('missing api/token');
+
+        const recaptcha = (typeof this.recaptcha_do_async === 'function')
+            ? await this.recaptcha_do_async('download_req')
+            : '';
+
+        const response = await $.post(api, {
+            action: 'download_req',
+            ukey: ukey,
+            token: token,
+            captcha: recaptcha
+        });
+
+        if (response && response.status === 1) return response.data;
+        if (response && response.status === 3) {
+            throw new Error((app && app.languageData && app.languageData.status_need_login) || '需要登录');
+        }
+        throw new Error((app && app.languageData && app.languageData.status_error_0) || '请求失败');
+    }
+
     get_details(cb) {
         if (!this.api_user || !this.api_token) {
             if (typeof cb === 'function') cb();
@@ -450,58 +446,70 @@ class tmplink_v2 {
                 break;
             case 'xls':
             case 'xlsx':
+            case 'xlsm':
                 r = 'file-excel';
                 break;
             case 'ppt':
             case 'pptx':
                 r = 'file-powerpoint';
                 break;
-            case 'txt':
-                r = 'file-lines';
+            case 'c':
+            case 'go':
+            case 'cpp':
+            case 'php':
+            case 'java':
+            case 'js':
+            case 'vb':
+            case 'py':
+            case 'css':
+            case 'html':
+            case 'asm':
+                r = 'file-code';
                 break;
-            case 'mp3':
-            case 'wav':
-            case 'aac':
-            case 'flac':
             case 'ogg':
             case 'm4a':
+            case 'mp3':
+            case 'wav':
+            case 'weba':
+            case 'aac':
+            case 'flac':
                 r = 'file-music';
                 break;
             case 'mp4':
-            case 'mkv':
+            case 'rm':
+            case 'rmvb':
             case 'avi':
-            case 'mov':
+            case 'mkv':
+            case 'webm':
             case 'wmv':
             case 'flv':
-            case 'webm':
+            case 'mpg':
+            case 'mpeg':
+            case 'ts':
+            case 'mov':
+            case 'vob':
                 r = 'file-video';
                 break;
-            case 'jpg':
-            case 'jpeg':
             case 'png':
             case 'gif':
             case 'bmp':
+            case 'jpg':
+            case 'jpeg':
             case 'webp':
-            case 'svg':
                 r = 'file-image';
                 break;
-            case 'psd':
-                r = 'file-psd';
-                break;
-            case 'ai':
-                r = 'file-ai';
-                break;
-            case 'apk':
-                r = 'android';
-                break;
             case 'exe':
-                r = 'windows';
+            case 'bin':
+            case 'msi':
+            case 'bat':
+            case 'sh':
+                r = 'window';
                 break;
+            case 'rpm':
+            case 'deb':
             case 'dmg':
-                r = 'apple';
-                break;
-            case 'ipa':
-                r = 'apple';
+            case 'apk':
+                r = 'cube';
                 break;
             case 'torrent':
                 r = 'acorn';
@@ -661,6 +669,81 @@ class tmplink_v2 {
         });
     }
 
+    set_file_download_cache(url, filename) {
+        if (!url) return;
+        this.current_file_download_url = url;
+        if (filename) {
+            this.current_file_curl_command = `curl -Lo "${filename}" ${url}`;
+            this.current_file_wget_command = `wget -O "${filename}" ${url}`;
+        }
+    }
+
+    async file_get_details(ukey) {
+        if (!this.api_file) return { status: 0 };
+        return new Promise((resolve) => {
+            $.post(this.api_file, {
+                action: 'details',
+                ukey: ukey,
+                token: this.api_token
+            }, (rsp) => {
+                if (rsp && rsp.status === 1) {
+                    this.current_file_details = rsp.data;
+                }
+                resolve(rsp);
+            }, 'json').fail(() => resolve({ status: 0 }));
+        });
+    }
+
+    async file_download_url(ukey, filename) {
+        if (this.current_file_download_url) return this.current_file_download_url;
+        const url = await this.get_download_url(ukey);
+        this.set_file_download_cache(url, filename);
+        return url;
+    }
+
+    async file_preload_download_url(ukey, filename) {
+        if (this.current_file_download_url) return this.current_file_download_url;
+        try {
+            return await this.file_download_url(ukey, filename);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async file_like(ukey) {
+        if (!this.api_file) return { status: 0 };
+        return new Promise((resolve) => {
+            $.post(this.api_file, {
+                action: 'like',
+                ukey: ukey,
+                token: this.api_token
+            }, (rsp) => resolve(rsp), 'json').fail(() => resolve({ status: 0 }));
+        });
+    }
+
+    async file_add_to_workspace(ukey) {
+        if (!this.api_file) return { status: 0 };
+        return new Promise((resolve) => {
+            $.post(this.api_file, {
+                action: 'add_to_workspace',
+                token: this.api_token,
+                ukey: ukey
+            }, (rsp) => resolve(rsp), 'json').fail(() => resolve({ status: 0 }));
+        });
+    }
+
+    async file_report(ukey, reason) {
+        if (!this.api_file) return { status: 0 };
+        return new Promise((resolve) => {
+            $.post(this.api_file, {
+                action: 'report',
+                token: this.api_token,
+                reason: reason,
+                ukey: ukey
+            }, (rsp) => resolve(rsp), 'json').fail(() => resolve({ status: 0 }));
+        });
+    }
+
     logout() {
         localStorage.setItem('app_login', 0);
         this.uid = 0;
@@ -701,5 +784,5 @@ class tmplink_v2 {
 }
 
 if (typeof window !== 'undefined') {
-    window.tmplink_v2 = tmplink_v2;
+    window.tmplink_api = tmplink_api;
 }

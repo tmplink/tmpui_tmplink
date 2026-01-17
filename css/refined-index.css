@@ -210,30 +210,39 @@ section {
     text-align: center;
     max-width: 900px;
     padding: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .hero-title {
     font-size: clamp(2.5rem, 5vw, 4rem);
-    font-weight: 700;
+    font-weight: 800;
     margin-bottom: var(--space-lg);
     color: var(--text-primary);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
     animation: fadeInUp 0.8s ease-out;
 }
 
 .hero-subtitle {
-    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    font-size: clamp(1.15rem, 3vw, 1.6rem);
     margin-bottom: var(--space-md);
     color: var(--text-secondary);
     font-weight: 500;
+    line-height: 1.5;
+    max-width: 500px;
     animation: fadeInUp 0.8s ease-out 0.1s both;
 }
 
 .hero-description {
-    font-size: clamp(1rem, 2vw, 1.125rem);
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
     margin-bottom: var(--space-2xl);
     color: var(--text-secondary);
-    max-width: 600px;
+    max-width: 480px;
+    line-height: 1.7;
+    opacity: 0.9;
     margin-left: auto;
     margin-right: auto;
     animation: fadeInUp 0.8s ease-out 0.2s both;
@@ -1017,10 +1026,21 @@ body.dark-mode .floating-element svg path {
     .float-layer {
         bottom: var(--space-lg);
         right: var(--space-lg);
+        left: var(--space-lg);
+        display: flex;
+        justify-content: center;
     }
     
     .container {
         padding: 0 var(--space-md);
+    }
+    
+    /* 移动端按钮样式优化 */
+    .btn-get-started {
+        padding: var(--space-lg) var(--space-3xl);
+        font-size: 1.1rem;
+        min-width: 200px;
+        justify-content: center;
     }
 }
 
@@ -1035,6 +1055,12 @@ body.dark-mode .floating-element svg path {
     
     .feature-box {
         padding: var(--space-md);
+    }
+    
+    .btn-get-started {
+        padding: var(--space-md) var(--space-2xl);
+        font-size: 1rem;
+        min-width: 180px;
     }
     
     .language-btn {
@@ -1481,12 +1507,21 @@ body.dark-mode .dropdown-item:hover {
 @media (max-width: 768px) {
     #hero {
         min-height: 100vh;
+        min-height: 100dvh; /* 使用动态视口高度，更好地适配移动端 */
         padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     #hero .hero-content {
-        max-width: 90%;
-        padding: 0 20px;
+        max-width: 85%;
+        padding: 0 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
     }
     
     .hero-badge {
@@ -1496,18 +1531,31 @@ body.dark-mode .dropdown-item:hover {
     }
     
     #hero .hero-title {
-        font-size: 2.2rem;
-        margin-bottom: 12px;
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
     }
     
     #hero .hero-subtitle {
-        font-size: 1.1rem;
-        margin-bottom: 12px;
+        font-size: 1.15rem;
+        margin-bottom: 16px;
+        line-height: 1.5;
+        max-width: 280px;
+        opacity: 0.95;
     }
     
     #hero .hero-description {
         font-size: 1rem;
-        margin-bottom: 32px;
+        margin-bottom: 40px;
+        line-height: 1.6;
+        max-width: 260px;
+        opacity: 0.85;
+    }
+    
+    #hero .hero-cta {
+        margin-bottom: var(--space-xl);
     }
     
     .hero-features {
@@ -1527,11 +1575,25 @@ body.dark-mode .dropdown-item:hover {
 
 @media (max-width: 480px) {
     #hero .hero-title {
-        font-size: 1.8rem;
+        font-size: 2.5rem;
+        margin-bottom: 18px;
     }
     
     #hero .hero-subtitle {
-        font-size: 1rem;
+        font-size: 1.1rem;
+        margin-bottom: 14px;
+        max-width: 260px;
+    }
+    
+    #hero .hero-description {
+        font-size: 0.95rem;
+        margin-bottom: 36px;
+        max-width: 240px;
+    }
+    
+    #hero .hero-content {
+        max-width: 90%;
+        padding: 0 20px;
     }
     
     .hero-features {

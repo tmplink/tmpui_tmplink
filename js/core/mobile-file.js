@@ -28,7 +28,7 @@
 
     // Copy button handler for mobile
     window.mobileCopyFileUrl = function() {
-        const params = TL.get_url_params();
+        const params = (typeof get_url_params === 'function') ? get_url_params() : {};
         const shareUrl = `https://${TL.site_domain}/f/${params.ukey}`;
         
         copyToClip(shareUrl).then(() => {
@@ -41,7 +41,7 @@
 
     // Like button handler for mobile
     window.mobileLikeFile = function() {
-        const params = TL.get_url_params();
+        const params = (typeof get_url_params === 'function') ? get_url_params() : {};
         const $likeBtn = $('#likes');
         const $icon = $likeBtn.find('iconpark-icon');
         const $count = $('#likes_count');
@@ -78,7 +78,7 @@
             
             // Only execute actual operation on first click
             if (!workspaceAdded) {
-                const params = TL.get_url_params();
+                const params = (typeof get_url_params === 'function') ? get_url_params() : {};
                 // Call API directly to avoid button being disabled
                 $.post(TL.api_file, {
                     action: 'add_to_workspace',
