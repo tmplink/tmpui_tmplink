@@ -1109,6 +1109,8 @@
     "direct_traffic_stats": "Traffic Statistics",
     "direct_traffic_desc": "Display direct link download traffic (by time).",
     "direct_24h": "24 Hours",
+    "direct_6h": "6 Hours",
+    "direct_12h": "12 Hours",
     "direct_week": "Past Week",
     "direct_30days": "Last 30 Days",
     "direct_brand_settings": "Brand Settings",

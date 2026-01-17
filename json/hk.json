@@ -1096,6 +1096,8 @@
     "direct_traffic_stats": "流量統計",
     "direct_traffic_desc": "展示直連下載流量（按時間統計）。",
     "direct_24h": "24小時",
+    "direct_6h": "6小時",
+    "direct_12h": "12小時",
     "direct_week": "過去一週",
     "direct_30days": "最近30天",
     "direct_brand_settings": "品牌設定",

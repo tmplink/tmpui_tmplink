@@ -129,9 +129,7 @@
                 <div class="vx-card-body">
                     <div class="vx-text-muted" style="margin-bottom: 10px;" data-tpl="direct_traffic_desc">展示直链下载流量（按时间统计）。</div>
                     <div style="display:flex; gap: 8px; flex-wrap: wrap; align-items:center; margin-bottom: 10px;">
-                        <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.loadUsage(2)" data-tpl="direct_24h">24小时</button>
-                        <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.loadUsage(3)" data-tpl="direct_week">过去一周</button>
-                        <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.loadUsage(4)" data-tpl="direct_30days">最近30天</button>
+                        <button class="vx-btn vx-btn-primary vx-direct-usage-btn" data-rt="5" onclick="VX_DIRECT.loadUsage(5)" data-tpl="direct_30days">最近30天</button>
                     </div>
                     <div id="vx-direct-usage-chart" style="max-width: 100%;"></div>
                 </div>

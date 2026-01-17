@@ -150,6 +150,23 @@ html.vx-dark {
     padding: 0;
 }
 
+/* Ensure parent container has correct background */
+#tmpui_body:has(.vx-app) {
+    background: var(--vx-bg);
+    min-height: 100vh;
+}
+
+/* Fallback for browsers not supporting :has() */
+body.vx-active #tmpui_body {
+    background: var(--vx-bg);
+    min-height: 100vh;
+}
+
+body.vx-active {
+    margin: 0;
+    padding: 0;
+}
+
 .vx-app {
     font-family: var(--vx-font-family);
     font-size: var(--vx-text-base);

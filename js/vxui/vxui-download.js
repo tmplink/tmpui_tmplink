@@ -5,6 +5,22 @@ class VXUIDownload {
         this.parent_op = parent_op || {};
     }
 
+    showModal() {
+        const modal = document.getElementById('multipleDownloadModel');
+        if (modal) {
+            modal.classList.add('vx-modal-open');
+            document.body.classList.add('vx-modal-body-open');
+        }
+    }
+
+    closeModal() {
+        const modal = document.getElementById('multipleDownloadModel');
+        if (modal) {
+            modal.classList.remove('vx-modal-open');
+            document.body.classList.remove('vx-modal-body-open');
+        }
+    }
+
     t(key, fallback) {
         try {
             if (typeof app !== 'undefined' && app && app.languageData && app.languageData[key] !== undefined) {
@@ -81,9 +97,9 @@ class VXUIDownload {
 
     async folder_download(select_data) {
         try {
-            $('#multipleDownloadModel').modal('show');
-            $('#multiple_download_prepare').show();
-            $('#multiple_download_processing').hide();
+            this.showModal();
+            document.getElementById('multiple_download_prepare').style.display = 'block';
+            document.getElementById('multiple_download_processing').style.display = 'none';
 
             this.init_folder_download_progress();
 
@@ -96,8 +112,8 @@ class VXUIDownload {
 
             this.append_download_info(`${this.t('multi_download_start', '开始下载')} ${file_list.length} ${this.t('multi_download_files', '个文件')}, ${this.t('multi_download_count', '总大小')} ${bytetoconver(totalSize, true)}`);
 
-            $('#multiple_download_prepare').hide();
-            $('#multiple_download_processing').show();
+            document.getElementById('multiple_download_prepare').style.display = 'none';
+            document.getElementById('multiple_download_processing').style.display = 'block';
 
             if (hasFolder) {
                 try {
