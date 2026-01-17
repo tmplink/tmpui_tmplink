@@ -352,7 +352,8 @@
     color: var(--vx-text);
 }
 
-.vx-switch {
+/* Switch style for direct input usage (without label wrapper) */
+input.vx-switch {
     position: relative;
     width: 44px;
     height: 24px;
@@ -364,11 +365,11 @@
     transition: background 0.2s ease;
 }
 
-.vx-switch:checked {
+input.vx-switch:checked {
     background: var(--vx-primary);
 }
 
-.vx-switch::before {
+input.vx-switch::before {
     content: '';
     position: absolute;
     top: 2px;
@@ -381,7 +382,7 @@
     box-shadow: var(--vx-shadow-sm);
 }
 
-.vx-switch:checked::before {
+input.vx-switch:checked::before {
     transform: translateX(20px);
 }
 

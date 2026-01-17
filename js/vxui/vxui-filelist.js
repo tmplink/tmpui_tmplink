@@ -1457,8 +1457,11 @@ var VX_FILELIST = VX_FILELIST || {
             `;
         }
         
+        // 移动端未登录时不显示多选框
+        const showCheckbox = this.canUseSelectMode();
+        
         row.innerHTML = `
-            <div class="vx-list-checkbox" onclick="event.stopPropagation(); VX_FILELIST.toggleItemSelect(this.parentNode)"></div>
+            ${showCheckbox ? '<div class="vx-list-checkbox" onclick="event.stopPropagation(); VX_FILELIST.toggleItemSelect(this.parentNode)"></div>' : ''}
             <div class="vx-list-name">
                 <div class="vx-list-icon vx-icon-folder">
                     <iconpark-icon name="${iconInfo.icon}" class="${iconInfo.color}"></iconpark-icon>
@@ -1509,8 +1512,11 @@ var VX_FILELIST = VX_FILELIST || {
         const lefttimeId = `lefttime_${file.ukey}`;
         const isPermanent = Number(file.model) === 99;
         
+        // 移动端未登录时不显示多选框
+        const showCheckbox = this.canUseSelectMode();
+        
         row.innerHTML = `
-            <div class="vx-list-checkbox" onclick="event.stopPropagation(); VX_FILELIST.toggleItemSelect(this.parentNode)"></div>
+            ${showCheckbox ? '<div class="vx-list-checkbox" onclick="event.stopPropagation(); VX_FILELIST.toggleItemSelect(this.parentNode)"></div>' : ''}
             <div class="vx-list-name">
                 <div class="vx-list-icon ${iconInfo.class}">
                     <iconpark-icon name="${iconInfo.icon}"></iconpark-icon>
@@ -2525,9 +2531,26 @@ var VX_FILELIST = VX_FILELIST || {
     // ==================== 选择模式 ====================
     
     /**
+     * 判断是否允许使用多选模式
+     * 移动端未登录时禁用多选
+     */
+    canUseSelectMode() {
+        const isMobile = typeof VXUI !== 'undefined' && VXUI.isMobile();
+        const isLoggedIn = typeof VXUI !== 'undefined' && VXUI.isLoggedIn();
+        // 移动端未登录时不允许多选
+        if (isMobile && !isLoggedIn) {
+            return false;
+        }
+        return true;
+    },
+    
+    /**
      * 切换选择模式
      */
     toggleSelectMode() {
+        if (!this.canUseSelectMode()) {
+            return;
+        }
         this.selectMode = !this.selectMode;
         this.selectedItems = [];
         
@@ -2548,6 +2571,9 @@ var VX_FILELIST = VX_FILELIST || {
      * 切换项目选中
      */
     toggleItemSelect(row) {
+        if (!this.canUseSelectMode()) {
+            return;
+        }
         const type = row.dataset.type;
         const id = type === 'folder' ? row.dataset.mrid : row.dataset.ukey;
         
@@ -2567,6 +2593,9 @@ var VX_FILELIST = VX_FILELIST || {
      * 全选
      */
     selectAll() {
+        if (!this.canUseSelectMode()) {
+            return;
+        }
         this.selectMode = true;
         this.selectedItems = [];
         
@@ -2632,6 +2661,9 @@ var VX_FILELIST = VX_FILELIST || {
      * 表头全选框：全选/取消全选
      */
     toggleSelectAllFromHeader() {
+        if (!this.canUseSelectMode()) {
+            return;
+        }
         const total = (this.subRooms ? this.subRooms.length : 0) + (this.fileList ? this.fileList.length : 0);
         if (total <= 0) return;
 
