@@ -469,6 +469,38 @@ body.vx-active {
     opacity: 1;
 }
 
+/* Prevent scroll through when sidebar is open (mobile) */
+body.vx-sidebar-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+/* Ensure sidebar can scroll when body is fixed */
+body.vx-sidebar-open .vx-sidebar {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* On mobile, make bottom menu and footer scroll with content */
+@media (max-width: 768px) {
+    body.vx-sidebar-open .vx-sidebar-nav {
+        flex: none;
+        overflow: visible;
+    }
+    
+    body.vx-sidebar-open .vx-sidebar-bottom-menu {
+        margin-top: 0;
+    }
+    
+    /* Add padding to prevent content being hidden by mobile bar */
+    body.vx-sidebar-open .vx-sidebar {
+        padding-bottom: calc(var(--vx-mobile-bar-height) + 20px);
+    }
+}
+
 /* ==================== Sidebar ==================== */
 .vx-sidebar {
     width: var(--vx-sidebar-width);
@@ -698,19 +730,28 @@ body.vx-active {
 .vx-mobile-header {
     display: none;
     align-items: center;
-    justify-content: space-between;
     padding: 12px 16px;
     background: var(--vx-header-bg);
     border-bottom: 1px solid var(--vx-border);
     position: sticky;
     top: 0;
     z-index: var(--vx-z-sticky);
+    gap: 8px;
+}
+
+.vx-mobile-header .vx-btn-icon {
+    flex-shrink: 0;
 }
 
 .vx-mobile-title {
     font-size: var(--vx-text-lg);
     font-weight: 600;
     color: var(--vx-text);
+    flex: 1;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Desktop Header */
@@ -1737,7 +1778,17 @@ body.vx-modal-body-open {
     display: none;
 }
 
+/* Mobile hide utility */
+.vx-hide-mobile {
+    display: block;
+}
+
 @media (max-width: 768px) {
+    /* Hide elements on mobile */
+    .vx-hide-mobile {
+        display: none !important;
+    }
+    
     .vx-sidebar {
         transform: translateX(-100%);
     }
@@ -1765,6 +1816,10 @@ body.vx-modal-body-open {
     
     .vx-content {
         padding: 16px;
+    }
+    
+    .vx-content.vx-content-list {
+        padding: 0;
     }
     
     .vx-file-actions {
@@ -1830,7 +1885,122 @@ body.vx-modal-body-open {
         justify-content: center;
         margin-top: 12px;
     }
+    
+    /* File list mobile optimization - single screen, no horizontal scroll */
+    .vx-list-header,
+    .vx-list-row {
+        padding: 10px 12px;
+    }
+    
+    /* Hide size column on mobile */
+    .vx-list-size {
+        display: none !important;
+    }
+    
+    /* Hide size header column */
+    .vx-list-header .vx-list-col-size {
+        display: none !important;
+    }
+    
+    /* Actions: only show more button on mobile */
+    .vx-list-actions {
+        width: auto !important;
+    }
+    
+    .vx-list-actions .vx-list-action-btn:not(.vx-more-btn) {
+        display: none !important;
+    }
+    
+    .vx-list-actions .vx-more-btn {
+        display: flex !important;
+    }
+    
+    .vx-list-name {
+        flex: 1;
+        gap: 10px;
+        min-width: 0;
+    }
+    
+    .vx-list-icon {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+    }
+    
+    .vx-list-icon iconpark-icon {
+        font-size: 22px;
+    }
+    
+    .vx-list-filename {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .vx-list-filename a {
+        font-size: 15px;
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .vx-list-checkbox {
+        margin-right: 10px;
+    }
+    
+    /* Mobile header: show back button */
+    .vx-mobile-header .vx-btn-back {
+        display: flex;
+    }
+    
+    /* Hide desktop header toolbar buttons on mobile */
+    .vx-header .vx-header-right .vx-btn {
+        display: none;
+    }
+    
+    .vx-header .vx-header-right .vx-btn-group {
+        display: none;
+    }
 }
+
+/* Mobile FAB (Floating Action Button) - moved to header on mobile */
+.vx-fab {
+    display: none;
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--vx-primary);
+    color: white;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    z-index: var(--vx-z-fixed);
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.vx-fab:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.vx-fab:active {
+    transform: scale(0.95);
+}
+
+.vx-fab iconpark-icon {
+    font-size: 20px;
+}
+
+@media (max-width: 768px) {
+    .vx-fab[data-owner="true"] {
+        display: flex;
+        top: 12px;
+        right: 16px;
+        bottom: auto;
+    }
 
 /* Portrait tablets (e.g., iPad) should use drawer sidebar to avoid width-priority layout issues */
 @media (orientation: portrait) and (max-width: 1024px) {
@@ -2201,4 +2371,123 @@ body.vx-modal-body-open {
 
 .vx-sidebar-action-btn iconpark-icon {
     font-size: 18px;
+}
+
+/* ==================== Action Sheet (Mobile) ==================== */
+.vx-action-sheet {
+    display: flex;
+    visibility: hidden;
+    pointer-events: none;
+    transition: visibility 0s linear 0.35s;
+}
+
+.vx-action-sheet.vx-modal-open {
+    visibility: visible;
+    pointer-events: auto;
+    transition: visibility 0s linear 0s;
+}
+
+.vx-action-sheet .vx-modal-overlay {
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.35s ease;
+}
+
+.vx-action-sheet.vx-modal-open .vx-modal-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.vx-action-sheet-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--vx-bg);
+    border-radius: var(--vx-radius-lg) var(--vx-radius-lg) 0 0;
+    padding: 8px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: calc(var(--vx-z-modal) + 1);
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.vx-action-sheet.vx-modal-open .vx-action-sheet-container {
+    transform: translateY(0);
+}
+
+.vx-action-sheet-title {
+    padding: 12px 16px;
+    text-align: center;
+    font-size: var(--vx-text-sm);
+    color: var(--vx-text-secondary);
+    border-bottom: 1px solid var(--vx-border);
+    margin-bottom: 8px;
+    word-break: break-all;
+}
+
+.vx-action-sheet-items {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.vx-action-sheet-label {
+    padding: 10px 16px 6px;
+    font-size: var(--vx-text-xs);
+    font-weight: 500;
+    color: var(--vx-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.vx-action-sheet-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--vx-surface);
+    border: none;
+    border-radius: var(--vx-radius);
+    font-size: var(--vx-text-base);
+    color: var(--vx-text);
+    cursor: pointer;
+    transition: background 0.15s;
+    text-align: left;
+    width: 100%;
+}
+
+.vx-action-sheet-item:hover,
+.vx-action-sheet-item:active {
+    background: var(--vx-surface-hover);
+}
+
+.vx-action-sheet-item.vx-action-danger {
+    color: #EF4444;
+}
+
+.vx-action-sheet-item iconpark-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.vx-action-sheet-cancel {
+    display: block;
+    width: 100%;
+    padding: 14px 16px;
+    margin-top: 8px;
+    background: var(--vx-surface);
+    border: none;
+    border-radius: var(--vx-radius);
+    font-size: var(--vx-text-base);
+    font-weight: 500;
+    color: var(--vx-primary);
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.15s;
+}
+
+.vx-action-sheet-cancel:hover,
+.vx-action-sheet-cancel:active {
+    background: var(--vx-surface-hover);
 }

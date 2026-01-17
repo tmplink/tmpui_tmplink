@@ -108,6 +108,431 @@ class FilePageController {
         // 这里只处理 UI 层面的事件
     }
 
+    // ========== 文件详情加载 ==========
+
+    async loadFileDetails() {
+        $('#top_loggo').attr('src', '/img/ico/logo-new.svg').show();
+        $('#file_loading_box').show();
+        $('#file_box').hide();
+        $('.mobile-footer').hide();
+
+        if (this.isWeixin()) {
+            $('#file_messenger_icon').html('<iconpark-icon name="cloud-arrow-down" class="fa-fw fa-4x"></iconpark-icon>');
+            $('#file_messenger_msg').removeClass('display-4');
+            $('#file_messenger > div').removeClass('shadow').removeClass('card');
+            $('#file_messenger_msg').html('请复制链接后，在外部浏览器打开进行下载。');
+            $('#file_messenger').show();
+            $('#file_loading_box').hide();
+            $('.mobile-footer').hide();
+            if (typeof TL !== 'undefined' && typeof TL.ga === 'function') {
+                TL.ga('weixinUnavailable');
+            }
+            return false;
+        }
+
+        const params = (typeof get_url_params === 'function') ? get_url_params() : {};
+        if (!params.ukey) {
+            $('#file_messenger_icon').html('<iconpark-icon name="folder-xmark" class="fa-fw fa-4x"></iconpark-icon>');
+            $('#file_messenger_msg').html(app?.languageData?.file_unavailable || 'File unavailable');
+            $('#file_messenger').show();
+            $('#file_box').hide();
+            $('.mobile-footer').hide();
+            return false;
+        }
+
+        const rsp = (typeof TL !== 'undefined' && typeof TL.file_get_details === 'function')
+            ? await TL.file_get_details(params.ukey)
+            : { status: 0 };
+
+        $('#top_loggo').attr('src', '/img/ico/logo-new.svg').show();
+        $('#file_loading_box').hide();
+
+        if (rsp && rsp.status === 1) {
+            const fileinfo = rsp.data;
+            this.currentFileDetails = fileinfo;
+
+            $('#file_messenger').hide();
+            if (typeof TL !== 'undefined' && typeof TL.ga === 'function') {
+                TL.ga('D-' + fileinfo.name);
+            }
+
+            $('#file_box').show();
+            $('.mobile-footer').show();
+            $('#filename').html(fileinfo.name);
+            $('#filesize').html(fileinfo.size);
+
+            if (fileinfo.ui_publish === 'yes' && fileinfo.ui_publish_status === 'ok' && fileinfo.ui_pro === 'yes') {
+                $('.userinfo_avatar').show();
+                if ($('.userinfo_avatar_img').length > 0) {
+                    $('#top_loggo').hide();
+                }
+                const avatarURL = `https://tmp-static.vx-cdn.com/static/avatar?id=${fileinfo.ui_avatar_id}`;
+                const img = new Image();
+                img.src = avatarURL;
+                img.onload = () => {
+                    $('.userinfo_avatar_img').attr('src', avatarURL);
+                    $('.userinfo_avatar_card_img').attr('src', avatarURL);
+                };
+            }
+
+            if (fileinfo.ui_intro && typeof TL !== 'undefined') {
+                TL.current_file_details = fileinfo;
+                TL.current_file_details.ui_intro = fileinfo.ui_intro;
+            }
+
+            if (fileinfo.nsfw === true) {
+                $('#nsfw_alert').show();
+            }
+
+            if (fileinfo.ui_publish === 'yes' && fileinfo.ui_publish_status === 'ok') {
+                if (fileinfo.ui_pro === 'yes') {
+                    $('.userinfo_pro').show();
+                } else {
+                    $('.userinfo_sd').show();
+                }
+                $('.userinfo').show();
+                $('.userinfo_nickname').html(fileinfo.ui_nickname);
+            }
+
+            if (typeof TL !== 'undefined' && typeof TL.fileicon === 'function') {
+                const icon = TL.fileicon(fileinfo.type);
+                $('#file-icon').attr('name', icon);
+            }
+
+            document.title = fileinfo.name;
+
+            if (!this.isMobileContext()) {
+                $('#likes').off('click').on('click', async () => {
+                    if (typeof TL !== 'undefined' && typeof TL.file_like === 'function') {
+                        const likeRsp = await TL.file_like(params.ukey);
+                        let now = parseInt($('#likes_count').html()) || 0;
+                        if (likeRsp && likeRsp.status === 1) {
+                            $('#likes_count').html(now + 1);
+                        } else {
+                            $('#likes_count').html(Math.max(0, now - 1));
+                        }
+                    }
+                });
+            }
+            $('#likes_count').html(fileinfo.like);
+
+            if (fileinfo.hot == 1) {
+                $('.hot-flag').show();
+            }
+
+            if (fileinfo.model !== '99') {
+                $('#lefttime_show').show();
+                if (typeof countDown === 'function') {
+                    countDown('lefttime', fileinfo.lefttime_s, (typeof TL !== 'undefined' ? TL.currentLanguage : 'cn'));
+                }
+            } else {
+                $('#lefttime_show').hide();
+            }
+
+            $('#report_ukey').html(params.ukey);
+
+            if (typeof TL !== 'undefined' && TL.logined) {
+                $('.user-nologin').hide();
+                $('.user-login').show();
+            } else {
+                $('.user-nologin').show();
+                $('.user-login').hide();
+            }
+
+            this.updateHighSpeedStatus('ready');
+
+            const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
+            const shareUrl = `https://${domain}/f/${params.ukey}`;
+
+            if (typeof QRCode !== 'undefined') {
+                const qrDom = document.getElementById('qr_code_url');
+                if (qrDom) {
+                    qrDom.innerHTML = '';
+                    new QRCode(qrDom, shareUrl);
+                    $('#qr_code_url img').css('margin', 'auto');
+                }
+            }
+
+            $('.btn_copy_fileurl').attr('data-clipboard-text', shareUrl);
+            $('.file_ukey').attr('data-clipboard-text', params.ukey);
+
+            $('.btn_copy_downloadurl_for_wget').off('click').on('click', () => {
+                this.copyDownloadOption('wget', params.ukey, fileinfo.name);
+            });
+            $('.btn_copy_downloadurl_for_other').off('click').on('click', () => {
+                this.copyDownloadOption('other', params.ukey, fileinfo.name);
+            });
+            $('.btn_copy_downloadurl_for_curl').off('click').on('click', () => {
+                this.copyDownloadOption('curl', params.ukey, fileinfo.name);
+            });
+
+            if (typeof TL !== 'undefined' && fileinfo.owner != TL.uid) {
+                $('#downloadAlert').fadeIn();
+            }
+
+            const downloadHandler = () => {
+                if (typeof TL !== 'undefined' && TL.sponsor) {
+                    this.updateHighSpeedStatus('enhanced');
+                }
+
+                if (typeof window.filePage !== 'undefined') {
+                    const getDownloadUrl = async () => {
+                        if (typeof TL !== 'undefined' && typeof TL.file_download_url === 'function') {
+                            return TL.file_download_url(params.ukey, fileinfo.name);
+                        }
+                        throw new Error('download api unavailable');
+                    };
+
+                    window.filePage.handleDownload({
+                        ukey: params.ukey,
+                        filename: fileinfo.name,
+                        mode: 'fast'
+                    }, getDownloadUrl).catch(err => {
+                        if (typeof TL !== 'undefined' && typeof TL.alert === 'function') {
+                            TL.alert(err.message || app.languageData.status_file_2);
+                        } else {
+                            alert(err.message || app.languageData.status_file_2);
+                        }
+                    });
+                }
+            };
+
+            $('#file_download_btn_fast').off('click').on('click', downloadHandler);
+
+            $('#file_download_by_qrcode').off('click').on('click', () => {
+                $('#qrModal').modal('show');
+                return true;
+            });
+
+            if (typeof TL !== 'undefined' && TL.stream && typeof TL.stream.allow === 'function') {
+                if (TL.stream.allow(fileinfo.name, fileinfo.owner) || TL.stream.checkForOpenOnApps(fileinfo.name, fileinfo.owner)) {
+                    $('.btn_play').show();
+                    if (TL.stream.allow(fileinfo.name, fileinfo.owner)) {
+                        $('.play_on_browser').attr('onclick', `TL.stream.request('${params.ukey}','web')`);
+                        $('.play_on_browser').show();
+                    }
+                    if (TL.stream.checkForOpenOnApps(fileinfo.name, fileinfo.owner)) {
+                        $('.play_on_potplayer').attr('onclick', `TL.stream.request('${params.ukey}','potplayer')`);
+                        $('.play_on_potplayer').show();
+                        $('.play_on_iina').attr('onclick', `TL.stream.request('${params.ukey}','iina')`);
+                        $('.play_on_iina').show();
+                        $('.play_on_nplayer').attr('onclick', `TL.stream.request('${params.ukey}','nplayer')`);
+                        $('.play_on_nplayer').show();
+                        $('.play_copy_url').attr('onclick', `TL.stream.request('${params.ukey}','copy')`);
+                        $('.play_copy_url').show();
+                    }
+                    $('#btn_highdownload').hide();
+                }
+            }
+
+            $('#btn_add_to_workspace').off('click').on('click', async () => {
+                if (typeof TL !== 'undefined' && TL.logined == 1) {
+                    $('#btn_add_to_workspace_icon iconpark-icon').attr('name', 'circle-check').css('color', '#22c55e');
+                    if (typeof TL.file_add_to_workspace === 'function') {
+                        await TL.file_add_to_workspace(params.ukey);
+                    }
+                    $('#btn_add_to_workspace').off('click');
+                } else {
+                    localStorage.setItem('return_page', getCurrentURL());
+                    app.open('/app&listview=login');
+                }
+            });
+
+            $('#btn_highdownload').off('click').on('click', () => {
+                $('#upupModal').modal('show');
+            });
+
+            $('#btn_report_file').off('click').on('click', () => {
+                $('#reportModal').modal('show');
+            });
+
+            if (typeof TL !== 'undefined' && typeof TL.file_preload_download_url === 'function') {
+                TL.file_preload_download_url(params.ukey, fileinfo.name);
+            }
+
+            $('#file_loading').fadeOut(100);
+            $('#file_op').fadeIn(300);
+            return true;
+        }
+
+        if (rsp && rsp.status === 3) {
+            $('#file_messenger_icon').html('<iconpark-icon name="shield-keyhole" class="fa-fw fa-7x"></iconpark-icon>');
+            $('#file_messenger_msg').html(app.languageData.status_need_login);
+            $('#file_messenger_msg_login').show();
+            $('#file_messenger').show();
+            if (typeof TL !== 'undefined' && typeof TL.ga === 'function') {
+                TL.ga(`Any-[${params.ukey}]`);
+            }
+            localStorage.setItem('return_page', getCurrentURL());
+            return false;
+        }
+
+        if (rsp && rsp.status === 2) {
+            $('#file_messenger_icon').html('<img src="/img/loading.svg" height="80"  />');
+            $('#file_messenger_msg').html(app.languageData.upload_sync_onprogress);
+            $('#file_messenger').show();
+            if (typeof TL !== 'undefined' && typeof TL.ga === 'function') {
+                TL.ga(`Sync-[${params.ukey}]`);
+            }
+            setTimeout(() => {
+                this.loadFileDetails();
+            }, 60000);
+            return false;
+        }
+
+        if (rsp && rsp.status === 4) {
+            $('#file_messenger_icon').html('<iconpark-icon name="earth-asia" class="fa-fw fa-7x"></iconpark-icon>');
+            $('#file_messenger_msg').html(app.languageData.status_area);
+            $('#file_messenger').show();
+            $('#file_box').hide();
+            $('.mobile-footer').hide();
+            if (typeof TL !== 'undefined' && typeof TL.ga === 'function') {
+                TL.ga(`Area-[${params.ukey}]`);
+            }
+            return false;
+        }
+
+        if (rsp && rsp.status === 5) {
+            $('#file_messenger_icon').html('<iconpark-icon name="lock" class="fa-fw fa-7x"></iconpark-icon>');
+            $('#file_messenger_msg').html(app.languageData.file_private);
+            $('#file_messenger').show();
+            $('#file_box').hide();
+            $('.mobile-footer').hide();
+            if (typeof TL !== 'undefined' && typeof TL.ga === 'function') {
+                TL.ga(`Private-[${params.ukey}]`);
+            }
+            return false;
+        }
+
+        $('#file_messenger_icon').html('<iconpark-icon name="folder-xmark" class="fa-fw fa-4x"></iconpark-icon>');
+        $('#file_messenger_msg').html(app.languageData.file_unavailable);
+        $('#file_messenger').show();
+        $('#file_box').hide();
+        $('.mobile-footer').hide();
+        if (typeof TL !== 'undefined' && typeof TL.ga === 'function') {
+            TL.ga(`Unavailable-[${params.ukey}]`);
+        }
+        return false;
+    }
+
+    updateHighSpeedStatus(status) {
+        const $title = $('.hs-model-title');
+        const currentText = $title.html();
+        if (status === 'ready') {
+            if (currentText !== app.languageData.hs_ready) {
+                $('.hs-model').fadeOut(() => {
+                    $title.html(app.languageData.hs_ready);
+                    $('.hs-model').fadeIn();
+                    $('.hs-model').addClass('text-blue');
+                });
+            }
+        }
+        if (status === 'enhanced') {
+            if (currentText !== app.languageData.hs_enhanced) {
+                $('.hs-model').fadeOut(() => {
+                    if (currentText === app.languageData.hs_ready) {
+                        $('.hs-model').removeClass('text-blue');
+                    }
+                    $title.html(app.languageData.hs_enhanced);
+                    $('.hs-model').fadeIn();
+                    $('.hs-model').addClass('text-green');
+                });
+            }
+        }
+    }
+
+    async copyDownloadOption(type, ukey, filename) {
+        $('#file_btn_download_opt').html('<img src="/img/loading-outline.svg" class="fa-fw"/>');
+
+        let url = null;
+        if (typeof TL !== 'undefined' && TL.current_file_download_url) {
+            url = TL.current_file_download_url;
+        } else if (typeof TL !== 'undefined' && typeof TL.file_download_url === 'function') {
+            url = await TL.file_download_url(ukey, filename);
+        }
+
+        if (!url) {
+            if (typeof TL !== 'undefined' && typeof TL.alert === 'function') {
+                TL.alert(app.languageData.status_file_2);
+            }
+            $('#file_btn_download_opt').html(app.languageData.file_btn_download_opt);
+            return;
+        }
+
+        let content = '';
+        if (type === 'other') {
+            content = url;
+        } else if (type === 'curl') {
+            content = TL.current_file_curl_command || `curl -Lo "${filename}" ${url}`;
+        } else if (type === 'wget') {
+            content = TL.current_file_wget_command || `wget -O "${filename}" ${url}`;
+        }
+
+        try {
+            if (typeof copyToClip === 'function') {
+                await copyToClip(content);
+            }
+            setTimeout(() => {
+                $('#file_btn_download_opt').html(app.languageData.file_btn_download_opt);
+            }, 3000);
+        } catch (e) {
+            $('#file_btn_download_opt').html(app.languageData.file_btn_download_opt);
+        }
+    }
+
+    copyShareUrl() {
+        const params = (typeof get_url_params === 'function') ? get_url_params() : {};
+        const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
+        const shareUrl = `https://${domain}/f/${params.ukey}`;
+
+        if (typeof copyToClip !== 'function') return;
+
+        copyToClip(shareUrl).then(() => {
+            const $icon = $('#btn_copy_fileurl_icon iconpark-icon');
+            const originalName = $icon.attr('name');
+            $icon.attr('name', 'circle-check').css('color', '#22c55e');
+            setTimeout(() => {
+                $icon.attr('name', originalName).css('color', '');
+            }, 3000);
+        }).catch(() => {
+            // ignore
+        });
+    }
+
+    async reportFile() {
+        const ukey = $('#report_ukey').html();
+        const reason = $('#report_model').val();
+        $('#reportbtn').attr('disabled', true);
+        $('#reportbtn').html(`<span class="text-red">${app.languageData.form_btn_processed}</span>`);
+
+        if (typeof TL !== 'undefined' && typeof TL.file_report === 'function') {
+            await TL.file_report(ukey, reason);
+        }
+
+        $('#reportbtn').html(app.languageData.form_btn_processed);
+    }
+
+    openInMenubarXofIndex() {
+        const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
+        this.openInMenubarX(`https://${domain}/?s=mx`);
+    }
+
+    openInMenubarXofFile() {
+        const params = (typeof get_url_params === 'function') ? get_url_params() : {};
+        const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
+        this.openInMenubarX(`https://${domain}/f/${params.ukey}`);
+    }
+
+    openInMenubarX(link) {
+        const openlink = `https://menubarx.app/open/?xurl=${link}&xwidth=375&xheight=677&xbar=0`;
+        window.location.href = openlink;
+    }
+
+    isWeixin() {
+        const ua = navigator.userAgent.toLowerCase();
+        return ua.match(/MicroMessenger/i) == "micromessenger";
+    }
+
     // ========== 进度 UI 控制 ==========
 
     showProgress() {

@@ -831,9 +831,7 @@ const VX_ACCOUNT = {
         
         // Use TL's cc_send if available
         if (typeof TL !== 'undefined' && TL.cc_send) {
-            // Set email field for TL
-            $('#email_new').val(email);
-            TL.cc_send();
+            TL.cc_send(email, (app && typeof app.languageGet === 'function') ? app.languageGet() : undefined);
             
             // Countdown
             let count = 60;

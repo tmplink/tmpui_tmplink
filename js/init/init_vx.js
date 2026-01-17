@@ -9,12 +9,12 @@
 
     // 初始化 api.js 并设置为全局 TL
     function initTmplink() {
-        if (typeof tmplink_v2 !== 'undefined') {
-            window.TL = new tmplink_v2();
+        if (typeof tmplink_api !== 'undefined') {
+            window.TL = new tmplink_api();
             console.log('[init_vx] api.js initialized as TL');
-        } else {
-            console.warn('[init_vx] api.js not available');
+            return;
         }
+        console.warn('[init_vx] api.js not available');
     }
 
     // 注册所有可用模块

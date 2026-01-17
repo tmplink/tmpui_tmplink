@@ -1796,9 +1796,12 @@ const VX_DIRECT = {
     showLoading() {
         const loading = document.getElementById('vx-direct-loading');
         const panels = document.getElementById('vx-direct-panels');
+        const content = document.getElementById('vx-direct-content');
 
         if (loading) loading.classList.remove('vx-hidden');
         if (panels) panels.classList.add('vx-hidden');
+        // 确保加载时也应用列表模式样式（无边距）
+        if (content) content.classList.add('vx-content-list');
     },
     
     /**

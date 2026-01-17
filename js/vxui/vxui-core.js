@@ -7,6 +7,280 @@
 
 'use strict';
 
+function attachTmplinkUiCompat() {
+    if (typeof TL === 'undefined' || !TL) return;
+
+    if (typeof TL.alert !== 'function') {
+        TL.alert = (msg) => {
+            if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.toastError === 'function') {
+                VXUI.toastError(msg);
+            } else {
+                window.alert(msg);
+            }
+        };
+    }
+
+    if (typeof TL.tpl_lang !== 'function') {
+        TL.tpl_lang = (root) => {
+            const translateScope = () => {
+                if (typeof app === 'undefined' || !app || !app.languageData) return false;
+                const i18nLang = app.languageData;
+
+                let scope = root;
+                if (!scope) scope = document;
+                if (typeof scope === 'string') scope = document.querySelector(scope);
+                if (!scope) scope = document;
+
+                const applyOne = (dom) => {
+                    if (!dom || !dom.getAttribute) return;
+                    const key = dom.getAttribute('i18n') || dom.getAttribute('data-tpl');
+                    if (!key || i18nLang[key] === undefined) return;
+                    const val = i18nLang[key];
+                    const i18nOnly = dom.getAttribute('i18n-only');
+
+                    if (dom.innerHTML != null && dom.innerHTML !== '') {
+                        if (!i18nOnly || i18nOnly === 'html') {
+                            dom.innerHTML = val;
+                        }
+                    }
+                    if (dom.getAttribute('placeholder') != null && dom.getAttribute('placeholder') !== '') {
+                        if (!i18nOnly || i18nOnly === 'placeholder') {
+                            dom.setAttribute('placeholder', val);
+                        }
+                    }
+                    if (dom.getAttribute('title') != null && dom.getAttribute('title') !== '') {
+                        if (!i18nOnly || i18nOnly === 'title') {
+                            dom.setAttribute('title', val);
+                        }
+                    }
+                };
+
+                const nodes = scope.querySelectorAll('[i18n],[data-tpl]');
+                for (let i = 0; i < nodes.length; i++) {
+                    applyOne(nodes[i]);
+                }
+                return true;
+            };
+
+            if (!root && typeof app !== 'undefined' && app && typeof app.languageBuild === 'function') {
+                try {
+                    app.languageBuild();
+                    return true;
+                } catch (_) {
+                    return translateScope();
+                }
+            }
+
+            return translateScope();
+        };
+    }
+
+    if (typeof TL.fileicon !== 'function') {
+        TL.fileicon = (type) => {
+            let r = 'file-lines';
+            switch (type) {
+                case 'pdf':
+                    r = 'file-pdf';
+                    break;
+                case 'zip':
+                case 'rar':
+                case '7z':
+                case 'gz':
+                case 'tar':
+                case 'msixbundle':
+                    r = 'file-zipper';
+                    break;
+                case 'doc':
+                case 'wps':
+                case 'docx':
+                    r = 'file-word';
+                    break;
+                case 'xls':
+                case 'xlsx':
+                    r = 'file-excel';
+                    break;
+                case 'ppt':
+                case 'pptx':
+                    r = 'file-powerpoint';
+                    break;
+                case 'txt':
+                    r = 'file-lines';
+                    break;
+                case 'mp3':
+                case 'wav':
+                case 'aac':
+                case 'flac':
+                case 'ogg':
+                case 'm4a':
+                    r = 'file-music';
+                    break;
+                case 'mp4':
+                case 'mkv':
+                case 'avi':
+                case 'mov':
+                case 'wmv':
+                case 'flv':
+                case 'webm':
+                    r = 'file-video';
+                    break;
+                case 'jpg':
+                case 'jpeg':
+                case 'png':
+                case 'gif':
+                case 'bmp':
+                case 'webp':
+                case 'svg':
+                    r = 'file-image';
+                    break;
+                case 'psd':
+                    r = 'file-psd';
+                    break;
+                case 'ai':
+                    r = 'file-ai';
+                    break;
+                case 'apk':
+                    r = 'android';
+                    break;
+                case 'exe':
+                    r = 'windows';
+                    break;
+                case 'dmg':
+                case 'ipa':
+                    r = 'apple';
+                    break;
+                case 'torrent':
+                    r = 'acorn';
+                    break;
+            }
+            return r;
+        };
+    }
+
+    if (typeof TL.bulkCopy !== 'function') {
+        TL.bulkCopy = async (dom, content, base64) => {
+            try {
+                if (base64 === true && typeof Base64Decode === 'function') {
+                    content = Base64Decode(content);
+                }
+
+                let tmp = null;
+                if (dom !== null && dom !== undefined) {
+                    tmp = $(dom).html();
+                    $(dom).html('<iconpark-icon name="circle-check" class="fa-fw"></iconpark-icon>');
+                }
+
+                const doCopy = async (text) => {
+                    if (typeof copyToClip === 'function') {
+                        await copyToClip(text);
+                        return;
+                    }
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(text);
+                        return;
+                    }
+                };
+
+                if (typeof TL.profile_bulk_copy_get === 'function' && TL.profile_bulk_copy_get()) {
+                    if (TL.bulkCopyTimer) {
+                        clearTimeout(TL.bulkCopyTimer);
+                        TL.bulkCopyTimer = 0;
+                    } else if (typeof $ !== 'undefined' && $.notifi && app && app.languageData) {
+                        $.notifi(app.languageData.notify_bulk_copy_start, 'success');
+                    }
+
+                    TL.bulkCopyTmp = (TL.bulkCopyTmp || '') + content + ' \n';
+                    await doCopy(TL.bulkCopyTmp);
+
+                    TL.bulkCopyTimer = setTimeout(() => {
+                        TL.bulkCopyTimer = 0;
+                        TL.bulkCopyTmp = '';
+                        if (typeof $ !== 'undefined' && $.notifi && app && app.languageData) {
+                            $.notifi(app.languageData.notify_bulk_copy_finish, 'success');
+                        }
+                    }, 10000);
+                } else {
+                    if (typeof $ !== 'undefined' && $.notifi && app && app.languageData) {
+                        $.notifi(app.languageData.copied, 'success');
+                    }
+                    await doCopy(content);
+                }
+
+                if (dom !== null && dom !== undefined && tmp !== null) {
+                    setTimeout(() => $(dom).html(tmp), 600);
+                }
+            } catch (e) {
+                // ignore
+            }
+        };
+    }
+
+    if (typeof TL.workspace_del !== 'function') {
+        TL.workspace_del = (ukey) => {
+            $.post(TL.api_file, {
+                action: 'remove_from_workspace',
+                token: TL.api_token,
+                ukey: ukey
+            }, 'json');
+        };
+    }
+
+    if (typeof TL.download_direct !== 'function') {
+        TL.download_direct = (ukey) => {
+            TL.recaptcha_do('download_req', (recaptcha) => {
+                $.post(TL.api_file, {
+                    action: 'download_req',
+                    ukey: ukey,
+                    token: TL.api_token,
+                    captcha: recaptcha
+                }, (req) => {
+                    if (req.status == 1) {
+                        window.location.href = req.data;
+                        return true;
+                    }
+                    if (req.status == 3) {
+                        TL.alert(app.languageData.status_need_login);
+                        return false;
+                    }
+                    TL.alert(app.languageData.status_error_0);
+                });
+            });
+        };
+    }
+
+    if (typeof TL.previewModel !== 'function') {
+        TL.previewModel = (ukey, name, id, sid, sha1, ftype) => {
+            if (!sid || !sha1) {
+                TL.alert((app && app.languageData && app.languageData.status_error_0) || '无法预览');
+                return false;
+            }
+
+            const ext = (ftype ? String(ftype) : 'jpg').toLowerCase();
+            const url = `https://img-${sid}.5t-cdn.com:998/thumb/0x0/${sha1}.${ext}`;
+
+            $('#preview_img_loader').show();
+            $('#preview_img').hide();
+
+            const img = new Image();
+            img.onload = () => {
+                $('#preview_img_loader').hide();
+                $('#preview_img').attr('src', url);
+                $('#preview_img').show();
+            };
+            img.onerror = () => {
+                $('#preview_img_loader').hide();
+            };
+            img.src = url;
+
+            $('#preview_title').html(name);
+            $('#btn_preview_download').attr('data-ukey', ukey);
+            $('#btn_preview_download').removeAttr('disabled');
+            $('#btn_preview_download').attr('onclick', 'TL.download_direct(\'' + ukey + '\')');
+            $('#btn_preview_remove').attr('onclick', "TL.workspace_del('" + ukey + "')");
+            $('#previewModal').modal('show');
+        };
+    }
+}
+
 /**
  * VXUI 核心类
  */
@@ -83,6 +357,8 @@ class VXUICore {
      */
     init() {
         console.log('[VXUI] Initializing VXUI Core v' + this.version);
+
+        attachTmplinkUiCompat();
         
         // 应用暗色模式
         this.applyDarkMode();
@@ -653,6 +929,10 @@ class VXUICore {
         if (layout) {
             layout.classList.add('sidebar-open');
         }
+        // 防止滚动穿透 - 保存当前滚动位置
+        this._savedScrollY = window.scrollY;
+        document.body.classList.add('vx-sidebar-open');
+        document.body.style.top = `-${this._savedScrollY}px`;
     }
     
     /**
@@ -663,6 +943,12 @@ class VXUICore {
         const layout = document.getElementById('vx-layout');
         if (layout) {
             layout.classList.remove('sidebar-open');
+        }
+        // 恢复滚动位置
+        document.body.classList.remove('vx-sidebar-open');
+        document.body.style.top = '';
+        if (this._savedScrollY !== undefined) {
+            window.scrollTo(0, this._savedScrollY);
         }
     }
     
@@ -1005,6 +1291,86 @@ class VXUICore {
         
         // 打开模态框
         setTimeout(() => this.openModal(modalId), 10);
+    }
+    
+    /**
+     * 显示移动端 Action Sheet 操作菜单
+     * @param {string} title - 标题
+     * @param {Array} items - 菜单项数组 [{icon, text, action, danger}]
+     */
+    showActionSheet(title, items) {
+        const modalId = 'vx-action-sheet';
+        
+        // 移除已存在的
+        const existing = document.getElementById(modalId);
+        if (existing) existing.remove();
+        
+        // 构建菜单项 HTML，支持 label 类型作为分组标题
+        let actionIndex = 0;
+        const itemsHtml = items.map((item) => {
+            if (item.type === 'label') {
+                return `<div class="vx-action-sheet-label">${item.text}</div>`;
+            }
+            const html = `
+                <button class="vx-action-sheet-item ${item.danger ? 'vx-action-danger' : ''}" data-action-index="${actionIndex}">
+                    ${item.icon ? `<iconpark-icon name="${item.icon}"></iconpark-icon>` : ''}
+                    <span>${item.text}</span>
+                </button>
+            `;
+            actionIndex++;
+            return html;
+        }).join('');
+        
+        // 过滤出实际的 action items（非 label）
+        const actionItems = items.filter(item => item.type !== 'label');
+        
+        const modalHtml = `
+            <div class="vx-modal vx-action-sheet" id="${modalId}">
+                <div class="vx-modal-overlay" onclick="VXUI.closeActionSheet()"></div>
+                <div class="vx-action-sheet-container">
+                    ${title ? `<div class="vx-action-sheet-title">${title}</div>` : ''}
+                    <div class="vx-action-sheet-items">
+                        ${itemsHtml}
+                    </div>
+                    <button class="vx-action-sheet-cancel" onclick="VXUI.closeActionSheet()">
+                        <span data-tpl="btn_cancel">取消</span>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        // 绑定点击事件（使用过滤后的 actionItems）
+        const sheet = document.getElementById(modalId);
+        sheet.querySelectorAll('.vx-action-sheet-item').forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                this.closeActionSheet();
+                if (actionItems[index] && typeof actionItems[index].action === 'function') {
+                    actionItems[index].action();
+                }
+            });
+        });
+        
+        // 翻译
+        if (typeof TL !== 'undefined' && typeof TL.tpl_lang === 'function') {
+            TL.tpl_lang(sheet);
+        }
+        
+        // 打开
+        setTimeout(() => this.openModal(modalId), 10);
+    }
+    
+    /**
+     * 关闭 Action Sheet
+     */
+    closeActionSheet() {
+        const modalId = 'vx-action-sheet';
+        this.closeModal(modalId);
+        setTimeout(() => {
+            const el = document.getElementById(modalId);
+            if (el) el.remove();
+        }, 300);
     }
     
     // ==================== 工具方法 ====================

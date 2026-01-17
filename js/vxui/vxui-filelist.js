@@ -379,6 +379,14 @@ var VX_FILELIST = VX_FILELIST || {
             e.stopPropagation();
             const row = btn.closest ? btn.closest('.vx-list-row') : null;
             if (!row) return;
+            
+            // 检查菜单是否已打开且是同一个目标，如果是则关闭
+            const menu = document.getElementById('vx-fl-context-menu');
+            if (menu && menu.classList.contains('show') && this.contextTarget === row) {
+                this.hideContextMenu();
+                return;
+            }
+            
             this.openMoreMenu(e, row);
         }, true);
 
@@ -387,15 +395,10 @@ var VX_FILELIST = VX_FILELIST || {
             return;
         });
         
-        // 点击隐藏右键菜单（点菜单本身/更多按钮时不关闭）
+        // 点击隐藏右键菜单（点击任何区域都关闭，更多按钮由 capture phase 的 _onMoreClick 处理）
         document.addEventListener('click', this._onDocClick = (e) => {
-            if (!e) {
-                this.hideContextMenu();
-                return;
-            }
-            const inMenu = e.target && e.target.closest && e.target.closest('#vx-fl-context-menu');
-            const onMoreBtn = e.target && e.target.closest && e.target.closest('.vx-more-btn');
-            if (inMenu || onMoreBtn) return;
+            // 更多按钮的点击已由 _onMoreClick 在 capture phase 处理并 stopPropagation
+            // 所以这里不会收到更多按钮的点击事件，直接关闭菜单即可
             this.hideContextMenu();
         });
         
@@ -799,12 +802,26 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 显示/隐藏返回按钮
         const backBtn = document.getElementById('vx-fl-back-btn');
+        const mobileBackBtn = document.getElementById('vx-mobile-back');
+        
+        const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
+        // 不在桌面时显示返回按钮，但未登录且父文件夹是桌面时隐藏
+        const hasParent = this.room && this.room.parent && String(this.room.parent) !== '0';
+        const showBack = this.mrid != 0 && (isLoggedIn || hasParent);
+        
         if (backBtn) {
-            const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
-            // 不在桌面时显示返回按钮，但未登录且父文件夹是桌面时隐藏
-            const hasParent = this.room && this.room.parent && String(this.room.parent) !== '0';
-            const showBack = this.mrid != 0 && (isLoggedIn || hasParent);
             backBtn.style.display = showBack ? '' : 'none';
+        }
+        
+        // 移动端 header: 显示后退按钮（菜单按钮始终显示）
+        if (mobileBackBtn) {
+            mobileBackBtn.style.display = showBack ? '' : 'none';
+        }
+        
+        // 更新移动端标题
+        const mobileTitle = document.getElementById('vx-mobile-title');
+        if (mobileTitle) {
+            mobileTitle.textContent = title;
         }
         
         // 更新分享按钮显示（桌面隐藏）
@@ -1427,6 +1444,15 @@ var VX_FILELIST = VX_FILELIST || {
             actionsHtml += `
                 <button class="vx-list-action-btn vx-action-danger" onclick="event.stopPropagation(); VX_FILELIST.unfavoriteFolder('${folder.mr_id}')" title="取消收藏">
                     <iconpark-icon name="trash"></iconpark-icon>
+                </button>
+            `;
+        }
+        
+        // 更多按钮 (用于移动端)
+        if (isFolderOwner || canShare || isFavorite) {
+            actionsHtml += `
+                <button type="button" class="vx-list-action-btn vx-more-btn" onclick="event.stopPropagation(); VX_FILELIST.openFolderMoreMenu(event, '${folder.mr_id}', ${isFolderOwner}, ${canShare}, ${isFavorite})" title="更多">
+                    <iconpark-icon name="ellipsis"></iconpark-icon>
                 </button>
             `;
         }
@@ -2295,8 +2321,8 @@ var VX_FILELIST = VX_FILELIST || {
      * 简单下载（直接跳转）
      */
     simpleDownload(ukey) {
-        if (typeof TL !== 'undefined' && TL.download && TL.download.get_download_url) {
-            TL.download.get_download_url(ukey).then(url => {
+        if (typeof TL !== 'undefined' && typeof TL.get_download_url === 'function') {
+            TL.get_download_url(ukey).then(url => {
                 window.location.href = url;
             }).catch(() => {
                 window.open(`/file?ukey=${ukey}`, '_blank');
@@ -3241,6 +3267,87 @@ var VX_FILELIST = VX_FILELIST || {
         this.contextMode = 'context';
     },
 
+    /**
+     * 打开文件夹的更多菜单 (移动端使用 Action Sheet 风格)
+     */
+    openFolderMoreMenu(event, mrid, isOwner, canShare, isFavorite) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        const folder = (this.folderList || []).find(f => String(f.mr_id) === String(mrid));
+        const folderName = folder ? folder.name : '';
+        
+        // 构建菜单项
+        let menuItems = [];
+        
+        if (canShare) {
+            menuItems.push({
+                icon: 'share-from-square',
+                text: this.t('share', '分享'),
+                action: () => this.shareFolder(mrid, this.buildFolderShareUrl(mrid))
+            });
+        }
+        
+        if (isOwner) {
+            menuItems.push({
+                icon: 'pen-to-square',
+                text: this.t('on_select_rename', '重命名'),
+                action: () => this.renameFolder(mrid)
+            });
+            menuItems.push({
+                icon: 'trash',
+                text: this.t('on_select_delete', '删除'),
+                danger: true,
+                action: () => this.deleteFolder(mrid)
+            });
+        }
+        
+        if (isFavorite && !isOwner) {
+            menuItems.push({
+                icon: 'trash',
+                text: this.t('vx_unfavorite', '取消收藏'),
+                danger: true,
+                action: () => this.unfavoriteFolder(mrid)
+            });
+        }
+        
+        if (menuItems.length === 0) return;
+        
+        // 使用 VXUI 的 action sheet 或自定义弹出菜单
+        if (typeof VXUI !== 'undefined' && typeof VXUI.showActionSheet === 'function') {
+            VXUI.showActionSheet(folderName || this.t('filelist_dir', '文件夹'), menuItems);
+        } else {
+            // 降级使用原有的上下文菜单
+            const row = document.querySelector(`.vx-list-row[data-mrid="${mrid}"]`);
+            if (row) {
+                const btn = event && event.target ? event.target.closest('.vx-more-btn') : null;
+                if (btn) {
+                    const rect = btn.getBoundingClientRect();
+                    this.showFolderContextMenu(rect.left, rect.bottom, mrid, isOwner, canShare, isFavorite);
+                }
+            }
+        }
+    },
+    
+    /**
+     * 显示文件夹上下文菜单 (降级方案)
+     */
+    showFolderContextMenu(x, y, mrid, isOwner, canShare, isFavorite) {
+        // 简单实现：直接执行第一个可用操作或显示 alert
+        let actions = [];
+        if (canShare) actions.push('分享');
+        if (isOwner) actions.push('重命名', '删除');
+        if (isFavorite && !isOwner) actions.push('取消收藏');
+        
+        // 使用原生 confirm 作为临时方案
+        const actionText = actions.join(' / ');
+        if (isOwner && confirm(`要对此文件夹执行操作吗？\n可用操作: ${actionText}\n\n点击确定删除，取消则关闭`)) {
+            this.deleteFolder(mrid);
+        }
+    },
+
     openMoreMenu(event, row) {
         if (event) {
             event.preventDefault();
@@ -3251,33 +3358,54 @@ var VX_FILELIST = VX_FILELIST || {
             : null);
         if (!target) return;
 
+        // 移动端使用 Action Sheet
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile && typeof VXUI !== 'undefined' && typeof VXUI.showActionSheet === 'function') {
+            this.openMobileActionSheet(target);
+            return;
+        }
+
         // 从 event.target 找到实际的按钮元素
         const btn = event && event.target ? event.target.closest('.vx-more-btn') : null;
         
         if (btn) {
-            // 使用按钮位置计算菜单位置
+            // Bootstrap 风格定位：菜单出现在按钮正下方，右对齐
             const rect = btn.getBoundingClientRect();
-            const menuWidth = 180; // 预估菜单宽度
-            const menuHeight = 280; // 预估菜单高度
+            const menu = this.ensureContextMenu();
+            
+            // 先显示菜单以获取实际尺寸
+            menu.style.visibility = 'hidden';
+            menu.classList.add('show');
+            const menuRect = menu.getBoundingClientRect();
+            const menuWidth = menuRect.width || 180;
+            const menuHeight = menuRect.height || 280;
+            menu.classList.remove('show');
+            menu.style.visibility = '';
             
             let x, y;
             
-            // 水平方向：优先在按钮右侧，空间不够则在左侧
-            if (rect.right + menuWidth + 8 <= window.innerWidth) {
-                x = rect.right + 4;
-            } else {
-                x = rect.left - menuWidth - 4;
+            // 水平方向：菜单右边缘与按钮右边缘对齐（右对齐）
+            x = rect.right - menuWidth;
+            
+            // 如果左侧超出视口，则左对齐
+            if (x < 8) {
+                x = rect.left;
             }
             
-            // 垂直方向：优先在按钮下方，空间不够则在上方
+            // 如果右侧超出视口，则靠右
+            if (x + menuWidth > window.innerWidth - 8) {
+                x = window.innerWidth - menuWidth - 8;
+            }
+            
+            // 垂直方向：优先在按钮下方
             if (rect.bottom + menuHeight + 8 <= window.innerHeight) {
-                y = rect.top;
+                y = rect.bottom + 4;
             } else {
-                y = rect.bottom - menuHeight;
+                // 下方空间不足，显示在上方
+                y = rect.top - menuHeight - 4;
             }
             
             // 确保不超出视口
-            x = Math.max(8, Math.min(x, window.innerWidth - menuWidth - 8));
             y = Math.max(8, Math.min(y, window.innerHeight - menuHeight - 8));
             
             this.showContextMenu(x, y, target, 'more');
@@ -3286,6 +3414,139 @@ var VX_FILELIST = VX_FILELIST || {
             const x = event && typeof event.clientX === 'number' ? event.clientX : 100;
             const y = event && typeof event.clientY === 'number' ? event.clientY : 100;
             this.showContextMenu(x, y, target, 'more');
+        }
+    },
+
+    /**
+     * 移动端 Action Sheet 菜单
+     */
+    openMobileActionSheet(target) {
+        const type = target.dataset.type;
+        const isFile = type === 'file';
+        const isFolder = type === 'folder';
+        const canOwnerOps = !!this.isOwner;
+        const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
+        const canDirectShare = isFile && isLoggedIn && this.directDomainReady && this.directDirEnabled && this.directDirKey;
+        
+        let menuItems = [];
+        let title = '';
+        
+        if (isFile) {
+            const ukey = target.dataset.ukey;
+            const file = this.fileList.find(f => f.ukey === ukey);
+            title = file ? (file.fname_ex || file.fname) : this.t('file', '文件');
+            const currentModel = file ? file.model : -1;
+            
+            // 下载
+            menuItems.push({
+                icon: 'cloud-arrow-down',
+                text: this.t('on_select_download', '下载'),
+                action: () => this.downloadFile(ukey)
+            });
+            
+            // 重命名
+            if (canOwnerOps) {
+                menuItems.push({
+                    icon: 'pen-to-square',
+                    text: this.t('menu_rename', '重命名'),
+                    action: () => this.renameFile(ukey, file ? (file.fname_ex || file.fname) : '')
+                });
+            }
+            
+            // 直链分享
+            if (canDirectShare) {
+                menuItems.push({
+                    icon: 'share-from-square',
+                    text: this.t('vx_direct_share', '通过直链分享'),
+                    action: () => this.copyDirectFileLinkByUkey(ukey)
+                });
+            }
+            
+            // 修改有效期（仅所有者，排除当前有效期）
+            if (canOwnerOps) {
+                // 添加分组标题
+                menuItems.push({
+                    type: 'label',
+                    text: this.t('on_select_change_model', '修改有效期')
+                });
+                
+                // 永久保存 (model: 99)
+                if (currentModel !== 99) {
+                    menuItems.push({
+                        icon: 'infinity',
+                        text: this.t('modal_settings_upload_model99', '永久保存'),
+                        action: () => this.changeFileModel(ukey, 99)
+                    });
+                }
+                // 24 小时 (model: 0)
+                if (currentModel !== 0) {
+                    menuItems.push({
+                        icon: 'clock',
+                        text: this.t('modal_settings_upload_model1', '24 小时'),
+                        action: () => this.changeFileModel(ukey, 0)
+                    });
+                }
+                // 3 天 (model: 1)
+                if (currentModel !== 1) {
+                    menuItems.push({
+                        icon: 'clock',
+                        text: this.t('modal_settings_upload_model2', '3 天'),
+                        action: () => this.changeFileModel(ukey, 1)
+                    });
+                }
+                // 7 天 (model: 2)
+                if (currentModel !== 2) {
+                    menuItems.push({
+                        icon: 'clock',
+                        text: this.t('modal_settings_upload_model3', '7 天'),
+                        action: () => this.changeFileModel(ukey, 2)
+                    });
+                }
+            }
+            
+            // 删除
+            if (canOwnerOps) {
+                menuItems.push({
+                    icon: 'trash',
+                    text: this.t('menu_delete', '删除文件'),
+                    danger: true,
+                    action: () => this.deleteFile(ukey)
+                });
+            }
+        } else if (isFolder) {
+            const mrid = target.dataset.mrid;
+            const folder = (this.subRooms || []).find(f => String(f.mr_id) === String(mrid));
+            title = folder ? folder.name : this.t('filelist_dir', '文件夹');
+            
+            // 打开
+            menuItems.push({
+                icon: 'folder-open-e1ad2j7l',
+                text: this.t('vx_open', '打开'),
+                action: () => this.openFolder(mrid)
+            });
+            
+            // 重命名
+            if (canOwnerOps) {
+                menuItems.push({
+                    icon: 'pen-to-square',
+                    text: this.t('menu_rename', '重命名'),
+                    action: () => this.renameFolder(mrid)
+                });
+            }
+            
+            // 删除
+            if (canOwnerOps) {
+                menuItems.push({
+                    icon: 'trash',
+                    text: this.t('menu_delete_folder', '删除文件夹'),
+                    danger: true,
+                    action: () => this.deleteFolder(mrid)
+                });
+            }
+        }
+        
+        if (menuItems.length > 0) {
+            VXUI.showActionSheet(title, menuItems);
         }
     },
 
@@ -3613,8 +3874,18 @@ var VX_FILELIST = VX_FILELIST || {
             });
         } else {
             if (typeof TL !== 'undefined' && TL.file_rename) {
-                TL.file_rename(this._renameTarget.id, name);
-                this.closeRenameModal();
+                const req = TL.file_rename(this._renameTarget.id, name);
+                if (req && typeof req.done === 'function') {
+                    req.done(() => {
+                        this.closeRenameModal();
+                        this.refresh();
+                        VXUI.toastSuccess(this.t('vx_rename_success', '重命名成功'));
+                    }).fail(() => {
+                        VXUI.toastError(this.t('vx_rename_fail', '重命名失败'));
+                    });
+                } else {
+                    this.closeRenameModal();
+                }
             }
         }
     },
