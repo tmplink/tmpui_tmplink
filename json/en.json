@@ -763,6 +763,7 @@
     "download_add": "Download task added:",
     "download_loading": "Loading...",
     "download_preparing": "Connecting to server",
+    "download_started": "Download Started",
     "model_title_folder_title": "Create a Folder",
     "model_title_folder_name": "Please enter a folder name",
     "filelist_dir": "Folder",

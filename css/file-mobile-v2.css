@@ -90,7 +90,7 @@ body.file-page .file-page-root .align-self-center {
 /* Header */
 .mobile-header {
     padding: 10px var(--mobile-side-pad) 12px;
-    padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
+    padding-top: calc(env(safe-area-inset-top, 0px) + 15px);
     display: flex;
     align-items: center;
     justify-content: space-between;

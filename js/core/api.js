@@ -679,7 +679,10 @@ class tmplink_api {
     }
 
     async file_get_details(ukey) {
-        if (!this.api_file) return { status: 0 };
+        if (!this.api_file) {
+            console.error('[tmplink_api] api_file not initialized');
+            return { status: 0, error: 'api_not_ready' };
+        }
         return new Promise((resolve) => {
             $.post(this.api_file, {
                 action: 'details',
@@ -690,7 +693,10 @@ class tmplink_api {
                     this.current_file_details = rsp.data;
                 }
                 resolve(rsp);
-            }, 'json').fail(() => resolve({ status: 0 }));
+            }, 'json').fail((xhr, status, error) => {
+                console.error('[tmplink_api] file_get_details failed:', status, error);
+                resolve({ status: 0, error: 'network_error' });
+            });
         });
     }
 

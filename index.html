@@ -74,7 +74,7 @@
     <script type="text/javascript" src="./tmpui.js?v=53"></script>
     <script type="text/javascript">
         let config = {
-            "version": 1662,
+            "version": 1663,
             "siteroot": "/",
             "loadingIcon": "/img/ico/logo-new.svg",
             "loadingText": "TMP.LINK",
@@ -172,6 +172,27 @@
 
                     "/js/core/function.js": { "type": "js", "reload": false },
                     "/js/core/api.js": { "type": "js", "reload": false }
+                },
+                "file_init": {
+                    "/js/tools/jquery.min.js": { "type": "js", "reload": false },
+                    "/js/tools/clipboard.min.js": { "type": "js", "reload": false },
+                    "/js/tools/jquery.cookie.js": { "type": "js", "reload": false },
+                    "/js/tools/sha1.js": { "type": "js", "reload": false },
+                    "/js/tools/base64.js": { "type": "js", "reload": false },
+                    "/js/tools/qrcode.min.js": { "type": "js", "reload": false },
+
+                    "/js/core/function.js": { "type": "js", "reload": false },
+                    "/js/core/stream.js": { "type": "js", "reload": false },
+                    "/js/core/api.js": { "type": "js", "reload": false },
+                    "/js/file.js": { "type": "js", "reload": false },
+
+                    "/css/reset.css": { "type": "css", "reload": false },
+                    "/css/sp.css": { "type": "css", "reload": false },
+                    "/css/fa.css": { "type": "css", "reload": false },
+                    "/css/dark.css": { "type": "css", "reload": false },
+                    "/css/file.css": { "type": "css", "reload": false },
+                    "/css/user-info-card.css": { "type": "css", "reload": false },
+                    "/tpl/include/gtpl.html": { "type": "tpl", "reload": false }
                 }
             },
             "append": {
@@ -277,14 +298,12 @@
                 },
                 "/file": {
                     "title": "TMP.link - Download",
-                    "preload": ["init"],
-                    "append": ["tmplink"],
+                    "preload": ["file_init"],
                     "body": {
-                        "/js/core/api.js": { "type": "js", "reload": false },
                         "/js/init/init_file.js": { "type": "js" },
                         "/tpl/file.html": { "type": "html", "target": { "type": "body" } },
                         "/tpl/file_desktop.html": { "type": "file" },
-                        "/tpl/file_mobile.html": { "type": "file" },
+                        "/tpl/file_mobile.html": { "type": "file" }
                     }
                 },
                 "/vx": {

@@ -738,6 +738,7 @@
     "download_add": "ダウンロードタスクが追加されました:",
     "download_loading": "読み込み中...",
     "download_preparing": "サーバーに接続中",
+    "download_started": "ダウンロード開始",
     "model_title_folder_title": "フォルダーの作成",
     "model_title_folder_name": "フォルダー名を入力してください",
     "filelist_dir": "フォルダ",

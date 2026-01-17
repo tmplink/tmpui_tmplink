@@ -112,7 +112,9 @@ class FilePageController {
 
     async loadFileDetails() {
         $('#top_loggo').attr('src', '/img/ico/logo-new.svg').show();
-        $('#file_loading_box').show();
+        // 显示骨架屏，隐藏实际内容
+        $('#file_skeleton').show();
+        $('#file_loading_box').hide();
         $('#file_box').hide();
         $('.mobile-footer').hide();
 
@@ -121,6 +123,7 @@ class FilePageController {
             $('#file_messenger_msg').removeClass('display-4');
             $('#file_messenger > div').removeClass('shadow').removeClass('card');
             $('#file_messenger_msg').html('请复制链接后，在外部浏览器打开进行下载。');
+            $('#file_skeleton').hide();
             $('#file_messenger').show();
             $('#file_loading_box').hide();
             $('.mobile-footer').hide();
@@ -134,17 +137,24 @@ class FilePageController {
         if (!params.ukey) {
             $('#file_messenger_icon').html('<iconpark-icon name="folder-xmark" class="fa-fw fa-4x"></iconpark-icon>');
             $('#file_messenger_msg').html(app?.languageData?.file_unavailable || 'File unavailable');
+            $('#file_skeleton').hide();
             $('#file_messenger').show();
             $('#file_box').hide();
             $('.mobile-footer').hide();
             return false;
         }
-
-        const rsp = (typeof TL !== 'undefined' && typeof TL.file_get_details === 'function')
-            ? await TL.file_get_details(params.ukey)
-            : { status: 0 };
+        
+        let rsp;
+        if (typeof TL !== 'undefined' && typeof TL.file_get_details === 'function') {
+            rsp = await TL.file_get_details(params.ukey);
+        } else {
+            console.error('[FilePageController] TL (tmplink_api) not available');
+            rsp = { status: 0, error: 'api_not_available' };
+        }
 
         $('#top_loggo').attr('src', '/img/ico/logo-new.svg').show();
+        // 隐藏骨架屏和加载框
+        $('#file_skeleton').hide();
         $('#file_loading_box').hide();
 
         if (rsp && rsp.status === 1) {
@@ -158,6 +168,10 @@ class FilePageController {
 
             $('#file_box').show();
             $('.mobile-footer').show();
+            
+            // 模板已加载，重新初始化 DOM 缓存
+            this.initDOMCache();
+            
             $('#filename').html(fileinfo.name);
             $('#filesize').html(fileinfo.size);
 
@@ -300,7 +314,17 @@ class FilePageController {
             $('#file_download_btn_fast').off('click').on('click', downloadHandler);
 
             $('#file_download_by_qrcode').off('click').on('click', () => {
-                $('#qrModal').modal('show');
+                // 生成二维码
+                const qrContainer = document.getElementById('qr_code_url');
+                if (qrContainer && typeof QRCode !== 'undefined') {
+                    qrContainer.innerHTML = '';
+                    new QRCode(qrContainer, {
+                        text: window.location.href,
+                        width: 200,
+                        height: 200
+                    });
+                }
+                fileUI.openModal('qrModal');
                 return true;
             });
 
@@ -339,11 +363,11 @@ class FilePageController {
             });
 
             $('#btn_highdownload').off('click').on('click', () => {
-                $('#upupModal').modal('show');
+                fileUI.openModal('upupModal');
             });
 
             $('#btn_report_file').off('click').on('click', () => {
-                $('#reportModal').modal('show');
+                fileUI.openModal('reportModal');
             });
 
             if (typeof TL !== 'undefined' && typeof TL.file_preload_download_url === 'function') {
@@ -401,6 +425,27 @@ class FilePageController {
             if (typeof TL !== 'undefined' && typeof TL.ga === 'function') {
                 TL.ga(`Private-[${params.ukey}]`);
             }
+            return false;
+        }
+
+        // 处理网络错误或 API 未准备好的情况
+        if (rsp && rsp.error === 'network_error') {
+            $('#file_messenger_icon').html('<iconpark-icon name="wifi-slash" class="fa-fw fa-4x"></iconpark-icon>');
+            $('#file_messenger_msg').html(app?.languageData?.network_error || '网络连接失败，请刷新页面重试');
+            $('#file_messenger').show();
+            $('#file_box').hide();
+            $('.mobile-footer').hide();
+            console.error('[FilePageController] Network error when loading file details');
+            return false;
+        }
+        
+        if (rsp && rsp.error === 'api_not_available') {
+            $('#file_messenger_icon').html('<iconpark-icon name="circle-exclamation" class="fa-fw fa-4x"></iconpark-icon>');
+            $('#file_messenger_msg').html(app?.languageData?.api_error || '服务暂时不可用，请稍后重试');
+            $('#file_messenger').show();
+            $('#file_box').hide();
+            $('.mobile-footer').hide();
+            console.error('[FilePageController] API not available');
             return false;
         }
 
@@ -627,13 +672,13 @@ class FilePageController {
             
             if (!Number.isFinite(this.totalSize) || this.totalSize <= 0) {
                 console.log('[FilePageController] Invalid content-length, falling back');
-                return this.fallbackDownload(url);
+                return this.fallbackDownload(url, true);
             }
 
             // 小文件直接下载
             if (this.totalSize < FilePageController.SMALL_FILE_THRESHOLD) {
                 console.log(`[FilePageController] Small file (${this.formatBytes(this.totalSize)} < ${this.formatBytes(FilePageController.SMALL_FILE_THRESHOLD)}), using direct download`);
-                return this.fallbackDownload(url);
+                return this.fallbackDownload(url, true);
             }
 
             // 服务器已确认支持 Range 请求，直接进行分片下载
@@ -878,11 +923,52 @@ class FilePageController {
         URL.revokeObjectURL(url);
     }
 
-    fallbackDownload(url) {
+    fallbackDownload(url, showFeedback = false) {
         console.log('[FilePageController] Falling back to direct download');
-        window.location.href = url;
+        
+        // 先清理下载状态
         this.cleanupDownload();
+        
+        // 如果需要显示反馈（小文件下载），在清理之后显示
+        if (showFeedback) {
+            this.showDownloadFeedback();
+        }
+        
+        window.location.href = url;
         return true;
+    }
+
+    /**
+     * 显示下载开始的视觉反馈
+     */
+    showDownloadFeedback() {
+        console.log('[FilePageController] Showing download feedback');
+        
+        // 重新获取按钮元素（因为模板可能在 init 之后加载）
+        const $btn = this.$downloadBtn || document.getElementById('file_download_btn_fast');
+        
+        if ($btn) {
+            console.log('[FilePageController] Button found, adding download-started class');
+            $btn.classList.add('download-started');
+            $btn.disabled = false;
+            
+            // 更新按钮文字
+            const $textEl = $btn.querySelector('.download-btn-text');
+            if ($textEl) {
+                $textEl.textContent = app?.languageData?.download_started || '下载已开始';
+            }
+            
+            // 3秒后恢复
+            setTimeout(() => {
+                $btn.classList.remove('download-started');
+                const $text = $btn.querySelector('.download-btn-text');
+                if ($text) {
+                    $text.textContent = app?.languageData?.file_btn_download_fast || '高速下载';
+                }
+            }, 3000);
+        } else {
+            console.log('[FilePageController] Button not found!');
+        }
     }
 
     cleanupDownload() {
@@ -945,11 +1031,10 @@ class FilePageController {
             // startMultiThreadDownload 内部会自行检测文件大小和 Range 支持，失败则自动回退
             if (mode === 'fast') {
                 if (this.isMobileContext()) {
+                    // 移动端也显示下载开始反馈
+                    this.setButtonLoading(false);
+                    this.showDownloadFeedback();
                     window.location.href = url;
-                    setTimeout(() => {
-                        this.setButtonLoading(false);
-                        this.updateButtonText(app?.languageData?.file_btn_download_fast || '高速下载');
-                    }, 3000);
                     return true;
                 }
                 console.log('[FilePageController] Fast mode: attempting multi-thread download');
@@ -1048,6 +1133,106 @@ if (document.readyState === 'loading') {
     filePage.init();
 }
 
+// ========== 纯 CSS UI 控制器 (替代 Bootstrap) ==========
+const fileUI = {
+    /**
+     * 切换下拉菜单显示状态
+     * @param {HTMLElement} toggleBtn - 触发按钮
+     */
+    toggleDropdown(toggleBtn) {
+        const dropdown = toggleBtn.closest('.file-dropdown');
+        if (!dropdown) return;
+
+        const isOpen = dropdown.classList.contains('open');
+        
+        // 先关闭所有其他下拉菜单
+        this.closeDropdowns();
+        
+        // 切换当前下拉菜单
+        if (!isOpen) {
+            dropdown.classList.add('open');
+            // 添加点击外部关闭的监听
+            setTimeout(() => {
+                document.addEventListener('click', this._outsideClickHandler);
+            }, 0);
+        }
+    },
+
+    /**
+     * 关闭所有下拉菜单
+     */
+    closeDropdowns() {
+        document.querySelectorAll('.file-dropdown.open').forEach(el => {
+            el.classList.remove('open');
+        });
+        document.removeEventListener('click', this._outsideClickHandler);
+    },
+
+    /**
+     * 点击外部关闭下拉菜单的处理器
+     */
+    _outsideClickHandler(e) {
+        if (!e.target.closest('.file-dropdown')) {
+            fileUI.closeDropdowns();
+        }
+    },
+
+    /**
+     * 打开模态框
+     * @param {string} modalId - 模态框 ID
+     */
+    openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        
+        // ESC 键关闭
+        document.addEventListener('keydown', this._escKeyHandler);
+        
+        // 点击背景关闭
+        modal.addEventListener('click', this._modalBackdropHandler);
+    },
+
+    /**
+     * 关闭模态框
+     * @param {string} modalId - 模态框 ID
+     */
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        
+        document.removeEventListener('keydown', this._escKeyHandler);
+        modal.removeEventListener('click', this._modalBackdropHandler);
+    },
+
+    /**
+     * ESC 键关闭模态框
+     */
+    _escKeyHandler(e) {
+        if (e.key === 'Escape') {
+            const openModal = document.querySelector('.file-modal.open');
+            if (openModal) {
+                fileUI.closeModal(openModal.id);
+            }
+        }
+    },
+
+    /**
+     * 点击背景关闭模态框
+     */
+    _modalBackdropHandler(e) {
+        if (e.target.classList.contains('file-modal')) {
+            fileUI.closeModal(e.target.id);
+        }
+    }
+};
+
 // 暴露给全局
 window.filePage = filePage;
 window.FilePageController = FilePageController;
+window.fileUI = fileUI;
