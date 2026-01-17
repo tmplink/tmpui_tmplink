@@ -1,13 +1,15 @@
 app.ready(() => {
-    // 文件页独立初始化 TL 对象
+    // 文件页独立初始化 TL 对象 - 仅使用 tmplink_api (api.js)
     if (typeof window.TL === 'undefined') {
         if (typeof window.tmplink_api !== 'undefined') {
             window.TL = new tmplink_api();
         } else {
-            window.TL = new tmplink();
+            console.error('[init_file.js] tmplink_api (api.js) not loaded!');
+            return;
         }
     }
 
+    // 初始化 stream 模块（用于视频播放功能）
     if (typeof TL !== 'undefined' && typeof stream === 'function' && !TL.stream) {
         TL.stream = new stream();
         TL.stream.init(TL);
@@ -24,19 +26,60 @@ app.ready(() => {
     $('meta[name=description]').html(app.languageData.des_file);
 
     TL.ready(() => {
+        // 显示语言选择器
+        $('#index_lang').fadeIn();
+        
         if (typeof window.filePage !== 'undefined' && typeof window.filePage.loadFileDetails === 'function') {
             window.filePage.loadFileDetails();
         }
 
-        if (typeof TL.report !== 'function' && typeof window.filePage !== 'undefined' && typeof window.filePage.reportFile === 'function') {
-            TL.report = () => window.filePage.reportFile();
+        // 绑定举报功能
+        if (typeof window.filePage !== 'undefined') {
+            // 使用纯 JS 模态框的举报函数
+            window.filePage.report = function() {
+                const reason = document.getElementById('report_model')?.value || '';
+                const ukey = document.getElementById('report_ukey')?.textContent || '';
+                
+                if (!ukey) {
+                    TL.alert(app.languageData.alert_error || 'Error', 'danger');
+                    return;
+                }
+                
+                TL.api({
+                    a: 'file_report',
+                    ukey: ukey,
+                    reason: reason
+                }, (res) => {
+                    if (res.code === 0) {
+                        TL.alert(app.languageData.modal_report_success || '举报成功', 'success');
+                        fileUI.closeModal('reportModal');
+                    } else {
+                        TL.alert(res.msg || app.languageData.alert_error || 'Error', 'danger');
+                    }
+                });
+            };
+            
+            // 兼容旧版 TL.report
+            TL.report = () => window.filePage.report();
         }
+        
+        // 绑定模态框打开按钮
+        bindFileModals();
         
         // 添加用户信息卡片的鼠标悬停事件
         initUserInfoCard();
     });
     
 });
+
+/**
+ * 绑定文件页面模态框的触发按钮（备用，主要绑定在 file.js 的 loadFileDetails 中）
+ * 这里只绑定那些可能在 file.js 之前就需要的事件
+ */
+function bindFileModals() {
+    // 模态框打开事件主要在 file.js 的 loadFileDetails 成功回调中绑定
+    // 这里不需要重复绑定，因为那些按钮在文件信息加载成功后才会显示
+}
 
 /**
  * 初始化用户信息卡片的交互

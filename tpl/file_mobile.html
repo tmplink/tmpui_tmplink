@@ -17,19 +17,69 @@
                 <img src="/img/menubarx/icon.svg" alt="menubarx" />
                 <span i18n="open_in_menubarx">.</span>
             </button>
-            <div class="dropdown">
-                <button class="lang-toggle-minimal dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <div class="file-dropdown">
+                <button class="lang-toggle file-dropdown-toggle" type="button" onclick="fileUI.toggleDropdown(this)">
                     <iconpark-icon name="language"></iconpark-icon>
+                    <span class="selected_lang">Language/语言</span>
                 </button>
-                <div class="dropdown-menu dropdown-menu-right shadow-lg">
-                    <a class="dropdown-item" href="javascript:void(0)" onclick="TL.language('cn');">简体中文</a>
-                    <a class="dropdown-item" href="javascript:void(0)" onclick="TL.language('hk');">繁体中文</a>
-                    <a class="dropdown-item" href="javascript:void(0)" onclick="TL.language('en');">English</a>
-                    <a class="dropdown-item" href="javascript:void(0)" onclick="TL.language('jp');">日本語</a>
+                <div class="file-dropdown-menu file-dropdown-menu-right">
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('cn');fileUI.closeDropdowns();">简体中文</a>
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('hk');fileUI.closeDropdowns();">繁体中文</a>
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('en');fileUI.closeDropdowns();">English</a>
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('jp');fileUI.closeDropdowns();">日本語</a>
                 </div>
             </div>
         </div>
     </header>
+
+    <!-- Skeleton Loading Screen -->
+    <div id="file_skeleton" class="skeleton-mobile">
+        <div class="skeleton-mobile-content">
+            <div class="skeleton-mobile-icon"></div>
+            <div class="skeleton-mobile-title skeleton-bone"></div>
+            <div class="skeleton-mobile-meta">
+                <div class="skeleton-mobile-meta-item skeleton-bone"></div>
+                <div class="skeleton-mobile-meta-item skeleton-bone"></div>
+                <div class="skeleton-mobile-meta-item skeleton-bone"></div>
+            </div>
+            <div class="skeleton-mobile-publisher">
+                <div class="skeleton-mobile-avatar skeleton-bone"></div>
+                <div class="skeleton-mobile-info">
+                    <div class="skeleton-mobile-name skeleton-bone"></div>
+                    <div class="skeleton-mobile-intro skeleton-bone"></div>
+                </div>
+            </div>
+        </div>
+        <div class="skeleton-mobile-actions">
+            <div class="skeleton-mobile-btn"></div>
+            <div class="skeleton-mobile-grid">
+                <div class="skeleton-mobile-action-item">
+                    <div class="skeleton-mobile-action-icon"></div>
+                    <div class="skeleton-mobile-action-label skeleton-bone"></div>
+                </div>
+                <div class="skeleton-mobile-action-item">
+                    <div class="skeleton-mobile-action-icon"></div>
+                    <div class="skeleton-mobile-action-label skeleton-bone"></div>
+                </div>
+                <div class="skeleton-mobile-action-item">
+                    <div class="skeleton-mobile-action-icon"></div>
+                    <div class="skeleton-mobile-action-label skeleton-bone"></div>
+                </div>
+                <div class="skeleton-mobile-action-item">
+                    <div class="skeleton-mobile-action-icon"></div>
+                    <div class="skeleton-mobile-action-label skeleton-bone"></div>
+                </div>
+                <div class="skeleton-mobile-action-item">
+                    <div class="skeleton-mobile-action-icon"></div>
+                    <div class="skeleton-mobile-action-label skeleton-bone"></div>
+                </div>
+                <div class="skeleton-mobile-action-item">
+                    <div class="skeleton-mobile-action-icon"></div>
+                    <div class="skeleton-mobile-action-label skeleton-bone"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="file_messenger" style="display: none;">
         <div class="messenger-card">
@@ -112,23 +162,23 @@
         <div id="file_download_area">
             <div id="file_op" style="display: none;">
                 <div class="action-grid">
-                    <div class="dropdown">
-                        <button class="action-item dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="file-dropdown">
+                        <button class="action-item file-dropdown-toggle" type="button" onclick="fileUI.toggleDropdown(this)">
                             <span class="action-icon-box">
                                 <iconpark-icon name="laptop-arrow-down"></iconpark-icon>
                             </span>
                             <span class="action-label" id="file_btn_download_opt" i18n="file_btn_download_opt">.</span>
                         </button>
-                        <div class="dropdown-menu shadow">
-                            <button class="dropdown-item btn_copy_downloadurl_for_other" type="button">
+                        <div class="file-dropdown-menu">
+                            <button class="file-dropdown-item btn_copy_downloadurl_for_other" type="button" onclick="fileUI.closeDropdowns();">
                                 <iconpark-icon name="rectangle-terminal" class="fa-fw"></iconpark-icon>
                                 <span i18n="file_btn_download_opt_link">.</span>
                             </button>
-                            <button class="dropdown-item btn_copy_downloadurl_for_curl" type="button">
+                            <button class="file-dropdown-item btn_copy_downloadurl_for_curl" type="button" onclick="fileUI.closeDropdowns();">
                                 <iconpark-icon name="rectangle-terminal" class="fa-fw"></iconpark-icon>
                                 <span i18n="file_btn_download_opt_curl">.</span>
                             </button>
-                            <button class="dropdown-item btn_copy_downloadurl_for_wget" type="button">
+                            <button class="file-dropdown-item btn_copy_downloadurl_for_wget" type="button" onclick="fileUI.closeDropdowns();">
                                 <iconpark-icon name="rectangle-terminal" class="fa-fw"></iconpark-icon>
                                 <span i18n="file_btn_download_opt_wget">.</span>
                             </button>
@@ -149,7 +199,7 @@
                         <span class="action-label" i18n="file_btn_copy">.</span>
                     </button>
 
-                    <button class="action-item btn_play" type="button" style="display: none;" onclick="$('#openWithPlayerModal').modal('show');">
+                    <button class="action-item btn_play" type="button" style="display: none;" onclick="fileUI.openModal('openWithPlayerModal');">
                         <span class="action-icon-box">
                             <iconpark-icon name="play"></iconpark-icon>
                         </span>
@@ -178,7 +228,7 @@
                     </button>
                 </div>
 
-                <div class="legal-text" id="downloadAlert" onclick="$('#downloadAlertModal').modal('show')" style="display: none;">
+                <div class="legal-text" id="downloadAlert" onclick="fileUI.openModal('downloadAlertModal')" style="display: none;">
                     <iconpark-icon name="triangle-exclamation-solid"></iconpark-icon>
                     <span i18n="da_file">.</span>
                 </div>
@@ -205,4 +255,143 @@
     </footer>
 
     <div id="file_loading" style="display: none;"></div>
+</div>
+
+<!-- Pure CSS Modals for File Page -->
+
+<!-- QR Code Modal -->
+<div class="file-modal" id="qrModal">
+    <div class="file-modal-dialog">
+        <div class="file-modal-content">
+            <div class="file-modal-header">
+                <h4 class="file-modal-title">QR Code</h4>
+                <button type="button" class="file-modal-close" onclick="fileUI.closeModal('qrModal')">&times;</button>
+            </div>
+            <div class="file-modal-body">
+                <div class="file-qr-code" id="qr_code_url"></div>
+            </div>
+            <div class="file-modal-footer">
+                <button type="button" class="file-modal-btn file-modal-btn-default" onclick="fileUI.closeModal('qrModal')" i18n="model_btn_cancel">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Modal -->
+<div class="file-modal" id="reportModal">
+    <div class="file-modal-dialog">
+        <div class="file-modal-content">
+            <div class="file-modal-header">
+                <h4 class="file-modal-title" i18n="model_title_report">举报</h4>
+                <button type="button" class="file-modal-close" onclick="fileUI.closeModal('reportModal')">&times;</button>
+            </div>
+            <div class="file-modal-body">
+                <select class="file-select" id="report_model">
+                    <option value="copyright" i18n="modal_report_reason1" selected>.</option>
+                    <option value="nsfw" i18n="modal_report_reason2">.</option>
+                    <option value="privacy" i18n="modal_report_reason3">.</option>
+                </select>
+            </div>
+            <div class="file-modal-footer">
+                <button type="button" class="file-modal-btn file-modal-btn-success" i18n="modal_report_submit" id="reportbtn" onclick="filePage.report();">提交</button>
+                <button type="button" class="file-modal-btn file-modal-btn-default" onclick="fileUI.closeModal('reportModal')" i18n="model_btn_cancel">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upup Modal (Download Tips) -->
+<div class="file-modal" id="upupModal">
+    <div class="file-modal-dialog">
+        <div class="file-modal-content">
+            <div class="file-modal-header">
+                <h4 class="file-modal-title" i18n="model_title_upup">提高下载速度</h4>
+                <button type="button" class="file-modal-close" onclick="fileUI.closeModal('upupModal')">&times;</button>
+            </div>
+            <div class="file-modal-body">
+                <h3 i18n="model_upup_t1">方法一：开启浏览器并行下载</h3>
+                <p i18n="model_upup_d1_1">.</p>
+                <code class="file-code-block">chrome://flags/#enable-parallel-downloading</code>
+                <div class="file-img-container">
+                    <img class="file-img-thumbnail" src="/img/pd.png" alt="Parallel downloading" />
+                </div>
+                <hr class="file-hr">
+                <h3 i18n="model_upup_t2">方法二：使用下载工具</h3>
+                <p i18n="model_upup_d2_1">.</p>
+                <hr class="file-hr">
+                <h3 i18n="model_upup_t3">方法三：购买会员</h3>
+                <p i18n="model_upup_d3_1">.</p>
+            </div>
+            <div class="file-modal-footer">
+                <button type="button" class="file-modal-btn file-modal-btn-default" onclick="fileUI.closeModal('upupModal')" i18n="model_btn_cancel">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Open With Player Modal -->
+<div class="file-modal" id="openWithPlayerModal">
+    <div class="file-modal-dialog">
+        <div class="file-modal-content">
+            <div class="file-modal-header">
+                <h4 class="file-modal-title">Player</h4>
+                <button type="button" class="file-modal-close" onclick="fileUI.closeModal('openWithPlayerModal')">&times;</button>
+            </div>
+            <div class="file-modal-body">
+                <button class="file-player-btn file-player-btn-primary play_on_browser" style="display: none;">
+                    <iconpark-icon name="browser" class="fa-fw"></iconpark-icon>
+                    <span>Browser</span>
+                </button>
+                <button class="file-player-btn file-player-btn-success play_on_potplayer" style="display: none;">
+                    <iconpark-icon name="send-backward" class="fa-fw"></iconpark-icon>
+                    <span>potplayer</span>
+                </button>
+                <button class="file-player-btn file-player-btn-success play_on_iina" style="display: none;">
+                    <iconpark-icon name="send-backward" class="fa-fw"></iconpark-icon>
+                    <span>IINA</span>
+                </button>
+                <button class="file-player-btn file-player-btn-success play_on_nplayer" style="display: none;">
+                    <iconpark-icon name="send-backward" class="fa-fw"></iconpark-icon>
+                    <span>nplayer</span>
+                </button>
+                <button class="file-player-btn file-player-btn-success play_copy_url" style="display: none;">
+                    <iconpark-icon name="send-backward" class="fa-fw"></iconpark-icon>
+                    <span>Stream URL</span>
+                </button>
+            </div>
+            <div class="file-modal-footer">
+                <button type="button" class="file-modal-btn file-modal-btn-default" onclick="fileUI.closeModal('openWithPlayerModal')" i18n="model_btn_cancel">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Download Alert Modal -->
+<div class="file-modal file-modal-lg" id="downloadAlertModal">
+    <div class="file-modal-dialog">
+        <div class="file-modal-content">
+            <div class="file-modal-header">
+                <h4 class="file-modal-title">
+                    <iconpark-icon name="triangle-exclamation-solid"></iconpark-icon>
+                    <span i18n="da_modal_title">下载前提醒</span>
+                </h4>
+                <button type="button" class="file-modal-close" onclick="fileUI.closeModal('downloadAlertModal')">&times;</button>
+            </div>
+            <div class="file-modal-body">
+                <h2 i18n="da_modal_title_2">下载须知</h2>
+                <p i18n="da_modal_p_1">您正在下载钛盘上的文件。请注意，所有文件均由用户上传，可能存在安全风险。下载前请验证文件来源，以保护您的设备安全。</p>
+                <h2 i18n="da_modal_title_3">文件发布者</h2>
+                <p i18n="da_modal_p_2">若上传者选择公开身份，您将在此页面看到发布者信息（可能仅为网名）。</p>
+                <h2 i18n="da_modal_title_4">文件可信度</h2>
+                <p i18n="da_modal_p_4">文件可信度取决于您获取链接的渠道：</p>
+                <ul>
+                    <li i18n="da_modal_li_1">若链接来自可信赖的朋友或知名发布者，一般可以安全下载。</li>
+                    <li i18n="da_modal_li_2">若链接来自非官方网站，请谨慎评估文件的可靠性。</li>
+                </ul>
+            </div>
+            <div class="file-modal-footer">
+                <button type="button" class="file-modal-btn file-modal-btn-default" onclick="fileUI.closeModal('downloadAlertModal')" i18n="model_btn_cancel">取消</button>
+            </div>
+        </div>
+    </div>
 </div>

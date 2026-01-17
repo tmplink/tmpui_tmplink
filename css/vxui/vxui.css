@@ -1637,15 +1637,19 @@ body.vx-modal-body-open {
     align-items: center;
     justify-content: space-between;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: calc(var(--vx-mobile-bar-height) + 10px);
+    left: 10px;
+    right: 10px;
     background: var(--vx-surface);
-    border-top: 1px solid var(--vx-border);
+    background: color-mix(in srgb, var(--vx-surface) 90%, transparent);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
     padding: 12px 16px;
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
-    z-index: var(--vx-z-fixed);
+    padding-bottom: 12px;
+    z-index: calc(var(--vx-z-fixed) + 10);
     box-shadow: var(--vx-shadow-lg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .vx-selection-count {

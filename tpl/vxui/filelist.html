@@ -1442,7 +1442,9 @@
     display: none;
     align-items: center;
     gap: 16px;
-    z-index: 100;
+    z-index: calc(var(--vx-z-fixed) + 10);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .vx-selection-info {
@@ -1481,6 +1483,7 @@
     .vx-selection-bar {
         left: 10px;
         right: 10px;
+        bottom: calc(var(--vx-mobile-bar-height, 64px) + 10px);
         transform: none;
         flex-wrap: wrap;
     }
