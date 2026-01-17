@@ -1109,6 +1109,8 @@
     "direct_traffic_stats": "トラフィック統計",
     "direct_traffic_desc": "ダイレクトリンクのダウンロードトラフィックを表示（時間別）。",
     "direct_24h": "24時間",
+    "direct_6h": "6時間",
+    "direct_12h": "12時間",
     "direct_week": "過去1週間",
     "direct_30days": "過去30日",
     "direct_brand_settings": "ブランド設定",

@@ -74,7 +74,7 @@
     <script type="text/javascript" src="./tmpui.js?v=53"></script>
     <script type="text/javascript">
         let config = {
-            "version": 1660,
+            "version": 1661,
             "siteroot": "/",
             "loadingIcon": "/img/ico/logo-new.svg",
             "loadingText": "TMP.LINK",
@@ -152,6 +152,26 @@
 
                     "/js/core/tmplink.js": { "type": "js", "reload": false },
                     "/js/init/init.js": { "type": "js" }
+                },
+                "vxui_init": {
+                    "/plugin/apexcharts/dist/apexcharts.min.js": { "type": "js", "reload": false },
+
+                    "/js/tools/jquery.min.js": { "type": "js", "reload": false },
+                    "/js/tools/clipboard.min.js": { "type": "js", "reload": false },
+                    "/js/tools/jquery.cookie.js": { "type": "js", "reload": false },
+                    "/js/tools/sha1.js": { "type": "js", "reload": false },
+                    "/js/tools/base64.js": { "type": "js", "reload": false },
+                    "/js/tools/marked.min.js": { "type": "js", "reload": false },
+
+                    "/css/reset.css": { "type": "css", "reload": false },
+                    "/css/index.css": { "type": "css", "reload": false },
+                    "/css/sp.css": { "type": "css", "reload": false },
+                    "/css/fa.css": { "type": "css", "reload": false },
+                    "/css/dark.css": { "type": "css", "reload": false },
+                    "/tpl/include/gtpl.html": { "type": "tpl", "reload": false },
+
+                    "/js/core/function.js": { "type": "js", "reload": false },
+                    "/js/core/api.js": { "type": "js", "reload": false }
                 }
             },
             "append": {
@@ -268,8 +288,7 @@
                 },
                 "/vx": {
                     "title": "TMP.link - VXUI",
-                    "preload": ["init"],
-                    "append": ["tmplink"],
+                    "preload": ["vxui_init"],
                     "body": {
                         "/css/vxui/vxui.css": { "type": "css", "reload": false },
                         "/css/vxui/account.css": { "type": "css", "reload": false },

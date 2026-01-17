@@ -1091,6 +1091,8 @@
     "direct_traffic_stats": "流量统计",
     "direct_traffic_desc": "展示直链下载流量（按时间统计）。",
     "direct_24h": "24小时",
+    "direct_6h": "6小时",
+    "direct_12h": "12小时",
     "direct_week": "过去一周",
     "direct_30days": "最近30天",
     "direct_brand_settings": "品牌设置",

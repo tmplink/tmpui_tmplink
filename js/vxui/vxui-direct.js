@@ -56,7 +56,7 @@ const VX_DIRECT = {
     _readyTimer: null,
 
     // usage chart
-    usageRt: 2,
+    usageRt: 5,
     usageChart: null,
 
     allow_ext: ['mp4', 'm4v', 'webm', 'mov', 'ogg', 'mp3'],
@@ -894,8 +894,9 @@ const VX_DIRECT = {
     },
 
     // ==================== Usage Chart ====================
-    async loadUsage(rt = 2) {
+    async loadUsage(rt = 5) {
         this.usageRt = rt;
+        this.updateUsageButtons();
         const container = document.getElementById('vx-direct-usage-chart');
         if (!container) return;
 
@@ -906,8 +907,9 @@ const VX_DIRECT = {
 
         try {
             const rsp = await this.apiPost({ action: 'chart_get_usage', rt: rt });
-            const traffic = rsp?.data?.traffic || [];
-            const time = rsp?.data?.time || [];
+            const { traffic, time } = this.normalizeUsageData(rsp);
+            const spec = this.getUsageSpec(rt);
+            const normalized = this.applyUsageSpec(traffic, time, spec.rows);
 
             if (this.usageChart && typeof this.usageChart.destroy === 'function') {
                 try {
@@ -919,10 +921,11 @@ const VX_DIRECT = {
             }
 
             const ld = (typeof app !== 'undefined' && app.languageData) ? app.languageData : {};
+            const denseView = spec.rows > 12;
             let options = {
                 series: [{
                     name: ld.direct_total_transfer || '传输',
-                    data: traffic
+                    data: normalized.traffic
                 }],
                 chart: {
                     height: 200,
@@ -935,9 +938,14 @@ const VX_DIRECT = {
                         dataLabels: { position: 'top' }
                     }
                 },
-                tooltip: { enabled: false },
+                tooltip: {
+                    enabled: denseView,
+                    y: {
+                        formatter: (val) => (typeof bytetoconver === 'function' ? bytetoconver(val, true) : this.formatBytes(val, true))
+                    }
+                },
                 dataLabels: {
-                    enabled: true,
+                    enabled: !denseView,
                     formatter: (val) => (typeof bytetoconver === 'function' ? bytetoconver(val, true) : this.formatBytes(val, true)),
                     offsetY: -20,
                     style: {
@@ -946,10 +954,17 @@ const VX_DIRECT = {
                     }
                 },
                 xaxis: {
-                    categories: time,
+                    categories: normalized.time,
+                    tickAmount: denseView ? 6 : (spec.rows - 1),
                     position: 'top',
                     axisBorder: { show: false },
                     axisTicks: { show: false },
+                    labels: {
+                        formatter: (val) => this.formatUsageLabel(val, spec.timeFormat),
+                        rotate: 0,
+                        hideOverlappingLabels: true,
+                        trim: true
+                    },
                     crosshairs: {
                         fill: {
                             type: 'gradient',
@@ -967,7 +982,7 @@ const VX_DIRECT = {
                 yaxis: {
                     axisBorder: { show: false },
                     axisTicks: { show: false },
-                    labels: { show: false }
+                    labels: { show: !denseView }
                 },
                 title: {
                     floating: true,
@@ -987,6 +1002,169 @@ const VX_DIRECT = {
             console.error('[VX_DIRECT] loadUsage error', e);
             container.innerHTML = '<div class="vx-text-muted">加载统计失败</div>';
         }
+    },
+
+    updateUsageButtons() {
+        const buttons = document.querySelectorAll('.vx-direct-usage-btn');
+        if (!buttons || !buttons.length) return;
+        buttons.forEach((btn) => {
+            const rt = Number(btn.getAttribute('data-rt'));
+            const active = rt === Number(this.usageRt);
+            btn.classList.toggle('vx-btn-primary', active);
+            btn.classList.toggle('vx-btn-ghost', !active);
+        });
+    },
+
+    getUsageSpec(rt) {
+        const table = {
+            0: { rows: 6, timeFormat: 'H:i' },
+            1: { rows: 12, timeFormat: 'H:i' },
+            2: { rows: 12, timeFormat: 'H' },
+            3: { rows: 12, timeFormat: 'm-d' },
+            4: { rows: 12, timeFormat: 'm-d' },
+            5: { rows: 30, timeFormat: 'm-d' }
+        };
+        return table[Number(rt)] || table[5];
+    },
+
+    applyUsageSpec(traffic, time, rows) {
+        let t = Array.isArray(traffic) ? [...traffic] : [];
+        let x = Array.isArray(time) ? [...time] : [];
+
+        if (rows && t.length > rows) {
+            t = t.slice(-rows);
+        }
+        if (rows && x.length > rows) {
+            x = x.slice(-rows);
+        }
+
+        const maxLen = Math.max(t.length, x.length);
+        if (t.length < maxLen) t = t.concat(new Array(maxLen - t.length).fill(0));
+        if (x.length < maxLen) x = x.concat(new Array(maxLen - x.length).fill(''));
+
+        if (rows && maxLen < rows) {
+            const pad = rows - maxLen;
+            t = new Array(pad).fill(0).concat(t);
+            x = new Array(pad).fill('').concat(x);
+        }
+
+        return { traffic: t, time: x };
+    },
+
+    formatUsageLabel(val, format) {
+        if (val === undefined || val === null) return '';
+        const raw = String(val).trim();
+        if (!raw) return '';
+        if (raw.includes(':') || raw.includes('-')) return raw;
+
+        let ts = Number(raw);
+        if (!Number.isFinite(ts)) return raw;
+        if (ts < 1e12) ts *= 1000; // seconds -> ms
+        const d = new Date(ts);
+        if (Number.isNaN(d.getTime())) return raw;
+
+        const pad = (n) => String(n).padStart(2, '0');
+        switch (format) {
+            case 'H:i':
+                return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            case 'H':
+                return `${pad(d.getHours())}`;
+            case 'm-d':
+                return `${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+            default:
+                return raw;
+        }
+    },
+
+    normalizeUsageData(rsp) {
+        const parseMaybeJson = (val) => {
+            if (typeof val !== 'string') return val;
+            const trimmed = val.trim();
+            if (!trimmed) return val;
+            if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
+                try {
+                    return JSON.parse(trimmed);
+                } catch (e) {
+                    return val;
+                }
+            }
+            return val;
+        };
+
+        let trafficRaw = parseMaybeJson(rsp?.data?.traffic ?? []);
+        let timeRaw = parseMaybeJson(rsp?.data?.time ?? []);
+
+        const parseValue = (val) => {
+            if (val === undefined || val === null) return 0;
+            if (typeof val === 'number' && Number.isFinite(val)) return val;
+            const str = String(val).trim();
+            if (!str) return 0;
+            const directNum = Number(str);
+            if (Number.isFinite(directNum)) return directNum;
+
+            const match = str.match(/([\d.]+)\s*(B|KB|MB|GB|TB|PB)?/i);
+            if (!match) return 0;
+            const num = parseFloat(match[1]);
+            const unit = (match[2] || 'B').toUpperCase();
+            const units = { B: 0, KB: 1, MB: 2, GB: 3, TB: 4, PB: 5 };
+            const power = units[unit] ?? 0;
+            return Number.isFinite(num) ? num * Math.pow(1024, power) : 0;
+        };
+
+        let traffic = [];
+        let time = [];
+
+        if (Array.isArray(trafficRaw)) {
+            if (trafficRaw.length && Array.isArray(trafficRaw[0])) {
+                trafficRaw.forEach((pair) => {
+                    time.push(String(pair?.[0] ?? ''));
+                    traffic.push(parseValue(pair?.[1]));
+                });
+            } else if (trafficRaw.length && typeof trafficRaw[0] === 'object') {
+                trafficRaw.forEach((item) => {
+                    const label = item?.time ?? item?.t ?? item?.date ?? item?.label;
+                    if (label !== undefined) time.push(String(label));
+                    traffic.push(parseValue(item?.val ?? item?.value ?? item?.size ?? item?.traffic));
+                });
+            } else {
+                traffic = trafficRaw.map(parseValue);
+            }
+        } else if (typeof trafficRaw === 'string') {
+            const parts = trafficRaw.split(',').map((s) => s.trim()).filter(Boolean);
+            traffic = parts.map(parseValue);
+        } else if (trafficRaw && typeof trafficRaw === 'object') {
+            Object.keys(trafficRaw).forEach((key) => {
+                time.push(String(key));
+                traffic.push(parseValue(trafficRaw[key]));
+            });
+        }
+
+        if (typeof timeRaw === 'string') {
+            const parts = timeRaw.split(',').map((s) => s.trim()).filter(Boolean);
+            if (parts.length) time = parts;
+        } else if (Array.isArray(timeRaw) && timeRaw.length) {
+            if (!time.length) {
+                time = timeRaw.map((t) => String(t));
+            } else if (timeRaw.length === traffic.length) {
+                time = timeRaw.map((t) => String(t));
+            }
+        }
+
+        if (!traffic.length && time.length) {
+            traffic = new Array(time.length).fill(0);
+        }
+
+        if (traffic.length < time.length) {
+            traffic = traffic.concat(new Array(time.length - traffic.length).fill(0));
+        } else if (time.length < traffic.length) {
+            time = time.concat(
+                new Array(traffic.length - time.length)
+                    .fill(0)
+                    .map((_, idx) => String(time.length + idx + 1))
+            );
+        }
+
+        return { traffic, time };
     },
 
     // ==================== Lists ====================

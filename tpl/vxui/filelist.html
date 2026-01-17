@@ -200,34 +200,33 @@
 </div>
 
 <!-- 批量下载 -->
-<div class="modal" id="multipleDownloadModel">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content shadow-lg">
-            <div class="modal-header">
-                <h4 class="modal-title">
-                    <iconpark-icon name="laptop-arrow-down"></iconpark-icon>
-                    <span i18n="multi_download_modal_title">下载管理器</span>
-                </h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+<div class="vx-modal" id="multipleDownloadModel">
+    <div class="vx-modal-overlay" onclick="VX_DOWNLOAD.closeModal()"></div>
+    <div class="vx-modal-container vx-modal-lg">
+        <div class="vx-modal-header">
+            <h3 class="vx-modal-title">
+                <iconpark-icon name="laptop-arrow-down"></iconpark-icon>
+                <span i18n="multi_download_modal_title">下载管理器</span>
+            </h3>
+            <button class="vx-modal-close" onclick="VX_DOWNLOAD.closeModal()">
+                <iconpark-icon name="circle-xmark"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-modal-body">
+            <div id="multiple_download_prepare" style="text-align: center;">
+                <img src="/img/loading-outline.svg" style="height:120px;" />
             </div>
-            <div class="modal-body">
-                <div id="multiple_download_prepare" class="text-center">
-                    <img src="/img/loading-outline.svg" style="height:120px;" />
+            <div id="multiple_download_processing" style="display: none;">
+                <div class="vx-progress" style="height: 10px; background: var(--vx-border-color); border-radius: 5px; overflow: hidden;">
+                    <div class="vx-progress-bar" id="multiple_download_process-bar" 
+                        style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--vx-primary-color), var(--vx-primary-hover)); transition: width 0.3s ease;"></div>
                 </div>
-                <div id="multiple_download_processing" style="display: none;">
-                    <div class="progress" style="height: 10px;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated"
-                            id="multiple_download_process-bar" role="progressbar" style="width: 0%;" aria-valuenow="0"
-                            aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <div id="multiple_download_info" class="mt-3 font-monospace"
-                        style="max-height: 50vh; overflow-y: auto;">
-                    </div>
+                <div id="multiple_download_info" style="margin-top: 1rem; font-family: monospace; max-height: 50vh; overflow-y: auto;">
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal" i18n="model_btn_cancel">取消</button>
-            </div>
+        </div>
+        <div class="vx-modal-footer">
+            <button class="vx-btn vx-btn-secondary" onclick="VX_DOWNLOAD.closeModal()" data-tpl="model_btn_cancel">取消</button>
         </div>
     </div>
 </div>
@@ -411,10 +410,6 @@
                         </select>
                         <div class="vx-upload-setting-hint" data-tpl="model_title_upload_servers_des">赞助者专用功能</div>
                     </div>
-                </div>
-                <div class="vx-upload-settings-note">
-                    <iconpark-icon name="circle-info"></iconpark-icon>
-                    <span data-tpl="upload_settings_more_hint">进阶选项已移动至"更多 -> 效率设定"</span>
                 </div>
             </div>
             
