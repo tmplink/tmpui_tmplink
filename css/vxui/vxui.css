@@ -2213,31 +2213,51 @@ body.vx-modal-body-open {
     }
 }
 
-/* Mobile FAB (Floating Action Button) - moved to header on mobile */
-.vx-fab {
+/* Mobile FAB Group (Floating Action Buttons) - shown in header on mobile */
+.vx-fab-group {
     display: none;
     position: fixed;
+    top: 12px;
+    right: 16px;
+    z-index: var(--vx-z-fixed);
+    gap: 10px;
+    align-items: center;
+}
+
+.vx-fab {
+    display: flex;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: var(--vx-primary);
-    color: white;
-    border: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    background: var(--vx-bg-tertiary);
+    color: var(--vx-text-primary);
+    border: 1px solid var(--vx-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     cursor: pointer;
-    z-index: var(--vx-z-fixed);
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
 .vx-fab:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    background: var(--vx-bg-secondary);
 }
 
 .vx-fab:active {
     transform: scale(0.95);
+}
+
+.vx-fab.vx-fab-primary {
+    background: var(--vx-primary);
+    color: white;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.vx-fab.vx-fab-primary:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .vx-fab iconpark-icon {
@@ -2245,12 +2265,10 @@ body.vx-modal-body-open {
 }
 
 @media (max-width: 768px) {
-    .vx-fab[data-owner="true"] {
+    .vx-fab-group[data-owner="true"] {
         display: flex;
-        top: 12px;
-        right: 16px;
-        bottom: auto;
     }
+}
 
 /* Portrait tablets (e.g., iPad) should use drawer sidebar to avoid width-priority layout issues */
 @media (orientation: portrait) and (max-width: 1024px) {

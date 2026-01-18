@@ -127,10 +127,15 @@
     </div>
 </header>
 
-<!-- Mobile FAB for upload -->
-<button class="vx-fab" id="vx-fl-fab" data-owner="true" onclick="VX_FILELIST.upload()" title="上传文件">
-    <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
-</button>
+<!-- Mobile FAB buttons -->
+<div class="vx-fab-group" data-owner="true">
+    <button class="vx-fab" onclick="VX_FILELIST.showCreateModal()" title="." i18n="model_title_folder_title" i18n-only="title">
+        <iconpark-icon name="folder-plus"></iconpark-icon>
+    </button>
+    <button class="vx-fab vx-fab-primary" onclick="VX_FILELIST.upload()" title="." i18n="nav_upload" i18n-only="title">
+        <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
+    </button>
+</div>
 
 <!-- Content -->
 <div class="vx-content vx-content-list">
