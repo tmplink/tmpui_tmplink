@@ -150,6 +150,13 @@ html.vx-dark {
     padding: 0;
 }
 
+/* Reset page spacing immediately to avoid initial inset before JS adds vx-active */
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
 /* Ensure parent container has correct background */
 #tmpui_body:has(.vx-app) {
     background: var(--vx-bg);
@@ -157,14 +164,10 @@ html.vx-dark {
 }
 
 /* Fallback for browsers not supporting :has() */
+body #tmpui_body,
 body.vx-active #tmpui_body {
     background: var(--vx-bg);
     min-height: 100vh;
-}
-
-body.vx-active {
-    margin: 0;
-    padding: 0;
 }
 
 .vx-app {
