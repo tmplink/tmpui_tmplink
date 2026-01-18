@@ -139,9 +139,59 @@
 
 <!-- Content -->
 <div class="vx-content vx-content-list">
-    <!-- Loading State -->
+    <!-- Loading State (Skeleton) -->
     <div class="vx-loading" id="vx-fl-loading">
-        <div class="vx-spinner vx-spinner-lg"></div>
+        <div class="vx-skeleton-list">
+            <div class="vx-skeleton-header">
+                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 150px; flex: inherit;"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+            </div>
+            <div class="vx-skeleton-row">
+                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 60%"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+            </div>
+            <div class="vx-skeleton-row">
+                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 45%"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+            </div>
+            <div class="vx-skeleton-row">
+                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 70%"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+            </div>
+            <div class="vx-skeleton-row">
+                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 50%"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+            </div>
+            <div class="vx-skeleton-row">
+                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 55%"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+            </div>
+            <div class="vx-skeleton-row">
+                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 40%"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+            </div>
+        </div>
     </div>
     
     <!-- 列表视图容器 -->
@@ -196,7 +246,7 @@
         <span class="vx-selection-count"><span data-tpl="vx_selected_prefix">已选择</span> <strong id="vx-fl-selected-count">0</strong> <span data-tpl="vx_item_unit">项</span></span>
     </div>
     <div class="vx-selection-actions">
-        <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.downloadSelected()">
+        <button class="vx-btn vx-btn-ghost vx-action-download" onclick="VX_FILELIST.downloadSelected()">
             <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
             <span data-tpl="on_select_download">下载</span>
         </button>
