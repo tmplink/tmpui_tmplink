@@ -1887,10 +1887,10 @@ body.vx-modal-body-open {
 .vx-mr-auto { margin-right: auto; }
 
 /* Padding */
-.vx-p-0 { padding: 0; }
-.vx-p-sm { padding: 8px; }
-.vx-p-md { padding: 12px; }
-.vx-p-lg { padding: 16px; }
+.vx-p-0 { padding: 0 !important; }
+.vx-p-sm { padding: 8px !important; }
+.vx-p-md { padding: 12px !important; }
+.vx-p-lg { padding: 16px !important; }
 
 /* Text */
 .vx-text-xs { font-size: var(--vx-text-xs); }

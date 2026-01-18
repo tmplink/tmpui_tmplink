@@ -127,21 +127,17 @@
             <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
             <span data-tpl="nav_files">文件</span>
         </button>
+        <button class="vx-mobile-btn" data-module="notes" data-auth="logged-in" onclick="VXUI.navigate('notes')">
+            <iconpark-icon name="memo-pad"></iconpark-icon>
+            <span data-tpl="nav_notes">密记</span>
+        </button>
+        <button class="vx-mobile-btn" data-module="ai" data-auth="logged-in" onclick="VXUI.navigate('ai')">
+            <iconpark-icon name="user-robot"></iconpark-icon>
+            <span data-tpl="nav_ai">助手</span>
+        </button>
         <button class="vx-mobile-btn" data-module="direct" data-auth="logged-in" onclick="VXUI.navigate('direct')">
             <iconpark-icon name="link"></iconpark-icon>
             <span data-tpl="nav_direct">直链</span>
         </button>
-        <button class="vx-mobile-btn" data-module="profile" data-auth="logged-in" onclick="VXUI.navigate('profile')">
-            <iconpark-icon name="user"></iconpark-icon>
-            <span data-tpl="nav_info">我的</span>
-        </button>
-        <a class="vx-mobile-btn" data-auth="logged-out" href="/?tmpui_page=/app&listview=login">
-            <iconpark-icon name="user"></iconpark-icon>
-            <span data-tpl="navbar_login">登录</span>
-        </a>
-        <a class="vx-mobile-btn" data-auth="logged-out" href="/?tmpui_page=/app&listview=reg">
-            <iconpark-icon name="user-plus"></iconpark-icon>
-            <span data-tpl="navbar_reg">注册</span>
-        </a>
     </div>
 </div>
