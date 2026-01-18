@@ -1883,7 +1883,23 @@
     }
     
     .vx-upload-progress-cell {
-        width: 100px !important;
+        width: 100% !important;
+        flex: 1;
+        display: flex !important;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+    }
+    
+    .vx-upload-progress-wrap {
+        width: 100%;
+    }
+    
+    .vx-upload-progress-text {
+        font-size: 12px;
+        white-space: normal;
+        word-break: break-word;
+        text-align: left;
     }
 }
 </style>

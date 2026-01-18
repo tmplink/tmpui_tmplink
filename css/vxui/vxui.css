@@ -1935,6 +1935,11 @@ body.vx-modal-body-open {
         display: none !important;
     }
     
+    /* Show upload progress on mobile */
+    .vx-upload-row .vx-upload-progress-cell {
+        display: flex !important;
+    }
+    
     /* Hide size header column */
     .vx-list-header .vx-list-col-size {
         display: none !important;
