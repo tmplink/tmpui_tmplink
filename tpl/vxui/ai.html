@@ -128,7 +128,7 @@
 .vx-ai-meta {
     display: flex;
     justify-content: space-between;
-    padding: 6px 8px 0 8px;
+    padding: 6px 24px 0 24px;
     font-size: var(--vx-text-xs);
     color: var(--vx-text-muted);
 }
@@ -357,7 +357,7 @@
 
 /* Input Area */
 .vx-ai-input-area {
-    padding: 16px 24px;
+    padding: 16px 0;
     border-top: 1px solid var(--vx-border);
     background: var(--vx-surface);
     flex-shrink: 0;
@@ -367,8 +367,9 @@
     display: flex;
     align-items: flex-end;
     gap: 12px;
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
+    padding: 0 16px;
 }
 
 .vx-ai-input {
@@ -424,15 +425,7 @@
     font-size: var(--vx-text-xs);
     color: var(--vx-text-muted);
     margin-top: 8px;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.vx-ai-meta {
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
+    padding: 0 16px;
 }
 
 /* System message */
@@ -454,7 +447,8 @@
 /* Responsive */
 @media (max-width: 768px) {
     .vx-ai-container {
-        height: calc(100vh - 56px - var(--vx-mobile-bar-height));
+        height: calc(100vh - 78px - var(--vx-mobile-bar-height));
+        height: calc(100dvh - 78px - var(--vx-mobile-bar-height));
     }
     
     .vx-ai-messages {
@@ -462,7 +456,16 @@
     }
     
     .vx-ai-input-area {
-        padding: 12px 16px;
+        padding: 16px;
+    }
+    
+    .vx-ai-input-wrapper {
+        padding: 0;
+    }
+
+    .vx-ai-meta,
+    .vx-ai-disclaimer {
+        display: none;
     }
     
     .vx-ai-suggestions {
