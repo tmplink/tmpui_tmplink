@@ -61,6 +61,10 @@ body.file-page #tmpui_body {
     background-image: none !important;
 }
 
+body.file-page #tmpui_body {
+    flex: 1;
+}
+
 body.file-page #tpl_footer a,
 body.file-page #tpl_footer .btn-pointer,
 body.file-page #footer a,
