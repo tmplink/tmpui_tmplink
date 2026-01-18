@@ -112,10 +112,105 @@
             
             <!-- Module Container - Modules will be loaded here -->
             <div id="vx-module-container">
-                <!-- Default loading state -->
-                <div class="vx-loading">
-                    <div class="vx-spinner vx-spinner-lg"></div>
-                    <span class="vx-loading-text" data-tpl="loading">加载中...</span>
+                <!-- Header (Preloaded) -->
+                <header class="vx-header vx-header-minimal">
+                    <div class="vx-header-left">
+                        <button class="vx-btn-icon vx-portrait-sidebar-btn" onclick="VXUI.toggleSidebar()">
+                            <iconpark-icon name="bars"></iconpark-icon>
+                        </button>
+                        <nav class="vx-breadcrumb">
+                            <a href="javascript:;"><span data-tpl="navbar_meetingroom">桌面</span></a>
+                        </nav>
+                    </div>
+                    
+                    <div class="vx-header-right">
+                        <div class="vx-btn-group vx-view-toggle">
+                            <button class="vx-btn-icon active">
+                                <iconpark-icon name="list"></iconpark-icon>
+                            </button>
+                            <button class="vx-btn-icon">
+                                <iconpark-icon name="images"></iconpark-icon>
+                            </button>
+                        </div>
+                        <button class="vx-btn vx-btn-ghost" data-auth="logged-in" data-owner="true">
+                            <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
+                            <span data-tpl="nav_upload">上传文件</span>
+                        </button>
+                        <button class="vx-btn vx-btn-ghost" data-auth="logged-in" data-owner="true">
+                            <iconpark-icon name="folder-plus"></iconpark-icon>
+                            <span data-tpl="model_title_folder_title">新建文件夹</span>
+                        </button>
+                        <button class="vx-btn vx-btn-ghost">
+                            <iconpark-icon name="rotate"></iconpark-icon>
+                            <span data-tpl="album_refresh">刷新</span>
+                        </button>
+                    </div>
+                </header>
+
+                <div class="vx-fab-group" data-owner="true">
+                    <button class="vx-fab">
+                        <iconpark-icon name="folder-plus"></iconpark-icon>
+                    </button>
+                    <button class="vx-fab vx-fab-primary">
+                        <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <div class="vx-content vx-content-list" style="padding-top: 0;">
+                     <div class="vx-loading" id="vx-fl-loading">
+                        <div class="vx-skeleton-list">
+                            <div class="vx-skeleton-header">
+                                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 150px; flex: inherit;"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+                            </div>
+                            <div class="vx-skeleton-row">
+                                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 60%"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+                            </div>
+                            <div class="vx-skeleton-row">
+                                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 45%"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+                            </div>
+                            <div class="vx-skeleton-row">
+                                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 70%"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+                            </div>
+                             <div class="vx-skeleton-row">
+                                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 50%"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+                            </div>
+                             <div class="vx-skeleton-row">
+                                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 55%"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+                            </div>
+                             <div class="vx-skeleton-row">
+                                <div class="vx-skeleton-bone vx-skeleton-checkbox"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text" style="width: 40%"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-sm size"></div>
+                                <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

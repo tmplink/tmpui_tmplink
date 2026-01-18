@@ -2763,3 +2763,89 @@ body.vx-modal-body-open {
 .vx-action-sheet-cancel:active {
     background: var(--vx-surface-hover);
 }
+
+
+/* ==================== Skeleton Loading (File List) ==================== */
+@keyframes vx-skeleton-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+#vx-fl-loading {
+    /* Override .vx-loading centering for skeleton mode */
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding: 0 !important;
+    margin-top: 16px;
+    background: transparent;
+}
+
+.vx-skeleton-list {
+    background: var(--vx-surface);
+    border-radius: var(--vx-radius-lg);
+    border: 1px solid var(--vx-border);
+    overflow: hidden;
+    width: 100%;
+}
+
+.vx-skeleton-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--vx-border);
+    gap: 16px;
+    background: var(--vx-surface-hover);
+}
+
+.vx-skeleton-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--vx-border);
+    gap: 16px;
+}
+
+.vx-skeleton-row:last-child {
+    border-bottom: none;
+}
+
+.vx-skeleton-bone {
+    background: linear-gradient(90deg, var(--vx-bg-secondary) 25%, #e2e8f0 50%, var(--vx-bg-secondary) 75%);
+    background-size: 200% 100%;
+    animation: vx-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+    height: 16px;
+}
+
+.vx-skeleton-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.vx-skeleton-checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.vx-skeleton-text {
+    flex: 1;
+    height: 14px;
+}
+.vx-skeleton-text-sm {
+    width: 80px;
+}
+.vx-skeleton-text-date {
+    width: 120px;
+}
+
+/* Hide on mobile if needed, or adjust */
+@media (max-width: 768px) {
+    .vx-skeleton-text-date, 
+    .vx-skeleton-text-sm.size {
+        display: none;
+    }
+}
