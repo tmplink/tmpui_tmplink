@@ -2779,14 +2779,17 @@ body.vx-modal-body-open {
     align-items: stretch !important;
     justify-content: flex-start !important;
     padding: 0 !important;
-    margin-top: 16px;
+    margin-top: 0;
     background: transparent;
 }
 
 .vx-skeleton-list {
     background: var(--vx-surface);
-    border-radius: var(--vx-radius-lg);
-    border: 1px solid var(--vx-border);
+    border-radius: 0;
+    border: 0;
+    border-top: 1px solid var(--vx-border);
+    border-bottom: 1px solid var(--vx-border);
+    box-shadow: none;
     overflow: hidden;
     width: 100%;
 }
@@ -2797,7 +2800,7 @@ body.vx-modal-body-open {
     padding: 12px 16px;
     border-bottom: 1px solid var(--vx-border);
     gap: 16px;
-    background: var(--vx-surface-hover);
+    background: var(--vx-bg-secondary);
 }
 
 .vx-skeleton-row {
