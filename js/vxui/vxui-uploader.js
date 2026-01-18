@@ -881,10 +881,13 @@ var VX_UPLOADER = VX_UPLOADER || {
                 </div>
             </div>
             <div class="vx-list-size vx-upload-progress-cell">
+                <div class="vx-upload-progress-info">
+                    <span class="vx-upload-progress-text">准备中...</span>
+                    <span class="vx-upload-progress-percent">0%</span>
+                </div>
                 <div class="vx-upload-progress-wrap">
                     <div class="vx-upload-progress-bar" style="width: 0%"></div>
                 </div>
-                <span class="vx-upload-progress-text">准备中...</span>
             </div>
             <div class="vx-list-date vx-hide-mobile vx-upload-status">
                 <span class="vx-upload-status-text">${this.getStatusText(task.status)}</span>
@@ -918,22 +921,35 @@ var VX_UPLOADER = VX_UPLOADER || {
         
         const progressBar = row.querySelector('.vx-upload-progress-bar');
         const progressText = row.querySelector('.vx-upload-progress-text');
+        const progressPercent = row.querySelector('.vx-upload-progress-percent');
         const statusText = row.querySelector('.vx-upload-status-text');
         
         if (progressBar) {
             progressBar.style.width = `${task.progress}%`;
+        }
+
+        if (progressPercent) {
+            if (task.status === 'completed') {
+                progressPercent.innerHTML = '<iconpark-icon name="check" style="font-size: 14px;"></iconpark-icon>';
+            } else if (task.status === 'failed') {
+                progressPercent.innerHTML = '<iconpark-icon name="xmark" style="font-size: 14px;"></iconpark-icon>';
+            } else {
+                progressPercent.textContent = `${task.progress}%`;
+            }
         }
         
         if (progressText) {
             if (task.status === 'uploading') {
                 const uploaded = this.formatSize(task.uploaded || 0);
                 const total = this.formatSize(task.file.size);
-                const speed = this.formatSize(task.speed || 0) + '/s';
-                progressText.textContent = `${uploaded} / ${total} (${speed})`;
+                const speed = task.speed > 0 ? this.formatSize(task.speed) + '/s' : '';
+                progressText.textContent = speed ? `${uploaded} / ${total} · ${speed}` : `${uploaded} / ${total}`;
             } else if (task.status === 'completed') {
-                progressText.textContent = this.formatSize(task.file.size);
+                progressText.textContent = `已完成 · ${this.formatSize(task.file.size)}`;
             } else if (task.status === 'failed') {
                 progressText.textContent = task.error || '上传失败';
+            } else if (task.status === 'merging') {
+                progressText.textContent = '正在合并文件...';
             } else {
                 progressText.textContent = this.getStatusText(task.status);
             }
