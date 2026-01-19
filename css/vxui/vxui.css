@@ -143,6 +143,11 @@ html.vx-dark {
 }
 
 /* ==================== Reset & Base ==================== */
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+}
+
 .vx-app,
 .vx-app * {
     box-sizing: border-box;
@@ -2304,6 +2309,15 @@ body.vx-modal-body-open {
     /* Hide size header column */
     .vx-list-header .vx-list-col-size {
         display: none !important;
+    }
+    
+    /* Fix header columns width on mobile */
+    .vx-list-col-name {
+        min-width: 0;
+    }
+
+    .vx-list-col-actions {
+        width: 60px;
     }
     
     /* Actions: only show more button on mobile */
