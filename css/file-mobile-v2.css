@@ -255,12 +255,15 @@ body.file-page .file-page-root .align-self-center {
     margin-bottom: 16px;
 }
 
-.action-grid .dropdown {
+.action-grid .dropdown,
+.action-grid .file-dropdown {
     display: flex;
     justify-content: center;
+    width: 100%;
 }
 
-.action-grid .dropdown .action-item {
+.action-grid .dropdown .action-item,
+.action-grid .file-dropdown .action-item {
     width: 100%;
 }
 
