@@ -126,7 +126,7 @@ var VX_FILELIST = VX_FILELIST || {
         if (isDesktopAccess && typeof TL !== 'undefined' && !TL.isLogin()) {
             VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
             setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = '/?tmpui_page=/app&listview=login';
             }, 300);
             return;
         }
@@ -711,7 +711,7 @@ var VX_FILELIST = VX_FILELIST || {
             if (rsp.status === 3) {
                 VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
                 setTimeout(() => {
-                    window.location.href = '/login';
+                    window.location.href = '/?tmpui_page=/app&listview=login';
                 }, 300);
                 finalize();
                 return;

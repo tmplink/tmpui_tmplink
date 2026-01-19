@@ -17,7 +17,7 @@ const VX_ACCOUNT = {
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
             VXUI.toastWarning('请先登录');
             setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = '/?tmpui_page=/app&listview=login';
             }, 1000);
             return;
         }
@@ -62,7 +62,7 @@ const VX_ACCOUNT = {
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
             VXUI.toastWarning('请先登录');
             setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = '/?tmpui_page=/app&listview=login';
             }, 1000);
             return;
         }
@@ -131,7 +131,7 @@ const VX_ACCOUNT = {
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
             VXUI.toastWarning('请先登录');
             setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = '/?tmpui_page=/app&listview=login';
             }, 1000);
             return;
         }
