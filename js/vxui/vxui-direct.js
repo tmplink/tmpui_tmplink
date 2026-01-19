@@ -41,6 +41,7 @@ const VX_DIRECT = {
 
     // folders list
     folders: [],
+    selectedFolders: new Set(),
     foldersReqSeq: 0,
 
     // 预加载缓存状态
@@ -179,6 +180,7 @@ const VX_DIRECT = {
         this.files = [];
         this.folders = [];
         this.selectedItems.clear();
+        this.selectedFolders.clear();
 
         this.pageNumber = 0;
         this.hasMore = true;
@@ -1534,6 +1536,20 @@ const VX_DIRECT = {
     },
 
     /**
+     * 打开文件夹更多菜单 (移动端)
+     */
+    openFolderMoreMenu(event, directKey, mrid, link) {
+        if (typeof VXUI !== 'undefined' && VXUI.showActionSheet) {
+            VXUI.showActionSheet('操作', [
+                { text: '打开文件夹', icon: 'folder-open-e1ad2j7l', action: () => VXUI.navigate('filelist', { mrid: String(mrid), view: 'list' }) },
+                { text: '打开直链', icon: 'circle-location-arrow', action: () => this.openUrl(link) },
+                { text: '复制直链', icon: 'copy', action: () => this.copyUrl(link) },
+                { text: '删除', icon: 'trash', danger: true, action: () => this.deleteRoom(directKey) }
+            ]);
+        }
+    },
+
+    /**
      * 自定义简单 Action Sheet (兜底)
      */
     showCustomActionSheet(directKey, directLink) {
@@ -1619,12 +1635,13 @@ const VX_DIRECT = {
         const mrid = item.mrid;
         const link = `${this.protocol}${this.domain}/share/${directKey}/`;
 
+        const isSelected = this.selectedFolders.has(String(directKey));
         const row = document.createElement('div');
-        row.className = 'vx-list-row';
+        row.className = 'vx-list-row' + (isSelected ? ' selected' : '');
         row.dataset.id = String(directKey);
         row.dataset.type = 'folder';
         row.innerHTML = `
-            <div class="vx-list-checkbox" style="visibility:hidden"></div>
+            <div class="vx-list-checkbox" onclick="event.stopPropagation(); VX_DIRECT.toggleFolderSelect('${String(directKey)}')"></div>
             <div class="vx-list-name">
                 <div class="vx-list-icon vx-icon-folder">
                     <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
@@ -1647,6 +1664,10 @@ const VX_DIRECT = {
                 </button>
                 <button class="vx-list-action-btn vx-action-danger" onclick="event.stopPropagation(); VX_DIRECT.deleteRoom('${String(directKey)}')" title="删除">
                     <iconpark-icon name="trash"></iconpark-icon>
+                </button>
+                <!-- Mobile More Button -->
+                <button class="vx-list-action-btn vx-more-btn" onclick="event.stopPropagation(); VX_DIRECT.openFolderMoreMenu(event, '${String(directKey)}', '${String(mrid)}', '${this.escapeAttr(link)}')" title="更多">
+                    <iconpark-icon name="ellipsis"></iconpark-icon>
                 </button>
             </div>
         `;
@@ -1696,6 +1717,111 @@ const VX_DIRECT = {
             this.files.forEach(item => this.selectedItems.add(String(item.direct_key)));
         }
         this.updateSelectionUI();
+    },
+
+    // ==================== Folder Selection ====================
+    /**
+     * 切换文件夹选择
+     */
+    toggleFolderSelect(id) {
+        const key = String(id);
+        if (this.selectedFolders.has(key)) {
+            this.selectedFolders.delete(key);
+        } else {
+            this.selectedFolders.add(key);
+        }
+        this.updateFolderSelectionUI();
+    },
+
+    /**
+     * 文件夹全选/取消全选
+     */
+    toggleFolderSelectAll() {
+        if (this.activeTab !== 'folders') return;
+        if (this.selectedFolders.size === this.folders.length) {
+            this.selectedFolders.clear();
+        } else {
+            this.folders.forEach(item => this.selectedFolders.add(String(item.direct_key)));
+        }
+        this.updateFolderSelectionUI();
+    },
+
+    /**
+     * 更新文件夹选择 UI
+     */
+    updateFolderSelectionUI() {
+        if (this.activeTab !== 'folders') return;
+
+        document.querySelectorAll('#vx-direct-folders-list-body .vx-list-row').forEach(row => {
+            const id = String(row.dataset.id);
+            row.classList.toggle('selected', this.selectedFolders.has(id));
+        });
+
+        // Update header select-all checkbox state
+        const headerCb = document.getElementById('vx-direct-folder-select-all');
+        if (headerCb) {
+            headerCb.classList.remove('vx-checked', 'vx-indeterminate');
+            const total = (this.folders || []).length;
+            const selected = this.selectedFolders.size;
+            if (total > 0 && selected === total) {
+                headerCb.classList.add('vx-checked');
+            } else if (selected > 0) {
+                headerCb.classList.add('vx-indeterminate');
+            }
+        }
+
+        this.updateFolderSelectionBar();
+    },
+
+    updateFolderSelectionBar() {
+        const bar = document.getElementById('vx-direct-folder-selection-bar');
+        const countEl = document.getElementById('vx-direct-folder-selected-count');
+        if (!bar || !countEl) return;
+
+        const count = this.selectedFolders.size;
+        countEl.textContent = String(count);
+        bar.style.display = count > 0 ? 'flex' : 'none';
+    },
+
+    clearFolderSelection() {
+        this.selectedFolders.clear();
+        this.updateFolderSelectionUI();
+    },
+
+    /**
+     * 批量删除文件夹直链
+     */
+    deleteSelectedFolders() {
+        if (this.selectedFolders.size === 0) {
+            VXUI.toast('请先选择要删除的项目', 'warning');
+            return;
+        }
+        const count = this.selectedFolders.size;
+        VXUI.confirm({
+            title: '批量删除',
+            message: `确定要删除选中的 ${count} 个文件夹直链吗？删除后无法恢复。`,
+            confirmClass: 'vx-btn-danger',
+            onConfirm: () => this.doDeleteRooms([...this.selectedFolders])
+        });
+    },
+
+    /**
+     * 批量删除文件夹直链（实际执行）
+     */
+    async doDeleteRooms(keys) {
+        if (!keys || keys.length === 0) return;
+        try {
+            for (const key of keys) {
+                await this.apiPost({ action: 'room_del', direct_key: String(key) });
+            }
+            this.selectedFolders.clear();
+            this.foldersPreloaded = false;
+            await this.loadFolders(true);
+            VXUI.toast(`已删除 ${keys.length} 个直链`, 'success');
+        } catch (e) {
+            console.error('[VX_DIRECT] doDeleteRooms error:', e);
+            VXUI.toast('删除失败', 'error');
+        }
     },
     
     /**

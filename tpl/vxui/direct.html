@@ -249,7 +249,7 @@
             <div class="vx-list-container" id="vx-direct-folders-list" style="display:none;">
                 <div class="vx-list-header">
                     <div class="vx-list-col vx-list-col-name">
-                        <div class="vx-list-checkbox" style="visibility:hidden"></div>
+                        <div class="vx-list-checkbox" id="vx-direct-folder-select-all" onclick="event.stopPropagation(); VX_DIRECT.toggleFolderSelectAll()" title="全选"></div>
                         <span data-tpl="filename">文件名</span>
                     </div>
                     <div class="vx-list-col vx-list-col-size">
@@ -263,6 +263,22 @@
                     </div>
                 </div>
                 <div class="vx-list-body" id="vx-direct-folders-list-body"></div>
+            </div>
+
+            <!-- Folder Selection Bar -->
+            <div class="vx-selection-bar" id="vx-direct-folder-selection-bar" style="display: none;">
+                <div class="vx-selection-info">
+                    <span class="vx-selection-count">已选择 <strong id="vx-direct-folder-selected-count">0</strong> 项</span>
+                </div>
+                <div class="vx-selection-actions">
+                    <button class="vx-btn vx-btn-ghost vx-text-danger" onclick="VX_DIRECT.deleteSelectedFolders()">
+                        <iconpark-icon name="trash"></iconpark-icon>
+                        <span data-tpl="on_select_delete">删除</span>
+                    </button>
+                    <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.clearFolderSelection()">
+                        <span data-tpl="on_select_cancel">取消</span>
+                    </button>
+                </div>
             </div>
         </section>
 

@@ -551,6 +551,17 @@ body.vx-active #tmpui_body {
     transition: all 0.15s ease;
 }
 
+/* 桌面端隐藏文件夹行的三点按钮，操作按钮直接显示 */
+.vx-list-row[data-type="folder"] .vx-more-btn {
+    display: none;
+}
+
+/* 桌面端隐藏直链文件列表的三点按钮 */
+#vx-direct-files-list-body .vx-more-btn,
+#vx-direct-folders-list-body .vx-more-btn {
+    display: none;
+}
+
 .vx-list-action-btn:hover {
     background: var(--vx-bg-secondary);
     color: var(--vx-primary);
