@@ -728,11 +728,13 @@ body.vx-sidebar-open .vx-sidebar {
     transition: max-height 0.25s ease-out;
     background: var(--vx-surface-hover);
     border-radius: var(--vx-radius-sm);
-    margin: 0 8px;
+    margin: 4px 8px;
+    padding: 0;
 }
 
 .vx-lang-switcher.open .vx-lang-options {
     max-height: 200px;
+    padding: 8px 0;
     transition: max-height 0.3s ease-in;
 }
 
@@ -740,9 +742,11 @@ body.vx-sidebar-open .vx-sidebar {
     display: flex;
     align-items: center;
     padding: 10px 16px 10px 44px;
+    margin: 2px 8px;
     font-size: var(--vx-text-sm);
     color: var(--vx-text-secondary);
     cursor: pointer;
+    border-radius: var(--vx-radius-sm);
     transition: var(--vx-transition-fast);
 }
 
@@ -752,11 +756,11 @@ body.vx-sidebar-open .vx-sidebar {
 }
 
 .vx-lang-option:first-child {
-    margin-top: 4px;
+    margin-top: 0;
 }
 
 .vx-lang-option:last-child {
-    margin-bottom: 4px;
+    margin-bottom: 0;
 }
 
 .vx-sidebar-header {

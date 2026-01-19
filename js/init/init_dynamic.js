@@ -21,6 +21,13 @@ app.ready(() => {
             dynamicView.room();
             break;
         case 'room':
+            // 游客访问 room 时，重定向到 vxui 文件列表
+            const isGuest = (typeof TL !== 'undefined' && TL) ? (TL.logined == 0) : (localStorage.getItem('app_login') != 1);
+            if (isGuest) {
+                const mrid = (params.mrid !== undefined) ? params.mrid : '';
+                window.location.href = `/?tmpui_page=/vx&module=filelist&mrid=${mrid}`;
+                return;
+            }
             dynamicView.room();
             break;
         case 'direct':
