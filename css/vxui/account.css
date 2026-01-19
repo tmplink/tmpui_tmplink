@@ -448,6 +448,10 @@ input.vx-switch:checked::before {
         padding: 0;
     }
 
+    #vx-account-settings {
+        padding: 16px;
+    }
+
     .vx-profile-card {
         margin-bottom: 0;
         border-radius: 0;
@@ -539,6 +543,10 @@ input.vx-switch:checked::before {
 
     .vx-connect-actions {
         justify-content: flex-end;
+    }
+
+    .vx-settings-card {
+        padding: 16px;
     }
 }
 

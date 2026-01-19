@@ -1,0 +1,13 @@
+@charset "UTF-8";
+/**
+ * VXUI Direct Module Mobile Fixes
+ * - Bottom Sheet Selection Bar
+ * - Mobile Layout for Direct Link Rows (inherits from filelist-mobile-fix but specialized)
+ */
+
+@media (max-width: 768px) {
+    /* Keep Direct module selection bar consistent with FileList styles */
+    .vx-list-actions {
+        display: flex !important;
+    }
+}

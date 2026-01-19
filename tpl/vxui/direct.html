@@ -1,4 +1,6 @@
 <!-- VXUI Direct Module Template -->
+<link rel="stylesheet" href="/css/vxui/filelist-mobile-fix.css">
+<link rel="stylesheet" href="/css/vxui/direct-mobile-fix.css">
 
 <!-- Dynamic Sidebar Content -->
 <template id="vx-direct-sidebar-tpl">
@@ -247,7 +249,7 @@
             <div class="vx-list-container" id="vx-direct-folders-list" style="display:none;">
                 <div class="vx-list-header">
                     <div class="vx-list-col vx-list-col-name">
-                        <div class="vx-list-checkbox" style="visibility:hidden"></div>
+                        <div class="vx-list-checkbox" id="vx-direct-folder-select-all" onclick="event.stopPropagation(); VX_DIRECT.toggleFolderSelectAll()" title="全选"></div>
                         <span data-tpl="filename">文件名</span>
                     </div>
                     <div class="vx-list-col vx-list-col-size">
@@ -262,20 +264,36 @@
                 </div>
                 <div class="vx-list-body" id="vx-direct-folders-list-body"></div>
             </div>
+
+            <!-- Folder Selection Bar -->
+            <div class="vx-selection-bar" id="vx-direct-folder-selection-bar" style="display: none;">
+                <div class="vx-selection-info">
+                    <span class="vx-selection-count">已选择 <strong id="vx-direct-folder-selected-count">0</strong> 项</span>
+                </div>
+                <div class="vx-selection-actions">
+                    <button class="vx-btn vx-btn-ghost vx-text-danger" onclick="VX_DIRECT.deleteSelectedFolders()">
+                        <iconpark-icon name="trash"></iconpark-icon>
+                        <span data-tpl="on_select_delete">删除</span>
+                    </button>
+                    <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.clearFolderSelection()">
+                        <span data-tpl="on_select_cancel">取消</span>
+                    </button>
+                </div>
+            </div>
         </section>
 
         <!-- API Tab -->
-        <section id="vx-direct-panel-api" style="display:none;">
+        <section id="vx-direct-panel-api" class="vx-direct-api" style="display:none;">
             <div class="vx-card vx-mb-md">
                 <div class="vx-card-body">
-                    <div style="display:flex; align-items:center; justify-content:space-between; gap: 12px; flex-wrap: wrap;">
-                        <div>
+                    <div class="vx-api-key">
+                        <div class="vx-api-key-main">
                             <div class="vx-text-lg vx-font-semibold">API Key</div>
                             <div class="vx-text-muted" style="margin-top: 4px;" data-tpl="direct_api_key_desc">用于 CLI / 接口访问</div>
                         </div>
-                        <div style="display:flex; align-items:center; gap: 8px;">
-                            <span class="vx-badge" style="background: var(--vx-primary-light); color: var(--vx-primary); padding: 6px 10px; border-radius: var(--vx-radius);">KEY</span>
-                            <span id="vx-direct-api-key" style="font-family: var(--vx-font-mono); user-select: all;">-</span>
+                        <div class="vx-api-key-actions">
+                            <span class="vx-badge vx-api-key-badge" style="background: var(--vx-primary-light); color: var(--vx-primary); padding: 6px 10px; border-radius: var(--vx-radius);">KEY</span>
+                            <span id="vx-direct-api-key" class="vx-api-key-value">-</span>
                             <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.copyAPIKey()" id="vx-direct-api-copy" data-tpl-title="copy">
                                 <iconpark-icon name="copy"></iconpark-icon>
                                 <span data-tpl="copy">复制</span>
@@ -294,10 +312,18 @@
                     <div class="vx-card-title" data-tpl="direct_api_overview">接口概览</div>
                 </div>
                 <div class="vx-card-body">
-                    <div class="vx-text-muted" style="margin-bottom: 12px;"><span data-tpl="direct_api_base_url">基础地址</span>：<span id="vx-direct-api-base" style="font-family: var(--vx-font-mono); user-select: all;"></span></div>
-                    <div class="vx-text-sm" style="line-height: 1.8;">
-                        <div><strong>POST</strong> https://tmp-cli.vx-cdn.com/app/upload_cli <span class="vx-text-muted" data-tpl="direct_api_upload_file_desc">上传文件（返回 ukey）</span></div>
-                        <div><strong>POST</strong> https://tmp-api.vx-cdn.com/services/direct <span class="vx-text-muted" data-tpl="direct_api_services_desc">配额/列表/直链管理（action=quota / list_of_workspace / list_of_direct / link_add / link_del）</span></div>
+                    <div class="vx-text-muted vx-api-base" style="margin-bottom: 12px;"><span data-tpl="direct_api_base_url">基础地址</span>：<span id="vx-direct-api-base" class="vx-api-endpoint"></span></div>
+                    <div class="vx-text-sm vx-api-overview-list">
+                        <div class="vx-api-overview-item">
+                            <span class="vx-api-method">POST</span>
+                            <span class="vx-api-endpoint">https://tmp-cli.vx-cdn.com/app/upload_cli</span>
+                            <span class="vx-text-muted" data-tpl="direct_api_upload_file_desc">上传文件（返回 ukey）</span>
+                        </div>
+                        <div class="vx-api-overview-item">
+                            <span class="vx-api-method">POST</span>
+                            <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span>
+                            <span class="vx-text-muted" data-tpl="direct_api_services_desc">配额/列表/直链管理（action=quota / list_of_workspace / list_of_direct / link_add / link_del）</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -309,20 +335,20 @@
                 <div class="vx-card-body">
                     <div class="vx-text-muted" style="margin-bottom: 12px;" data-tpl="direct_api_docs_desc">以下内容迁移自旧版直链 API 文档，便于对接脚本/CLI。</div>
 
-                    <details style="padding: 10px 0;">
-                        <summary style="cursor:pointer;">POST https://tmp-cli.vx-cdn.com/app/upload_cli<span data-tpl="direct_api_sum_upload">（上传文件）</span></summary>
+                    <details class="vx-api-detail" style="padding: 10px 0;">
+                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-cli.vx-cdn.com/app/upload_cli</span><span data-tpl="direct_api_sum_upload">（上传文件）</span></summary>
                         <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
-                            <div style="margin-bottom: 8px;">Endpoint：<span style="font-family: var(--vx-font-mono); user-select: all;">https://tmp-cli.vx-cdn.com/app/upload_cli</span></div>
+                            <div style="margin-bottom: 8px;">Endpoint：<span class="vx-api-endpoint">https://tmp-cli.vx-cdn.com/app/upload_cli</span></div>
                             <div style="margin-bottom: 8px;">Content-Type：<span style="font-family: var(--vx-font-mono);">application/x-www-form-urlencoded</span></div>
 
                             <div style="margin-top: 10px; font-weight: 600;" data-tpl="direct_api_example">示例</div>
-                            <div style="background: var(--vx-bg-secondary); padding: 10px; border-radius: var(--vx-radius); font-family: var(--vx-font-mono); user-select: all; overflow:auto;">
+                            <div class="vx-code-block">
 curl -k -F "file=@/root/test.bin" -F "key=API key" -X POST "https://tmp-cli.vx-cdn.com/app/upload_cli"
                             </div>
 
                             <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
-                            <div style="overflow:auto; border: 1px solid var(--vx-border); border-radius: var(--vx-radius);">
-                                <table style="width:100%; border-collapse: collapse;">
+                            <div class="vx-api-table-wrap">
+                                <table class="vx-api-table">
                                     <tbody>
                                         <tr style="border-bottom: 1px solid var(--vx-border);">
                                             <td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td>
@@ -363,21 +389,21 @@ curl -k -F "file=@/root/test.bin" -F "key=API key" -X POST "https://tmp-cli.vx-c
                         </div>
                     </details>
 
-                    <details style="padding: 10px 0;">
-                        <summary style="cursor:pointer;">POST https://tmp-api.vx-cdn.com/services/direct<span data-tpl="direct_api_sum_general">（通用说明）</span></summary>
+                    <details class="vx-api-detail" style="padding: 10px 0;">
+                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span><span data-tpl="direct_api_sum_general">（通用说明）</span></summary>
                         <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
-                            <div style="margin-bottom: 8px;">Endpoint：<span style="font-family: var(--vx-font-mono); user-select: all;">https://tmp-api.vx-cdn.com/services/direct</span></div>
+                            <div style="margin-bottom: 8px;">Endpoint：<span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span></div>
                             <div style="margin-bottom: 8px;">Content-Type：<span style="font-family: var(--vx-font-mono);">application/x-www-form-urlencoded</span></div>
                             <div><span data-tpl="direct_api_common_params">通用参数</span>：<span style="font-family: var(--vx-font-mono);">action</span>、<span style="font-family: var(--vx-font-mono);">key</span>（API Key）、<span style="font-family: var(--vx-font-mono);">page</span>。</div>
                         </div>
                     </details>
 
-                    <details style="padding: 10px 0;">
-                        <summary style="cursor:pointer;">POST https://tmp-api.vx-cdn.com/services/direct<span data-tpl="direct_api_sum_quota">（action=quota 获取直链流量配额）</span></summary>
+                    <details class="vx-api-detail" style="padding: 10px 0;">
+                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span><span data-tpl="direct_api_sum_quota">（action=quota 获取直链流量配额）</span></summary>
                         <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
                             <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
-                            <div style="overflow:auto; border: 1px solid var(--vx-border); border-radius: var(--vx-radius);">
-                                <table style="width:100%; border-collapse: collapse;">
+                            <div class="vx-api-table-wrap">
+                                <table class="vx-api-table">
                                     <tbody>
                                         <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">quota</span></td></tr>
                                         <tr><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
@@ -390,12 +416,12 @@ curl -k -F "file=@/root/test.bin" -F "key=API key" -X POST "https://tmp-cli.vx-c
                         </div>
                     </details>
 
-                    <details style="padding: 10px 0;">
-                        <summary style="cursor:pointer;">POST https://tmp-api.vx-cdn.com/services/direct<span data-tpl="direct_api_sum_workspace">（action=list_of_workspace 获取仓库文件列表）</span></summary>
+                    <details class="vx-api-detail" style="padding: 10px 0;">
+                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span><span data-tpl="direct_api_sum_workspace">（action=list_of_workspace 获取仓库文件列表）</span></summary>
                         <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
                             <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
-                            <div style="overflow:auto; border: 1px solid var(--vx-border); border-radius: var(--vx-radius);">
-                                <table style="width:100%; border-collapse: collapse;">
+                            <div class="vx-api-table-wrap">
+                                <table class="vx-api-table">
                                     <tbody>
                                         <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">list_of_workspace</span></td></tr>
                                         <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
@@ -409,12 +435,12 @@ curl -k -F "file=@/root/test.bin" -F "key=API key" -X POST "https://tmp-cli.vx-c
                         </div>
                     </details>
 
-                    <details style="padding: 10px 0;">
-                        <summary style="cursor:pointer;">POST https://tmp-api.vx-cdn.com/services/direct<span data-tpl="direct_api_sum_list">（action=list_of_direct 获取直链文件列表）</span></summary>
+                    <details class="vx-api-detail" style="padding: 10px 0;">
+                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span><span data-tpl="direct_api_sum_list">（action=list_of_direct 获取直链文件列表）</span></summary>
                         <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
                             <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
-                            <div style="overflow:auto; border: 1px solid var(--vx-border); border-radius: var(--vx-radius);">
-                                <table style="width:100%; border-collapse: collapse;">
+                            <div class="vx-api-table-wrap">
+                                <table class="vx-api-table">
                                     <tbody>
                                         <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">list_of_direct</span></td></tr>
                                         <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
@@ -428,12 +454,12 @@ curl -k -F "file=@/root/test.bin" -F "key=API key" -X POST "https://tmp-cli.vx-c
                         </div>
                     </details>
 
-                    <details style="padding: 10px 0;">
-                        <summary style="cursor:pointer;">POST https://tmp-api.vx-cdn.com/services/direct<span data-tpl="direct_api_sum_add">（action=link_add 添加直链）</span></summary>
+                    <details class="vx-api-detail" style="padding: 10px 0;">
+                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span><span data-tpl="direct_api_sum_add">（action=link_add 添加直链）</span></summary>
                         <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
                             <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
-                            <div style="overflow:auto; border: 1px solid var(--vx-border); border-radius: var(--vx-radius);">
-                                <table style="width:100%; border-collapse: collapse;">
+                            <div class="vx-api-table-wrap">
+                                <table class="vx-api-table">
                                     <tbody>
                                         <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">link_add</span></td></tr>
                                         <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
@@ -455,12 +481,12 @@ curl -k -F "file=@/root/test.bin" -F "key=API key" -X POST "https://tmp-cli.vx-c
                         </div>
                     </details>
 
-                    <details style="padding: 10px 0;">
-                        <summary style="cursor:pointer;">POST https://tmp-api.vx-cdn.com/services/direct<span data-tpl="direct_api_sum_del">（action=link_del 移除直链）</span></summary>
+                    <details class="vx-api-detail" style="padding: 10px 0;">
+                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span><span data-tpl="direct_api_sum_del">（action=link_del 移除直链）</span></summary>
                         <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
                             <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
-                            <div style="overflow:auto; border: 1px solid var(--vx-border); border-radius: var(--vx-radius);">
-                                <table style="width:100%; border-collapse: collapse;">
+                            <div class="vx-api-table-wrap">
+                                <table class="vx-api-table">
                                     <tbody>
                                         <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">link_del</span></td></tr>
                                         <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>

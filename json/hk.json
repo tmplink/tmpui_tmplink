@@ -15,6 +15,7 @@
     "multi_download_files": "個檔案",
     "multi_download_count": "總計",
     "multi_download_legacy": "由於目前瀏覽器不支援檔案夾下載，檔案夾將會自動轉換為檔案名的一部分，以完成下載。您可以嘗試使用 chrome 等更新版本的瀏覽器來使用檔案夾打包下載的功能。",
+    "multi_download_cancelled": "下載已取消",
     "direct_dir_disable": "一旦停用此設定，原本的連結將會失效，重新啟用會產生不一樣的連結。確定嗎？",
     "special_event": "黑色星期五優惠：高速下載與線上播放，僅需 $6/年",
     "navbar_special_events": "特賣",

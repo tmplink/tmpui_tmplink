@@ -189,9 +189,11 @@ class FilePageController {
                 };
             }
 
-            if (fileinfo.ui_intro && typeof TL !== 'undefined') {
+            if (typeof TL !== 'undefined') {
                 TL.current_file_details = fileinfo;
-                TL.current_file_details.ui_intro = fileinfo.ui_intro;
+                if (fileinfo.ui_intro) {
+                    TL.current_file_details.ui_intro = fileinfo.ui_intro;
+                }
             }
 
             if (fileinfo.nsfw === true) {
@@ -206,6 +208,27 @@ class FilePageController {
                 }
                 $('.userinfo').show();
                 $('.userinfo_nickname').html(fileinfo.ui_nickname);
+                
+                // 更新用户简介信息
+                if (fileinfo.ui_intro) {
+                    $('.userinfo_card_intro').text(fileinfo.ui_intro);
+                } else {
+                    // 生成默认简介
+                    const nickname = fileinfo.ui_nickname;
+                    const isPro = fileinfo.ui_pro === 'yes';
+                    let intro = '';
+                    if (isPro) {
+                        intro = `「${nickname}」是TMP.link的认证用户，分享的文件将自动提供高速下载服务。`;
+                    } else {
+                        intro = `「${nickname}」通过TMP.link分享了这个文件。`;
+                    }
+                    $('.userinfo_card_intro').text(intro);
+                    // 保存生成的介绍
+                    if (typeof TL !== 'undefined' && TL.current_file_details) {
+                        TL.current_file_details.ui_intro = intro;
+                        TL.current_file_details.ui_intro_is_default = true;
+                    }
+                }
             }
 
             if (typeof TL !== 'undefined' && typeof TL.fileicon === 'function') {

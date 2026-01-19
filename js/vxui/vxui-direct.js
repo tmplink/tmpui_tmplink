@@ -41,6 +41,7 @@ const VX_DIRECT = {
 
     // folders list
     folders: [],
+    selectedFolders: new Set(),
     foldersReqSeq: 0,
 
     // 预加载缓存状态
@@ -84,7 +85,7 @@ const VX_DIRECT = {
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
             VXUI.toastWarning('请先登录');
             setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = '/?tmpui_page=/app&listview=login';
             }, 300);
             return;
         }
@@ -101,6 +102,7 @@ const VX_DIRECT = {
         }
 
         this.resetState();
+        this.applyUrlParams(params);
         this.sortSettingsInit();
         this.updateSidebar();
         this.bindEvents();
@@ -130,7 +132,7 @@ const VX_DIRECT = {
                 if (String(err?.message || '').includes('token')) {
                     VXUI.toastError('登录状态无效，请重新登录');
                     setTimeout(() => {
-                        window.location.href = '/login';
+                        window.location.href = '/?tmpui_page=/app&listview=login';
                     }, 300);
                 } else {
                     VXUI.toastError('加载直链信息失败');
@@ -178,6 +180,7 @@ const VX_DIRECT = {
         this.files = [];
         this.folders = [];
         this.selectedItems.clear();
+        this.selectedFolders.clear();
 
         this.pageNumber = 0;
         this.hasMore = true;
@@ -222,16 +225,52 @@ const VX_DIRECT = {
             this.activeTab = 'domain';
             this.updateTabUI();
             this.applyGateUI();
+            this.syncUrlState();
             return;
         }
         
         this.activeTab = next;
         this.updateTabUI();
         this.applyGateUI();
+        this.syncUrlState();
 
         this.trackUI(`vui_direct[${this.activeTab}]`);
 
         this.loadCurrentTab(true);
+    },
+
+    syncUrlState() {
+        if (typeof VXUI === 'undefined' || !VXUI || typeof VXUI.updateUrl !== 'function') return;
+        let params = {};
+        if (typeof VXUI.getUrlParams === 'function') {
+            params = { ...VXUI.getUrlParams() };
+            delete params.module;
+        }
+        params.tab = this.activeTab;
+        const key = this.keyGet();
+        const sort_by = localStorage.getItem(key.sort_by) ?? String(this.sort_by);
+        const sort_type = localStorage.getItem(key.sort_type) ?? String(this.sort_type);
+        if (sort_by !== '' && sort_by !== null && sort_by !== undefined) params.sort_by = String(sort_by);
+        if (sort_type !== '' && sort_type !== null && sort_type !== undefined) params.sort_type = String(sort_type);
+        if (this.search) params.search = String(this.search);
+        else delete params.search;
+        VXUI.updateUrl('direct', params);
+    },
+
+    applyUrlParams(params = {}) {
+        const key = this.keyGet();
+        const urlSortBy = params.sort_by;
+        const urlSortType = params.sort_type;
+        const urlSearch = params.search;
+        if (urlSortBy !== undefined && urlSortBy !== null && String(urlSortBy) !== '') {
+            localStorage.setItem(key.sort_by, String(urlSortBy));
+        }
+        if (urlSortType !== undefined && urlSortType !== null && String(urlSortType) !== '') {
+            localStorage.setItem(key.sort_type, String(urlSortType));
+        }
+        if (urlSearch !== undefined && urlSearch !== null) {
+            this.search = String(urlSearch);
+        }
     },
 
     updateTabUI() {
@@ -574,7 +613,7 @@ const VX_DIRECT = {
         if (!token) {
             VXUI.toastError('登录状态无效');
             setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = '/?tmpui_page=/app&listview=login';
             }, 300);
             return;
         }
@@ -1469,9 +1508,87 @@ const VX_DIRECT = {
                 <button class="vx-list-action-btn vx-action-danger" onclick="event.stopPropagation(); VX_DIRECT.deleteLink('${String(directKey)}')" title="删除">
                     <iconpark-icon name="trash"></iconpark-icon>
                 </button>
+                <!-- Mobile More Button -->
+                <button class="vx-list-action-btn vx-more-btn" onclick="event.stopPropagation(); VX_DIRECT.openMoreMenu(event, '${String(directKey)}', '${this.escapeAttr(directLink)}')" title="更多">
+                    <iconpark-icon name="ellipsis"></iconpark-icon>
+                </button>
             </div>
         `;
         return row;
+    },
+
+    /**
+     * 打开更多菜单 (移动端)
+     */
+    openMoreMenu(event, directKey, directLink) {
+        // 使用系统的 Action Sheet 风格菜单
+        if (typeof VXUI !== 'undefined' && VXUI.showActionSheet) {
+            VXUI.showActionSheet('操作', [
+                { text: '复制链接', icon: 'copy', action: () => this.copyUrl(directLink) },
+                { text: '下载', icon: 'cloud-arrow-down', action: () => this.openUrl(directLink) },
+                { text: '删除', icon: 'trash', danger: true, action: () => this.deleteLink(directKey) }
+            ]);
+        } else {
+            // 兜底：如果 VXUI 没有封装 ActionSheet，则使用简单的自定义菜单或 alert
+            // 这里我们动态创建一个简单的菜单遮罩
+            this.showCustomActionSheet(directKey, directLink);
+        }
+    },
+
+    /**
+     * 打开文件夹更多菜单 (移动端)
+     */
+    openFolderMoreMenu(event, directKey, mrid, link) {
+        if (typeof VXUI !== 'undefined' && VXUI.showActionSheet) {
+            VXUI.showActionSheet('操作', [
+                { text: '打开文件夹', icon: 'folder-open-e1ad2j7l', action: () => VXUI.navigate('filelist', { mrid: String(mrid), view: 'list' }) },
+                { text: '打开直链', icon: 'circle-location-arrow', action: () => this.openUrl(link) },
+                { text: '复制直链', icon: 'copy', action: () => this.copyUrl(link) },
+                { text: '删除', icon: 'trash', danger: true, action: () => this.deleteRoom(directKey) }
+            ]);
+        }
+    },
+
+    /**
+     * 自定义简单 Action Sheet (兜底)
+     */
+    showCustomActionSheet(directKey, directLink) {
+        const id = 'vx-direct-action-sheet';
+        let sheet = document.getElementById(id);
+        if (sheet) document.body.removeChild(sheet);
+
+        sheet = document.createElement('div');
+        sheet.id = id;
+        sheet.className = 'vx-modal-overlay';
+        sheet.style.zIndex = '2000';
+        sheet.style.display = 'flex';
+        sheet.style.alignItems = 'flex-end';
+        sheet.style.justifyContent = 'center';
+        sheet.onclick = (e) => { if(e.target === sheet) document.body.removeChild(sheet); };
+
+        sheet.innerHTML = `
+            <div style="background:var(--vx-surface); width:100%; max-width:600px; border-radius:20px 20px 0 0; overflow:hidden; box-shadow:0 -10px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s ease;">
+                 <div style="padding:16px; border-bottom:1px solid var(--vx-border);">
+                    <div style="font-weight:600; text-align:center;">操作</div>
+                 </div>
+                 <div style="padding:10px 16px;">
+                    <button class="vx-btn vx-btn-ghost vx-btn-block" style="justify-content:flex-start; height:50px;" onclick="VX_DIRECT.copyUrl('${directLink}'); document.getElementById('${id}').remove()">
+                        <iconpark-icon name="copy" style="font-size:20px; margin-right:12px;"></iconpark-icon> 复制链接
+                    </button>
+                    <button class="vx-btn vx-btn-ghost vx-btn-block" style="justify-content:flex-start; height:50px;" onclick="VX_DIRECT.openUrl('${directLink}'); document.getElementById('${id}').remove()">
+                        <iconpark-icon name="link" style="font-size:20px; margin-right:12px;"></iconpark-icon> 打开/下载
+                    </button>
+                    <button class="vx-btn vx-btn-ghost vx-btn-block vx-text-danger" style="justify-content:flex-start; height:50px;" onclick="VX_DIRECT.deleteLink('${directKey}'); document.getElementById('${id}').remove()">
+                        <iconpark-icon name="trash" style="font-size:20px; margin-right:12px;"></iconpark-icon> 删除
+                    </button>
+                 </div>
+                 <div style="padding:10px 16px 30px; background:var(--vx-bg-secondary);">
+                    <button class="vx-btn vx-btn-secondary vx-btn-block" onclick="document.getElementById('${id}').remove()">取消</button>
+                 </div>
+            </div>
+            <style>@keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }</style>
+        `;
+        document.body.appendChild(sheet);
     },
 
     // ==================== Render (Folders) ====================
@@ -1518,12 +1635,13 @@ const VX_DIRECT = {
         const mrid = item.mrid;
         const link = `${this.protocol}${this.domain}/share/${directKey}/`;
 
+        const isSelected = this.selectedFolders.has(String(directKey));
         const row = document.createElement('div');
-        row.className = 'vx-list-row';
+        row.className = 'vx-list-row' + (isSelected ? ' selected' : '');
         row.dataset.id = String(directKey);
         row.dataset.type = 'folder';
         row.innerHTML = `
-            <div class="vx-list-checkbox" style="visibility:hidden"></div>
+            <div class="vx-list-checkbox" onclick="event.stopPropagation(); VX_DIRECT.toggleFolderSelect('${String(directKey)}')"></div>
             <div class="vx-list-name">
                 <div class="vx-list-icon vx-icon-folder">
                     <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
@@ -1546,6 +1664,10 @@ const VX_DIRECT = {
                 </button>
                 <button class="vx-list-action-btn vx-action-danger" onclick="event.stopPropagation(); VX_DIRECT.deleteRoom('${String(directKey)}')" title="删除">
                     <iconpark-icon name="trash"></iconpark-icon>
+                </button>
+                <!-- Mobile More Button -->
+                <button class="vx-list-action-btn vx-more-btn" onclick="event.stopPropagation(); VX_DIRECT.openFolderMoreMenu(event, '${String(directKey)}', '${String(mrid)}', '${this.escapeAttr(link)}')" title="更多">
+                    <iconpark-icon name="ellipsis"></iconpark-icon>
                 </button>
             </div>
         `;
@@ -1595,6 +1717,111 @@ const VX_DIRECT = {
             this.files.forEach(item => this.selectedItems.add(String(item.direct_key)));
         }
         this.updateSelectionUI();
+    },
+
+    // ==================== Folder Selection ====================
+    /**
+     * 切换文件夹选择
+     */
+    toggleFolderSelect(id) {
+        const key = String(id);
+        if (this.selectedFolders.has(key)) {
+            this.selectedFolders.delete(key);
+        } else {
+            this.selectedFolders.add(key);
+        }
+        this.updateFolderSelectionUI();
+    },
+
+    /**
+     * 文件夹全选/取消全选
+     */
+    toggleFolderSelectAll() {
+        if (this.activeTab !== 'folders') return;
+        if (this.selectedFolders.size === this.folders.length) {
+            this.selectedFolders.clear();
+        } else {
+            this.folders.forEach(item => this.selectedFolders.add(String(item.direct_key)));
+        }
+        this.updateFolderSelectionUI();
+    },
+
+    /**
+     * 更新文件夹选择 UI
+     */
+    updateFolderSelectionUI() {
+        if (this.activeTab !== 'folders') return;
+
+        document.querySelectorAll('#vx-direct-folders-list-body .vx-list-row').forEach(row => {
+            const id = String(row.dataset.id);
+            row.classList.toggle('selected', this.selectedFolders.has(id));
+        });
+
+        // Update header select-all checkbox state
+        const headerCb = document.getElementById('vx-direct-folder-select-all');
+        if (headerCb) {
+            headerCb.classList.remove('vx-checked', 'vx-indeterminate');
+            const total = (this.folders || []).length;
+            const selected = this.selectedFolders.size;
+            if (total > 0 && selected === total) {
+                headerCb.classList.add('vx-checked');
+            } else if (selected > 0) {
+                headerCb.classList.add('vx-indeterminate');
+            }
+        }
+
+        this.updateFolderSelectionBar();
+    },
+
+    updateFolderSelectionBar() {
+        const bar = document.getElementById('vx-direct-folder-selection-bar');
+        const countEl = document.getElementById('vx-direct-folder-selected-count');
+        if (!bar || !countEl) return;
+
+        const count = this.selectedFolders.size;
+        countEl.textContent = String(count);
+        bar.style.display = count > 0 ? 'flex' : 'none';
+    },
+
+    clearFolderSelection() {
+        this.selectedFolders.clear();
+        this.updateFolderSelectionUI();
+    },
+
+    /**
+     * 批量删除文件夹直链
+     */
+    deleteSelectedFolders() {
+        if (this.selectedFolders.size === 0) {
+            VXUI.toast('请先选择要删除的项目', 'warning');
+            return;
+        }
+        const count = this.selectedFolders.size;
+        VXUI.confirm({
+            title: '批量删除',
+            message: `确定要删除选中的 ${count} 个文件夹直链吗？删除后无法恢复。`,
+            confirmClass: 'vx-btn-danger',
+            onConfirm: () => this.doDeleteRooms([...this.selectedFolders])
+        });
+    },
+
+    /**
+     * 批量删除文件夹直链（实际执行）
+     */
+    async doDeleteRooms(keys) {
+        if (!keys || keys.length === 0) return;
+        try {
+            for (const key of keys) {
+                await this.apiPost({ action: 'room_del', direct_key: String(key) });
+            }
+            this.selectedFolders.clear();
+            this.foldersPreloaded = false;
+            await this.loadFolders(true);
+            VXUI.toast(`已删除 ${keys.length} 个直链`, 'success');
+        } catch (e) {
+            console.error('[VX_DIRECT] doDeleteRooms error:', e);
+            VXUI.toast('删除失败', 'error');
+        }
     },
     
     /**
@@ -1861,6 +2088,7 @@ const VX_DIRECT = {
     onSearchInput() {
         const el = document.getElementById('vx-direct-search');
         this.search = el ? String(el.value || '') : '';
+        this.syncUrlState();
         // debounce
         clearTimeout(this._searchTimer);
         this._searchTimer = setTimeout(() => this.loadFiles(true), 250);
@@ -1872,6 +2100,7 @@ const VX_DIRECT = {
         const key = this.keyGet();
         if (sortByEl) localStorage.setItem(key.sort_by, String(sortByEl.value));
         if (sortTypeEl) localStorage.setItem(key.sort_type, String(sortTypeEl.value));
+        this.syncUrlState();
         this.loadFiles(true);
     },
 

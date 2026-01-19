@@ -255,12 +255,15 @@ body.file-page .file-page-root .align-self-center {
     margin-bottom: 16px;
 }
 
-.action-grid .dropdown {
+.action-grid .dropdown,
+.action-grid .file-dropdown {
     display: flex;
     justify-content: center;
+    width: 100%;
 }
 
-.action-grid .dropdown .action-item {
+.action-grid .dropdown .action-item,
+.action-grid .file-dropdown .action-item {
     width: 100%;
 }
 
@@ -441,16 +444,22 @@ body.file-page .file-page-root .align-self-center {
 
 /* Publisher Card */
 .publisher-card {
-    margin-top: 16px;
-    padding: 12px 14px;
-    background: var(--app-surface);
-    border-radius: 14px;
-    border: 1px solid var(--app-border);
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.06) 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(99, 102, 241, 0.12);
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     width: 100%;
     box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.publisher-card:active {
+    transform: scale(0.98);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.1) 100%);
 }
 
 .publisher-card .publisher-icon {
@@ -458,9 +467,10 @@ body.file-page .file-page-root .align-self-center {
     height: 44px;
     min-width: 44px;
     border-radius: 12px;
-    background: rgba(79, 70, 229, 0.12);
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
     overflow: hidden;
     flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
 }
 
 .publisher-card .publisher-icon img {
@@ -489,7 +499,7 @@ body.file-page .file-page-root .align-self-center {
 
 .publisher-card .publisher-name-row .userinfo_card_pro,
 .publisher-card .publisher-name-row .userinfo_pro {
-    color: var(--app-primary);
+    color: #6366f1;
     font-size: 16px;
     display: inline-flex;
     align-items: center;
@@ -507,12 +517,13 @@ body.file-page .file-page-root .align-self-center {
 .publisher-card .publisher-badge {
     flex-shrink: 0;
     padding: 6px 12px;
-    background: rgba(79, 70, 229, 0.12);
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--app-primary);
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
     white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
 
 @media (max-width: 360px) {
@@ -698,11 +709,13 @@ body.dark-mode .publisher-pill {
 }
 
 body.dark-mode .publisher-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.18) 0%, rgba(139, 92, 246, 0.14) 100%);
+    border-color: rgba(99, 102, 241, 0.3);
     box-shadow: 0 14px 30px -22px rgba(0, 0, 0, 0.6);
 }
 
 body.dark-mode .publisher-card .publisher-icon {
-    background: rgba(139, 92, 246, 0.18);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.35) 0%, rgba(139, 92, 246, 0.3) 100%);
 }
 
 body.dark-mode #file_download_btn_fast {
@@ -759,12 +772,17 @@ body.dark-mode .publisher-card .publisher-content,
 body.dark-mode .publisher-card .publisher-name-row,
 body.dark-mode .publisher-card .userinfo_nickname,
 body.dark-mode .publisher-card .userinfo_card_nickname {
-    color: var(--app-text) !important;
+    color: #f1f5f9 !important;
+}
+
+body.dark-mode .publisher-card .publisher-name-row .userinfo_pro,
+body.dark-mode .publisher-card .publisher-name-row .userinfo_card_pro {
+    color: #a5b4fc !important;
 }
 
 body.dark-mode .publisher-card .publisher-intro,
 body.dark-mode .publisher-card .userinfo_card_intro {
-    color: var(--app-text-sub) !important;
+    color: #94a3b8 !important;
 }
 
 body.dark-mode .hs-model,

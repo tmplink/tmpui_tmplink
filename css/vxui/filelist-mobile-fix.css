@@ -1,0 +1,137 @@
+@charset "UTF-8";
+/**
+ * VXUI File List Mobile Override
+ * Solves horizontal scrolling issues by providing a dedicated mobile layout
+ */
+
+@media (max-width: 768px) {
+    /* 1. Global Reset for this view */
+    .vx-content-list {
+        overflow-x: hidden !important;
+        width: 100vw !important;
+        box-sizing: border-box;
+    }
+
+    /* 2. Hide Desktop Header */
+    .vx-list-header {
+        display: none !important;
+    }
+
+    /* 3. Redefine List Row as a Mobile Card/Item */
+    .vx-list-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        padding: 12px 16px !important;
+        height: auto !important;
+        border-bottom: 1px solid var(--vx-border) !important;
+        position: relative;
+    }
+
+    /* 4. Reset Flex Item Widths causing overflow */
+    .vx-list-name, 
+    .vx-list-size, 
+    .vx-list-date, 
+    .vx-list-actions {
+        width: auto !important;
+        min-width: 0 !important;
+        flex: none !important;
+    }
+
+    /* 5. Mobile Layout: Checkbox */
+    .vx-list-checkbox {
+        margin-right: 12px !important;
+    }
+
+    /* 6. Mobile Layout: Name Area (Icon + Text) */
+    .vx-list-name {
+        flex: 1 1 auto !important; /* Grow, Shrink, Basis Auto */
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        max-width: calc(100% - 40px) !important; /* Reserve space for actions if needed */
+        overflow: hidden !important;
+    }
+
+    .vx-list-filename {
+        flex: 1 !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        text-overflow: ellipsis !important;
+    }
+
+    /* 7. Mobile Layout: Actions */
+    .vx-list-actions {
+        /* On mobile, we might rely on the 'More' button which is usually part of the row or floats.
+           But based on previous CSS, it seems actions are in the row.
+           We position them absolutely to the right or let them flow.
+        */
+        display: flex !important;
+        gap: 8px !important;
+        width: auto !important;
+        margin-left: auto !important; /* Push to right */
+    }
+    
+    /* Ensure only relevant buttons are shown if not handled by JS */
+    .vx-list-actions .vx-list-action-btn:not(.vx-more-btn) {
+         /* Keep other buttons hidden as per logic, or hide strictly */
+         display: none !important;
+    }
+    .vx-list-actions .vx-more-btn {
+        display: flex !important;
+    }
+
+    /* 8. Hide non-essential columns on mobile */
+    .vx-list-size {
+        display: none !important; /* Hide size on mobile strictly */
+    }
+    .vx-list-date.vx-hide-mobile {
+        display: none !important;
+    }
+
+    /* 9. Upload Row Special Handling */
+    .vx-upload-row {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 14px 16px !important;
+        gap: 12px !important;
+    }
+    
+    /* Top row: Icon + Name + Actions(Absolute) */
+    .vx-upload-row .vx-list-name {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding-right: 40px !important; /* Make space for cancel button */
+        box-sizing: border-box !important;
+    }
+
+    /* Adjust cancel button */
+    .vx-upload-row .vx-list-actions {
+        display: flex !important;
+        position: absolute !important;
+        right: 12px !important;
+        top: 14px !important;
+        margin: 0 !important;
+        transform: none !important;
+    }
+    
+    /* Progress area - Force show and layout */
+    .vx-upload-row .vx-upload-progress-cell {
+        display: flex !important; 
+        flex-direction: column !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .vx-upload-row .vx-upload-progress-info {
+         display: flex !important;
+         justify-content: space-between !important;
+         font-size: 13px !important;
+         color: #64748b !important; /* var(--vx-text-secondary) */
+         margin-bottom: 6px !important;
+         width: 100% !important;
+    }
+}

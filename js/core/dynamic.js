@@ -30,9 +30,16 @@ class dynamic {
                 break;
 
             case 'room':
+                // 检查用户是否选择了经典版界面
+                const uiPreference = localStorage.getItem('tmplink_ui_preference');
+                if (uiPreference !== 'classic') {
+                    // 用户未选择经典版，重定向到 vxui 版本
+                    const mrid = url_params.mrid || '0';
+                    window.location.href = `/?tmpui_page=/vx&module=filelist&mrid=${mrid}`;
+                    return;
+                }
                 this.room();
                 break;
-                w
             case 'direct':
                 this.direct();
                 break;

@@ -143,6 +143,11 @@ html.vx-dark {
 }
 
 /* ==================== Reset & Base ==================== */
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+}
+
 .vx-app,
 .vx-app * {
     box-sizing: border-box;
@@ -231,10 +236,11 @@ body.vx-active #tmpui_body {
 .vx-list-col-date {
     width: 150px;
     text-align: right;
+    padding-right: 16px;
 }
 
 .vx-list-col-actions {
-    width: 120px;
+    width: 140px;
     text-align: right;
 }
 
@@ -359,10 +365,11 @@ body.vx-active #tmpui_body {
 .vx-list-date {
     width: 150px;
     text-align: right;
+    padding-right: 16px;
 }
 
 .vx-list-actions {
-    width: 120px;
+    width: 140px;
     display: flex;
     justify-content: flex-end;
     gap: 4px;
@@ -371,22 +378,27 @@ body.vx-active #tmpui_body {
 /* ==================== Upload Row Styles ==================== */
 .vx-upload-row {
     position: relative;
-    background: var(--vx-primary-light);
+    background: var(--vx-surface);
     border-left: 3px solid var(--vx-primary);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+    z-index: 5;
+    transition: background 0.2s;
 }
 
 .vx-upload-row:hover {
-    background: var(--vx-primary-light);
+    background: var(--vx-surface-hover);
 }
 
 .vx-upload-row.completed {
-    background: var(--vx-success-light);
+    background: var(--vx-surface);
     border-left-color: var(--vx-success);
+    box-shadow: none;
 }
 
 .vx-upload-row.failed {
-    background: var(--vx-danger-light);
+    background: var(--vx-surface);
     border-left-color: var(--vx-danger);
+    box-shadow: none;
 }
 
 /* Upload progress cell - Desktop */
@@ -485,10 +497,12 @@ body.vx-active #tmpui_body {
     align-items: center;
     padding: 2px 8px;
     font-size: 11px;
-    font-weight: 500;
-    background: var(--vx-primary);
-    color: white;
-    border-radius: var(--vx-radius-full);
+    font-weight: 600;
+    color: var(--vx-primary);
+    background: var(--vx-primary-light);
+    border-radius: 6px;
+    margin-left: 8px;
+    white-space: nowrap;
 }
 
 /* Cancel button styling */
@@ -537,6 +551,17 @@ body.vx-active #tmpui_body {
     justify-content: center;
     color: var(--vx-text-secondary);
     transition: all 0.15s ease;
+}
+
+/* 桌面端隐藏文件夹行的三点按钮，操作按钮直接显示 */
+.vx-list-row[data-type="folder"] .vx-more-btn {
+    display: none;
+}
+
+/* 桌面端隐藏直链文件列表的三点按钮 */
+#vx-direct-files-list-body .vx-more-btn,
+#vx-direct-folders-list-body .vx-more-btn {
+    display: none;
 }
 
 .vx-list-action-btn:hover {
@@ -678,45 +703,60 @@ body.vx-sidebar-open .vx-sidebar {
     overflow: visible;
 }
 
-/* Language switcher: positioned above the button */
-#vx-lang-dropdown {
+/* Language switcher: inline expandable style */
+.vx-lang-switcher {
+    width: 100%;
+}
+
+.vx-lang-switcher .vx-nav-item {
     position: relative;
 }
 
-#vx-lang-dropdown .vx-dropdown-menu {
-    display: none;
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 0;
-    width: 100%;
-    max-height: min(320px, 50vh);
-    overflow-y: auto;
-    background: var(--vx-surface);
-    border: 1px solid var(--vx-border);
-    border-radius: var(--vx-radius);
-    box-shadow: var(--vx-shadow-lg);
-    padding: 6px;
-    z-index: calc(var(--vx-z-fixed) + 10);
+.vx-lang-switcher .vx-lang-arrow {
+    margin-left: auto;
+    font-size: 12px;
+    transition: transform 0.2s ease;
 }
 
-#vx-lang-dropdown.open .vx-dropdown-menu {
-    display: block;
+.vx-lang-switcher.open .vx-lang-arrow {
+    transform: rotate(180deg);
 }
 
-#vx-lang-dropdown .vx-dropdown-item {
+.vx-lang-options {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease-out;
+    background: var(--vx-surface-hover);
+    border-radius: var(--vx-radius-sm);
+    margin: 0 8px;
+}
+
+.vx-lang-switcher.open .vx-lang-options {
+    max-height: 200px;
+    transition: max-height 0.3s ease-in;
+}
+
+.vx-lang-option {
     display: flex;
     align-items: center;
-    padding: 10px 12px;
-    border-radius: var(--vx-radius-sm);
+    padding: 10px 16px 10px 44px;
     font-size: var(--vx-text-sm);
-    color: var(--vx-text);
+    color: var(--vx-text-secondary);
     cursor: pointer;
     transition: var(--vx-transition-fast);
 }
 
-#vx-lang-dropdown .vx-dropdown-item:hover {
-    background: var(--vx-surface-hover);
+.vx-lang-option:hover {
+    background: var(--vx-primary-alpha);
     color: var(--vx-primary);
+}
+
+.vx-lang-option:first-child {
+    margin-top: 4px;
+}
+
+.vx-lang-option:last-child {
+    margin-bottom: 4px;
 }
 
 .vx-sidebar-header {
@@ -1106,6 +1146,142 @@ body.vx-sidebar-open .vx-sidebar {
     min-height: 0;
     display: flex;
     flex-direction: column;
+}
+
+/* ==================== Direct API (Mobile Friendly Docs) ==================== */
+.vx-direct-api .vx-api-key {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.vx-direct-api .vx-api-key-main {
+    min-width: 180px;
+}
+
+.vx-direct-api .vx-api-key-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.vx-direct-api .vx-api-key-value {
+    font-family: var(--vx-font-mono);
+    user-select: all;
+    word-break: break-all;
+}
+
+.vx-direct-api .vx-api-base {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.vx-direct-api .vx-api-endpoint {
+    font-family: var(--vx-font-mono);
+    user-select: all;
+    word-break: break-all;
+}
+
+.vx-direct-api .vx-api-overview-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    line-height: 1.7;
+}
+
+.vx-direct-api .vx-api-overview-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.vx-direct-api .vx-api-method {
+    font-weight: 600;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: var(--vx-radius-sm);
+    background: var(--vx-bg-secondary);
+    color: var(--vx-text);
+}
+
+.vx-direct-api .vx-api-detail {
+    border-top: 1px dashed var(--vx-border);
+}
+
+.vx-direct-api .vx-api-detail:first-of-type {
+    border-top: none;
+}
+
+.vx-direct-api .vx-api-summary {
+    cursor: pointer;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    list-style: none;
+}
+
+.vx-direct-api .vx-api-summary::-webkit-details-marker {
+    display: none;
+}
+
+.vx-direct-api .vx-code-block {
+    background: var(--vx-bg-secondary);
+    padding: 10px;
+    border-radius: var(--vx-radius);
+    font-family: var(--vx-font-mono);
+    user-select: all;
+    overflow: auto;
+}
+
+.vx-direct-api .vx-api-table-wrap {
+    overflow: auto;
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius);
+}
+
+.vx-direct-api .vx-api-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 420px;
+}
+
+.vx-direct-api .vx-api-table td {
+    padding: 10px;
+}
+
+@media (max-width: 768px) {
+    .vx-direct-api .vx-api-key-actions {
+        width: 100%;
+    }
+
+    .vx-direct-api .vx-api-key-actions .vx-btn {
+        flex: 1 1 140px;
+        justify-content: center;
+    }
+
+    .vx-direct-api .vx-api-key-value {
+        width: 100%;
+    }
+
+    .vx-direct-api .vx-api-overview-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .vx-direct-api .vx-api-summary {
+        line-height: 1.4;
+    }
+
+    .vx-direct-api .vx-api-table {
+        min-width: 360px;
+    }
 }
 
 /* Toolbar */
@@ -2168,6 +2344,15 @@ body.vx-modal-body-open {
     /* Hide size header column */
     .vx-list-header .vx-list-col-size {
         display: none !important;
+    }
+    
+    /* Fix header columns width on mobile */
+    .vx-list-col-name {
+        min-width: 0;
+    }
+
+    .vx-list-col-actions {
+        width: 60px;
     }
     
     /* Actions: only show more button on mobile */

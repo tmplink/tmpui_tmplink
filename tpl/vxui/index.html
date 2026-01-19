@@ -69,17 +69,18 @@
             </div>
             
             <div class="vx-sidebar-footer">
-                <!-- Language Switcher (legacy-compatible) -->
-                <div class="vx-dropdown" id="vx-lang-dropdown" style="width:100%;">
+                <!-- Language Switcher (inline expandable) -->
+                <div class="vx-lang-switcher" id="vx-lang-dropdown">
                     <a href="javascript:;" class="vx-nav-item" data-action="vx-lang-toggle">
                         <iconpark-icon name="globe"></iconpark-icon>
                         <span class="vx-nav-item-text" id="vx-lang-label">Language / 语言</span>
+                        <iconpark-icon name="chevron-down" class="vx-lang-arrow"></iconpark-icon>
                     </a>
-                    <div class="vx-dropdown-menu">
-                        <div class="vx-dropdown-item" data-action="vx-lang-set" data-lang="en">English</div>
-                        <div class="vx-dropdown-item" data-action="vx-lang-set" data-lang="cn">简体中文</div>
-                        <div class="vx-dropdown-item" data-action="vx-lang-set" data-lang="hk">繁体中文</div>
-                        <div class="vx-dropdown-item" data-action="vx-lang-set" data-lang="jp">日本語</div>
+                    <div class="vx-lang-options">
+                        <div class="vx-lang-option" data-action="vx-lang-set" data-lang="en">English</div>
+                        <div class="vx-lang-option" data-action="vx-lang-set" data-lang="cn">简体中文</div>
+                        <div class="vx-lang-option" data-action="vx-lang-set" data-lang="hk">繁体中文</div>
+                        <div class="vx-lang-option" data-action="vx-lang-set" data-lang="jp">日本語</div>
                     </div>
                 </div>
 

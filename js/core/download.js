@@ -24,6 +24,10 @@ class download {
     numberOfChunks = 3;
     fastDownloadInProgress = false;
 
+    // 批量下载取消控制
+    abortController = null;
+    isDownloading = false;
+
     init(parent_op) {
         this.parent_op = parent_op;
         this.resetMultiThreadStatus();
@@ -187,6 +191,10 @@ class download {
     // 文件夹下载处理
     async folder_download(select_data) {
         try {
+            // 初始化 AbortController
+            this.abortController = new AbortController();
+            this.isDownloading = true;
+            
             // 准备文件列表并显示下载管理器
             $('#multipleDownloadModel').modal('show');
             $('#multiple_download_prepare').show();
@@ -221,6 +229,11 @@ class download {
 
                         // 使用现代API下载文件夹结构
                         for (let i = 0; i < file_list.length; i++) {
+                            // 检查是否已取消
+                            if (!this.isDownloading) {
+                                throw new Error('cancelled');
+                            }
+                            
                             const file = file_list[i];
                             try {
                                 const downloadUrl = await this.get_download_url(file.ukey);
@@ -243,10 +256,14 @@ class download {
                                         $('#multiple_download_process-bar')
                                             .css('width', `${totalProgress}%`)
                                             .attr('aria-valuenow', totalProgress);
-                                    }
+                                    },
+                                    this.abortController.signal
                                 );
                                 downloadedBytes += parseInt(file.size);
                             } catch (error) {
+                                if (error.name === 'AbortError' || error.message === 'cancelled') {
+                                    throw error; // 重新抛出取消错误
+                                }
                                 console.error(`Error downloading file ${file.path}:`, error);
                                 this.append_download_info(`${app.languageData.multi_download_error}: ${file.path} (${error.message})`);
                             }
@@ -259,9 +276,13 @@ class download {
                             .attr('aria-valuenow', 100);
 
                         this.append_download_info(app.languageData.multi_download_complete);
+                        this.isDownloading = false;
                         return;
                     }
                 } catch (error) {
+                    if (error.name === 'AbortError' || error.message === 'cancelled') {
+                        throw error; // 重新抛出取消错误
+                    }
                     console.log("File System Access API not supported or permission denied, falling back to legacy download");
                     this.append_download_info(app.languageData.multi_download_legacy);
                 }
@@ -269,6 +290,11 @@ class download {
 
             // 使用传统下载方式（无文件夹或现代API不可用时）
             for (let i = 0; i < file_list.length; i++) {
+                // 检查是否已取消
+                if (!this.isDownloading) {
+                    throw new Error('cancelled');
+                }
+                
                 const file = file_list[i];
                 try {
                     const downloadUrl = await this.get_download_url(file.ukey);
@@ -291,11 +317,15 @@ class download {
                             $('#multiple_download_process-bar')
                                 .css('width', `${totalProgress}%`)
                                 .attr('aria-valuenow', totalProgress);
-                        }
+                        },
+                        this.abortController.signal
                     );
 
                     downloadedBytes += parseInt(file.size);
                 } catch (error) {
+                    if (error.name === 'AbortError' || error.message === 'cancelled') {
+                        throw error; // 重新抛出取消错误
+                    }
                     this.append_download_info(`${app.languageData.multi_download_error}: ${file.path} (${error.message})`);
                 }
             }
@@ -307,18 +337,34 @@ class download {
                 .attr('aria-valuenow', 100);
 
             this.append_download_info(app.languageData.multi_download_complete);
+            this.isDownloading = false;
 
         } catch (error) {
+            this.isDownloading = false;
+            if (error.name === 'AbortError' || error.message === 'cancelled') {
+                // 用户取消下载，不显示错误
+                return;
+            }
             this.append_download_info(`${app.languageData.multi_download_error}: ${error.message}`);
             this.parent_op.alert(app.languageData.download_error_abort);
         }
     }
 
-    async legacyDownloadFile(url, fileName, originalPath, onProgress) {
+    // 取消批量下载
+    cancelFolderDownload() {
+        if (this.isDownloading && this.abortController) {
+            this.abortController.abort();
+            this.abortController = null;
+            this.isDownloading = false;
+            this.append_download_info(app.languageData.multi_download_cancelled || '下载已取消');
+        }
+    }
+
+    async legacyDownloadFile(url, fileName, originalPath, onProgress, signal) {
         const msgElement = this.appendProgressLine();
 
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, { signal });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const contentLength = parseInt(response.headers.get('content-length') || '0');
@@ -363,21 +409,29 @@ class download {
             );
 
         } catch (error) {
-            this.updateProgressText(
-                msgElement,
-                `${app.languageData.multi_download_error}:${originalPath} (${error.message})`,
-                'text-danger'
-            );
+            if (error.name === 'AbortError') {
+                this.updateProgressText(
+                    msgElement,
+                    `${app.languageData.multi_download_cancelled || '下载已取消'}: ${originalPath}`,
+                    'text-warning'
+                );
+            } else {
+                this.updateProgressText(
+                    msgElement,
+                    `${app.languageData.multi_download_error}:${originalPath} (${error.message})`,
+                    'text-danger'
+                );
+            }
             throw error;
         }
     }
 
     // 下载并保存单个文件
-    async download_and_save_file(url, dirHandle, fileName, fullPath, onProgress) {
+    async download_and_save_file(url, dirHandle, fileName, fullPath, onProgress, signal) {
         let msgElement = null;
 
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, { signal });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const contentLength = parseInt(response.headers.get('content-length') || '0');
@@ -428,11 +482,19 @@ class download {
 
         } catch (error) {
             if (msgElement) {
-                this.updateProgressText(
-                    msgElement,
-                    `${app.languageData.multi_download_error}:${fullPath} (${error.message})`,
-                    'text-danger'
-                );
+                if (error.name === 'AbortError') {
+                    this.updateProgressText(
+                        msgElement,
+                        `${app.languageData.multi_download_cancelled || '下载已取消'}: ${fullPath}`,
+                        'text-warning'
+                    );
+                } else {
+                    this.updateProgressText(
+                        msgElement,
+                        `${app.languageData.multi_download_error}:${fullPath} (${error.message})`,
+                        'text-danger'
+                    );
+                }
             }
             throw error;
         }
