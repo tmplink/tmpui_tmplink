@@ -1108,6 +1108,142 @@ body.vx-sidebar-open .vx-sidebar {
     flex-direction: column;
 }
 
+/* ==================== Direct API (Mobile Friendly Docs) ==================== */
+.vx-direct-api .vx-api-key {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.vx-direct-api .vx-api-key-main {
+    min-width: 180px;
+}
+
+.vx-direct-api .vx-api-key-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.vx-direct-api .vx-api-key-value {
+    font-family: var(--vx-font-mono);
+    user-select: all;
+    word-break: break-all;
+}
+
+.vx-direct-api .vx-api-base {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.vx-direct-api .vx-api-endpoint {
+    font-family: var(--vx-font-mono);
+    user-select: all;
+    word-break: break-all;
+}
+
+.vx-direct-api .vx-api-overview-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    line-height: 1.7;
+}
+
+.vx-direct-api .vx-api-overview-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.vx-direct-api .vx-api-method {
+    font-weight: 600;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: var(--vx-radius-sm);
+    background: var(--vx-bg-secondary);
+    color: var(--vx-text);
+}
+
+.vx-direct-api .vx-api-detail {
+    border-top: 1px dashed var(--vx-border);
+}
+
+.vx-direct-api .vx-api-detail:first-of-type {
+    border-top: none;
+}
+
+.vx-direct-api .vx-api-summary {
+    cursor: pointer;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    list-style: none;
+}
+
+.vx-direct-api .vx-api-summary::-webkit-details-marker {
+    display: none;
+}
+
+.vx-direct-api .vx-code-block {
+    background: var(--vx-bg-secondary);
+    padding: 10px;
+    border-radius: var(--vx-radius);
+    font-family: var(--vx-font-mono);
+    user-select: all;
+    overflow: auto;
+}
+
+.vx-direct-api .vx-api-table-wrap {
+    overflow: auto;
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius);
+}
+
+.vx-direct-api .vx-api-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 420px;
+}
+
+.vx-direct-api .vx-api-table td {
+    padding: 10px;
+}
+
+@media (max-width: 768px) {
+    .vx-direct-api .vx-api-key-actions {
+        width: 100%;
+    }
+
+    .vx-direct-api .vx-api-key-actions .vx-btn {
+        flex: 1 1 140px;
+        justify-content: center;
+    }
+
+    .vx-direct-api .vx-api-key-value {
+        width: 100%;
+    }
+
+    .vx-direct-api .vx-api-overview-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .vx-direct-api .vx-api-summary {
+        line-height: 1.4;
+    }
+
+    .vx-direct-api .vx-api-table {
+        min-width: 360px;
+    }
+}
+
 /* Toolbar */
 .vx-toolbar {
     display: flex;

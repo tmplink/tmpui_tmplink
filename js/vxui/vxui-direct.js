@@ -101,6 +101,7 @@ const VX_DIRECT = {
         }
 
         this.resetState();
+        this.applyUrlParams(params);
         this.sortSettingsInit();
         this.updateSidebar();
         this.bindEvents();
@@ -222,16 +223,52 @@ const VX_DIRECT = {
             this.activeTab = 'domain';
             this.updateTabUI();
             this.applyGateUI();
+            this.syncUrlState();
             return;
         }
         
         this.activeTab = next;
         this.updateTabUI();
         this.applyGateUI();
+        this.syncUrlState();
 
         this.trackUI(`vui_direct[${this.activeTab}]`);
 
         this.loadCurrentTab(true);
+    },
+
+    syncUrlState() {
+        if (typeof VXUI === 'undefined' || !VXUI || typeof VXUI.updateUrl !== 'function') return;
+        let params = {};
+        if (typeof VXUI.getUrlParams === 'function') {
+            params = { ...VXUI.getUrlParams() };
+            delete params.module;
+        }
+        params.tab = this.activeTab;
+        const key = this.keyGet();
+        const sort_by = localStorage.getItem(key.sort_by) ?? String(this.sort_by);
+        const sort_type = localStorage.getItem(key.sort_type) ?? String(this.sort_type);
+        if (sort_by !== '' && sort_by !== null && sort_by !== undefined) params.sort_by = String(sort_by);
+        if (sort_type !== '' && sort_type !== null && sort_type !== undefined) params.sort_type = String(sort_type);
+        if (this.search) params.search = String(this.search);
+        else delete params.search;
+        VXUI.updateUrl('direct', params);
+    },
+
+    applyUrlParams(params = {}) {
+        const key = this.keyGet();
+        const urlSortBy = params.sort_by;
+        const urlSortType = params.sort_type;
+        const urlSearch = params.search;
+        if (urlSortBy !== undefined && urlSortBy !== null && String(urlSortBy) !== '') {
+            localStorage.setItem(key.sort_by, String(urlSortBy));
+        }
+        if (urlSortType !== undefined && urlSortType !== null && String(urlSortType) !== '') {
+            localStorage.setItem(key.sort_type, String(urlSortType));
+        }
+        if (urlSearch !== undefined && urlSearch !== null) {
+            this.search = String(urlSearch);
+        }
     },
 
     updateTabUI() {
@@ -1861,6 +1898,7 @@ const VX_DIRECT = {
     onSearchInput() {
         const el = document.getElementById('vx-direct-search');
         this.search = el ? String(el.value || '') : '';
+        this.syncUrlState();
         // debounce
         clearTimeout(this._searchTimer);
         this._searchTimer = setTimeout(() => this.loadFiles(true), 250);
@@ -1872,6 +1910,7 @@ const VX_DIRECT = {
         const key = this.keyGet();
         if (sortByEl) localStorage.setItem(key.sort_by, String(sortByEl.value));
         if (sortTypeEl) localStorage.setItem(key.sort_type, String(sortTypeEl.value));
+        this.syncUrlState();
         this.loadFiles(true);
     },
 
