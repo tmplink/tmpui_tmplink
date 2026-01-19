@@ -91,15 +91,47 @@
 
     /* 9. Upload Row Special Handling */
     .vx-upload-row {
-        display: block !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 14px 16px !important;
+        gap: 12px !important;
     }
     
+    /* Top row: Icon + Name + Actions(Absolute) */
     .vx-upload-row .vx-list-name {
-        max-width: 100% !important;
-        margin-bottom: 8px;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding-right: 40px !important; /* Make space for cancel button */
+        box-sizing: border-box !important;
+    }
+
+    /* Adjust cancel button */
+    .vx-upload-row .vx-list-actions {
+        display: flex !important;
+        position: absolute !important;
+        right: 12px !important;
+        top: 14px !important;
+        margin: 0 !important;
+        transform: none !important;
     }
     
-    .vx-upload-row .vx-list-actions {
-        margin-top: 8px;
+    /* Progress area - Force show and layout */
+    .vx-upload-row .vx-upload-progress-cell {
+        display: flex !important; 
+        flex-direction: column !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .vx-upload-row .vx-upload-progress-info {
+         display: flex !important;
+         justify-content: space-between !important;
+         font-size: 13px !important;
+         color: #64748b !important; /* var(--vx-text-secondary) */
+         margin-bottom: 6px !important;
+         width: 100% !important;
     }
 }

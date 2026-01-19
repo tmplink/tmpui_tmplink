@@ -376,22 +376,27 @@ body.vx-active #tmpui_body {
 /* ==================== Upload Row Styles ==================== */
 .vx-upload-row {
     position: relative;
-    background: var(--vx-primary-light);
+    background: var(--vx-surface);
     border-left: 3px solid var(--vx-primary);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+    z-index: 5;
+    transition: background 0.2s;
 }
 
 .vx-upload-row:hover {
-    background: var(--vx-primary-light);
+    background: var(--vx-surface-hover);
 }
 
 .vx-upload-row.completed {
-    background: var(--vx-success-light);
+    background: var(--vx-surface);
     border-left-color: var(--vx-success);
+    box-shadow: none;
 }
 
 .vx-upload-row.failed {
-    background: var(--vx-danger-light);
+    background: var(--vx-surface);
     border-left-color: var(--vx-danger);
+    box-shadow: none;
 }
 
 /* Upload progress cell - Desktop */
@@ -490,10 +495,12 @@ body.vx-active #tmpui_body {
     align-items: center;
     padding: 2px 8px;
     font-size: 11px;
-    font-weight: 500;
-    background: var(--vx-primary);
-    color: white;
-    border-radius: var(--vx-radius-full);
+    font-weight: 600;
+    color: var(--vx-primary);
+    background: var(--vx-primary-light);
+    border-radius: 6px;
+    margin-left: 8px;
+    white-space: nowrap;
 }
 
 /* Cancel button styling */
