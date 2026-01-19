@@ -15,6 +15,7 @@
     "multi_download_files": "files",
     "multi_download_count": "Total",
     "multi_download_legacy": "Due to current browser limitations, folders will be automatically converted to part of filenames to complete the download. You can try using updated browsers like Chrome to use the folder download feature.",
+    "multi_download_cancelled": "Download cancelled",
     "direct_dir_disable": "Once this setting is disabled, the original link will be invalid. Re-enabling will generate a different link. Are you sure?",
     "special_event": "Black Friday Limited: Get High-speed Channel & Online Playback - Only $6/year",
     "navbar_special_events": "50% Off",

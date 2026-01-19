@@ -990,6 +990,7 @@
     "multi_download_files": "个文件",
     "multi_download_count": "总计",
     "multi_download_legacy": "由于当前浏览器不支持文件夹下载，文件夹将会自动转换为文件名的一部分，以完成下载。您可以尝试使用 chrome 等更新版本的浏览器来使用文件夹打包下载的功能。",
+    "multi_download_cancelled": "下载已取消",
     "changemodel_msg_1": "已完成",
     "changemodel_msg_2": "设定失败，没有足够的存储空间",
     "changemodel_msg_3": "设定失败",

@@ -1,5 +1,7 @@
 class VXUIDownload {
     parent_op = null;
+    abortController = null;
+    isDownloading = false;
 
     init(parent_op) {
         this.parent_op = parent_op || {};
@@ -14,6 +16,14 @@ class VXUIDownload {
     }
 
     closeModal() {
+        // 如果正在下载，先取消下载
+        if (this.isDownloading && this.abortController) {
+            this.abortController.abort();
+            this.abortController = null;
+            this.isDownloading = false;
+            this.append_download_info(this.t('multi_download_cancelled', '下载已取消'));
+        }
+        
         const modal = document.getElementById('multipleDownloadModel');
         if (modal) {
             modal.classList.remove('vx-modal-open');
@@ -97,6 +107,10 @@ class VXUIDownload {
 
     async folder_download(select_data) {
         try {
+            // 初始化 AbortController
+            this.abortController = new AbortController();
+            this.isDownloading = true;
+            
             this.showModal();
             document.getElementById('multiple_download_prepare').style.display = 'block';
             document.getElementById('multiple_download_processing').style.display = 'none';
@@ -124,6 +138,11 @@ class VXUIDownload {
                         this.append_download_info(this.t('multi_download_start', '开始下载'));
 
                         for (let i = 0; i < file_list.length; i++) {
+                            // 检查是否已取消
+                            if (!this.isDownloading) {
+                                throw new Error('cancelled');
+                            }
+                            
                             const file = file_list[i];
                             try {
                                 const downloadUrl = await this.get_download_url(file.ukey);
@@ -146,10 +165,14 @@ class VXUIDownload {
                                         $('#multiple_download_process-bar')
                                             .css('width', `${totalProgress}%`)
                                             .attr('aria-valuenow', totalProgress);
-                                    }
+                                    },
+                                    this.abortController.signal
                                 );
                                 downloadedBytes += this.parseSizeToBytes(file.size);
                             } catch (error) {
+                                if (error.name === 'AbortError' || error.message === 'cancelled') {
+                                    throw error; // 重新抛出取消错误
+                                }
                                 console.error(`Error downloading file ${file.path}:`, error);
                                 this.append_download_info(`${this.t('multi_download_error', '下载失败')}: ${file.path} (${error.message})`);
                             }
@@ -162,6 +185,7 @@ class VXUIDownload {
                             .attr('aria-valuenow', 100);
 
                         this.append_download_info(this.t('multi_download_complete', '下载完成'));
+                        this.isDownloading = false;
                         return;
                     }
                 } catch (error) {
@@ -171,6 +195,11 @@ class VXUIDownload {
             }
 
             for (let i = 0; i < file_list.length; i++) {
+                // 检查是否已取消
+                if (!this.isDownloading) {
+                    throw new Error('cancelled');
+                }
+                
                 const file = file_list[i];
                 try {
                     const downloadUrl = await this.get_download_url(file.ukey);
@@ -192,11 +221,15 @@ class VXUIDownload {
                             $('#multiple_download_process-bar')
                                 .css('width', `${totalProgress}%`)
                                 .attr('aria-valuenow', totalProgress);
-                        }
+                        },
+                        this.abortController.signal
                     );
 
                     downloadedBytes += this.parseSizeToBytes(file.size);
                 } catch (error) {
+                    if (error.name === 'AbortError' || error.message === 'cancelled') {
+                        throw error; // 重新抛出取消错误
+                    }
                     this.append_download_info(`${this.t('multi_download_error', '下载失败')}: ${file.path} (${error.message})`);
                 }
             }
@@ -208,8 +241,14 @@ class VXUIDownload {
                 .attr('aria-valuenow', 100);
 
             this.append_download_info(this.t('multi_download_complete', '下载完成'));
+            this.isDownloading = false;
 
         } catch (error) {
+            this.isDownloading = false;
+            if (error.name === 'AbortError' || error.message === 'cancelled') {
+                // 用户取消下载，不显示错误
+                return;
+            }
             this.append_download_info(`${this.t('multi_download_error', '下载失败')}: ${error.message}`);
             if (this.parent_op && typeof this.parent_op.alert === 'function') {
                 this.parent_op.alert(this.t('download_error_abort', '下载已中止'));
@@ -217,11 +256,11 @@ class VXUIDownload {
         }
     }
 
-    async legacyDownloadFile(url, fileName, originalPath, onProgress) {
+    async legacyDownloadFile(url, fileName, originalPath, onProgress, signal) {
         const msgElement = this.appendProgressLine();
 
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, { signal });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const contentLength = parseInt(response.headers.get('content-length') || '0', 10);
@@ -266,20 +305,28 @@ class VXUIDownload {
             );
 
         } catch (error) {
-            this.updateProgressText(
-                msgElement,
-                `${this.t('multi_download_error', '下载失败')}:${originalPath} (${error.message})`,
-                'text-danger'
-            );
+            if (error.name === 'AbortError') {
+                this.updateProgressText(
+                    msgElement,
+                    `${this.t('multi_download_cancelled', '下载已取消')}: ${originalPath}`,
+                    'text-warning'
+                );
+            } else {
+                this.updateProgressText(
+                    msgElement,
+                    `${this.t('multi_download_error', '下载失败')}:${originalPath} (${error.message})`,
+                    'text-danger'
+                );
+            }
             throw error;
         }
     }
 
-    async download_and_save_file(url, dirHandle, fileName, fullPath, onProgress) {
+    async download_and_save_file(url, dirHandle, fileName, fullPath, onProgress, signal) {
         let msgElement = null;
 
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, { signal });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const contentLength = parseInt(response.headers.get('content-length') || '0', 10);
@@ -325,11 +372,19 @@ class VXUIDownload {
 
         } catch (error) {
             if (msgElement) {
-                this.updateProgressText(
-                    msgElement,
-                    `${this.t('multi_download_error', '下载失败')}:${fullPath} (${error.message})`,
-                    'text-danger'
-                );
+                if (error.name === 'AbortError') {
+                    this.updateProgressText(
+                        msgElement,
+                        `${this.t('multi_download_cancelled', '下载已取消')}: ${fullPath}`,
+                        'text-warning'
+                    );
+                } else {
+                    this.updateProgressText(
+                        msgElement,
+                        `${this.t('multi_download_error', '下载失败')}:${fullPath} (${error.message})`,
+                        'text-danger'
+                    );
+                }
             }
             throw error;
         }
@@ -447,3 +502,6 @@ class VXUIDownload {
         this.updateProgressText(msgElement, message);
     }
 }
+
+// 创建全局 VX_DOWNLOAD 实例
+var VX_DOWNLOAD = new VXUIDownload();

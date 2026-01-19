@@ -2720,13 +2720,20 @@ var VX_FILELIST = VX_FILELIST || {
      * 确保批量下载器已初始化
      */
     ensureBatchDownloader() {
-        if (this.batchDownloader || typeof VXUIDownload === 'undefined') return;
+        // 使用全局的 VX_DOWNLOAD 实例
+        if (typeof VX_DOWNLOAD !== 'undefined' && VX_DOWNLOAD) {
+            this.batchDownloader = VX_DOWNLOAD;
+        } else if (this.batchDownloader || typeof VXUIDownload === 'undefined') {
+            return;
+        } else {
+            this.batchDownloader = new VXUIDownload();
+        }
+        
         const apiFile = (typeof TL !== 'undefined' && TL.api_file)
             ? TL.api_file
             : ((typeof TL !== 'undefined' && TL.api_url) ? (TL.api_url + '/file') : '/api_v2/file');
         const apiMr = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
 
-        this.batchDownloader = new VXUIDownload();
         this.batchDownloader.init({
             api_file: apiFile,
             api_mr: apiMr,
