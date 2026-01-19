@@ -269,7 +269,7 @@
     "file_downloads": "提取次数",
     "file_lefttime": "剩余时间",
     "file_btn_download": "普通下载",
-    "file_btn_download_fast": "高速下载",
+    "file_btn_download_fast": "下载",
     "file_btn_download_opt": "下载选项",
     "file_btn_download_opt_link": "复制下载链接，到其软件中下载（etc..迅雷）",
     "file_btn_download_opt_curl": "复制适用于 <span class=\"text-red\">curl</span> 的下载代码",
