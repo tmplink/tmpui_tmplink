@@ -438,17 +438,9 @@ class VXUIDownload {
                     });
 
                     if (response.status === 1) {
-                        const normalized = (response.data || []).map((item) => {
-                            const size = this.parseSizeToBytes(
-                                item.size || item.filesize || item.fsize || item.fsize_formated
-                            );
-                            return {
-                                ukey: item.ukey,
-                                size: size,
-                                path: item.path || item.fname || item.name || ''
-                            };
-                        });
-                        file_list.push(...normalized);
+                        // 直接使用 API 返回的数据，与旧版本保持一致
+                        // API 返回格式: { ukey, size, path }
+                        file_list.push(...response.data);
                     } else {
                         console.error('API returned error status:', response);
                     }
@@ -460,10 +452,9 @@ class VXUIDownload {
                     ? this.parent_op.getFileByUkey(select_data[x].id)
                     : null;
                 if (file) {
-                    const size = this.parseSizeToBytes(file.fsize || file.filesize || file.size || file.fsize_formated);
                     file_list.push({
                         ukey: file.ukey,
-                        size: size,
+                        size: file.filesize || file.fsize || file.size || 0,
                         path: file.fname || file.name || ''
                     });
                 }
