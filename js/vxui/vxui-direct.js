@@ -1506,9 +1506,73 @@ const VX_DIRECT = {
                 <button class="vx-list-action-btn vx-action-danger" onclick="event.stopPropagation(); VX_DIRECT.deleteLink('${String(directKey)}')" title="删除">
                     <iconpark-icon name="trash"></iconpark-icon>
                 </button>
+                <!-- Mobile More Button -->
+                <button class="vx-list-action-btn vx-more-btn" onclick="event.stopPropagation(); VX_DIRECT.openMoreMenu(event, '${String(directKey)}', '${this.escapeAttr(directLink)}')" title="更多">
+                    <iconpark-icon name="ellipsis"></iconpark-icon>
+                </button>
             </div>
         `;
         return row;
+    },
+
+    /**
+     * 打开更多菜单 (移动端)
+     */
+    openMoreMenu(event, directKey, directLink) {
+        // 使用系统的 Action Sheet 风格菜单
+        if (typeof VXUI !== 'undefined' && VXUI.showActionSheet) {
+            VXUI.showActionSheet('操作', [
+                { text: '复制链接', icon: 'copy', action: () => this.copyUrl(directLink) },
+                { text: '下载', icon: 'cloud-arrow-down', action: () => this.openUrl(directLink) },
+                { text: '删除', icon: 'trash', danger: true, action: () => this.deleteLink(directKey) }
+            ]);
+        } else {
+            // 兜底：如果 VXUI 没有封装 ActionSheet，则使用简单的自定义菜单或 alert
+            // 这里我们动态创建一个简单的菜单遮罩
+            this.showCustomActionSheet(directKey, directLink);
+        }
+    },
+
+    /**
+     * 自定义简单 Action Sheet (兜底)
+     */
+    showCustomActionSheet(directKey, directLink) {
+        const id = 'vx-direct-action-sheet';
+        let sheet = document.getElementById(id);
+        if (sheet) document.body.removeChild(sheet);
+
+        sheet = document.createElement('div');
+        sheet.id = id;
+        sheet.className = 'vx-modal-overlay';
+        sheet.style.zIndex = '2000';
+        sheet.style.display = 'flex';
+        sheet.style.alignItems = 'flex-end';
+        sheet.style.justifyContent = 'center';
+        sheet.onclick = (e) => { if(e.target === sheet) document.body.removeChild(sheet); };
+
+        sheet.innerHTML = `
+            <div style="background:var(--vx-surface); width:100%; max-width:600px; border-radius:20px 20px 0 0; overflow:hidden; box-shadow:0 -10px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s ease;">
+                 <div style="padding:16px; border-bottom:1px solid var(--vx-border);">
+                    <div style="font-weight:600; text-align:center;">操作</div>
+                 </div>
+                 <div style="padding:10px 16px;">
+                    <button class="vx-btn vx-btn-ghost vx-btn-block" style="justify-content:flex-start; height:50px;" onclick="VX_DIRECT.copyUrl('${directLink}'); document.getElementById('${id}').remove()">
+                        <iconpark-icon name="copy" style="font-size:20px; margin-right:12px;"></iconpark-icon> 复制链接
+                    </button>
+                    <button class="vx-btn vx-btn-ghost vx-btn-block" style="justify-content:flex-start; height:50px;" onclick="VX_DIRECT.openUrl('${directLink}'); document.getElementById('${id}').remove()">
+                        <iconpark-icon name="link" style="font-size:20px; margin-right:12px;"></iconpark-icon> 打开/下载
+                    </button>
+                    <button class="vx-btn vx-btn-ghost vx-btn-block vx-text-danger" style="justify-content:flex-start; height:50px;" onclick="VX_DIRECT.deleteLink('${directKey}'); document.getElementById('${id}').remove()">
+                        <iconpark-icon name="trash" style="font-size:20px; margin-right:12px;"></iconpark-icon> 删除
+                    </button>
+                 </div>
+                 <div style="padding:10px 16px 30px; background:var(--vx-bg-secondary);">
+                    <button class="vx-btn vx-btn-secondary vx-btn-block" onclick="document.getElementById('${id}').remove()">取消</button>
+                 </div>
+            </div>
+            <style>@keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }</style>
+        `;
+        document.body.appendChild(sheet);
     },
 
     // ==================== Render (Folders) ====================
