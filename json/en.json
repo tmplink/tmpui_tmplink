@@ -571,7 +571,7 @@
     "upload_sync_onprogress": "Synchronizing",
     "upload_sync_to_storage": "Syncing file to storage nodes",
     "model_profile_title": "Preferences",
-    "model_profile_bulk_copy": "Do you want to enable continuous copying?<br>After enabling you can click the copy button continuously to copy multiple file links.",
+    "model_profile_bulk_copy": "Do you want to enable continuous copying? After enabling you can click the copy button continuously to copy multiple file links.",
     "model_profile_confirm_delete": "Do you want to enable confirm again before deleting?",
     "navbar_profile": "Preferences",
     "confirm_delete": "Are you sure you want to delete?",

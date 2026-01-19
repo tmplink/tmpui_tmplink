@@ -601,7 +601,7 @@
     "navbar_orders": "已購項目",
     "model_profile_title": "偏好設定",
     "model_profile_confirm_delete": "是否啟用刪除前確認？",
-    "model_profile_bulk_copy": "是否啟用連續複製？<br>啟用後您可以連續點擊複製按鈕以復制多個檔案連結。",
+    "model_profile_bulk_copy": "是否啟用連續複製？啟用後您可以連續點擊複製按鈕以復制多個檔案連結。",
     "page_503_title": "伺服器繁忙",
     "page_404_title": "404",
     "page_503_content": "伺服器暫時無法回應請求，請稍後再訪問。",
