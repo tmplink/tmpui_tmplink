@@ -560,7 +560,7 @@
     "upload_sync_to_storage": "ストレージノードにファイルを同期中",
     "model_profile_title": "設定",
     "model_profile_confirm_delete": "削除する前にもう一度確認しますか？",
-    "model_profile_bulk_copy": "連続コピーを有効にしますか?<br>有効にした後、コピー ボタンを連続してクリックして、複数のファイル リンクをコピーできます。",
+    "model_profile_bulk_copy": "連続コピーを有効にしますか? 有効にした後、コピー ボタンを連続してクリックして、複数のファイル リンクをコピーできます。",
     "confirm_delete": "削除してもよろしいですか？",
     "need_login_of_file": "ログイン後にファイルをブックマークできる",
     "need_login_of_dir": "ログイン後にフォルダをブックマークできる",
