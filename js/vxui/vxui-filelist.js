@@ -807,6 +807,10 @@ var VX_FILELIST = VX_FILELIST || {
             this.isOwner = rsp.data.owner === 1;
             this.isDesktop = (rsp.data.top == 99);
             this.subRooms = rsp.data.sub_rooms || [];
+
+            if (this.isOwner) {
+                this.startMrid = 0;
+            }
             
             // 特殊处理桌面
             if (this.mrid == 0 || this.mrid === '0') {
@@ -1223,7 +1227,11 @@ var VX_FILELIST = VX_FILELIST || {
         let html = '';
 
         if (Array.isArray(this.fullPath) && this.fullPath.length > 0 && String(this.fullPathMrid) === String(this.mrid)) {
-            const list = this.fullPath;
+            const isOwner = !!this.isOwner && isLoggedIn;
+            const list = [...this.fullPath];
+            if (isOwner && list.length > 0 && String(list[0] && list[0].id) !== '0') {
+                list.unshift({ id: '0', name: desktopTitle });
+            }
             list.forEach((item, idx) => {
                 const isLast = idx === list.length - 1;
                 const id = (item && item.id !== undefined && item.id !== null) ? String(item.id) : '';
@@ -2009,7 +2017,9 @@ var VX_FILELIST = VX_FILELIST || {
      */
     openFolder(mrid) {
         const params = { mrid: mrid, view: this.viewMode };
-        if (!this.isOwner && this.startMrid !== null && this.startMrid !== undefined && String(this.startMrid) !== '') {
+        if (this.isOwner) {
+            params.start = 0;
+        } else if (this.startMrid !== null && this.startMrid !== undefined && String(this.startMrid) !== '') {
             params.start = this.startMrid;
         }
         VXUI.navigate('filelist', params);
