@@ -748,6 +748,31 @@
     white-space: nowrap;
 }
 
+.vx-mobile-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.vx-mobile-breadcrumb a,
+.vx-mobile-breadcrumb span {
+    color: var(--vx-text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vx-mobile-breadcrumb .vx-breadcrumb-sep {
+    color: var(--vx-text-muted);
+    font-weight: 400;
+}
+
 /* Album Container */
 .vx-album-container {
     flex: 1;
