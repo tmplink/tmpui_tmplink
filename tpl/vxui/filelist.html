@@ -84,7 +84,7 @@
         <button class="vx-btn-icon vx-portrait-sidebar-btn" onclick="VXUI.toggleSidebar()" title="." i18n="vx_menu" i18n-only="title">
             <iconpark-icon name="bars"></iconpark-icon>
         </button>
-        <button class="vx-btn-icon" onclick="VX_FILELIST.goToParent()" id="vx-fl-back-btn" style="display: none;" title="." i18n="vx_back" i18n-only="title">
+        <button class="vx-btn-icon vx-btn-outline" onclick="VX_FILELIST.goToParent()" id="vx-fl-back-btn" style="display: none;" title="." i18n="vx_back" i18n-only="title">
             <iconpark-icon name="arrow-circle-left"></iconpark-icon>
         </button>
         <nav class="vx-breadcrumb" id="vx-fl-breadcrumb">
@@ -121,7 +121,7 @@
             <iconpark-icon name="folder-plus"></iconpark-icon>
             <span data-tpl="model_title_folder_title">新建文件夹</span>
         </button>
-        <button class="vx-btn vx-btn-ghost" id="vx-fl-refresh-btn" onclick="VX_FILELIST.refresh()" title="." i18n="album_refresh" i18n-only="title">
+        <button class="vx-btn vx-btn-ghost vx-btn-outline" id="vx-fl-refresh-btn" onclick="VX_FILELIST.refresh()" title="." i18n="album_refresh" i18n-only="title">
             <iconpark-icon name="rotate" data-role="refresh-icon"></iconpark-icon>
             <span data-role="refresh-text" data-tpl="album_refresh">刷新</span>
         </button>
@@ -748,6 +748,31 @@
     white-space: nowrap;
 }
 
+.vx-mobile-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.vx-mobile-breadcrumb a,
+.vx-mobile-breadcrumb span {
+    color: var(--vx-text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vx-mobile-breadcrumb .vx-breadcrumb-sep {
+    color: var(--vx-text-muted);
+    font-weight: 400;
+}
+
 /* Album Container */
 .vx-album-container {
     flex: 1;
@@ -786,6 +811,7 @@
 .vx-list-header {
     display: flex;
     align-items: center;
+    gap: 16px;
     padding: 12px 16px;
     background: var(--vx-bg-secondary);
     border-bottom: 1px solid var(--vx-border);
@@ -834,6 +860,7 @@
 .vx-list-row {
     display: flex;
     align-items: center;
+    gap: 16px;
     padding: 12px 16px;
     border-bottom: 1px solid var(--vx-border);
     transition: background 0.15s ease, opacity 0.3s ease, transform 0.3s ease;
@@ -1169,12 +1196,23 @@
     margin: 0 4px;
 }
 
+/* Outline Buttons (Header) */
+.vx-btn-outline {
+    border: 1px solid var(--vx-border);
+    background: var(--vx-surface);
+}
+
+.vx-btn-outline:hover {
+    border-color: var(--vx-primary-light);
+    background: var(--vx-surface-hover);
+}
+
 /* Header */
 .vx-header-minimal {
     position: sticky;
     top: 0;
     z-index: 10;
-    padding: 12px 20px;
+    padding: 12px 16px;
     background: var(--vx-surface);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -1623,6 +1661,7 @@
     
     .vx-list-row {
         padding: 10px 12px;
+        gap: 8px;
     }
     
     .vx-selection-bar {

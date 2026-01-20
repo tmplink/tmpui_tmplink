@@ -126,7 +126,9 @@
 
             <!-- Mobile Folder Title Bar (Filelist) -->
             <div class="vx-mobile-folder-bar" id="vx-fl-mobile-folder-bar" style="display: none;">
-                <div class="vx-mobile-folder-title" id="vx-fl-mobile-folder-title" data-tpl="navbar_meetingroom">桌面</div>
+                <nav class="vx-mobile-folder-title vx-mobile-breadcrumb" id="vx-fl-mobile-breadcrumb">
+                    <a href="javascript:;" onclick="VX_FILELIST.openFolder(0)"><span data-tpl="navbar_meetingroom">桌面</span></a>
+                </nav>
             </div>
             
             <!-- Module Container - Modules will be loaded here -->
@@ -227,7 +229,7 @@
     </div>
     
     <!-- Mobile Bottom Bar -->
-    <div class="vx-mobile-bar">
+    <div class="vx-mobile-bar" data-auth="logged-in">
         <button class="vx-mobile-btn" data-module="filelist" onclick="VXUI.navigate('filelist')">
             <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
             <span data-tpl="nav_files">文件</span>

@@ -50,6 +50,14 @@ var VX_FILELIST = VX_FILELIST || {
     // Folder privacy toggle state
     _privacyLoading: false,
 
+    // Full path breadcrumb cache
+    fullPath: null,
+    fullPathMrid: null,
+    _fullPathReqId: 0,
+
+    // Non-owner start root
+    startMrid: null,
+
     /**
      * Get translation text safely (prefers TL.tpl, falls back to app.languageData).
      */
@@ -120,6 +128,14 @@ var VX_FILELIST = VX_FILELIST || {
         // 获取 mrid 参数（mrid=0 代表桌面，不能用 || 兜底）
         const hasMridParam = (params && Object.prototype.hasOwnProperty.call(params, 'mrid'));
         const targetMrid = hasMridParam ? params.mrid : (this.getUrlMrid() || 0);
+
+        // 获取 start 参数（非属主路径根），未传时默认当前目录
+        const hasStartParam = (params && Object.prototype.hasOwnProperty.call(params, 'start'));
+        const urlStart = this.getUrlStart();
+        const targetStart = hasStartParam ? params.start : urlStart;
+        this.startMrid = (targetStart !== undefined && targetStart !== null && String(targetStart) !== '')
+            ? targetStart
+            : targetMrid;
         
         // 检查登录状态：访问桌面(mrid=0)需要登录，访问子文件夹允许未登录（公开文件夹）
         const isDesktopAccess = String(targetMrid) === '0' || targetMrid === 0;
@@ -600,6 +616,18 @@ var VX_FILELIST = VX_FILELIST || {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('mrid') || 0;
     },
+
+    /**
+     * 从 URL 获取 start
+     */
+    getUrlStart() {
+        if (typeof get_url_params === 'function') {
+            const params = get_url_params();
+            return params.start || '';
+        }
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('start') || '';
+    },
     
     /**
      * 设置视图模式
@@ -779,6 +807,10 @@ var VX_FILELIST = VX_FILELIST || {
             this.isOwner = rsp.data.owner === 1;
             this.isDesktop = (rsp.data.top == 99);
             this.subRooms = rsp.data.sub_rooms || [];
+
+            if (this.isOwner) {
+                this.startMrid = 0;
+            }
             
             // 特殊处理桌面
             if (this.mrid == 0 || this.mrid === '0') {
@@ -797,6 +829,9 @@ var VX_FILELIST = VX_FILELIST || {
             // 更新 UI
             this.updateRoomUI();
 
+            // 加载完整路径（用于面包屑）
+            this.loadFullPath();
+
             // 记录目录/相册浏览
             this.trackRoomView();
 
@@ -814,6 +849,77 @@ var VX_FILELIST = VX_FILELIST || {
             this.hideLoading();
             VXUI.toastError(this.t('vx_load_failed', '加载失败'));
             finalize();
+        });
+    },
+
+    /**
+     * 加载完整路径（面包屑）
+     */
+    loadFullPath() {
+        const currentMrid = this.mrid;
+        const isDesktop = String(currentMrid) === '0' || currentMrid === 0;
+
+        if (isDesktop) {
+            this.fullPath = [{ id: '0', name: this.getDesktopTitle() }];
+            this.fullPathMrid = String(currentMrid);
+            this.updateBreadcrumb();
+            return;
+        }
+
+        if (Array.isArray(this.fullPath) && this.fullPath.length > 0 && this.fullPathMrid) {
+            const idx = this.fullPath.findIndex(item => String(item && item.id) === String(currentMrid));
+            if (idx >= 0) {
+                this.fullPath = this.fullPath.slice(0, idx + 1);
+                this.fullPathMrid = String(currentMrid);
+                this.updateBreadcrumb();
+                return;
+            }
+        }
+
+        let token = this.getToken();
+        if (!token && typeof TL !== 'undefined' && TL.api_token) {
+            token = TL.api_token;
+        }
+
+        if (!token) {
+            this.fullPath = null;
+            this.fullPathMrid = null;
+            this.updateBreadcrumb();
+            return;
+        }
+
+        const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
+        let startMrid = currentMrid;
+
+        if (this.isOwner && isLoggedIn) {
+            startMrid = 0;
+        } else if (this.startMrid !== null && this.startMrid !== undefined && String(this.startMrid) !== '') {
+            startMrid = this.startMrid;
+        }
+
+        const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
+        const reqId = ++this._fullPathReqId;
+
+        $.post(apiUrl, {
+            action: 'get_full_path',
+            token: token,
+            start: String(startMrid),
+            current: String(currentMrid)
+        }, (rsp) => {
+            if (reqId !== this._fullPathReqId) return;
+            if (rsp && rsp.status === 1 && Array.isArray(rsp.data) && rsp.data.length > 0) {
+                this.fullPath = rsp.data;
+                this.fullPathMrid = String(currentMrid);
+            } else {
+                this.fullPath = null;
+                this.fullPathMrid = null;
+            }
+            this.updateBreadcrumb();
+        }, 'json').fail(() => {
+            if (reqId !== this._fullPathReqId) return;
+            this.fullPath = null;
+            this.fullPathMrid = null;
+            this.updateBreadcrumb();
         });
     },
 
@@ -864,7 +970,9 @@ var VX_FILELIST = VX_FILELIST || {
         const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
         // 不在桌面时显示返回按钮，但未登录且父文件夹是桌面时隐藏
         const hasParent = this.room && this.room.parent && String(this.room.parent) !== '0';
-        const showBack = this.mrid != 0 && (isLoggedIn || hasParent);
+        const hasStart = (this.startMrid !== null && this.startMrid !== undefined && String(this.startMrid) !== '');
+        const isAtStart = hasStart && String(this.mrid) === String(this.startMrid);
+        const showBack = this.mrid != 0 && (this.isOwner ? (isLoggedIn || hasParent) : !isAtStart);
         
         if (backBtn) {
             backBtn.style.display = showBack ? '' : 'none';
@@ -882,11 +990,6 @@ var VX_FILELIST = VX_FILELIST || {
         }
 
         // 更新移动端文件夹名称栏
-        const mobileFolderTitle = document.getElementById('vx-fl-mobile-folder-title');
-        if (mobileFolderTitle) {
-            mobileFolderTitle.textContent = title;
-        }
-
         // 确保移动端文件夹名称栏显示（仅移动端）
         this.setMobileFolderBarVisible(true);
         
@@ -1116,25 +1219,59 @@ var VX_FILELIST = VX_FILELIST || {
      */
     updateBreadcrumb() {
         const container = document.getElementById('vx-fl-breadcrumb');
+        const mobileContainer = document.getElementById('vx-fl-mobile-breadcrumb');
         if (!container) return;
 
         const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
         const desktopTitle = this.getDesktopTitle();
         let html = '';
-        
-        // 未登录时不显示桌面链接（桌面需要登录才能访问）
-        if (isLoggedIn) {
-            html = `<a href="javascript:;" onclick="VX_FILELIST.openFolder(0)">${this.escapeHtml(desktopTitle)}</a>`;
-        }
-        
-        if (this.mrid != 0 && this.room.name) {
-            if (html) {
-                html += '<span class="vx-breadcrumb-sep">›</span>';
+
+        if (Array.isArray(this.fullPath) && this.fullPath.length > 0 && String(this.fullPathMrid) === String(this.mrid)) {
+            const isOwner = !!this.isOwner && isLoggedIn;
+            const list = [...this.fullPath];
+            if (isOwner && list.length > 0 && String(list[0] && list[0].id) !== '0') {
+                list.unshift({ id: '0', name: desktopTitle });
             }
-            html += `<a href="javascript:;">${this.escapeHtml(this.room.name)}</a>`;
+            list.forEach((item, idx) => {
+                const isLast = idx === list.length - 1;
+                const id = (item && item.id !== undefined && item.id !== null) ? String(item.id) : '';
+                const name = (item && item.name) ? String(item.name) : (id === '0' ? desktopTitle : '');
+
+                if (!name && !id) return;
+
+                if (html) {
+                    html += '<span class="vx-breadcrumb-sep">›</span>';
+                }
+
+                if (!isLast) {
+                    // 未登录时避免展示桌面链接（桌面需登录）
+                    if (id === '0' && !isLoggedIn) {
+                        html += `<span>${this.escapeHtml(desktopTitle)}</span>`;
+                    } else {
+                        html += `<a href="javascript:;" onclick="VX_FILELIST.openFolder('${this.escapeHtml(id)}')">${this.escapeHtml(name)}</a>`;
+                    }
+                } else {
+                    html += `<span>${this.escapeHtml(name)}</span>`;
+                }
+            });
+        } else {
+            // 未登录时不显示桌面链接（桌面需要登录才能访问）
+            if (isLoggedIn) {
+                html = `<a href="javascript:;" onclick="VX_FILELIST.openFolder(0)">${this.escapeHtml(desktopTitle)}</a>`;
+            }
+
+            if (this.mrid != 0 && this.room.name) {
+                if (html) {
+                    html += '<span class="vx-breadcrumb-sep">›</span>';
+                }
+                html += `<a href="javascript:;">${this.escapeHtml(this.room.name)}</a>`;
+            }
         }
         
         container.innerHTML = html;
+        if (mobileContainer) {
+            mobileContainer.innerHTML = html;
+        }
     },
     
     /**
@@ -1879,7 +2016,13 @@ var VX_FILELIST = VX_FILELIST || {
      * 打开文件夹
      */
     openFolder(mrid) {
-        VXUI.navigate('filelist', { mrid: mrid, view: this.viewMode });
+        const params = { mrid: mrid, view: this.viewMode };
+        if (this.isOwner) {
+            params.start = 0;
+        } else if (this.startMrid !== null && this.startMrid !== undefined && String(this.startMrid) !== '') {
+            params.start = this.startMrid;
+        }
+        VXUI.navigate('filelist', params);
     },
     
     /**
@@ -1887,6 +2030,19 @@ var VX_FILELIST = VX_FILELIST || {
      */
     goToParent() {
         const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
+
+        if (!this.isOwner && this.startMrid !== null && this.startMrid !== undefined && String(this.startMrid) !== '') {
+            if (String(this.mrid) === String(this.startMrid)) {
+                VXUI.toastWarning(this.t('vx_no_permission', '无权限'));
+                return;
+            }
+            if (this.room && this.room.parent && String(this.room.parent) !== '0') {
+                this.openFolder(this.room.parent);
+                return;
+            }
+            this.openFolder(this.startMrid);
+            return;
+        }
         
         if (this.room && this.room.parent && String(this.room.parent) !== '0') {
             // 有父文件夹且不是桌面，直接返回父文件夹
