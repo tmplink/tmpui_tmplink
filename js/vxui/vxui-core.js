@@ -351,6 +351,25 @@ class VXUICore {
         this._languageReadyPromise = Promise.resolve();
         return this._languageReadyPromise;
     }
+
+    /**
+     * Remove sidebar skeleton and show actual content
+     */
+    removeSidebarSkeleton() {
+        const skeleton = document.getElementById('vx-sidebar-skeleton');
+        const staticNav = document.getElementById('vx-sidebar-static');
+        const bottomNav = document.getElementById('vx-sidebar-bottom-real');
+
+        if (skeleton) {
+            skeleton.style.display = 'none';
+        }
+        if (staticNav) {
+            staticNav.style.display = '';
+        }
+        if (bottomNav) {
+            bottomNav.style.display = '';
+        }
+    }
     
     /**
      * 初始化 VXUI
@@ -389,6 +408,9 @@ class VXUICore {
             if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
                 TL.tpl_lang();
             }
+
+            // Show sidebar after translation
+            this.removeSidebarSkeleton();
         });
         
         console.log('[VXUI] Core initialized');

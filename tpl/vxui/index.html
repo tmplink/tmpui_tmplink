@@ -14,8 +14,30 @@
             </div>
             
             <nav class="vx-sidebar-nav" id="vx-sidebar-nav">
+                <!-- Sidebar Skeleton (Preload) -->
+                <div id="vx-sidebar-skeleton">
+                    <div class="vx-nav-section">
+                        <div class="vx-nav-item" style="pointer-events: none; cursor: default;">
+                            <div class="vx-skeleton-bone" style="width: 20px; height: 20px; margin-right: 12px; border-radius: 4px;"></div>
+                            <div class="vx-skeleton-bone" style="width: 48px; height: 14px; border-radius: 4px;"></div>
+                        </div>
+                        <div class="vx-nav-item" style="pointer-events: none; cursor: default;">
+                            <div class="vx-skeleton-bone" style="width: 20px; height: 20px; margin-right: 12px; border-radius: 4px;"></div>
+                            <div class="vx-skeleton-bone" style="width: 32px; height: 14px; border-radius: 4px;"></div>
+                        </div>
+                        <div class="vx-nav-item" style="pointer-events: none; cursor: default;">
+                            <div class="vx-skeleton-bone" style="width: 20px; height: 20px; margin-right: 12px; border-radius: 4px;"></div>
+                            <div class="vx-skeleton-bone" style="width: 40px; height: 14px; border-radius: 4px;"></div>
+                        </div>
+                        <div class="vx-nav-item" style="pointer-events: none; cursor: default;">
+                            <div class="vx-skeleton-bone" style="width: 20px; height: 20px; margin-right: 12px; border-radius: 4px;"></div>
+                            <div class="vx-skeleton-bone" style="width: 36px; height: 14px; border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Static navigation - hidden when module has custom sidebar -->
-                <div class="vx-nav-static" id="vx-sidebar-static">
+                <div class="vx-nav-static" id="vx-sidebar-static" style="display: none;">
                     <div class="vx-nav-section">
                         <a href="javascript:;" class="vx-nav-item" data-module="filelist" onclick="VXUI.navigate('filelist')">
                             <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
@@ -51,7 +73,7 @@
             </nav>
             
             <!-- Persistent Bottom Menu -->
-            <div class="vx-sidebar-bottom-menu">
+            <div class="vx-sidebar-bottom-menu" id="vx-sidebar-bottom-real" style="display: none;">
                 <div class="vx-nav-section">
                     <a href="javascript:;" class="vx-nav-item" data-module="shop" data-auth="logged-in" onclick="VXUI.navigate('shop')">
                         <iconpark-icon name="bag-shopping"></iconpark-icon>
