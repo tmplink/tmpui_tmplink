@@ -17,9 +17,14 @@ function INIT_login() {
         }
 
         if (TL.isLogin()) {
-            // 已登录，跳转到 VXUI 页面
-            app.open('/vx');
-        }else{
+            // 已登录，根据用户偏好进入新版或经典版
+            const uiPreference = localStorage.getItem('tmplink_ui_preference');
+            if (uiPreference === 'classic') {
+                app.open('/app');
+            } else {
+                app.open('/vx');
+            }
+        } else {
             //初始化谷歌登陆按钮
             TL.oauth.google_login();
         }

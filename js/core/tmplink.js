@@ -2123,8 +2123,13 @@ class tmplink {
                                 location.href = return_page;
                                 localStorage.setItem('return_page', 0);
                             } else {
-                                // 跳转到新版 VXUI 后台
-                                app.open('/vx');
+                                // 根据用户偏好跳转到新版或经典版
+                                const uiPreference = localStorage.getItem('tmplink_ui_preference');
+                                if (uiPreference === 'classic') {
+                                    app.open('/app');
+                                } else {
+                                    app.open('/vx');
+                                }
                             }
                         });
                     } else {
