@@ -45,6 +45,25 @@
         </div>
     </div>
 
+    <!-- Folder Publish (Search Engine Indexing) -->
+    <div class="vx-nav-section" id="vx-fl-publish-section" style="display:none;">
+        <div class="vx-nav-title" data-tpl="modal_performance_publish">允许被搜索</div>
+        <div class="vx-sidebar-module-info">
+            <div style="display:flex; align-items:center; justify-content: space-between; gap: 12px;">
+                <div style="min-width:0;">
+                    <div class="vx-text-sm" id="vx-fl-publish-status" data-tpl="modal_performance_publish">允许被搜索</div>
+                    <div class="vx-text-muted" style="margin-top: 4px; font-size: var(--vx-text-xs);">
+                        <span id="vx-fl-publish-hint" i18n="modal_performance_publish_des" i18n-only="html">启用后，其他用户可以通过搜索引擎找到此目录内的文件。</span>
+                    </div>
+                </div>
+                <label class="vx-switch" style="flex-shrink:0;">
+                    <input type="checkbox" id="vx-fl-publish-toggle" onchange="VX_FILELIST.onFolderPublishToggleChange(this.checked)">
+                    <span class="vx-switch-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
     <!-- Direct Controls (folder share) -->
     <div class="vx-nav-section" id="vx-fl-direct-section" style="display:none;">
         <div class="vx-nav-title" data-tpl="nav_direct">直链</div>

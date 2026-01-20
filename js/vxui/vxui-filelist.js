@@ -50,6 +50,9 @@ var VX_FILELIST = VX_FILELIST || {
     // Folder privacy toggle state
     _privacyLoading: false,
 
+    // Folder publish toggle state
+    _publishLoading: false,
+
     // Full path breadcrumb cache
     fullPath: null,
     fullPathMrid: null,
@@ -170,6 +173,7 @@ var VX_FILELIST = VX_FILELIST || {
 
         // reset folder privacy state
         this._privacyLoading = false;
+        this._publishLoading = false;
         
         // 初始化上传模块（预加载服务器列表）
         if (typeof VX_UPLOADER !== 'undefined') {
@@ -232,6 +236,9 @@ var VX_FILELIST = VX_FILELIST || {
 
         // 同步文件夹公开/私有开关
         this.applyFolderPrivacyUI();
+
+        // 同步文件夹发布开关
+        this.applyFolderPublishUI();
         
         // 更新相册视图控制显示
         this.updateAlbumViewControls();
@@ -336,6 +343,67 @@ var VX_FILELIST = VX_FILELIST || {
             this._privacyLoading = false;
             this.applyFolderPrivacyUI();
         });
+    },
+
+    applyFolderPublishUI() {
+        const section = document.getElementById('vx-fl-publish-section');
+        const toggle = document.getElementById('vx-fl-publish-toggle');
+
+        // Show only if owner, not desktop, not root (0)
+        const show = !!this.isOwner && !this.isDesktop && this.mrid && String(this.mrid) !== '0';
+        if (section) section.style.display = show ? '' : 'none';
+        if (!show) return;
+
+        const isPublished = (this.room && this.room.publish === 'yes');
+
+        if (toggle) {
+            toggle.checked = isPublished;
+            toggle.disabled = !!this._publishLoading;
+        }
+    },
+
+    onFolderPublishToggleChange(checked) {
+         if (this._publishLoading) return;
+         
+         const token = this.getToken();
+         if (!token) {
+             VXUI.toastError(this.t('vx_not_logged_in', '未登录'));
+             this.applyFolderPublishUI();
+             return;
+         }
+
+         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
+         
+         // Preserve existing sort options if available, otherwise default to "Name" (1) and "Asc" (1)
+         const sort_by = (this.room && this.room.sort_by) !== undefined ? this.room.sort_by : 1;
+         const sort_type = (this.room && this.room.sort_type) !== undefined ? this.room.sort_type : 1;
+         const pf_publish = checked ? 'yes' : 'no';
+         
+         this._publishLoading = true;
+         this.applyFolderPublishUI();
+
+         $.post(apiUrl, {
+             action: 'pf_set',
+             token: token,
+             mr_id: this.mrid,
+             sort_by: sort_by,
+             sort_type: sort_type,
+             pf_publish: pf_publish
+         }, (rsp) => {
+             // Standard TMPLINK API response check
+             if (rsp && rsp.status === 1) {
+                  if (!this.room) this.room = {};
+                  this.room.publish = pf_publish;
+                  VXUI.toastSuccess(this.t('vx_update_success', '修改成功'));
+             } else {
+                  VXUI.toastError(this.t('vx_update_failed', '修改失败'));
+             }
+         }, 'json').fail(() => {
+             VXUI.toastError(this.t('vx_update_failed', '修改失败'));
+         }).always(() => {
+             this._publishLoading = false;
+             this.applyFolderPublishUI();
+         });
     },
 
     getDesktopTitle() {
@@ -837,6 +905,7 @@ var VX_FILELIST = VX_FILELIST || {
 
             // 更新侧边栏：公开/私有切换（基于最新 room/isOwner/isDesktop）
             this.applyFolderPrivacyUI();
+            this.applyFolderPublishUI();
 
             // 加载文件夹直链状态（仅非桌面/登录且 owner 时显示）
             this.loadDirectFolderState();
