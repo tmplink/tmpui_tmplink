@@ -105,10 +105,28 @@
                 <button class="vx-btn-icon vx-btn-back" id="vx-mobile-back" onclick="VX_FILELIST.goToParent()" style="display: none;">
                     <iconpark-icon name="arrow-circle-left"></iconpark-icon>
                 </button>
-                <span class="vx-mobile-title" id="vx-mobile-title" data-tpl="product_name">钛盘</span>
-                <button class="vx-btn-icon" onclick="VXUI.toggleDarkMode()">
-                    <iconpark-icon name="moon"></iconpark-icon>
-                </button>
+                <div class="vx-mobile-spacer"></div>
+                <div class="vx-btn-group vx-view-toggle vx-mobile-view-toggle" id="vx-mobile-view-toggle" style="display: none;">
+                    <button class="vx-btn-icon" id="vx-mobile-view-list" onclick="VX_FILELIST.setViewMode('list')" title="." i18n="vx_view_list" i18n-only="title">
+                        <iconpark-icon name="list"></iconpark-icon>
+                    </button>
+                    <button class="vx-btn-icon" id="vx-mobile-view-album" onclick="VX_FILELIST.setViewMode('album')" title="." i18n="vx_view_album" i18n-only="title">
+                        <iconpark-icon name="images"></iconpark-icon>
+                    </button>
+                </div>
+                <div class="vx-btn-group vx-action-toggle vx-mobile-action-toggle" id="vx-mobile-action-toggle" style="display: none;">
+                    <button class="vx-btn-icon vx-btn-icon-primary" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.upload()" title="." i18n="nav_upload" i18n-only="title">
+                        <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
+                    </button>
+                    <button class="vx-btn-icon" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.showCreateModal()" title="." i18n="model_title_folder_title" i18n-only="title">
+                        <iconpark-icon name="folder-plus"></iconpark-icon>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Folder Title Bar (Filelist) -->
+            <div class="vx-mobile-folder-bar" id="vx-fl-mobile-folder-bar" style="display: none;">
+                <div class="vx-mobile-folder-title" id="vx-fl-mobile-folder-title" data-tpl="navbar_meetingroom">桌面</div>
             </div>
             
             <!-- Module Container - Modules will be loaded here -->
@@ -147,15 +165,6 @@
                         </button>
                     </div>
                 </header>
-
-                <div class="vx-fab-group" data-owner="true">
-                    <button class="vx-fab">
-                        <iconpark-icon name="folder-plus"></iconpark-icon>
-                    </button>
-                    <button class="vx-fab vx-fab-primary">
-                        <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
-                    </button>
-                </div>
 
                 <!-- Content -->
                 <div class="vx-content vx-content-list" style="padding-top: 0;">

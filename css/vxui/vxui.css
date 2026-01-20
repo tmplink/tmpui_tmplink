@@ -981,6 +981,10 @@ body.vx-sidebar-open .vx-sidebar {
     flex-shrink: 0;
 }
 
+.vx-mobile-spacer {
+    flex: 1;
+}
+
 .vx-mobile-title {
     font-size: var(--vx-text-lg);
     font-weight: 600;
@@ -2408,6 +2412,8 @@ body.vx-modal-body-open {
     /* Mobile header: show back button */
     .vx-mobile-header .vx-btn-back {
         display: flex;
+        background: var(--vx-bg-secondary);
+        border-radius: var(--vx-radius-md);
     }
     
     /* Hide desktop header toolbar buttons on mobile */

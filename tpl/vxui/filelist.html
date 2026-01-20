@@ -128,16 +128,6 @@
     </div>
 </header>
 
-<!-- Mobile FAB buttons -->
-<div class="vx-fab-group" data-owner="true">
-    <button class="vx-fab" onclick="VX_FILELIST.showCreateModal()" title="." i18n="model_title_folder_title" i18n-only="title">
-        <iconpark-icon name="folder-plus"></iconpark-icon>
-    </button>
-    <button class="vx-fab vx-fab-primary" onclick="VX_FILELIST.upload()" title="." i18n="nav_upload" i18n-only="title">
-        <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
-    </button>
-</div>
-
 <!-- Content -->
 <div class="vx-content vx-content-list">
     <!-- Loading State (Skeleton) -->
@@ -639,6 +629,80 @@
     color: white;
 }
 
+/* Action Buttons Group (Upload/Create) */
+.vx-action-toggle {
+    display: flex;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    padding: 2px;
+    margin-right: 8px;
+}
+
+.vx-action-toggle .vx-btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--vx-radius-sm);
+}
+
+@media (max-width: 768px) {
+    .vx-mobile-header {
+        padding: 14px 16px;
+        gap: 10px;
+    }
+
+    .vx-mobile-header .vx-btn-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .vx-mobile-title {
+        font-size: var(--vx-text-lg);
+    }
+
+    .vx-mobile-view-toggle {
+        margin-left: 4px;
+        padding: 2px;
+    }
+
+    .vx-mobile-view-toggle .vx-btn-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .vx-mobile-action-toggle {
+        margin-left: 4px;
+        padding: 2px;
+    }
+
+    .vx-mobile-action-toggle .vx-btn-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .vx-btn-icon-primary {
+        background: var(--vx-primary);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(30, 92, 246, 0.25);
+    }
+
+    .vx-btn-icon-primary iconpark-icon {
+        color: #fff;
+    }
+
+    .vx-mobile-folder-bar {
+        display: flex;
+    }
+
+    /* Upload modal: simplify instructions on mobile */
+    .vx-upload-dropzone-text {
+        display: none;
+    }
+
+    .vx-upload-dropzone-actions .vx-btn-secondary {
+        display: none;
+    }
+}
+
 .vx-album-controls {
     display: flex;
     background: var(--vx-bg-secondary);
@@ -663,6 +727,25 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+/* Mobile Folder Title Bar */
+.vx-mobile-folder-bar {
+    display: none;
+    align-items: center;
+    padding: 10px 16px 8px;
+    background: var(--vx-header-bg);
+    border-bottom: 1px solid var(--vx-border);
+}
+
+.vx-mobile-folder-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vx-text);
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Album Container */

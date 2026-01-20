@@ -219,6 +219,15 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 更新相册视图控制显示
         this.updateAlbumViewControls();
+
+        // 显示移动端视图切换按钮
+        this.setMobileViewToggleVisible(true);
+
+        // 显示移动端操作按钮（上传/新建）
+        this.setMobileActionToggleVisible(true);
+
+        // 显示移动端文件夹名称栏
+        this.setMobileFolderBarVisible(true);
     },
 
     applyFolderPrivacyUI() {
@@ -339,6 +348,12 @@ var VX_FILELIST = VX_FILELIST || {
         
         if (listBtn) listBtn.classList.toggle('active', this.viewMode === 'list');
         if (albumBtn) albumBtn.classList.toggle('active', this.viewMode === 'album');
+
+        // 移动端视图切换按钮状态
+        const mobileListBtn = document.getElementById('vx-mobile-view-list');
+        const mobileAlbumBtn = document.getElementById('vx-mobile-view-album');
+        if (mobileListBtn) mobileListBtn.classList.toggle('active', this.viewMode === 'list');
+        if (mobileAlbumBtn) mobileAlbumBtn.classList.toggle('active', this.viewMode === 'album');
         
         // 更新网格大小按钮状态
         const normalBtn = document.getElementById('view-normal');
@@ -354,6 +369,15 @@ var VX_FILELIST = VX_FILELIST || {
         this.unbindEvents();
         this.hideContextMenu();
         this.closeLightbox();
+
+        // 隐藏移动端视图切换按钮
+        this.setMobileViewToggleVisible(false);
+
+        // 隐藏移动端操作按钮（上传/新建）
+        this.setMobileActionToggleVisible(false);
+
+        // 隐藏移动端文件夹名称栏
+        this.setMobileFolderBarVisible(false);
         
         // 恢复静态导航
         const staticNav = document.getElementById('vx-sidebar-static');
@@ -365,6 +389,39 @@ var VX_FILELIST = VX_FILELIST || {
         if (container) {
             container.innerHTML = '';
         }
+    },
+
+    /**
+     * 移动端顶部视图切换按钮显示/隐藏
+     */
+    setMobileViewToggleVisible(show) {
+        const toggle = document.getElementById('vx-mobile-view-toggle');
+        if (!toggle) return;
+        toggle.style.display = show ? 'flex' : 'none';
+    },
+
+    /**
+     * 移动端顶部操作按钮显示/隐藏
+     */
+    setMobileActionToggleVisible(show) {
+        const toggle = document.getElementById('vx-mobile-action-toggle');
+        if (toggle) {
+            toggle.style.display = show ? 'flex' : 'none';
+        }
+    },
+
+    /**
+     * 移动端文件夹名称栏显示/隐藏
+     */
+    setMobileFolderBarVisible(show) {
+        const bar = document.getElementById('vx-fl-mobile-folder-bar');
+        if (!bar) return;
+        if (typeof window !== 'undefined' && window.matchMedia) {
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            bar.style.display = (show && isMobile) ? 'flex' : 'none';
+            return;
+        }
+        bar.style.display = show ? 'flex' : 'none';
     },
     
     /**
@@ -818,11 +875,20 @@ var VX_FILELIST = VX_FILELIST || {
             mobileBackBtn.style.display = showBack ? '' : 'none';
         }
         
-        // 更新移动端标题
+        // 更新移动端顶部标题（保持为产品名）
         const mobileTitle = document.getElementById('vx-mobile-title');
         if (mobileTitle) {
-            mobileTitle.textContent = title;
+            mobileTitle.textContent = this.t('product_name', '钛盘');
         }
+
+        // 更新移动端文件夹名称栏
+        const mobileFolderTitle = document.getElementById('vx-fl-mobile-folder-title');
+        if (mobileFolderTitle) {
+            mobileFolderTitle.textContent = title;
+        }
+
+        // 确保移动端文件夹名称栏显示（仅移动端）
+        this.setMobileFolderBarVisible(true);
         
         // 更新分享按钮显示（桌面隐藏）
         const shareBtn = document.getElementById('vx-fl-share-btn');
