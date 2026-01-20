@@ -59,7 +59,8 @@ var PHOTO = {
         try {
             if (typeof TL === 'undefined' || !TL || typeof TL.ga !== 'function') return;
             const mode = this.isWorkspaceMode && this.isWorkspaceMode() ? 'Workspace' : 'Folder';
-            TL.ga(`Photo_Album_${action}_${mode}`);
+            const mrid = (this.mrid !== null && this.mrid !== undefined && this.mrid !== '') ? this.mrid : '0';
+            TL.ga(`Photo_Album_${action}_${mode}[${mrid}]`);
         } catch (e) {
             // No-op: analytics should never break UI
         }
