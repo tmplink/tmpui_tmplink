@@ -699,8 +699,9 @@ body.vx-sidebar-open .vx-sidebar {
     flex-direction: column;
     z-index: var(--vx-z-fixed);
     transition: var(--vx-transition-slow);
-    /* Allow menus (e.g., language dropdown) to overflow outside sidebar */
-    overflow: visible;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Language switcher: inline expandable style */
@@ -792,8 +793,8 @@ body.vx-sidebar-open .vx-sidebar {
 }
 
 .vx-sidebar-nav {
-    flex: 1;
-    overflow-y: auto;
+    flex: 0 0 auto;
+    overflow: visible;
     padding: 12px 0;
     display: flex;
     flex-direction: column;
