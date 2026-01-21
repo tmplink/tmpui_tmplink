@@ -1620,9 +1620,11 @@ var VX_FILELIST = VX_FILELIST || {
         this.photoList.forEach((photo, index) => {
             const name = photo.fname || '未命名';
             const fid = photo.ukey;
-            const thumbnail = this.buildImageUrl(photo, 'thumb', '800x600');
             const size = photo.fsize_formated || this.formatSize(photo.fsize || 0);
             const isSyncing = photo.sync === 1 || photo.sync === '1';
+            
+            // 同步中的图片使用占位图，同步完成后再加载真实图片
+            const thumbnail = isSyncing ? '/img/loading.svg' : this.buildImageUrl(photo, 'thumb', '800x600');
             
             let html = template
                 .replace(/{index}/g, index)
@@ -1633,11 +1635,16 @@ var VX_FILELIST = VX_FILELIST || {
             
             container.insertAdjacentHTML('beforeend', html);
             
-            // 如果正在同步，添加同步中遮罩
-            if (isSyncing) {
-                const card = container.querySelector(`.photo-card[data-index="${index}"]`);
-                if (card) {
-                    card.dataset.ukey = fid;
+            // 获取刚添加的卡片
+            const card = container.querySelector(`.photo-card[data-index="${index}"]`);
+            if (card) {
+                card.dataset.ukey = fid;
+                
+                // 如果正在同步，添加同步中遮罩并保持 loading 状态
+                if (isSyncing) {
+                    // 保存真实的图片 URL 供同步完成后使用
+                    card.dataset.realThumbnail = this.buildImageUrl(photo, 'thumb', '800x600');
+                    
                     const overlay = document.createElement('div');
                     overlay.className = 'vx-photo-sync-overlay';
                     overlay.innerHTML = `
@@ -1645,8 +1652,8 @@ var VX_FILELIST = VX_FILELIST || {
                         <span class="vx-sync-text">${syncText}</span>
                     `;
                     card.appendChild(overlay);
+                    this.startSyncCheck(fid);
                 }
-                this.startSyncCheck(fid);
             }
         });
     },
@@ -2005,9 +2012,35 @@ var VX_FILELIST = VX_FILELIST || {
         // 更新相册视图 UI（如果在相册模式下）
         const albumCard = document.querySelector(`.photo-card[data-ukey="${ukey}"]`);
         if (albumCard) {
+            // 移除同步遮罩
             const syncOverlay = albumCard.querySelector('.vx-photo-sync-overlay');
             if (syncOverlay) {
                 syncOverlay.remove();
+            }
+            
+            // 加载真实的图片
+            const realThumbnail = albumCard.dataset.realThumbnail;
+            if (realThumbnail) {
+                const img = albumCard.querySelector('.photo-card-image');
+                if (img) {
+                    // 显示加载中状态
+                    albumCard.classList.remove('is-loaded');
+                    
+                    // 设置真实图片 URL
+                    img.src = realThumbnail;
+                    
+                    // 图片加载完成后标记
+                    const markLoaded = () => albumCard.classList.add('is-loaded');
+                    img.addEventListener('load', markLoaded, { once: true });
+                    img.addEventListener('error', markLoaded, { once: true });
+                    
+                    if (img.complete) {
+                        markLoaded();
+                    }
+                }
+                
+                // 清除临时数据
+                delete albumCard.dataset.realThumbnail;
             }
         }
     },
