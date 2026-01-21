@@ -346,6 +346,9 @@ class tmplink_api {
                 }
 
                 this.isSponsor = !!this.sponsor;
+                if (this.isSponsor && document.body) {
+                    document.body.classList.add('sponsor-mode');
+                }
             }
 
             if (typeof cb === 'function') cb();

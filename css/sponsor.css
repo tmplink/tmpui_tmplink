@@ -1,0 +1,388 @@
+/* Sponsor/VIP visual accents - applied via body.sponsor-mode */
+body.sponsor-mode {
+    --sponsor-gold: #f5c542;
+    --sponsor-gold-strong: #f59e0b;
+    --sponsor-gold-soft: rgba(245, 197, 66, 0.18);
+    --sponsor-glow: rgba(245, 158, 11, 0.25);
+    --sponsor-border: rgba(245, 158, 11, 0.35);
+    --sponsor-text: #7c4a00;
+    --sponsor-gradient: linear-gradient(135deg, #f8d36a 0%, #f5b94a 45%, #f59e0b 100%);
+}
+
+body.dark-mode.sponsor-mode,
+html.vx-dark body.sponsor-mode {
+    --sponsor-gold: #f9d67a;
+    --sponsor-gold-strong: #fbbf24;
+    --sponsor-gold-soft: rgba(251, 191, 36, 0.18);
+    --sponsor-glow: rgba(251, 191, 36, 0.3);
+    --sponsor-border: rgba(251, 191, 36, 0.45);
+    --sponsor-text: #fef3c7;
+    --sponsor-gradient: linear-gradient(135deg, #fde68a 0%, #fbbf24 55%, #f59e0b 100%);
+}
+
+/* Subtle header accent (VXUI) */
+body.sponsor-mode .vx-header {
+    position: relative;
+}
+
+body.sponsor-mode .vx-header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--sponsor-gradient);
+    opacity: 0.85;
+    pointer-events: none;
+}
+
+body.sponsor-mode .vx-header .vx-btn-ghost,
+body.sponsor-mode .vx-header .vx-btn-outline {
+    border-color: var(--sponsor-border);
+    box-shadow: 0 6px 16px -8px var(--sponsor-glow);
+}
+
+/* Buttons color tuning (keep shape/layout) */
+body.sponsor-mode .vx-btn-primary {
+    background: var(--sponsor-gradient);
+    border-color: var(--sponsor-gold-strong);
+    color: var(--sponsor-text);
+}
+
+body.sponsor-mode .vx-btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #fbe08e 0%, #f7c55c 55%, #f59e0b 100%);
+    border-color: var(--sponsor-gold-strong);
+}
+
+body.sponsor-mode .vx-btn-secondary {
+    background: rgba(245, 197, 66, 0.08);
+    border-color: var(--sponsor-border);
+    color: var(--sponsor-text);
+}
+
+body.sponsor-mode .vx-btn-secondary:hover:not(:disabled) {
+    background: rgba(245, 197, 66, 0.14);
+    border-color: var(--sponsor-gold-strong);
+}
+
+body.sponsor-mode .vx-btn-ghost {
+    color: var(--sponsor-text);
+}
+
+body.sponsor-mode .vx-btn-ghost:hover:not(:disabled),
+body.sponsor-mode .vx-btn-icon:hover {
+    background: var(--sponsor-gold-soft);
+    color: var(--sponsor-gold-strong);
+}
+
+/* Sponsor badge enhancement */
+body.sponsor-mode .vx-badge-sponsor,
+body.sponsor-mode .publisher-badge {
+    background: var(--sponsor-gradient);
+    color: var(--sponsor-text);
+    box-shadow: 0 8px 18px -10px var(--sponsor-glow);
+}
+
+/* Sponsor name + icon glow */
+body.sponsor-mode .userinfo_card_nickname.is-pro,
+body.sponsor-mode .publisher-name .userinfo_pro,
+body.sponsor-mode .publisher-name .userinfo_card_pro,
+body.sponsor-mode .userinfo_pro,
+body.sponsor-mode .userinfo_card_pro {
+    color: var(--sponsor-gold-strong) !important;
+    text-shadow: 0 1px 6px var(--sponsor-glow);
+}
+
+/* User info card VIP stamp */
+body.sponsor-mode .user-info-card {
+    border: 1px solid var(--sponsor-border);
+    box-shadow: 0 12px 30px -18px var(--sponsor-glow);
+}
+
+body.sponsor-mode .user-info-card::after {
+    content: "VIP";
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: var(--sponsor-text);
+    background: var(--sponsor-gradient);
+    border-radius: 999px;
+    box-shadow: 0 6px 14px -8px var(--sponsor-glow);
+}
+
+/* Publisher card emphasis on file pages */
+body.sponsor-mode .file-publisher {
+    border-color: var(--sponsor-border);
+    background: linear-gradient(135deg, rgba(245, 197, 66, 0.18) 0%, rgba(245, 158, 11, 0.12) 100%);
+    box-shadow: 0 8px 24px -16px var(--sponsor-glow);
+}
+
+body.sponsor-mode .file-publisher:hover {
+    border-color: var(--sponsor-gold-strong);
+    background: linear-gradient(135deg, rgba(245, 197, 66, 0.28) 0%, rgba(245, 158, 11, 0.2) 100%);
+}
+
+/* File list selection accent (VXUI) */
+body.sponsor-mode .vx-list-row.selected {
+    box-shadow: inset 2px 0 0 var(--sponsor-gold-strong);
+}
+
+/* List header + hover accents */
+body.sponsor-mode .vx-list-header {
+    background: linear-gradient(180deg, rgba(245, 197, 66, 0.08) 0%, rgba(245, 158, 11, 0.02) 100%);
+    border-bottom-color: var(--sponsor-border);
+}
+
+body.sponsor-mode .vx-list-row:hover {
+    background: rgba(245, 197, 66, 0.08);
+}
+
+/* Subtle page surface glow for sponsor */
+body.sponsor-mode .vx-content,
+body.sponsor-mode .vx-list-container,
+body.sponsor-mode .vx-album-container {
+    background-image: radial-gradient(600px circle at 20% -10%, rgba(245, 197, 66, 0.08), transparent 60%);
+}
+
+/* Dark mode adjustments */
+body.dark-mode.sponsor-mode .vx-list-row:hover,
+html.vx-dark body.sponsor-mode .vx-list-row:hover {
+    background: rgba(251, 191, 36, 0.12);
+}
+
+body.dark-mode.sponsor-mode .vx-list-header,
+html.vx-dark body.sponsor-mode .vx-list-header {
+    background: linear-gradient(180deg, rgba(251, 191, 36, 0.12) 0%, rgba(245, 158, 11, 0.04) 100%);
+    border-bottom-color: var(--sponsor-border);
+}
+
+/* Sidebar/nav hover colors */
+body.sponsor-mode .vx-nav-item:hover,
+body.sponsor-mode .vx-lang-option:hover {
+    background: var(--sponsor-gold-soft);
+    color: var(--sponsor-gold-strong);
+}
+
+body.sponsor-mode .vx-nav-item.active {
+    background: rgba(245, 197, 66, 0.2);
+    color: var(--sponsor-gold-strong);
+}
+
+/* Language Switcher Special Handling - Seamless Unified Look */
+body.sponsor-mode .vx-lang-switcher.open {
+    background: var(--sponsor-gold-soft);
+    border-radius: var(--vx-radius);
+    box-shadow: 0 4px 12px -4px var(--sponsor-glow);
+}
+
+body.sponsor-mode .vx-lang-switcher.open .vx-nav-item {
+    background: transparent;
+    color: var(--sponsor-text);
+    border-radius: 0;
+}
+
+body.sponsor-mode .vx-lang-switcher.open .vx-nav-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--sponsor-text);
+}
+
+body.sponsor-mode .vx-lang-options {
+    background: transparent;
+    margin: 0;
+    padding: 0 0 4px 0;
+    border: none;
+    border-radius: 0;
+}
+
+body.sponsor-mode .vx-lang-option {
+    margin: 0;
+    color: var(--sponsor-text);
+    border-radius: 0;
+}
+
+body.sponsor-mode .vx-lang-option:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--sponsor-text);
+}
+
+body.sponsor-mode .vx-lang-option:last-child {
+    border-radius: 0 0 var(--vx-radius) var(--vx-radius);
+}
+
+/* Dark mode adjustments */
+body.dark-mode.sponsor-mode .vx-nav-item.active,
+html.vx-dark body.sponsor-mode .vx-nav-item.active {
+    background: rgba(251, 191, 36, 0.22);
+}
+
+body.dark-mode.sponsor-mode .vx-lang-switcher.open,
+html.vx-dark body.sponsor-mode .vx-lang-switcher.open {
+    background: rgba(251, 191, 36, 0.18);
+}
+
+body.dark-mode.sponsor-mode .vx-lang-switcher.open .vx-nav-item,
+html.vx-dark body.sponsor-mode .vx-lang-switcher.open .vx-nav-item {
+    background: transparent;
+    color: var(--sponsor-text);
+}
+
+body.dark-mode.sponsor-mode .vx-lang-options,
+html.vx-dark body.sponsor-mode .vx-lang-options {
+    background: transparent;
+}
+
+body.dark-mode.sponsor-mode .vx-lang-switcher.open .vx-nav-item:hover,
+html.vx-dark body.sponsor-mode .vx-lang-switcher.open .vx-nav-item:hover,
+body.dark-mode.sponsor-mode .vx-lang-option:hover,
+html.vx-dark body.sponsor-mode .vx-lang-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Profile Header - Golden VIP Theme */
+body.sponsor-mode .vx-profile-header {
+    background: linear-gradient(135deg, #f5c542 0%, #f59e0b 100%);
+    color: #5d4037 !important;
+}
+
+body.sponsor-mode .vx-profile-header .vx-profile-intro {
+    color: rgba(93, 64, 55, 0.85);
+}
+
+body.sponsor-mode .vx-profile-header .vx-badge-rank {
+    background: rgba(255, 255, 255, 0.3);
+    color: #5d4037;
+}
+
+body.sponsor-mode .vx-profile-header .vx-profile-avatar img {
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 12px rgba(93, 64, 55, 0.15);
+}
+
+/* Edit Mode Inputs & Buttons inside the Golden Header */
+body.sponsor-mode .vx-profile-edit .vx-input {
+    background: rgba(255, 255, 255, 0.4);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #5d4037;
+}
+
+body.sponsor-mode .vx-profile-edit .vx-input:focus {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: #fff;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+body.sponsor-mode .vx-profile-edit .vx-btn-ghost {
+    color: #5d4037;
+    border-color: rgba(93, 64, 55, 0.2);
+}
+
+body.sponsor-mode .vx-profile-edit .vx-btn-ghost:hover {
+    background: rgba(93, 64, 55, 0.08);
+}
+
+body.sponsor-mode .vx-profile-edit .vx-btn-primary {
+    background: #5d4037;
+    border-color: #5d4037;
+    color: #f5c542;
+    box-shadow: 0 4px 12px rgba(93, 64, 55, 0.3);
+}
+
+body.sponsor-mode .vx-profile-edit .vx-btn-primary:hover {
+    background: #462f28;
+    border-color: #462f28;
+    transform: translateY(-1px);
+}
+
+/* Edit Profile Button in Header */
+body.sponsor-mode .vx-profile-edit-btn.vx-btn {
+    background: rgba(255, 255, 255, 0.5); /* Boost contrast */
+    border-color: rgba(255, 255, 255, 0.7);
+    color: #4a322b; /* Darker text */
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(93, 64, 55, 0.1);
+    font-weight: 600;
+}
+
+body.sponsor-mode .vx-profile-edit-btn.vx-btn:hover {
+    background: rgba(255, 255, 255, 0.85);
+    color: #2c1e19;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(93, 64, 55, 0.2);
+}
+
+/* Dark Mode - Edit Inputs */
+body.dark-mode.sponsor-mode .vx-profile-edit .vx-input,
+html.vx-dark body.sponsor-mode .vx-profile-edit .vx-input {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #fef3c7;
+}
+
+body.dark-mode.sponsor-mode .vx-profile-edit .vx-input:focus,
+html.vx-dark body.sponsor-mode .vx-profile-edit .vx-input:focus {
+    background: rgba(0, 0, 0, 0.5);
+    border-color: #f59e0b;
+}
+
+body.dark-mode.sponsor-mode .vx-profile-edit .vx-btn-ghost,
+html.vx-dark body.sponsor-mode .vx-profile-edit .vx-btn-ghost {
+    color: #fef3c7;
+    border-color: rgba(254, 243, 199, 0.2);
+}
+
+body.dark-mode.sponsor-mode .vx-profile-edit .vx-btn-ghost:hover,
+html.vx-dark body.sponsor-mode .vx-profile-edit .vx-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode.sponsor-mode .vx-profile-edit .vx-btn-primary,
+html.vx-dark body.sponsor-mode .vx-profile-edit .vx-btn-primary {
+    background: #fef3c7;
+    color: #78350f;
+    border-color: #fef3c7;
+}
+
+body.dark-mode.sponsor-mode .vx-profile-edit .vx-btn-primary:hover,
+html.vx-dark body.sponsor-mode .vx-profile-edit .vx-btn-primary:hover {
+    background: #fff;
+}
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-1px);
+}
+
+/* Dark Mode - Profile Header */
+body.dark-mode.sponsor-mode .vx-profile-header,
+html.vx-dark body.sponsor-mode .vx-profile-header {
+    background: linear-gradient(135deg, #b45309 0%, #78350f 100%);
+    color: #fef3c7 !important;
+}
+
+body.dark-mode.sponsor-mode .vx-profile-header .vx-profile-intro,
+html.vx-dark body.sponsor-mode .vx-profile-header .vx-profile-intro {
+    color: rgba(254, 243, 199, 0.8);
+}
+
+body.dark-mode.sponsor-mode .vx-profile-header .vx-badge-rank,
+html.vx-dark body.sponsor-mode .vx-profile-header .vx-badge-rank {
+    background: rgba(0, 0, 0, 0.2);
+    color: #fef3c7;
+}
+
+body.dark-mode.sponsor-mode .vx-profile-edit-btn.vx-btn,
+html.vx-dark body.sponsor-mode .vx-profile-edit-btn.vx-btn {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #fef3c7;
+}
+
+body.dark-mode.sponsor-mode .vx-profile-edit-btn.vx-btn:hover,
+html.vx-dark body.sponsor-mode .vx-profile-edit-btn.vx-btn:hover {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
