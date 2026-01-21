@@ -249,17 +249,11 @@ class dynamic {
     }
 
     tos() {
-        TL.ga('Terms of Service');
-        $('#home_view').html(app.getFile('/tpl/listview/tos.html'));
-        app.dynOpen('/app&listview=tos');
-        INIT_tos();
+        window.location.href = '/tos.html';
     }
 
     privacy() {
-        TL.ga('Privacy Policy');
-        $('#home_view').html(app.getFile('/tpl/listview/privacy.html'));
-        app.dynOpen('/app&listview=privacy');
-        INIT_privacy();
+        window.location.href = '/privacy.html';
     }
 
     ai() {

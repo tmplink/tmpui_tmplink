@@ -303,6 +303,9 @@ class tmplink {
         $('.btn-upload').removeClass('btn-primary');
         $('.btn-upload').addClass('btn-red');
         $('.not-vip').hide();
+        if (document.body) {
+            document.body.classList.add('sponsor-mode');
+        }
     }
 
     setArea(cb) {
