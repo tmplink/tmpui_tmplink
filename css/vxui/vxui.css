@@ -539,6 +539,62 @@ body.vx-active #tmpui_body {
     }
 }
 
+/* ==================== File Sync Status Styles ==================== */
+.vx-file-sync {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.vx-sync-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--vx-text-secondary);
+    font-size: var(--vx-text-sm);
+}
+
+.vx-sync-spinner {
+    width: 18px;
+    height: 18px;
+}
+
+.vx-sync-text {
+    white-space: nowrap;
+}
+
+/* Photo album sync overlay */
+.vx-photo-sync-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #fff;
+    font-size: var(--vx-text-sm);
+    border-radius: var(--vx-radius);
+    z-index: 5;
+}
+
+.vx-photo-sync-overlay .vx-sync-spinner {
+    width: 32px;
+    height: 32px;
+    filter: brightness(0) invert(1);
+}
+
+/* 上传进度条旋转动画 */
+@keyframes vx-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 .vx-list-action-btn {
     width: 32px;
     height: 32px;

@@ -61,6 +61,9 @@ var VX_FILELIST = VX_FILELIST || {
     // Non-owner start root
     startMrid: null,
 
+    // 文件同步状态检查器
+    _syncCheckTimers: {},
+
     /**
      * Get translation text safely (prefers TL.tpl, falls back to app.languageData).
      */
@@ -174,6 +177,9 @@ var VX_FILELIST = VX_FILELIST || {
         // reset folder privacy state
         this._privacyLoading = false;
         this._publishLoading = false;
+        
+        // 停止之前的同步检查
+        this.stopAllSyncChecks();
         
         // 初始化上传模块（预加载服务器列表）
         if (typeof VX_UPLOADER !== 'undefined') {
@@ -1527,6 +1533,9 @@ var VX_FILELIST = VX_FILELIST || {
         if (typeof app !== 'undefined' && typeof app.linkRebind === 'function') {
             app.linkRebind();
         }
+        
+        // 启动同步中文件的状态检查
+        this.checkAllSyncingFiles();
     },
     
     /**
@@ -1606,14 +1615,16 @@ var VX_FILELIST = VX_FILELIST || {
         if (!tpl) return;
         
         const template = tpl.innerHTML;
+        const syncText = this.t('upload_sync_onprogress', '同步中...');
         
         this.photoList.forEach((photo, index) => {
             const name = photo.fname || '未命名';
             const fid = photo.ukey;
             const thumbnail = this.buildImageUrl(photo, 'thumb', '800x600');
             const size = photo.fsize_formated || this.formatSize(photo.fsize || 0);
+            const isSyncing = photo.sync === 1 || photo.sync === '1';
             
-            const html = template
+            let html = template
                 .replace(/{index}/g, index)
                 .replace(/{fid}/g, fid)
                 .replace(/{thumbnail}/g, thumbnail)
@@ -1621,6 +1632,22 @@ var VX_FILELIST = VX_FILELIST || {
                 .replace(/{size}/g, size);
             
             container.insertAdjacentHTML('beforeend', html);
+            
+            // 如果正在同步，添加同步中遮罩
+            if (isSyncing) {
+                const card = container.querySelector(`.photo-card[data-index="${index}"]`);
+                if (card) {
+                    card.dataset.ukey = fid;
+                    const overlay = document.createElement('div');
+                    overlay.className = 'vx-photo-sync-overlay';
+                    overlay.innerHTML = `
+                        <img src="/img/loading-outline.svg" class="vx-sync-spinner" alt="syncing" />
+                        <span class="vx-sync-text">${syncText}</span>
+                    `;
+                    card.appendChild(overlay);
+                }
+                this.startSyncCheck(fid);
+            }
         });
     },
     
@@ -1784,8 +1811,14 @@ var VX_FILELIST = VX_FILELIST || {
         const lefttimeId = `lefttime_${file.ukey}`;
         const isPermanent = Number(file.model) === 99;
         
+        // 判断文件是否正在同步中
+        const isSyncing = file.sync === 1 || file.sync === '1';
+        
         // 移动端未登录时不显示多选框
         const showCheckbox = this.canUseSelectMode();
+        
+        // 同步状态文字
+        const syncText = this.t('upload_sync_onprogress', '同步中...');
         
         row.innerHTML = `
             ${showCheckbox ? '<div class="vx-list-checkbox" onclick="event.stopPropagation(); VX_FILELIST.toggleItemSelect(this.parentNode)"></div>' : ''}
@@ -1811,7 +1844,8 @@ var VX_FILELIST = VX_FILELIST || {
             <div class="vx-list-date vx-hide-mobile">
                 ${file.ctime || '--'}
             </div>
-            <div class="vx-list-actions">
+            <!-- 正常状态的操作按钮 -->
+            <div class="vx-list-actions vx-file-ok" data-ukey="${file.ukey}" style="${isSyncing ? 'display: none !important;' : ''}">
                 <button class="vx-list-action-btn" data-role="download-btn" data-ukey="${file.ukey}" onclick="event.stopPropagation(); VX_FILELIST.downloadFile('${file.ukey}')" title="下载">
                     <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
                 </button>
@@ -1829,7 +1863,24 @@ var VX_FILELIST = VX_FILELIST || {
                     </button>
                 ` : ''}
             </div>
+            <!-- 同步中状态的操作按钮 -->
+            <div class="vx-list-actions vx-file-sync" data-ukey="${file.ukey}" style="${isSyncing ? '' : 'display: none !important;'}">
+                <span class="vx-sync-status">
+                    <img src="/img/loading-outline.svg" class="vx-sync-spinner" alt="syncing" />
+                    <span class="vx-sync-text">${syncText}</span>
+                </span>
+                ${this.isOwner ? `
+                    <button type="button" class="vx-list-action-btn vx-more-btn" onclick="event.stopPropagation(); VX_FILELIST.openMoreMenu(event, this.closest('.vx-list-row'))" title="更多">
+                        <iconpark-icon name="ellipsis"></iconpark-icon>
+                    </button>
+                ` : ''}
+            </div>
         `;
+        
+        // 如果文件正在同步，启动轮询检查
+        if (isSyncing) {
+            this.startSyncCheck(file.ukey);
+        }
         
         return row;
     },
@@ -1874,6 +1925,114 @@ var VX_FILELIST = VX_FILELIST || {
         else if (['file-word', 'file-excel', 'file-powerpoint', 'file-pdf'].includes(icon)) cls = 'vx-icon-document';
 
         return { icon, class: cls };
+    },
+
+    // ==================== 文件同步状态检查 ====================
+    
+    /**
+     * 启动文件同步状态检查
+     * @param {string} ukey - 文件唯一标识
+     */
+    startSyncCheck(ukey) {
+        // 如果已经有定时器在检查这个文件，不重复创建
+        if (this._syncCheckTimers[ukey]) {
+            return;
+        }
+        
+        this._syncCheckTimers[ukey] = setTimeout(() => {
+            this.checkFileSync(ukey);
+        }, 5000);
+    },
+    
+    /**
+     * 检查文件同步状态
+     * @param {string} ukey - 文件唯一标识
+     */
+    checkFileSync(ukey) {
+        const token = this.getToken();
+        if (!token) {
+            delete this._syncCheckTimers[ukey];
+            return;
+        }
+        
+        const apiUrl = (typeof TL !== 'undefined' && TL.api_file) ? TL.api_file : '/api_v2/file';
+        
+        $.post(apiUrl, {
+            action: 'is_file_ok',
+            token: token,
+            ukey: ukey
+        }, (rsp) => {
+            if (rsp.status === 1) {
+                // 文件同步完成，更新 UI
+                this.onFileSyncComplete(ukey);
+                delete this._syncCheckTimers[ukey];
+            } else {
+                // 继续轮询
+                this._syncCheckTimers[ukey] = setTimeout(() => {
+                    this.checkFileSync(ukey);
+                }, 5000);
+            }
+        }, 'json').fail(() => {
+            // 请求失败，稍后重试
+            this._syncCheckTimers[ukey] = setTimeout(() => {
+                this.checkFileSync(ukey);
+            }, 10000);
+        });
+    },
+    
+    /**
+     * 文件同步完成时的回调
+     * @param {string} ukey - 文件唯一标识
+     */
+    onFileSyncComplete(ukey) {
+        // 更新内部数据
+        const file = this.fileList.find(f => f.ukey === ukey);
+        if (file) {
+            file.sync = 0;
+        }
+        
+        // 更新列表视图 UI
+        const okEl = document.querySelector(`.vx-file-ok[data-ukey="${ukey}"]`);
+        const syncEl = document.querySelector(`.vx-file-sync[data-ukey="${ukey}"]`);
+        
+        if (okEl) {
+            okEl.style.display = '';
+        }
+        if (syncEl) {
+            syncEl.style.display = 'none';
+        }
+        
+        // 更新相册视图 UI（如果在相册模式下）
+        const albumCard = document.querySelector(`.photo-card[data-ukey="${ukey}"]`);
+        if (albumCard) {
+            const syncOverlay = albumCard.querySelector('.vx-photo-sync-overlay');
+            if (syncOverlay) {
+                syncOverlay.remove();
+            }
+        }
+    },
+    
+    /**
+     * 停止所有同步检查（页面切换或模块销毁时调用）
+     */
+    stopAllSyncChecks() {
+        Object.keys(this._syncCheckTimers).forEach(ukey => {
+            if (this._syncCheckTimers[ukey]) {
+                clearTimeout(this._syncCheckTimers[ukey]);
+                delete this._syncCheckTimers[ukey];
+            }
+        });
+    },
+    
+    /**
+     * 检查并启动所有同步中文件的轮询
+     */
+    checkAllSyncingFiles() {
+        this.fileList.forEach(file => {
+            if (file.sync === 1 || file.sync === '1') {
+                this.startSyncCheck(file.ukey);
+            }
+        });
     },
     
     // ==================== 相册模式操作 ====================

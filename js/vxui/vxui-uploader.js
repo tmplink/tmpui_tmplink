@@ -923,11 +923,6 @@ var VX_UPLOADER = VX_UPLOADER || {
     updateUploadRow(task) {
         const row = document.getElementById(`vx-upload-row-${task.id}`);
         if (!row) return;
-
-        // 上传开始/进行中时置顶，避免被文件/文件夹列表淹没
-        if (task.status === 'preparing' || task.status === 'uploading' || task.status === 'merging') {
-            this.pinUploadRow(task.id);
-        }
         
         const progressBar = row.querySelector('.vx-upload-progress-bar');
         const progressText = row.querySelector('.vx-upload-progress-text');
