@@ -609,6 +609,7 @@ const VX_DIRECT = {
         const file = inputEl?.files?.[0];
         if (!file) return;
 
+        this.trackUI('vui_direct[brand_logo_set]');
         const token = this.getToken();
         if (!token) {
             VXUI.toastError('登录状态无效');
@@ -671,6 +672,7 @@ const VX_DIRECT = {
             return;
         }
 
+        this.trackUI('vui_direct[brand_set]');
         if (statusEl) statusEl.textContent = '保存中...';
         try {
             const rsp = await this.apiPost({
@@ -695,6 +697,7 @@ const VX_DIRECT = {
     },
 
     async brandReview() {
+        this.trackUI('vui_direct[brand_review]');
         try {
             const rsp = await this.apiPost({ action: 'brand_review' });
             if (rsp && rsp.status === 1) {
@@ -860,6 +863,7 @@ const VX_DIRECT = {
             return;
         }
 
+        this.trackUI('vui_direct[save_domain]');
         const sslEnable = document.querySelector('input[name="vx-direct-ssl"]:checked')?.value || 'no';
 
         this.showLoading();
@@ -896,6 +900,7 @@ const VX_DIRECT = {
 
     async disableSSL() {
         if (!this.ssl && !this.ssl_acme) return;
+        this.trackUI('vui_direct[disable_ssl]');
         VXUI.confirm({
             title: '停用 HTTPS',
             message: '确定要停用 HTTPS 吗？停用后直链将使用 HTTP。',

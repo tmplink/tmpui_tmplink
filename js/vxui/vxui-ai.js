@@ -650,6 +650,7 @@ const VX_AI = {
      * 清空历史
      */
     clearHistory() {
+        this.trackUI('vui_ai[clear_history]');
         VXUI.confirm({
             title: this.lang('ai_clear_current', '清空对话'),
             message: this.lang('ai_clear_current_confirm', '确定要清空当前对话显示吗？（不会删除服务器上的历史对话）'),
@@ -772,6 +773,7 @@ const VX_AI = {
 
     deleteConversationUI(conversationId) {
         if (!conversationId) return;
+        this.trackUI('vui_ai[delete_conversation]');
         VXUI.confirm({
             title: this.lang('ai_delete_conversation', '删除对话'),
             message: this.lang('ai_confirm_delete', '确定要删除这个对话吗？此操作无法撤销。'),
@@ -798,6 +800,7 @@ const VX_AI = {
             VXUI.toastError(this.lang('ai_no_conversations', '暂无对话历史'));
             return;
         }
+        this.trackUI('vui_ai[delete_all_conversations]');
         VXUI.confirm({
             title: this.lang('ai_delete_all_conversations', '删除全部对话'),
             message: this.lang('ai_confirm_delete_all_conversations', '确定要删除全部历史对话吗？此操作无法撤销。'),

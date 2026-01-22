@@ -818,6 +818,7 @@ window.VX_SHOP = {
      * Make order and redirect to payment
      */
     async makeOrder() {
+        this.trackUI('vui_shop[make_order]');
         const isPayPal = this.selectedPayment === 'paypal';
         let priceCNY = 0;
         
@@ -916,6 +917,8 @@ window.VX_SHOP = {
             VXUI.toastWarning(this.t('error_empty_giftcard', '请输入兑换码'));
             return;
         }
+
+        this.trackUI('vui_shop[submit_giftcard]');
         
         try {
             const apiUrl = (typeof TL !== 'undefined' && TL.api_pay) ? TL.api_pay : '/api_v2/pay';
