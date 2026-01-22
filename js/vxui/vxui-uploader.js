@@ -861,6 +861,16 @@ var VX_UPLOADER = VX_UPLOADER || {
         // 检查是否已存在
         if (document.getElementById(`vx-upload-row-${task.id}`)) return;
         
+        // 当文件夹为空时，需要显示列表视图以便展示上传队列
+        const listContainer = document.getElementById('vx-fl-list');
+        const emptyContainer = document.getElementById('vx-fl-empty');
+        if (listContainer && listContainer.style.display === 'none') {
+            listContainer.style.display = '';
+        }
+        if (emptyContainer && emptyContainer.style.display !== 'none') {
+            emptyContainer.style.display = 'none';
+        }
+        
         const row = document.createElement('div');
         row.className = 'vx-list-row vx-upload-row';
         row.id = `vx-upload-row-${task.id}`;
@@ -913,11 +923,6 @@ var VX_UPLOADER = VX_UPLOADER || {
     updateUploadRow(task) {
         const row = document.getElementById(`vx-upload-row-${task.id}`);
         if (!row) return;
-
-        // 上传开始/进行中时置顶，避免被文件/文件夹列表淹没
-        if (task.status === 'preparing' || task.status === 'uploading' || task.status === 'merging') {
-            this.pinUploadRow(task.id);
-        }
         
         const progressBar = row.querySelector('.vx-upload-progress-bar');
         const progressText = row.querySelector('.vx-upload-progress-text');
@@ -977,8 +982,30 @@ var VX_UPLOADER = VX_UPLOADER || {
         const row = document.getElementById(`vx-upload-row-${id}`);
         if (row) {
             row.classList.add('vx-upload-row-removing');
-            setTimeout(() => row.remove(), 300);
+            setTimeout(() => {
+                row.remove();
+                // 检查列表是否为空（没有文件/文件夹行且没有其他上传行）
+                this.checkAndRestoreEmptyState();
+            }, 300);
         }
+    },
+
+    /**
+     * 检查并恢复空状态（如果列表为空）
+     */
+    checkAndRestoreEmptyState() {
+        const listBody = document.getElementById('vx-fl-list-body');
+        if (!listBody) return;
+        
+        // 检查是否还有内容（文件/文件夹行或上传行）
+        const hasContent = listBody.querySelector('.vx-list-row');
+        if (hasContent) return;
+        
+        // 没有内容时，显示空状态
+        const listContainer = document.getElementById('vx-fl-list');
+        const emptyContainer = document.getElementById('vx-fl-empty');
+        if (listContainer) listContainer.style.display = 'none';
+        if (emptyContainer) emptyContainer.style.display = 'flex';
     },
 
     /**
