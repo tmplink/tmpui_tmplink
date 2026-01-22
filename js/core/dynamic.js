@@ -17,38 +17,26 @@ class dynamic {
         
         switch (listview) {
             case 'index':
-                this.index();
+                window.location.href = '/?tmpui_page=/vx';
                 break;
 
             case 'preload':
                 this.preload();
                 break;
 
-            case 'workspace':
-                // workspace 已废弃，重定向到 room
-                this.room();
+            case 'workspace': {
+                const mrid = (url_params.mrid !== undefined) ? url_params.mrid : '0';
+                window.location.href = `/?tmpui_page=/vx&module=filelist&mrid=${mrid}`;
                 break;
+            }
 
-            case 'room':
-                // 游客访问 room 时，重定向到 vxui 文件列表
-                const isGuest = (typeof TL !== 'undefined' && TL) ? (TL.logined == 0) : (localStorage.getItem('app_login') != 1);
-                if (isGuest) {
-                    const mrid = (url_params.mrid !== undefined) ? url_params.mrid : '';
-                    window.location.href = `/?tmpui_page=/vx&module=filelist&mrid=${mrid}`;
-                    return;
-                }
-                // 检查用户是否选择了经典版界面
-                const uiPreference = localStorage.getItem('tmplink_ui_preference');
-                if (uiPreference !== 'classic') {
-                    // 用户未选择经典版，重定向到 vxui 版本
-                    const mrid = (url_params.mrid !== undefined) ? url_params.mrid : '0';
-                    window.location.href = `/?tmpui_page=/vx&module=filelist&mrid=${mrid}`;
-                    return;
-                }
-                this.room();
+            case 'room': {
+                const mrid = (url_params.mrid !== undefined) ? url_params.mrid : '0';
+                window.location.href = `/?tmpui_page=/vx&module=filelist&mrid=${mrid}`;
                 break;
+            }
             case 'direct':
-                this.direct();
+                window.location.href = '/?tmpui_page=/vx&module=direct';
                 break;
 
             case 'login':
@@ -69,15 +57,18 @@ class dynamic {
                 break;
 
             case 'notes':
-                this.notes();
+                window.location.href = '/?tmpui_page=/vx&module=notes';
                 break;
 
             case 'ai':
-                this.ai();
+                window.location.href = '/?tmpui_page=/vx&module=ai';
                 break;
 
             case 'photo':
-                this.photo();
+                const photoMrid = (url_params.mrid !== undefined) ? url_params.mrid : '0';
+                const mode = (url_params.mode !== undefined) ? url_params.mode : '';
+                const modeParam = mode ? `&mode=${encodeURIComponent(mode)}` : '';
+                window.location.href = `/?tmpui_page=/vx&module=filelist&view=album&mrid=${photoMrid}${modeParam}`;
                 break;
 
             default:

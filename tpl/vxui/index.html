@@ -7,7 +7,7 @@
         <!-- Sidebar -->
         <aside class="vx-sidebar" id="vx-sidebar">
             <div class="vx-sidebar-header">
-                <a href="/" class="vx-sidebar-brand">
+                <a href="javascript:;" class="vx-sidebar-brand" onclick="if (typeof VXUI !== 'undefined') { VXUI.navigate('filelist', { mrid: 0, view: 'list' }); } else { window.location.href='/?tmpui_page=/app&listview=room&mrid=0'; }">
                     <img src="/img/ico/logo-new.svg" alt="Logo" class="vx-sidebar-brand-logo">
                     <span class="vx-sidebar-brand-text" data-tpl="product_name">钛盘</span>
                 </a>
@@ -106,10 +106,6 @@
                     </div>
                 </div>
 
-                <a href="javascript:;" class="vx-nav-item" data-auth="logged-in" onclick="if(typeof VXUI !== 'undefined') VXUI.switchToClassic();">
-                    <iconpark-icon name="list-radio"></iconpark-icon>
-                    <span class="vx-nav-item-text" data-tpl="nav_switch_classic">切换到经典版</span>
-                </a>
                 <a href="javascript:;" class="vx-nav-item" data-auth="logged-in" onclick="if(typeof TL !== 'undefined') TL.logout();">
                     <iconpark-icon name="right-from-bracket"></iconpark-icon>
                     <span class="vx-nav-item-text" data-tpl="nav_logout">退出登录</span>

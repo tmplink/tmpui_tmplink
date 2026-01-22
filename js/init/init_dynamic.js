@@ -16,22 +16,18 @@ app.ready(() => {
         case 'preload':
             dynamicView.preload();
             break;
-        case 'workspace':
-            // workspace 已废弃，重定向到 room
-            dynamicView.room();
+        case 'workspace': {
+            const mrid = (params.mrid !== undefined) ? params.mrid : '0';
+            window.location.href = `/?tmpui_page=/vx&module=filelist&mrid=${mrid}`;
             break;
-        case 'room':
-            // 游客访问 room 时，重定向到 vxui 文件列表
-            const isGuest = (typeof TL !== 'undefined' && TL) ? (TL.logined == 0) : (localStorage.getItem('app_login') != 1);
-            if (isGuest) {
-                const mrid = (params.mrid !== undefined) ? params.mrid : '';
-                window.location.href = `/?tmpui_page=/vx&module=filelist&mrid=${mrid}`;
-                return;
-            }
-            dynamicView.room();
+        }
+        case 'room': {
+            const mrid = (params.mrid !== undefined) ? params.mrid : '0';
+            window.location.href = `/?tmpui_page=/vx&module=filelist&mrid=${mrid}`;
             break;
+        }
         case 'direct':
-            dynamicView.direct();
+            window.location.href = '/?tmpui_page=/vx&module=direct';
             break;
         case 'login':
             dynamicView.login();
@@ -49,15 +45,19 @@ app.ready(() => {
             dynamicView.privacy();
             break;
         case 'notes':
-            dynamicView.notes();
+            window.location.href = '/?tmpui_page=/vx&module=notes';
             break;
         case 'ai':
-            dynamicView.ai();
+            window.location.href = '/?tmpui_page=/vx&module=ai';
             break;
-        case 'photo':
-            dynamicView.photo();
+        case 'photo': {
+            const photoMrid = (params.mrid !== undefined) ? params.mrid : '0';
+            const mode = (params.mode !== undefined) ? params.mode : '';
+            const modeParam = mode ? `&mode=${encodeURIComponent(mode)}` : '';
+            window.location.href = `/?tmpui_page=/vx&module=filelist&view=album&mrid=${photoMrid}${modeParam}`;
             break;
+        }
         default:
-            dynamicView.index();
+            window.location.href = '/?tmpui_page=/vx';
     }
 });

@@ -779,8 +779,8 @@ class tmplink_api {
     }
 
     switchToClassic() {
-        localStorage.setItem('tmplink_ui_preference', 'classic');
-        window.location.href = '/?tmpui_page=/app';
+        localStorage.setItem('tmplink_ui_preference', 'vxui');
+        window.location.href = '/?tmpui_page=/vx';
     }
 
     alert(msg) {
