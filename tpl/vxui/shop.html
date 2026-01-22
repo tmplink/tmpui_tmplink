@@ -222,8 +222,10 @@
 /* Shop Content */
 .vx-shop-content {
     padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    background: transparent;
     display: flex;
     flex-direction: column;
 }
@@ -691,7 +693,7 @@
 
 /* Orders List Styles */
 .vx-orders-list {
-    padding: 16px;
+    padding: 0;
 }
 
 .vx-orders-loading {
@@ -724,10 +726,18 @@
     display: flex;
     align-items: flex-start;
     gap: 16px;
-    padding: 16px;
-    background: var(--vx-bg-secondary);
-    border-radius: var(--vx-radius-md);
+    padding: 20px;
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
     margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.vx-order-item:hover {
+    border-color: var(--vx-primary);
+    box-shadow: var(--vx-shadow-md);
+    transform: translateY(-2px);
 }
 
 .vx-order-item:last-child {
