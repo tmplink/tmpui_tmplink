@@ -742,6 +742,7 @@
     "model_upload_cli_note1": "Uploading files via the command line requires cURL support.",
     "model_upload_cli_note2": "Please note, do not log out of tmp.link before the file upload is complete, otherwise the upload will fail.",
     "model_upload_cli_note3": "Please do not share Token with others, as Token is equivalent to your identity information on this site.",
+    "upload_notes_title": "Usage Notes",
     "status_error_0": "The operation failed.",
     "status_error_9": "Unsupported mailbox. Please try a widely used mailbox, such as outlook. ",
     "status_error_11": "An email has already been sent to this mailbox.",

@@ -801,6 +801,7 @@
     "model_upload_cli_note1": "使用命令行上傳檔案需要 curl 的支持。",
     "model_upload_cli_note2": "請注意，在檔案上傳完成前，請不要在本站退出登錄，否則會導致上傳失敗。",
     "model_upload_cli_note3": "請不要將 Token 透露其他人，因為 Token 等同於您在本站的身份信息。",
+    "upload_notes_title": "使用說明",
     "orders_title_addon": "已購服務",
     "orders_title_billing": "支付記錄",
     "oders_table1": "項目",

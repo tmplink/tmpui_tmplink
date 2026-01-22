@@ -511,6 +511,7 @@
     "model_upload_cli_note1": "使用命令行上传文件需要 curl 的支持。",
     "model_upload_cli_note2": "请注意，在文件上传完成前，请不要在本站退出登录，否则会导致上传失败。",
     "model_upload_cli_note3": "请不要将 Token 透露其他人，因为 Token 等同于您在本站的身份信息。",
+    "upload_notes_title": "使用说明",
     "orders_title_addon": "已购服务",
     "orders_title_billing": "支付记录",
     "oders_table1": "项目",
