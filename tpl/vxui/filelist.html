@@ -144,6 +144,10 @@
             <iconpark-icon name="rotate" data-role="refresh-icon"></iconpark-icon>
             <span data-role="refresh-text" data-tpl="album_refresh">刷新</span>
         </button>
+        <button class="vx-btn vx-btn-ghost vx-text-danger" id="vx-fl-report-btn" onclick="VX_FILELIST.openFolderReportModal()" title="." i18n="file_btn_report" i18n-only="title" style="display:none;">
+            <iconpark-icon name="circle-exclamation"></iconpark-icon>
+            <span class="vx-hide-mobile" data-tpl="file_btn_report">举报</span>
+        </button>
     </div>
 </header>
 
@@ -401,6 +405,33 @@
         <div class="vx-modal-footer">
             <button class="vx-btn vx-btn-secondary" onclick="VX_FILELIST.closeRenameModal()" data-tpl="model_btn_close">取消</button>
             <button class="vx-btn vx-btn-primary" onclick="VX_FILELIST.confirmRename()" data-tpl="model_btn_confirm">确定</button>
+        </div>
+    </div>
+</div>
+
+<!-- Report Folder Modal -->
+<div class="vx-modal" id="vx-fl-report-modal">
+    <div class="vx-modal-overlay" onclick="VX_FILELIST.closeReportModal()"></div>
+    <div class="vx-modal-container">
+        <div class="vx-modal-header">
+            <h3 class="vx-modal-title" data-tpl="model_title_report">举报</h3>
+            <button class="vx-modal-close" onclick="VX_FILELIST.closeReportModal()">
+                <iconpark-icon name="circle-xmark"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-modal-body">
+            <div class="vx-form-group">
+                <label class="vx-label" data-tpl="modal_report_reason">举报原因</label>
+                <select class="vx-select" id="vx-fl-report-reason">
+                    <option value="copyright" i18n-only="html" i18n="modal_report_reason1">.</option>
+                    <option value="nsfw" i18n-only="html" i18n="modal_report_reason2">.</option>
+                    <option value="privacy" i18n-only="html" i18n="modal_report_reason3">.</option>
+                </select>
+            </div>
+        </div>
+        <div class="vx-modal-footer">
+            <button class="vx-btn vx-btn-secondary" onclick="VX_FILELIST.closeReportModal()" data-tpl="model_btn_cancel">取消</button>
+            <button class="vx-btn vx-btn-primary" id="vx-fl-report-submit" onclick="VX_FILELIST.reportFolder()" data-tpl="modal_report_submit">提交</button>
         </div>
     </div>
 </div>
@@ -679,23 +710,27 @@
     }
 
     .vx-mobile-view-toggle {
-        margin-left: 4px;
-        padding: 2px;
+        margin-left: 0;
+        padding: 0;
+        background: transparent;
+        gap: 2px;
     }
 
     .vx-mobile-view-toggle .vx-btn-icon {
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
     }
 
     .vx-mobile-action-toggle {
-        margin-left: 4px;
-        padding: 2px;
+        margin-left: 0;
+        padding: 0;
+        background: transparent;
+        gap: 2px;
     }
 
     .vx-mobile-action-toggle .vx-btn-icon {
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
     }
 
     .vx-btn-icon-primary {
@@ -706,6 +741,16 @@
 
     .vx-btn-icon-primary iconpark-icon {
         color: #fff;
+    }
+
+    /* Mobile Report Button */
+    #vx-mobile-report-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: var(--vx-radius-md);
+        background: var(--vx-bg-secondary);
+        color: var(--vx-danger); /* Ensure icon is red */
     }
 
     .vx-mobile-folder-bar {

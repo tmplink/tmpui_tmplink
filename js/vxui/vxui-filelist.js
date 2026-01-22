@@ -1073,6 +1073,43 @@ var VX_FILELIST = VX_FILELIST || {
         document.querySelectorAll('[data-owner="true"]').forEach((el) => {
             el.style.display = this.isOwner ? '' : 'none';
         });
+
+        // 举报按钮：仅在非拥有者且当前为文件夹时显示
+        const reportBtn = document.getElementById('vx-fl-report-btn');
+        if (reportBtn) {
+            const mr_id = (this.room && this.room.mr_id !== undefined && this.room.mr_id !== null) ? this.room.mr_id : this.mrid;
+            const top = (this.room && this.room.top !== undefined && this.room.top !== null) ? this.room.top : 0;
+            const showReport = !this.isOwner && !this.isDesktop && mr_id && String(mr_id) !== '0' && Number(top) !== 99;
+            reportBtn.style.display = showReport ? '' : 'none';
+        }
+
+        const mobileReportBtn = document.getElementById('vx-mobile-report-btn');
+        if (mobileReportBtn) {
+            const mr_id = (this.room && this.room.mr_id !== undefined && this.room.mr_id !== null) ? this.room.mr_id : this.mrid;
+            const top = (this.room && this.room.top !== undefined && this.room.top !== null) ? this.room.top : 0;
+            // 举报按钮的显示逻辑
+            const showReport = !this.isOwner && !this.isDesktop && mr_id && String(mr_id) !== '0' && Number(top) !== 99;
+            mobileReportBtn.style.display = showReport ? '' : 'none';
+
+            // 如果显示举报按钮（即非拥有者模式），则强制隐藏操作按钮容器，避免产生不必要的间距
+            // 如果是拥有者模式（不显示举报），则操作按钮容器会因内部有按钮被显示而正常展示（前提是 setMobileActionToggleVisible(true)）
+            // 注意：setMobileActionToggleVisible 默认是 true (在 updateSidebar 中设置)，但它只控制容器的 display。
+            // 真正的按钮显隐由前面的 querySelectorAll('[data-owner="true"]') 处理。
+            // 这里我们需要额外处理容器的显隐，以解决空容器导致的布局问题。
+            const actionToggle = document.getElementById('vx-mobile-action-toggle');
+            if (actionToggle) {
+                // 如果显示举报按钮，说明是非拥有者，操作按钮组必定为空，直接隐藏容器
+                if (showReport) {
+                    actionToggle.style.display = 'none';
+                } else {
+                     // 否则恢复显示（这里假设默认是需要显示的，具体的显示权交给 setMobileActionToggleVisible）
+                    // 但这也可能覆盖 setMobileActionToggleVisible 的逻辑。
+                    // 更好的做法是：检查 actionToggle 内部是否有可见的按钮。
+                     const hasVisibleBtn = Array.from(actionToggle.children).some(child => child.style.display !== 'none');
+                     actionToggle.style.display = hasVisibleBtn ? 'flex' : 'none';
+                }
+            }
+        }
     },
 
     // ==================== Folder Direct (直链文件夹) ====================
@@ -4177,6 +4214,91 @@ var VX_FILELIST = VX_FILELIST || {
             document.body.classList.remove('vx-modal-body-open');
         }
         this._renameTarget = null;
+    },
+
+    showReportModal() {
+        const modalId = 'vx-fl-report-modal';
+        const modal = document.getElementById(modalId);
+
+        if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.openModal === 'function') {
+            VXUI.openModal(modalId);
+        } else if (modal) {
+            modal.classList.add('vx-modal-open');
+            document.body.classList.add('vx-modal-body-open');
+        }
+    },
+
+    closeReportModal() {
+        const modalId = 'vx-fl-report-modal';
+        const modal = document.getElementById(modalId);
+
+        if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.closeModal === 'function') {
+            VXUI.closeModal(modalId);
+        } else if (modal) {
+            modal.classList.remove('vx-modal-open');
+            document.body.classList.remove('vx-modal-body-open');
+        }
+        this._reportTargetMrid = null;
+    },
+
+    openFolderReportModal(mrid) {
+        const targetMrid = mrid || ((this.room && this.room.mr_id !== undefined && this.room.mr_id !== null) ? this.room.mr_id : this.mrid);
+        if (!targetMrid || String(targetMrid) === '0') return;
+
+        this._reportTargetMrid = targetMrid;
+
+        const reasonSelect = document.getElementById('vx-fl-report-reason');
+        if (reasonSelect) reasonSelect.selectedIndex = 0;
+
+        const submitBtn = document.getElementById('vx-fl-report-submit');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = this.t('modal_report_submit', '提交');
+        }
+
+        this.showReportModal();
+    },
+
+    reportFolder() {
+        if (!this._reportTargetMrid) return;
+        const token = this.getToken();
+        if (!token) {
+            VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
+            return;
+        }
+
+        const reason = document.getElementById('vx-fl-report-reason')?.value || '';
+        const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
+        const submitBtn = document.getElementById('vx-fl-report-submit');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = this.t('form_btn_processed', '已提交');
+        }
+
+        $.post(apiUrl, {
+            action: 'report',
+            token: token,
+            reason: reason,
+            mr_id: this._reportTargetMrid
+        }, (rsp) => {
+            const ok = rsp && (rsp.status === 1 || (rsp.data && rsp.data.status === 'reported'));
+            if (ok) {
+                VXUI.toastSuccess(this.t('modal_report_success', '举报成功'));
+                this.closeReportModal();
+            } else {
+                VXUI.toastError(this.t('vx_operation_failed', '操作失败'));
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = this.t('modal_report_submit', '提交');
+                }
+            }
+        }, 'json').fail(() => {
+            VXUI.toastError(this.t('vx_operation_failed', '操作失败'));
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = this.t('modal_report_submit', '提交');
+            }
+        });
     },
     
     confirmRename() {
