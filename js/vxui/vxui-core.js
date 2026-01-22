@@ -1051,8 +1051,8 @@ class VXUICore {
      * 保存用户偏好到 localStorage 并跳转到经典版界面
      */
     switchToClassic() {
-        localStorage.setItem('tmplink_ui_preference', 'classic');
-        window.location.href = '/?tmpui_page=/app&listview=index';
+        localStorage.setItem('tmplink_ui_preference', 'vxui');
+        window.location.href = '/?tmpui_page=/vx';
     }
     
     // ==================== Toast 提示 ====================
