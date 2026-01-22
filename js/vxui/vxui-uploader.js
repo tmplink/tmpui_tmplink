@@ -1154,7 +1154,7 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 打开 CLI 上传模态框
      */
     openCliModal() {
-        this.trackUI('vx_cli_modal_open');
+        this.trackUI('vui_cli_modal_open');
         
         const modal = document.getElementById('vx-cli-modal');
         if (!modal) {
@@ -1248,7 +1248,7 @@ var VX_UPLOADER = VX_UPLOADER || {
                 }, 2000);
             }
             
-            this.trackUI('vx_cli_token_copied');
+            this.trackUI('vui_cli_token_copied');
         } catch (err) {
             console.error('[VX_UPLOADER] Failed to copy token:', err);
             if (typeof TL !== 'undefined' && typeof TL.alert === 'function') {

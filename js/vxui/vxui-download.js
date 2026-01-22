@@ -7,6 +7,24 @@ class VXUIDownload {
         this.parent_op = parent_op || {};
     }
 
+    /**
+     * 记录 UI 行为（event_ui）
+     */
+    trackUI(title) {
+        try {
+            if (!title) return;
+            if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.trackUI === 'function') {
+                VXUI.trackUI(title);
+                return;
+            }
+            if (typeof TL !== 'undefined' && TL && typeof TL.ga === 'function') {
+                TL.ga(title);
+            }
+        } catch (e) {
+            // ignore
+        }
+    }
+
     showModal() {
         const modal = document.getElementById('multipleDownloadModel');
         if (modal) {
@@ -106,6 +124,7 @@ class VXUIDownload {
     }
 
     async folder_download(select_data) {
+        this.trackUI('vui_download[folder_download]');
         try {
             // 初始化 AbortController
             this.abortController = new AbortController();

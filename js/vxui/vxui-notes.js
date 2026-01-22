@@ -705,6 +705,7 @@ const VX_NOTES = {
             return;
         }
 
+        this.trackUI('vui_notes[key_set]');
         const persisted = this.persistKey(newKey);
         this.key = newKey;
         this._storedKeyLocal = newKey;
@@ -727,6 +728,7 @@ const VX_NOTES = {
             return;
         }
 
+        this.trackUI('vui_notes[key_reinit]');
         const confirmMessage = (app && app.languageData && app.languageData.model_btn_resetall_des)
             || '将会清空所有密记的内容，您确定要这么做吗？';
 
@@ -1198,6 +1200,7 @@ const VX_NOTES = {
             return;
         }
 
+        this.trackUI('vui_notes[save_note]');
         this.setEditorSaving(true);
         $.post(TL.api_notes, {
             action: 'write',

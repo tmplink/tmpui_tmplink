@@ -1232,6 +1232,7 @@ var VX_FILELIST = VX_FILELIST || {
         const toggle = document.getElementById('vx-fl-direct-toggle');
         if (!toggle) return;
 
+        this.trackUI('vui_filelist[toggle_direct]');
         if (!this.directDomainReady) {
             toggle.checked = false;
             VXUI.toastWarning(this.t('vx_bind_direct_domain_toast', '请先绑定直链域名'));
@@ -1299,6 +1300,7 @@ var VX_FILELIST = VX_FILELIST || {
             VXUI.toastWarning(this.t('vx_direct_not_enabled', '未开启文件夹直链'));
             return;
         }
+        this.trackUI('vui_filelist[copy_folder_direct]');
         VXUI.copyToClipboard(link);
         VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
     },
@@ -1330,6 +1332,7 @@ var VX_FILELIST = VX_FILELIST || {
             VXUI.toastWarning(this.t('vx_direct_not_enabled', '未开启文件夹直链'));
             return;
         }
+        this.trackUI('vui_filelist[copy_file_direct]');
         VXUI.copyToClipboard(link);
     },
     
@@ -2321,6 +2324,7 @@ var VX_FILELIST = VX_FILELIST || {
      * 打开文件夹
      */
     openFolder(mrid) {
+        this.trackUI('vui_filelist[open_folder]');
         const params = { mrid: mrid, view: this.viewMode };
         if (this.isOwner) {
             params.start = 0;
@@ -2871,6 +2875,7 @@ var VX_FILELIST = VX_FILELIST || {
     deleteFile(ukey) {
         if (!confirm(this.t('vx_confirm_delete_file', '确定要删除此文件吗？'))) return;
         
+        this.trackUI('vui_filelist[delete_file]');
         const token = this.getToken();
 
         this._deleteFileWithFallback(ukey, token).then((ok) => {
@@ -2932,6 +2937,7 @@ var VX_FILELIST = VX_FILELIST || {
      * 重命名文件
      */
     renameFile(ukey, currentName) {
+        this.trackUI('vui_filelist[rename_file]');
         this._renameTarget = { type: 'file', id: ukey };
         const input = document.getElementById('vx-fl-rename-input');
         if (input) input.value = currentName;
@@ -2944,6 +2950,7 @@ var VX_FILELIST = VX_FILELIST || {
     deleteFolder(mrid) {
         if (!confirm(this.t('vx_confirm_delete_folder', '确定要删除此文件夹吗？'))) return;
         
+        this.trackUI('vui_filelist[delete_folder]');
         const token = this.getToken();
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
         
@@ -2961,6 +2968,7 @@ var VX_FILELIST = VX_FILELIST || {
      * 重命名文件夹
      */
     renameFolder(mrid) {
+        this.trackUI('vui_filelist[rename_folder]');
         const folder = this.subRooms.find(f => f.mr_id == mrid);
         if (!folder) return;
         
@@ -2976,6 +2984,7 @@ var VX_FILELIST = VX_FILELIST || {
      * @param {string} url - 分享链接（可选）
      */
     shareFolder(mrid, url) {
+        this.trackUI('vui_filelist[share_folder]');
         // 如果没有传入 url，构建当前文件夹的链接
         if (!url) {
             if (this.isDesktop && !mrid) {
@@ -3007,6 +3016,7 @@ var VX_FILELIST = VX_FILELIST || {
      */
     shareFile(ukey) {
         if (!ukey) return;
+        this.trackUI('vui_filelist[share_file]');
         const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
         const safeKey = encodeURIComponent(String(ukey));
         const url = `https://${domain}/f/${safeKey}`;
@@ -3029,6 +3039,7 @@ var VX_FILELIST = VX_FILELIST || {
      * 取消收藏文件夹
      */
     unfavoriteFolder(mrid) {
+        this.trackUI('vui_filelist[unfavorite_folder]');
         const token = this.getToken();
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
         
@@ -3123,6 +3134,7 @@ var VX_FILELIST = VX_FILELIST || {
         if (!this.canUseSelectMode()) {
             return;
         }
+        this.trackUI('vui_filelist[select_all]');
         this.selectMode = true;
         this.selectedItems = [];
         
@@ -3229,6 +3241,7 @@ var VX_FILELIST = VX_FILELIST || {
             return;
         }
 
+        this.trackUI('vui_filelist[download_selected]');
         this.ensureBatchDownloader();
         if (!this.batchDownloader || typeof this.batchDownloader.folder_download !== 'function') {
             VXUI.toastError(this.t('vx_download_module_not_loaded', '下载模块未加载'));
@@ -3298,6 +3311,7 @@ var VX_FILELIST = VX_FILELIST || {
             return;
         }
         
+        this.trackUI('vui_filelist[move_selected]');
         // 收集被选中的文件夹ID，用于在树形结构中排除（避免将文件夹移动到自身）
         this._moveExcludeFolderIds = [];
         this.selectedItems.forEach(item => {
@@ -4250,6 +4264,7 @@ var VX_FILELIST = VX_FILELIST || {
             return;
         }
 
+        this.trackUI(`vui_filelist[change_model_${model}]`);
         // 对齐老版：使用 ukeys 数组
         const apiUrl = (typeof TL !== 'undefined' && TL.api_file)
             ? TL.api_file
@@ -4345,6 +4360,7 @@ var VX_FILELIST = VX_FILELIST || {
             return;
         }
         
+        this.trackUI('vui_filelist[create_folder]');
         const token = this.getToken();
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
 
@@ -4460,6 +4476,7 @@ var VX_FILELIST = VX_FILELIST || {
 
     reportFolder() {
         if (!this._reportTargetMrid) return;
+        this.trackUI('vui_filelist[report_folder]');
         const token = this.getToken();
         if (!token) {
             VXUI.toastWarning(this.t('vx_need_login', '请先登录'));

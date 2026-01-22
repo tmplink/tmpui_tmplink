@@ -546,6 +546,7 @@ const VX_ACCOUNT = {
             return;
         }
         
+        this.trackUI('vui_account[save_profile]');
         const apiUrl = (typeof TL !== 'undefined' && TL.api_user) ? TL.api_user : '/api_v2/user';
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
         
@@ -730,6 +731,7 @@ const VX_ACCOUNT = {
     uploadAvatar(input) {
         if (!input.files || !input.files[0]) return;
         
+        this.trackUI('vui_account[upload_avatar]');
         const file = input.files[0];
         if (file.size > 2 * 1024 * 1024) {
             VXUI.toastError('图片大小不能超过 2MB');
@@ -794,6 +796,7 @@ const VX_ACCOUNT = {
             return;
         }
         
+        this.trackUI('vui_account[change_password]');
         const apiUrl = (typeof TL !== 'undefined' && TL.api_user) ? TL.api_user : '/api_v2/user';
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
         
@@ -890,6 +893,7 @@ const VX_ACCOUNT = {
             return;
         }
         
+        this.trackUI('vui_account[change_email]');
         const apiUrl = (typeof TL !== 'undefined' && TL.api_user) ? TL.api_user : '/api_v2/user';
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
         
@@ -1019,6 +1023,7 @@ const VX_ACCOUNT = {
     disconnectGoogle() {
         if (!confirm('确定要解除 Google 账号绑定吗？')) return;
 
+        this.trackUI('vui_account[disconnect_google]');
         const disconnectBtn = document.getElementById('vx-google-disconnect');
         if (!disconnectBtn) return;
         
