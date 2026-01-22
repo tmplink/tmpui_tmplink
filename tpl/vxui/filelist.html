@@ -534,12 +534,79 @@
                         <iconpark-icon name="folder-plus"></iconpark-icon>
                         <span data-tpl="upload_dirs">上传文件夹</span>
                     </button>
+                    <button class="vx-btn vx-btn-outline" onclick="VX_UPLOADER.openCliModal()">
+                        <iconpark-icon name="laptop-arrow-down"></iconpark-icon>
+                        <span data-tpl="model_title_upload_cli">使用 CLI 上传</span>
+                    </button>
                 </div>
             </div>
             
             <!-- 隐藏的文件输入 -->
             <input type="file" id="vx-upload-file-input" multiple style="display: none;" onchange="VX_UPLOADER.onFilesSelected(this)">
             <input type="file" id="vx-upload-folder-input" webkitdirectory style="display: none;" onchange="VX_UPLOADER.onFolderSelected(this)">
+        </div>
+    </div>
+</div>
+
+<!-- CLI Upload Modal -->
+<div class="vx-modal" id="vx-cli-modal">
+    <div class="vx-modal-overlay" onclick="VX_UPLOADER.closeCliModal()"></div>
+    <div class="vx-modal-container vx-modal-md">
+        <div class="vx-modal-header">
+            <h3 class="vx-modal-title" data-tpl="model_title_upload_cli">使用 CLI 上传</h3>
+            <button class="vx-modal-close" onclick="VX_UPLOADER.closeCliModal()">
+                <iconpark-icon name="circle-xmark"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-modal-body">
+            <!-- 安全提醒 -->
+            <div class="vx-cli-warning">
+                <div class="vx-cli-warning-icon">
+                    <iconpark-icon name="circle-exclamation"></iconpark-icon>
+                </div>
+                <div class="vx-cli-warning-content">
+                    <div class="vx-cli-warning-title" data-tpl="model_cli_security_title">安全提醒：</div>
+                    <div class="vx-cli-warning-text" data-tpl="model_cli_security_warning1">• Token 与此浏览器关联，在此浏览器退出账号登录后，Token 上的用户信息也会被清除</div>
+                    <div class="vx-cli-warning-text" data-tpl="model_cli_security_warning2">• 不要将 Token 告诉任何第三方，或用于任何第三方软件</div>
+                </div>
+            </div>
+            
+            <!-- Token 展示区域 -->
+            <div class="vx-cli-token-section">
+                <div class="vx-cli-token-label">
+                    <iconpark-icon name="lock"></iconpark-icon>
+                    <span>TOKEN</span>
+                </div>
+                <div class="vx-cli-token-box">
+                    <code class="vx-cli-token-value" id="vx-cli-token">Loading...</code>
+                    <button class="vx-cli-token-copy" id="vx-cli-copy-btn" onclick="VX_UPLOADER.copyCliToken()">
+                        <iconpark-icon name="copy"></iconpark-icon>
+                        <span data-tpl="copy">复制</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 说明链接 -->
+            <div class="vx-cli-help-section">
+                <a href="https://github.com/tmplink/tmplink_uploader" target="_blank" class="vx-cli-help-link">
+                    <iconpark-icon name="share-from-square"></iconpark-icon>
+                    <span data-tpl="model_title_upload_tmpup_des2">点击这里查看详细的使用方法</span>
+                    <iconpark-icon name="chevron-right" class="vx-cli-external"></iconpark-icon>
+                </a>
+            </div>
+            
+            <!-- 使用说明 -->
+            <div class="vx-cli-notes">
+                <div class="vx-cli-notes-title">
+                    <iconpark-icon name="circle-info"></iconpark-icon>
+                    <span data-tpl="upload_notes_title">使用说明</span>
+                </div>
+                <ul class="vx-cli-notes-list">
+                    <li data-tpl="model_upload_cli_note1">使用命令行上传文件需要 curl 的支持。</li>
+                    <li data-tpl="model_upload_cli_note2">请注意，在文件上传完成前，请不要在本站退出登录，否则会导致上传失败。</li>
+                    <li data-tpl="model_upload_cli_note3">请不要将 Token 透露其他人，因为 Token 等同于您在本站的身份信息。</li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
@@ -1943,6 +2010,7 @@
     display: flex;
     justify-content: center;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
 /* ==================== Upload Row Styles ==================== */
@@ -2127,6 +2195,255 @@
     
     .vx-upload-progress-cell {
         width: 100px !important;
+    }
+}
+
+/* ==================== CLI Upload Modal Styles ==================== */
+.vx-modal-md .vx-modal-container {
+    max-width: 520px;
+}
+
+/* CLI Warning */
+.vx-cli-warning {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.08) 100%);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: var(--vx-radius-lg);
+    margin-bottom: 20px;
+}
+
+.vx-cli-warning-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 193, 7, 0.2);
+    border-radius: 50%;
+    color: #f59e0b;
+}
+
+.vx-cli-warning-icon iconpark-icon {
+    font-size: 18px;
+}
+
+.vx-cli-warning-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.vx-cli-warning-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #d97706;
+    margin-bottom: 6px;
+}
+
+.vx-cli-warning-text {
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+    line-height: 1.5;
+    margin-bottom: 2px;
+}
+
+/* CLI Token Section */
+.vx-cli-token-section {
+    margin-bottom: 20px;
+}
+
+.vx-cli-token-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vx-text-secondary);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.vx-cli-token-label iconpark-icon {
+    font-size: 14px;
+    color: var(--vx-primary);
+}
+
+.vx-cli-token-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--vx-bg-secondary) 0%, var(--vx-bg-tertiary) 100%);
+    border: 2px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    position: relative;
+}
+
+.vx-cli-token-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--vx-primary), transparent);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.vx-cli-token-value {
+    flex: 1;
+    font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-size: 14px;
+    color: var(--vx-text);
+    word-break: break-all;
+    line-height: 1.4;
+    background: transparent;
+    padding: 0;
+    user-select: all;
+}
+
+.vx-cli-token-copy {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: var(--vx-primary);
+    color: white;
+    border: none;
+    border-radius: var(--vx-radius-md);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vx-cli-token-copy:hover {
+    background: var(--vx-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(var(--vx-primary-rgb), 0.3);
+}
+
+.vx-cli-token-copy:active {
+    transform: translateY(0);
+}
+
+.vx-cli-token-copy iconpark-icon {
+    font-size: 14px;
+}
+
+.vx-cli-token-copy.copied {
+    background: var(--vx-success);
+}
+
+/* CLI Help Link */
+.vx-cli-help-section {
+    margin-bottom: 20px;
+}
+
+.vx-cli-help-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: var(--vx-bg-secondary);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    color: var(--vx-text);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.vx-cli-help-link:hover {
+    background: var(--vx-bg-tertiary);
+    border-color: var(--vx-primary);
+    color: var(--vx-primary);
+    text-decoration: none;
+}
+
+.vx-cli-help-link iconpark-icon {
+    font-size: 18px;
+}
+
+.vx-cli-help-link .vx-cli-external {
+    margin-left: auto;
+    font-size: 12px;
+    opacity: 0.5;
+}
+
+.vx-cli-help-link:hover .vx-cli-external {
+    opacity: 1;
+}
+
+/* CLI Notes */
+.vx-cli-notes {
+    padding: 14px 16px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-lg);
+}
+
+.vx-cli-notes-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin-bottom: 10px;
+}
+
+.vx-cli-notes-title iconpark-icon {
+    font-size: 14px;
+    color: var(--vx-info);
+}
+
+.vx-cli-notes-list {
+    margin: 0;
+    padding-left: 18px;
+    list-style-type: disc;
+}
+
+.vx-cli-notes-list li {
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 4px;
+}
+
+.vx-cli-notes-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* CLI Modal Responsive */
+@media (max-width: 576px) {
+    .vx-modal-md .vx-modal-container {
+        max-width: 100%;
+        margin: 0 12px;
+    }
+    
+    .vx-cli-token-box {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .vx-cli-token-copy {
+        justify-content: center;
+    }
+    
+    .vx-cli-warning {
+        flex-direction: column;
+    }
+    
+    .vx-cli-warning-icon {
+        align-self: flex-start;
     }
 }
 </style>

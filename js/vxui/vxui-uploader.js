@@ -1146,6 +1146,115 @@ var VX_UPLOADER = VX_UPLOADER || {
             return app.languageData[key];
         }
         return null;
+    },
+
+    // ==================== CLI Upload Functions ====================
+
+    /**
+     * 打开 CLI 上传模态框
+     */
+    openCliModal() {
+        this.trackUI('vx_cli_modal_open');
+        
+        const modal = document.getElementById('vx-cli-modal');
+        if (!modal) {
+            console.error('[VX_UPLOADER] CLI modal not found');
+            return;
+        }
+        
+        // 显示 Token
+        this.updateCliToken();
+        
+        // 显示模态框
+        modal.classList.add('vx-modal-open');
+        document.body.classList.add('vx-modal-body-open');
+    },
+
+    /**
+     * 关闭 CLI 上传模态框
+     */
+    closeCliModal() {
+        const modal = document.getElementById('vx-cli-modal');
+        if (modal) {
+            modal.classList.remove('vx-modal-open');
+            document.body.classList.remove('vx-modal-body-open');
+        }
+    },
+
+    /**
+     * 更新 CLI Token 显示
+     */
+    updateCliToken() {
+        const tokenEl = document.getElementById('vx-cli-token');
+        if (!tokenEl) return;
+        
+        // 获取 Token
+        let token = '';
+        if (typeof TL !== 'undefined' && TL.api_token) {
+            token = TL.api_token;
+        }
+        
+        if (token) {
+            tokenEl.textContent = token;
+        } else {
+            tokenEl.textContent = this.getLang('status_need_login') || '请先登录';
+        }
+    },
+
+    /**
+     * 复制 CLI Token
+     */
+    async copyCliToken() {
+        const tokenEl = document.getElementById('vx-cli-token');
+        const copyBtn = document.getElementById('vx-cli-copy-btn');
+        
+        if (!tokenEl) return;
+        
+        const token = tokenEl.textContent;
+        
+        // 检查是否已登录
+        if (typeof TL !== 'undefined' && TL.logined === 0) {
+            if (typeof TL.alert === 'function') {
+                TL.alert(this.getLang('status_need_login') || '请先登录');
+            }
+            return;
+        }
+        
+        try {
+            // 复制到剪贴板
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(token);
+            } else {
+                // 降级方案
+                const textarea = document.createElement('textarea');
+                textarea.value = token;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            }
+            
+            // 更新按钮状态
+            if (copyBtn) {
+                copyBtn.classList.add('copied');
+                const originalHtml = copyBtn.innerHTML;
+                copyBtn.innerHTML = `<iconpark-icon name="circle-check"></iconpark-icon><span>${this.getLang('copy_ok') || '已复制'}</span>`;
+                
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyBtn.innerHTML = originalHtml;
+                }, 2000);
+            }
+            
+            this.trackUI('vx_cli_token_copied');
+        } catch (err) {
+            console.error('[VX_UPLOADER] Failed to copy token:', err);
+            if (typeof TL !== 'undefined' && typeof TL.alert === 'function') {
+                TL.alert(this.getLang('copy_fail') || '复制失败，请手动复制');
+            }
+        }
     }
 };
 
