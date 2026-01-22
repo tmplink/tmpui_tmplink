@@ -1271,12 +1271,19 @@ var VX_FILELIST = VX_FILELIST || {
                 VXUI.toastSuccess(this.t('vx_enabled', '已开启'));
                 await this.loadDirectFolderState();
             } else {
-                VXUI.toastError(this.t('vx_enable_failed', '开启失败'));
                 toggle.checked = false;
+                VXUI.alert({
+                    title: this.t('vx_enable_failed', '开启失败'),
+                    message: this.t('vx_direct_not_configured_msg', '无法启用文件夹直链，因为您的账号尚未配置直链功能。')
+                });
             }
         } catch (e) {
             console.error(e);
-            VXUI.toastError(this.t('vx_enable_failed', '开启失败'));
+            // 失败时统一使用弹窗提示，增强可见性
+            VXUI.alert({
+                title: this.t('vx_enable_failed', '开启失败'),
+                message: this.t('vx_operation_error', '操作发生错误，请稍后重试。')
+            });
             toggle.checked = false;
         }
     },

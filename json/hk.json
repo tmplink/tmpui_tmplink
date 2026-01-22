@@ -1177,5 +1177,7 @@
     "direct_api_err_1005": "失敗，檔案尚未就緒，請稍後再添加",
     "direct_api_delete_file": "同時刪除檔案",
     "vx_orders_loading": "載入訂單中...",
-    "vx_orders_empty": "暫無已購項目"
+    "vx_orders_empty": "暫無已購項目",
+    "vx_direct_not_configured_msg": "無法啟用資料夾直鏈，因為您的帳號尚未配置直鏈功能。",
+    "vx_operation_error": "操作發生錯誤，請稍後重試。"
 }

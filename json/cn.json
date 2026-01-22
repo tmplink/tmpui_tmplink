@@ -1172,5 +1172,7 @@
     "direct_api_err_1005": "失败，文件尚未就绪，请稍后再添加",
     "direct_api_delete_file": "同时删除文件",
     "vx_orders_loading": "加载订单中...",
-    "vx_orders_empty": "暂无已购项目"
+    "vx_orders_empty": "暂无已购项目",
+    "vx_direct_not_configured_msg": "无法启用文件夹直链，因为您的账号尚未配置直链功能。",
+    "vx_operation_error": "操作发生错误，请稍后重试。"
 }
