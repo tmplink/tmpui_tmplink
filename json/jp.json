@@ -1231,5 +1231,7 @@
     "privacy_13": "最終更新日：2024年11月14日、TMP.linkがすべての権利を保有します。",
     "privacy_14": "アカウントの削除",
     "footer_tos": "利用規約",
-    "footer_privacy": "プライバシー"
+    "footer_privacy": "プライバシー",
+    "vx_direct_not_configured_msg": "アカウントで直接リンク機能が設定されていないため、フォルダの直接リンクを有効にできません。",
+    "vx_operation_error": "操作エラーが発生しました。後でもう一度お試しください。"
 }

@@ -1181,6 +1181,33 @@ class VXUICore {
     }
     
     /**
+     * 创建提示对话框
+     */
+    alert(options) {
+        // 如果 options 是字符串，则当作 message 处理
+        if (typeof options === 'string') {
+            options = { message: options };
+        }
+        
+        const {
+            title = '提示',
+            message = '',
+            confirmText = '确定',
+            confirmClass = 'vx-btn-primary',
+            onConfirm = () => {}
+        } = options;
+
+        this.confirm({
+            title,
+            message,
+            confirmText,
+            cancelText: null, // 隐藏取消按钮
+            confirmClass,
+            onConfirm
+        });
+    }
+
+    /**
      * 创建确认对话框
      */
     confirm(options) {
