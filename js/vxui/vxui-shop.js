@@ -21,17 +21,17 @@ window.VX_SHOP = {
             name: '赞助者',
             monthlyPrice: 6,
             prices: {
-                '1': 72,   // 1 year (6*12)
-                '10': 720  // 10 years
+                '1': 6,    // 1 month
+                '12': 72   // 1 year (6*12)
             }
         },
         storage: {
             type: 'addon',
             items: {
-                '256GB': { code: '256GB', name: '256GB', monthlyPrice: 6, prices: { '1': 72, '10': 720 } },
-                '1TB': { code: '1TB', name: '1TB', monthlyPrice: 18, prices: { '1': 216, '10': 2160 } },
-                '3TB': { code: '3TB', name: '3TB', monthlyPrice: 66, prices: { '1': 792, '10': 7920 } },
-                '5TB': { code: '5TB', name: '5TB', monthlyPrice: 120, prices: { '1': 1440, '10': 14400 } }
+                '256GB': { code: '256GB', name: '256GB', monthlyPrice: 6, prices: { '1': 6, '12': 72 } },
+                '1TB': { code: '1TB', name: '1TB', monthlyPrice: 18, prices: { '1': 18, '12': 216 } },
+                '3TB': { code: '3TB', name: '3TB', monthlyPrice: 66, prices: { '1': 66, '12': 792 } },
+                '5TB': { code: '5TB', name: '5TB', monthlyPrice: 120, prices: { '1': 120, '12': 1440 } }
             }
         },
         direct: {
@@ -479,13 +479,13 @@ window.VX_SHOP = {
             
             <h4 class="vx-section-title">${this.t('payment_duration', '选择时长')}</h4>
             <div class="vx-purchase-options">
-                <div class="vx-purchase-option selected" onclick="VX_SHOP.selectTime(1)">
-                    <h4>1 ${this.t('payment_year', '年')}</h4>
-                    <div class="vx-option-price">¥72 / $12</div>
+                <div class="vx-purchase-option selected" data-type="time" data-time="1" onclick="VX_SHOP.selectTime(1)">
+                    <h4>1 月</h4>
+                    <div class="vx-option-price">¥${this.products.sponsor.monthlyPrice} / $${Math.ceil(this.products.sponsor.monthlyPrice / 6)}</div>
                 </div>
-                <div class="vx-purchase-option" onclick="VX_SHOP.selectTime(10)">
-                    <h4>10 ${this.t('payment_year', '年')}</h4>
-                    <div class="vx-option-price">¥720 / $120</div>
+                <div class="vx-purchase-option" data-type="time" data-time="12" onclick="VX_SHOP.selectTime(12)">
+                    <h4>1 ${this.t('payment_year', '年')}</h4>
+                    <div class="vx-option-price">¥${this.products.sponsor.prices['12']} / $${Math.ceil(this.products.sponsor.prices['12'] / 6)}</div>
                 </div>
             </div>
             
@@ -544,11 +544,11 @@ window.VX_SHOP = {
             
             <h4 class="vx-section-title">${this.t('payment_duration', '选择时长')}</h4>
             <div class="vx-purchase-options">
-                <div class="vx-purchase-option selected" onclick="VX_SHOP.selectTime(1)">
-                    <h4>1 ${this.t('payment_year', '年')}</h4>
+                <div class="vx-purchase-option selected" data-type="time" data-time="1" onclick="VX_SHOP.selectTime(1)">
+                    <h4>1 月</h4>
                 </div>
-                <div class="vx-purchase-option" onclick="VX_SHOP.selectTime(10)">
-                    <h4>10 ${this.t('payment_year', '年')}</h4>
+                <div class="vx-purchase-option" data-type="time" data-time="12" onclick="VX_SHOP.selectTime(12)">
+                    <h4>1 ${this.t('payment_year', '年')}</h4>
                 </div>
             </div>
             
@@ -725,14 +725,8 @@ window.VX_SHOP = {
         this.selectedTime = time;
         
         // Update UI - find time selection options
-        document.querySelectorAll('.vx-purchase-option').forEach(opt => {
-            const h4 = opt.querySelector('h4');
-            if (h4 && (h4.textContent.includes('年') || h4.textContent.includes('year'))) {
-                opt.classList.remove('selected');
-                if (h4.textContent.startsWith(time.toString())) {
-                    opt.classList.add('selected');
-                }
-            }
+        document.querySelectorAll('.vx-purchase-option[data-type="time"]').forEach(opt => {
+            opt.classList.toggle('selected', String(opt.dataset.time) === String(time));
         });
         
         this.updateModalPrice();
