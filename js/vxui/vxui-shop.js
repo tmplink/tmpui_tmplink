@@ -21,17 +21,17 @@ window.VX_SHOP = {
             name: '赞助者',
             monthlyPrice: 6,
             prices: {
-                '1': 72,   // 1 year (6*12)
-                '10': 720  // 10 years
+                '1': 6,    // 1 month
+                '12': 72   // 1 year (6*12)
             }
         },
         storage: {
             type: 'addon',
             items: {
-                '256GB': { code: '256GB', name: '256GB', monthlyPrice: 6, prices: { '1': 72, '10': 720 } },
-                '1TB': { code: '1TB', name: '1TB', monthlyPrice: 18, prices: { '1': 216, '10': 2160 } },
-                '3TB': { code: '3TB', name: '3TB', monthlyPrice: 66, prices: { '1': 792, '10': 7920 } },
-                '5TB': { code: '5TB', name: '5TB', monthlyPrice: 120, prices: { '1': 1440, '10': 14400 } }
+                '256GB': { code: '256GB', name: '256GB', monthlyPrice: 6, prices: { '1': 6, '12': 72 } },
+                '1TB': { code: '1TB', name: '1TB', monthlyPrice: 18, prices: { '1': 18, '12': 216 } },
+                '3TB': { code: '3TB', name: '3TB', monthlyPrice: 66, prices: { '1': 66, '12': 792 } },
+                '5TB': { code: '5TB', name: '5TB', monthlyPrice: 120, prices: { '1': 120, '12': 1440 } }
             }
         },
         direct: {
@@ -466,16 +466,26 @@ window.VX_SHOP = {
         
         modalBody.innerHTML = `
             <p class="vx-modal-desc">${this.t('model_des_sponsor', '获得高速通道、蓝标认证、媒体播放等特权')}</p>
+            <p class="vx-modal-desc">${this.t('sponsor_content', '免费，不限速，无广告，这些特性都离不开钛盘赞助者们的支持。<br>财力雄厚的你愿意为这美好的愿景添砖加瓦吗？我们非常欢迎！<br>当然不会亏待赞助者，我们为赞助者们准备以下权益：')}</p>
+            <ul class="vx-sponsor-rights">
+                <li>${this.t('sponsor_right_1', '通过高速通道下载文件')}</li>
+                <li>${this.t('sponsor_right_2', '100 GB 私有存储空间')}</li>
+                <li>${this.t('sponsor_right_3', '功能增强：上传效率')}</li>
+                <li>${this.t('sponsor_right_4', '在文件下载页和文件夹中展示您的个性化头像和签名')}</li>
+                <li>${this.t('sponsor_right_5', '在线点播任意视频')}</li>
+                <li>${this.t('sponsor_right_6', '优先认证')}</li>
+                <li>${this.t('sponsor_right_7', '更多的智能小薇对话机会')}</li>
+            </ul>
             
             <h4 class="vx-section-title">${this.t('payment_duration', '选择时长')}</h4>
             <div class="vx-purchase-options">
-                <div class="vx-purchase-option selected" onclick="VX_SHOP.selectTime(1)">
-                    <h4>1 ${this.t('payment_year', '年')}</h4>
-                    <div class="vx-option-price">¥72 / $12</div>
+                <div class="vx-purchase-option selected" data-type="time" data-time="1" onclick="VX_SHOP.selectTime(1)">
+                    <h4>1 月</h4>
+                    <div class="vx-option-price">¥${this.products.sponsor.monthlyPrice} / $${Math.ceil(this.products.sponsor.monthlyPrice / 6)}</div>
                 </div>
-                <div class="vx-purchase-option" onclick="VX_SHOP.selectTime(10)">
-                    <h4>10 ${this.t('payment_year', '年')}</h4>
-                    <div class="vx-option-price">¥720 / $120</div>
+                <div class="vx-purchase-option" data-type="time" data-time="12" onclick="VX_SHOP.selectTime(12)">
+                    <h4>1 ${this.t('payment_year', '年')}</h4>
+                    <div class="vx-option-price">¥${this.products.sponsor.prices['12']} / $${Math.ceil(this.products.sponsor.prices['12'] / 6)}</div>
                 </div>
             </div>
             
@@ -534,11 +544,11 @@ window.VX_SHOP = {
             
             <h4 class="vx-section-title">${this.t('payment_duration', '选择时长')}</h4>
             <div class="vx-purchase-options">
-                <div class="vx-purchase-option selected" onclick="VX_SHOP.selectTime(1)">
-                    <h4>1 ${this.t('payment_year', '年')}</h4>
+                <div class="vx-purchase-option selected" data-type="time" data-time="1" onclick="VX_SHOP.selectTime(1)">
+                    <h4>1 月</h4>
                 </div>
-                <div class="vx-purchase-option" onclick="VX_SHOP.selectTime(10)">
-                    <h4>10 ${this.t('payment_year', '年')}</h4>
+                <div class="vx-purchase-option" data-type="time" data-time="12" onclick="VX_SHOP.selectTime(12)">
+                    <h4>1 ${this.t('payment_year', '年')}</h4>
                 </div>
             </div>
             
@@ -715,14 +725,8 @@ window.VX_SHOP = {
         this.selectedTime = time;
         
         // Update UI - find time selection options
-        document.querySelectorAll('.vx-purchase-option').forEach(opt => {
-            const h4 = opt.querySelector('h4');
-            if (h4 && (h4.textContent.includes('年') || h4.textContent.includes('year'))) {
-                opt.classList.remove('selected');
-                if (h4.textContent.startsWith(time.toString())) {
-                    opt.classList.add('selected');
-                }
-            }
+        document.querySelectorAll('.vx-purchase-option[data-type="time"]').forEach(opt => {
+            opt.classList.toggle('selected', String(opt.dataset.time) === String(time));
         });
         
         this.updateModalPrice();

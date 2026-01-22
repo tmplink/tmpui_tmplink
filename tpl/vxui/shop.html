@@ -222,8 +222,10 @@
 /* Shop Content */
 .vx-shop-content {
     padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    background: transparent;
     display: flex;
     flex-direction: column;
 }
@@ -497,6 +499,33 @@
     gap: 8px;
 }
 
+.vx-modal-body {
+    line-height: 1.7;
+}
+
+.vx-modal-desc {
+    margin: 0 0 10px;
+    color: var(--vx-text-secondary);
+    font-size: 14px;
+}
+
+.vx-modal-desc + .vx-modal-desc {
+    margin-top: 6px;
+}
+
+.vx-sponsor-rights {
+    margin: 10px 0 4px;
+    padding-left: 18px;
+    display: grid;
+    gap: 6px;
+    color: var(--vx-text);
+    font-size: 14px;
+}
+
+.vx-sponsor-rights li::marker {
+    color: var(--vx-primary);
+}
+
 /* Purchase Options in Modal */
 .vx-purchase-options {
     display: grid;
@@ -664,7 +693,7 @@
 
 /* Orders List Styles */
 .vx-orders-list {
-    padding: 16px;
+    padding: 0;
 }
 
 .vx-orders-loading {
@@ -697,10 +726,18 @@
     display: flex;
     align-items: flex-start;
     gap: 16px;
-    padding: 16px;
-    background: var(--vx-bg-secondary);
-    border-radius: var(--vx-radius-md);
+    padding: 20px;
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
     margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.vx-order-item:hover {
+    border-color: var(--vx-primary);
+    box-shadow: var(--vx-shadow-md);
+    transform: translateY(-2px);
 }
 
 .vx-order-item:last-child {
