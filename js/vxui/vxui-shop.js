@@ -466,6 +466,16 @@ window.VX_SHOP = {
         
         modalBody.innerHTML = `
             <p class="vx-modal-desc">${this.t('model_des_sponsor', '获得高速通道、蓝标认证、媒体播放等特权')}</p>
+            <p class="vx-modal-desc">${this.t('sponsor_content', '免费，不限速，无广告，这些特性都离不开钛盘赞助者们的支持。<br>财力雄厚的你愿意为这美好的愿景添砖加瓦吗？我们非常欢迎！<br>当然不会亏待赞助者，我们为赞助者们准备以下权益：')}</p>
+            <ul class="vx-sponsor-rights">
+                <li>${this.t('sponsor_right_1', '通过高速通道下载文件')}</li>
+                <li>${this.t('sponsor_right_2', '100 GB 私有存储空间')}</li>
+                <li>${this.t('sponsor_right_3', '功能增强：上传效率')}</li>
+                <li>${this.t('sponsor_right_4', '在文件下载页和文件夹中展示您的个性化头像和签名')}</li>
+                <li>${this.t('sponsor_right_5', '在线点播任意视频')}</li>
+                <li>${this.t('sponsor_right_6', '优先认证')}</li>
+                <li>${this.t('sponsor_right_7', '更多的智能小薇对话机会')}</li>
+            </ul>
             
             <h4 class="vx-section-title">${this.t('payment_duration', '选择时长')}</h4>
             <div class="vx-purchase-options">
