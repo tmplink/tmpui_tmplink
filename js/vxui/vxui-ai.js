@@ -63,7 +63,7 @@ const VX_AI = {
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
             VXUI.toastWarning(this.lang('status_need_login', '请先登录'));
             setTimeout(() => {
-                window.location.href = '/?tmpui_page=/app&listview=login';
+                app.open('/app&listview=login');
             }, 300);
             return;
         }

@@ -640,7 +640,7 @@ class VXUICore {
                     : '请先登录';
                 this.toastWarning(msg);
             }
-            window.location.href = '/?tmpui_page=/app&listview=login';
+            app.open('/app&listview=login');
             return;
         }
 
@@ -664,7 +664,7 @@ class VXUICore {
             console.error(`[VXUI] Module not found: ${moduleName}`);
             // 兼容：旧模块可能尝试跳转到 login 模块，但登录页是独立路由
             if (moduleName === 'login') {
-                window.location.href = '/?tmpui_page=/app&listview=login';
+                app.open('/app&listview=login');
                 return;
             }
             this.toastError(`模块 ${moduleName} 未找到`);
@@ -1052,7 +1052,7 @@ class VXUICore {
      */
     switchToClassic() {
         localStorage.setItem('tmplink_ui_preference', 'vxui');
-        window.location.href = '/?tmpui_page=/vx';
+        app.open('/vx');
     }
     
     // ==================== Toast 提示 ====================

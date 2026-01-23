@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 56
+ * version: 57
  * Github : https://github.com/tmplink/tmpUI
- * Date :2025-12-11
+ * Date :2026-01-23
  */
 
 class tmpUI {
@@ -157,7 +157,7 @@ class tmpUI {
     }
 
     cssInit() {
-        this.htmlAppend('head', `<style>body::-webkit-scrollbar{width:0!important}#tmpui_loading_bg{position:fixed;top:0;left:0;width:100%;height:100%;background:${this.bg_color};z-index:15000}#tmpui_loading_show{color:#000;z-index:15001;width:80%;height:200px;position:absolute;left:0;top:0;right:0;bottom:0;margin:auto;text-align:center}.tmpui_tpl{display:none}.tmpui_progress{width:180px;background:#ddd;margin-right:auto;margin-left:auto}.tmpui_curRate{width:0%;background:#f30}.tmpui_round_conner{height:8px;border-radius:15px}</div>`);
+        this.htmlAppend('head', `<style>body::-webkit-scrollbar{width:0!important}#tmpui{display:none}#tmpui_loading_bg{position:fixed;top:0;left:0;width:100%;height:100%;background:${this.bg_color};z-index:15000}#tmpui_loading_show{color:#000;z-index:15001;width:80%;height:200px;position:absolute;left:0;top:0;right:0;bottom:0;margin:auto;text-align:center}.tmpui_tpl{display:none}.tmpui_progress{width:180px;background:#ddd;margin-right:auto;margin-left:auto}.tmpui_curRate{width:0%;background:#f30}.tmpui_round_conner{height:8px;border-radius:15px}</style>`);
     }
 
     onExit(cb) {
@@ -209,7 +209,7 @@ class tmpUI {
         } else {
             setTimeout(() => {
                 this.readyEvent();
-            }, 500);
+            }, 50);
         }
     }
 
@@ -520,8 +520,20 @@ class tmpUI {
         //移除一次性资源
         document.querySelectorAll(".tmpUIRes").forEach(e => e.parentNode.removeChild(e));
 
+        // 检查资源缓存状态 - 针对静态配置的路由，如果资源已加载，则延迟显示 Loading
+        let isCached = false;
+        if (this.config.path[url] && this.config.path[url].res) {
+            isCached = true;
+            for (let i in this.config.path[url].res) {
+                if (this.config.path[url].res[i].state !== 1) {
+                    isCached = false;
+                    break;
+                }
+            }
+        }
+
         //查找路由
-        this.loadpage(true);
+        this.loadpage(true, isCached);
 
         //在设定了 Hash 的情况下，不进行路由
         if (hash !== false && !this.loadingPage) {
@@ -557,6 +569,19 @@ class tmpUI {
     }
 
     route200(url) {
+        // 判断是否所有资源都已加载
+        this.currentLoadIsCached = true;
+        if (this.config.path[url] && this.config.path[url].res) {
+            for (let i in this.config.path[url].res) {
+                if (this.config.path[url].res[i].state !== 1) {
+                    this.currentLoadIsCached = false;
+                    break;
+                }
+            }
+        } else {
+            this.currentLoadIsCached = false;
+        }
+
         //下载所需组件
         this.loaderStart(url, () => {
             //调整网页标题
@@ -756,8 +781,37 @@ class tmpUI {
     }
 
     loaderFinish() {
+        if (this.currentLoadIsCached) {
+            if (window.tmpuiHelper.loadQueue == window.tmpuiHelper.loadTotal) {
+                this.log("Loading is complete (cached).");
+                document.body.style.overflow = "";
+
+                if (typeof this.loadCallback === 'function') {
+                    this.log("Callback is running.");
+                    this.loadCallback();
+                }
+                this.loadCallback = null;
+            }
+            return;
+        }
+
         // 检查是否启用进度条
         if (this.progressEnable && this.progressStatus === false) {
+            // 如果加载时间小于设定的延迟显示时间，则不需要显示进度条，直接结束
+            if (this._loadingStartTime && (Date.now() - this._loadingStartTime < this._loadingDelay)) {
+                if (window.tmpuiHelper.loadQueue == window.tmpuiHelper.loadTotal) {
+                    this.log("Loading is complete (fast load).");
+                    document.body.style.overflow = "";
+
+                    if (typeof this.loadCallback === 'function') {
+                        this.log("Callback is running.");
+                        this.loadCallback();
+                    }
+                    this.loadCallback = null;
+                }
+                return;
+            }
+
             // 显示进度条
             this.progressStatus = true;
             this.htmlAppend('#tmpui_loading_show', '<div class="tmpui_progress tmpui_round_conner" id="tmpui_loading_progress"><div class="tmpui_curRate tmpui_round_conner"></div></div>');
@@ -1113,7 +1167,7 @@ class tmpUI {
         }
     }
 
-    loadpage(status) {
+    loadpage(status, isCached = false) {
 
         if (!this.loadingPage) {
             this.log('Loading page exit.');
@@ -1121,11 +1175,26 @@ class tmpUI {
         }
 
         if (status == true) {
-            document.body.style.overflow = 'hidden';
-            this.domShow('#tmpui');
+            // 延迟 500ms (缓存时 2000ms) 显示加载动画，实现无闪烁加载
+            if (this._loadingTimer) clearTimeout(this._loadingTimer);
+            this._loadingActive = true;
             this.doExit();
-            this.log('Loading page on');
+
+            let delay = isCached ? 2000 : 500;
+            this._loadingDelay = delay;
+            this._loadingStartTime = Date.now();
+
+            this._loadingTimer = setTimeout(() => {
+                if (this._loadingActive) {
+                    document.body.style.overflow = 'hidden';
+                    this.domShow('#tmpui');
+                    this.log('Loading page on');
+                }
+            }, delay);
         } else {
+            this._loadingActive = false;
+            if (this._loadingTimer) clearTimeout(this._loadingTimer);
+
             document.body.style.overflow = '';
             this.domHide('#tmpui');
             this.log('Loading page off');

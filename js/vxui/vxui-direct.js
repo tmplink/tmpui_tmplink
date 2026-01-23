@@ -85,7 +85,7 @@ const VX_DIRECT = {
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
             VXUI.toastWarning('请先登录');
             setTimeout(() => {
-                window.location.href = '/?tmpui_page=/app&listview=login';
+                app.open('/app&listview=login');
             }, 300);
             return;
         }
@@ -132,7 +132,7 @@ const VX_DIRECT = {
                 if (String(err?.message || '').includes('token')) {
                     VXUI.toastError('登录状态无效，请重新登录');
                     setTimeout(() => {
-                        window.location.href = '/?tmpui_page=/app&listview=login';
+                        app.open('/app&listview=login');
                     }, 300);
                 } else {
                     VXUI.toastError('加载直链信息失败');
@@ -614,7 +614,7 @@ const VX_DIRECT = {
         if (!token) {
             VXUI.toastError('登录状态无效');
             setTimeout(() => {
-                window.location.href = '/?tmpui_page=/app&listview=login';
+                app.open('/app&listview=login');
             }, 300);
             return;
         }
