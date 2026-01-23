@@ -60,7 +60,13 @@ var PHOTO = {
             if (typeof TL === 'undefined' || !TL || typeof TL.ga !== 'function') return;
             const mode = this.isWorkspaceMode && this.isWorkspaceMode() ? 'Workspace' : 'Folder';
             const mrid = (this.mrid !== null && this.mrid !== undefined && this.mrid !== '') ? this.mrid : '0';
-            TL.ga(`Photo_Album_${action}_${mode}[${mrid}]`);
+
+            // Check if running in VXUI context (URL contains /vx)
+            if (window.location.href.indexOf('/vx') > -1) {
+                TL.ga(`vui_photo_${action}[${mrid}]`);
+            } else {
+                TL.ga(`Photo_Album_${action}_${mode}[${mrid}]`);
+            }
         } catch (e) {
             // No-op: analytics should never break UI
         }
