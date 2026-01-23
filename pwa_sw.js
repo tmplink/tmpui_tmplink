@@ -86,11 +86,22 @@ self.addEventListener('fetch', event => {
 
 
 function shouldCache(path) {
+  // 排除 index.html 和根路径
+  if (path === '/' || path.toLowerCase().endsWith('/index.html')) {
+    return false;
+  }
+
   const cacheableExtensions = [
+    // HTML
+    '.html',
+    // CSS & JS
+    '.css', '.js',
     // Images
     '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.ico',
     // Fonts
-    '.woff', '.woff2', '.ttf', '.otf', '.eot'
+    '.woff', '.woff2', '.ttf', '.otf', '.eot',
+    // JSON 
+    '.json',
   ];
   return cacheableExtensions.some(ext => path.toLowerCase().endsWith(ext));
 }
