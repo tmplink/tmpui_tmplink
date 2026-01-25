@@ -1,4 +1,4 @@
-const CACHE_NAME = "tmp-static-cache";
+const CACHE_NAME = "static-cache";
 
 self.addEventListener("install", installEvent => {
   self.skipWaiting();

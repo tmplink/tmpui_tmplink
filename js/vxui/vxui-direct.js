@@ -442,7 +442,7 @@ const VX_DIRECT = {
         this.ssl_auto = rsp.data.ssl_auto === 'yes';
         this.traffic_limit = rsp.data.traffic_limit;
         this.ssl = rsp.data.ssl_status === 'yes';
-        this.ssl_acme = rsp.data.ssl_acme === 'disable' ? false : true;
+        this.ssl_acme = (rsp.data.ssl_acme === 'yes' || rsp.data.ssl_acme === 'enable' || rsp.data.ssl_acme === true);
 
         // branding (optional fields)
         this.brand_logo_id = (rsp.data.brand_logo_id != null) ? String(rsp.data.brand_logo_id) : '0';
@@ -450,11 +450,7 @@ const VX_DIRECT = {
         this.brand_content = (rsp.data.brand_content != null) ? String(rsp.data.brand_content) : '0';
         this.brand_status = (rsp.data.brand_status != null) ? String(rsp.data.brand_status) : '';
 
-        if (this.ssl || this.ssl_acme) {
-            this.protocol = 'https://';
-        } else {
-            this.protocol = 'http://';
-        }
+        this.protocol = this.ssl ? 'https://' : 'http://';
 
         return rsp;
     },
@@ -476,7 +472,7 @@ const VX_DIRECT = {
             }
         }
         if (lock) {
-            lock.style.display = (this.ssl || this.ssl_acme) ? '' : 'none';
+            lock.style.display = this.ssl ? '' : 'none';
         }
 
         // stats
@@ -515,7 +511,7 @@ const VX_DIRECT = {
         const sslYes = document.querySelector('input[name="vx-direct-ssl"][value="yes"]');
         const sslNo = document.querySelector('input[name="vx-direct-ssl"][value="no"]');
         if (sslYes && sslNo) {
-            if (this.ssl || this.ssl_acme) {
+            if (this.ssl) {
                 sslYes.checked = true;
             } else {
                 sslNo.checked = true;
@@ -525,7 +521,7 @@ const VX_DIRECT = {
         // disable SSL button
         const disableSSLBtn = document.getElementById('vx-direct-disable-ssl');
         if (disableSSLBtn) {
-            disableSSLBtn.style.display = (this.ssl || this.ssl_acme) ? '' : 'none';
+            disableSSLBtn.style.display = this.ssl ? '' : 'none';
         }
 
         // traffic limit
