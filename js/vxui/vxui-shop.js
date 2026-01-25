@@ -12,6 +12,7 @@ window.VX_SHOP = {
     selectedPayment: null,
     purchaseType: null, // 'addon' or 'direct'
     quantity: 1,
+    isSponsorExchangeProcessing: false,
     
     // Product definitions
     products: {
@@ -992,6 +993,69 @@ window.VX_SHOP = {
         // Reload orders if on purchased tab to refresh translated content
         if (this.currentTab === 'purchased') {
             this.loadOrders();
+        }
+    },
+    /**
+     * Exchange sponsor rights with share value
+     */
+    async exchangeSponsorByShare() {
+        if (this.isSponsorExchangeProcessing) return;
+
+        const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
+        if (!token) {
+            VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
+            setTimeout(() => {
+                if (typeof app !== 'undefined' && typeof app.open === 'function') {
+                    app.open('/app&listview=login');
+                }
+            }, 800);
+            return;
+        }
+
+        this.trackUI('vui_shop[exchange_sponsor_share]');
+        this.isSponsorExchangeProcessing = true;
+        VXUI.toastInfo(this.t('sponsor_exchange_processing', '正在为您兑换...'));
+
+        try {
+            const apiUrl = (typeof TL !== 'undefined' && TL.api_pay) ? TL.api_pay : '/api_v2/pay';
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=ac_exchange&token=${encodeURIComponent(token)}`
+            });
+
+            const result = await response.json();
+
+            if (result.status === 1) {
+                VXUI.toastSuccess(this.t('sponsor_exchange_success', '兑换成功！'));
+                if (typeof TL !== 'undefined' && TL.get_details) {
+                    TL.get_details(() => {
+                        this.loadUserStatus();
+                    });
+                } else {
+                    this.loadUserStatus();
+                }
+            } else if (result.status === 1004) {
+                VXUI.toastWarning(this.t('sponsor_exchange_insufficient', '分享值不足 100'));
+            } else if (result.status === 1002) {
+                VXUI.toastWarning(this.t('sponsor_exchange_already', '本月已兑换'));
+            } else if (result.status === 0) {
+                VXUI.toastError(this.t('sponsor_exchange_auth_fail', '登录已失效，请重新登录'));
+                setTimeout(() => {
+                    if (typeof app !== 'undefined' && typeof app.open === 'function') {
+                        app.open('/app&listview=login');
+                    }
+                }, 800);
+            } else {
+                VXUI.toastError(result.debug || this.t('sponsor_exchange_error', '兑换失败'));
+            }
+        } catch (e) {
+            console.error('[VX_SHOP] Sponsor exchange error:', e);
+            VXUI.toastError(this.t('sponsor_exchange_error', '兑换失败'));
+        } finally {
+            this.isSponsorExchangeProcessing = false;
         }
     }
 };
