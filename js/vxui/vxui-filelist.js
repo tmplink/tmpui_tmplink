@@ -1186,9 +1186,12 @@ var VX_FILELIST = VX_FILELIST || {
             const details = await this.apiDirectPost({ action: 'details' });
             if (details && details.status === 1 && details.data) {
                 const d = details.data;
-                this.directDomain = d.domain;
+                const rawDomain = d.domain;
+                this.directDomain = (rawDomain && typeof rawDomain === 'string')
+                    ? rawDomain.replace(/^https?:\/\//i, '')
+                    : rawDomain;
                 const ssl = d.ssl_status === 'yes';
-                const ssl_acme = d.ssl_acme === 'disable' ? false : true;
+                const ssl_acme = (d.ssl_acme === 'yes' || d.ssl_acme === 'enable' || d.ssl_acme === true);
                 this.directProtocol = (ssl || ssl_acme) ? 'https://' : 'http://';
                 this.directDomainReady = !!(this.directDomain && this.directDomain !== 0);
             } else {
