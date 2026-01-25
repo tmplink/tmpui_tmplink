@@ -2446,4 +2446,222 @@
         align-self: flex-start;
     }
 }
+
+/* ==================== Thumbnail & Preview Styles ==================== */
+.vx-list-thumb {
+    width: 32px; 
+    height: 32px; 
+    flex-shrink: 0;
+    cursor: zoom-in;
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--vx-bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--vx-border);
+}
+
+.vx-list-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.2s;
+}
+
+.vx-list-thumb:hover img {
+    opacity: 0.8;
+}
+
+/* File Name Link for Images */
+.vx-filename-preview {
+    cursor: zoom-in;
+    color: var(--vx-text);
+    text-decoration: none;
+}
+
+.vx-filename-preview:hover {
+    color: var(--vx-primary);
+}
+
+/* Preview Modal */
+.vx-preview-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9); /* Fallback */
+    background: color-mix(in srgb, var(--vx-bg, #ffffff), transparent 5%); /* Adaptive background */
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    backdrop-filter: blur(5px); /* Add blur effect */
+}
+
+.vx-preview-modal.active {
+    display: flex;
+    animation: vx-preview-fade-in 0.25s ease forwards;
+}
+
+.vx-preview-modal.closing {
+    animation: vx-preview-fade-out 0.25s ease forwards;
+}
+
+@keyframes vx-preview-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes vx-preview-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.vx-preview-content {
+    width: min(90vw, 1024px);
+    height: min(90vh, 768px);
+    position: relative;
+    border-radius: 8px;
+    background: transparent;
+    /* Removed box-shadow for cleaner look on image */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+.vx-preview-modal.active .vx-preview-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.vx-preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    user-select: none;
+    z-index: 1;
+    opacity: 0;
+    transform: scale(0.92);
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smooth image entry */
+}
+
+.vx-preview-image.loaded {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.vx-preview-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    color: var(--vx-text); /* Adaptive color */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: none;
+    background: transparent;
+    border-radius: 50%;
+    z-index: 3;
+}
+
+.vx-preview-close:hover {
+    color: var(--vx-primary);
+}
+
+/* Dark mode overrides for close button */
+@media (prefers-color-scheme: dark) {
+    .vx-preview-close {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    .vx-preview-close:hover {
+        color: white;
+    }
+}
+body.dark .vx-preview-close, [data-theme="dark"] .vx-preview-close {
+    color: rgba(255, 255, 255, 0.8);
+}
+body.dark .vx-preview-close:hover, [data-theme="dark"] .vx-preview-close:hover {
+    color: white;
+}
+
+.vx-preview-details {
+    position: absolute;
+    bottom: 12px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: var(--vx-text); /* Adaptive text color */
+    font-size: 14px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease 0.1s;
+    background: rgba(255, 255, 255, 0.5); /* Light mode background for readability */
+    padding: 4px 12px;
+    border-radius: 12px;
+    display: inline-block;
+    max-width: 80%;
+    margin: 0 auto;
+    backdrop-filter: blur(4px);
+    z-index: 2;
+}
+
+/* Dark mode adjustment for details text */
+@media (prefers-color-scheme: dark) {
+    .vx-preview-details {
+       color: rgba(255, 255, 255, 0.9);
+       background: rgba(0, 0, 0, 0.5);
+       text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+}
+/* If app uses a class for dark mode */
+body.dark .vx-preview-details, [data-theme="dark"] .vx-preview-details {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.vx-preview-details.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.vx-preview-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--vx-text); /* Adaptive color */
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.vx-preview-loading img {
+    width: 32px;
+    height: 32px;
+}
+
+/* Dark mode override for loading spinner */
+@media (prefers-color-scheme: dark) {
+    .vx-preview-loading { color: white; }
+}
+body.dark .vx-preview-loading, [data-theme="dark"] .vx-preview-loading {
+    color: white;
+}
 </style>

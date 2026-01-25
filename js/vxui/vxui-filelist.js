@@ -1669,9 +1669,18 @@ var VX_FILELIST = VX_FILELIST || {
             const fid = photo.ukey;
             const size = photo.fsize_formated || this.formatSize(photo.fsize || 0);
             const isSyncing = photo.sync === 1 || photo.sync === '1';
+            const isNsfw = photo.nsfw === 'yes';
+            const isRestricted = isNsfw && !this.isOwner;
             
             // 同步中的图片使用占位图，同步完成后再加载真实图片
-            const thumbnail = isSyncing ? '/img/loading.svg' : this.buildImageUrl(photo, 'thumb', '800x600');
+            let thumbnail;
+            if (isSyncing) {
+                thumbnail = '/img/loading.svg';
+            } else if (isRestricted) {
+                thumbnail = '/img/nsfw.jpg';
+            } else {
+                thumbnail = this.buildImageUrl(photo, 'thumb', '800x600');
+            }
             
             let html = template
                 .replace(/{index}/g, index)
@@ -1687,6 +1696,11 @@ var VX_FILELIST = VX_FILELIST || {
             if (card) {
                 card.dataset.ukey = fid;
                 
+                // 如果是受限内容，标记一下（可选，这里直接用状态判断即可）
+                if (isRestricted) {
+                    card.classList.add('vx-nsfw-restricted');
+                }
+
                 // 如果正在同步，添加同步中遮罩并保持 loading 状态
                 if (isSyncing) {
                     // 保存真实的图片 URL 供同步完成后使用
@@ -1873,15 +1887,55 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 同步状态文字
         const syncText = this.t('upload_sync_onprogress', '同步中...');
+
+        // 检查是否为图片文件（用于显示缩略图）
+        const isImage = this.isImageFile(file.ftype);
+        const isNsfw = file.nsfw === 'yes';
+        // 如果是 NSFW 且不是拥有者，则视为受限内容
+        const isRestricted = isNsfw && !this.isOwner;
+
+        let iconHtml = '';
+        let filenameLink = '';
+
+        if (isImage && !isSyncing) {
+            if (isRestricted) {
+                // NSFW 受限内容：显示占位图，不可预览
+                iconHtml = `
+                    <div class="vx-list-thumb">
+                        <img src="/img/nsfw.jpg" alt="NSFW">
+                    </div>
+                `;
+                // 恢复普通链接（不触发预览）
+                filenameLink = `<a href="/file?ukey=${file.ukey}" tmpui-app="true" target="_blank" onclick="event.stopPropagation();">${this.escapeHtml(file.fname)}</a>`;
+            } else {
+                // 正常图片：显示缩略图，可预览
+                // 使用 thumb 操作和 64x64 尺寸
+                const thumbUrl = this.buildImageUrl(file, 'thumb', '64x64');
+                iconHtml = `
+                    <div class="vx-list-thumb" onclick="event.stopPropagation(); VX_FILELIST.previewImage('${file.ukey}')">
+                        <img src="${thumbUrl}" alt="" loading="lazy">
+                    </div>
+                `;
+                // 图片文件名点击预览
+                filenameLink = `<a href="javascript:;" class="vx-filename-preview" onclick="event.stopPropagation(); VX_FILELIST.previewImage('${file.ukey}')">${this.escapeHtml(file.fname)}</a>`;
+            }
+        } else {
+            // 非图片或同步中：显示图标
+            iconHtml = `
+                <div class="vx-list-icon ${iconInfo.class}">
+                    <iconpark-icon name="${iconInfo.icon}"></iconpark-icon>
+                </div>
+            `;
+            // 普通文件点击打开
+            filenameLink = `<a href="/file?ukey=${file.ukey}" tmpui-app="true" target="_blank" onclick="event.stopPropagation();">${this.escapeHtml(file.fname)}</a>`;
+        }
         
         row.innerHTML = `
             ${showCheckbox ? '<div class="vx-list-checkbox" onclick="event.stopPropagation(); VX_FILELIST.toggleItemSelect(this.parentNode)"></div>' : ''}
             <div class="vx-list-name">
-                <div class="vx-list-icon ${iconInfo.class}">
-                    <iconpark-icon name="${iconInfo.icon}"></iconpark-icon>
-                </div>
+                ${iconHtml}
                 <div class="vx-list-filename">
-                    <a href="/file?ukey=${file.ukey}" tmpui-app="true" target="_blank" onclick="event.stopPropagation();">${this.escapeHtml(file.fname)}</a>
+                    ${filenameLink}
                     ${file.hot > 0 ? '<iconpark-icon name="fire" class="vx-hot-badge"></iconpark-icon>' : ''}
                     ${file.like > 0 ? `<span class="vx-like-badge"><iconpark-icon name="like"></iconpark-icon>${file.like}</span>` : ''}
                     ${(file.lefttime > 0 && !isPermanent) ? `
@@ -1937,6 +1991,103 @@ var VX_FILELIST = VX_FILELIST || {
         }
         
         return row;
+    },
+
+    /**
+     * 预览图片（模态框方式）
+     */
+    previewImage(ukey) {
+        this._previewClosing = false;
+        const file = (this.fileList || []).find(f => String(f.ukey) === String(ukey));
+        if (!file) return;
+
+        let modal = document.getElementById('vx-preview-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'vx-preview-modal';
+            modal.className = 'vx-preview-modal';
+            modal.innerHTML = `
+                <div class="vx-preview-content" onclick="event.stopPropagation()">
+                    <div class="vx-preview-close" onclick="VX_FILELIST.closePreview()">
+                        <iconpark-icon name="circle-xmark"></iconpark-icon>
+                    </div>
+                    <div class="vx-preview-loading" id="vx-preview-loading">
+                        <img src="/img/loading-outline.svg" class="vx-sync-spinner" alt="loading" />
+                    </div>
+                    <img class="vx-preview-image" id="vx-preview-image" src="" alt="" style="opacity: 0">
+                    <div class="vx-preview-details" id="vx-preview-details"></div>
+                </div>
+            `;
+            modal.onclick = (e) => {
+                if (e.target === modal) this.closePreview();
+            };
+            document.body.appendChild(modal);
+        }
+
+        const img = modal.querySelector('#vx-preview-image');
+        const loading = modal.querySelector('#vx-preview-loading');
+        const details = modal.querySelector('#vx-preview-details');
+        
+        if (loading) {
+            loading.style.display = 'flex';
+            loading.style.opacity = '1';
+        }
+        if (img) {
+            // Reset state
+            img.classList.remove('loaded');
+            // Remove inline style that might conflict
+            img.style.opacity = ''; 
+            img.src = ''; 
+            
+            // 使用大图预览
+            const url = this.buildImageUrl(file, 'thumb', '1024x768'); 
+            img.src = url;
+
+            img.onload = () => {
+                if (loading) {
+                    loading.style.opacity = '0';
+                    setTimeout(() => { if(loading) loading.style.display = 'none'; }, 200);
+                }
+                img.classList.add('loaded');
+                if (details) details.classList.add('visible'); // Show details when image loaded
+            };
+            img.onerror = () => {
+                if (loading) loading.style.display = 'none';
+                if (!this._previewClosing) {
+                    VXUI.toastError(this.t('vx_load_failed', '图片加载失败'));
+                }
+            };
+        }
+
+        if (details) {
+            details.textContent = `${file.fname} (${file.fsize_formated || this.formatSize(file.fsize)})`;
+            details.classList.remove('visible'); // Hide initially
+        }
+
+        // Reset closing class if exists
+        modal.classList.remove('closing');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; 
+    },
+
+    closePreview() {
+        this._previewClosing = true;
+        const modal = document.getElementById('vx-preview-modal');
+        if (modal) {
+            modal.classList.add('closing');
+            
+            // Wait for animation to finish
+            setTimeout(() => {
+                modal.classList.remove('active');
+                modal.classList.remove('closing');
+                const img = modal.querySelector('#vx-preview-image');
+                if (img) {
+                    img.src = '';
+                    img.classList.remove('loaded');
+                }
+            }, 250); // Matches CSS animation duration
+        }
+        document.body.style.overflow = '';
     },
     
     /**
@@ -2124,6 +2275,11 @@ var VX_FILELIST = VX_FILELIST || {
         if (this.selectMode) {
             this.togglePhotoSelect(index);
         } else {
+            const photo = this.photoList[index];
+            if (photo && photo.nsfw === 'yes' && !this.isOwner) {
+                // NSFW 受限内容，不提供预览
+                return;
+            }
             this.openLightbox(index);
         }
     },
