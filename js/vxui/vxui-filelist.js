@@ -913,7 +913,7 @@ var VX_FILELIST = VX_FILELIST || {
             this.applyFolderPrivacyUI();
             this.applyFolderPublishUI();
 
-            // 加载文件夹直链状态（仅非桌面/登录且 owner 时显示）
+            // 加载直链状态（属主可用）
             this.loadDirectFolderState();
             
             // 加载文件列表
@@ -1169,7 +1169,7 @@ var VX_FILELIST = VX_FILELIST || {
 
     async loadDirectFolderState() {
         // hide fast if not applicable
-        const show = this.isOwner && !this.isDesktop && this.mrid && String(this.mrid) !== '0';
+        const show = this.isOwner;
         if (!show) {
             this.directDomain = null;
             this.directDomainReady = false;
@@ -1191,8 +1191,7 @@ var VX_FILELIST = VX_FILELIST || {
                     ? rawDomain.replace(/^https?:\/\//i, '')
                     : rawDomain;
                 const ssl = d.ssl_status === 'yes';
-                const ssl_acme = (d.ssl_acme === 'yes' || d.ssl_acme === 'enable' || d.ssl_acme === true);
-                this.directProtocol = (ssl || ssl_acme) ? 'https://' : 'http://';
+                this.directProtocol = ssl ? 'https://' : 'http://';
                 this.directDomainReady = !!(this.directDomain && this.directDomain !== 0);
             } else {
                 this.directDomain = null;
@@ -1206,13 +1205,18 @@ var VX_FILELIST = VX_FILELIST || {
                 return;
             }
 
-            const rsp = await this.apiDirectPost({ action: 'dir_details', mrid: this.mrid });
-            if (rsp && rsp.status === 1) {
-                this.directDirEnabled = true;
-                this.directDirKey = rsp.data;
-            } else {
+            if (this.isDesktop || !this.mrid || String(this.mrid) === '0') {
                 this.directDirEnabled = false;
                 this.directDirKey = null;
+            } else {
+                const rsp = await this.apiDirectPost({ action: 'dir_details', mrid: this.mrid });
+                if (rsp && rsp.status === 1) {
+                    this.directDirEnabled = true;
+                    this.directDirKey = rsp.data;
+                } else {
+                    this.directDirEnabled = false;
+                    this.directDirKey = null;
+                }
             }
 
             this.applyDirectSidebarUI();
@@ -1324,19 +1328,46 @@ var VX_FILELIST = VX_FILELIST || {
         return `${this.directProtocol}${this.directDomain}/share/${this.directDirKey}/${encoded}`;
     },
 
-    copyDirectFileLinkByUkey(ukey) {
+    getDirectFileDownloadLink(dkey, filename) {
+        if (!this.directDomainReady || !this.directDomain || !dkey) return '';
+        const name = filename ? encodeURIComponent(String(filename)) : '';
+        return `${this.directProtocol}${this.directDomain}/files/${dkey}/${name}`;
+    }
+
+    async copyDirectFileLinkByUkey(ukey) {
         const file = (this.fileList || []).find(f => String(f.ukey) === String(ukey));
         if (!file) {
             VXUI.toastError(this.t('vx_file_not_found', '文件不存在'));
             return;
         }
-        const link = this.getDirectFileShareLink(file);
-        if (!link) {
-            VXUI.toastWarning(this.t('vx_direct_not_enabled', '未开启文件夹直链'));
+        this.trackUI('vui_filelist[copy_file_direct]');
+        if (!this.directDomainReady || !this.directDomain) {
+            VXUI.toastWarning(this.t('vx_bind_direct_domain_toast', '请先绑定直链域名'));
             return;
         }
-        this.trackUI('vui_filelist[copy_file_direct]');
+
+        let link = this.getDirectFileShareLink(file);
+        if (!link) {
+            try {
+                const rsp = await this.apiDirectPost({ action: 'add_link', ukey: file.ukey });
+                if (rsp && rsp.status === 1 && Array.isArray(rsp.data) && rsp.data.length > 0) {
+                    const item = rsp.data[0] || {};
+                    const dkey = item.dkey || item.direct_key || item.key;
+                    const name = item.name || item.fname || item.filename || (file.fname_ex || file.fname);
+                    link = this.getDirectFileDownloadLink(dkey, name);
+                }
+            } catch (e) {
+                console.error('[VX_FILELIST] add_link error:', e);
+            }
+        }
+
+        if (!link) {
+            VXUI.toastWarning(this.t('vx_operation_error', '操作发生错误，请稍后重试。'));
+            return;
+        }
+
         VXUI.copyToClipboard(link);
+        VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
     },
     
     /**
@@ -4164,8 +4195,7 @@ var VX_FILELIST = VX_FILELIST || {
         const isFile = type === 'file';
         const isFolder = type === 'folder';
         const canOwnerOps = !!this.isOwner;
-        const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
-        const canDirectShare = isFile && isLoggedIn && this.directDomainReady && this.directDirEnabled && this.directDirKey;
+        const canDirectShare = isFile && this.isOwner && this.directDomainReady;
         
         let menuItems = [];
         let title = '';
@@ -4296,8 +4326,7 @@ var VX_FILELIST = VX_FILELIST || {
         const type = target.dataset.type;
         const isFile = type === 'file';
         const canOwnerOps = !!this.isOwner;
-        const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
-        const canDirectShare = isFile && isLoggedIn && this.directDomainReady && this.directDirEnabled && this.directDirKey;
+        const canDirectShare = isFile && this.isOwner && this.directDomainReady;
 
         const elOpen = document.getElementById('vx-fl-menu-open');
         const elDownload = document.getElementById('vx-fl-menu-download');
