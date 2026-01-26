@@ -119,6 +119,13 @@ body.file-page .file-page-root .align-self-center {
     -webkit-overflow-scrolling: touch;
 }
 
+/* Centered layout for simple message pages */
+.mobile-content.is-centered {
+    justify-content: center;
+    padding-top: 0;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
 /* Loading state (before details loaded) */
 #file_loading_box {
     position: fixed;

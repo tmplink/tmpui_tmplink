@@ -74,7 +74,7 @@
     <script type="text/javascript" src="./tmpui.js?v=53"></script>
     <script type="text/javascript">
         let config = {
-            "version": 1692,
+            "version": 1693,
             "siteroot": "/",
             "loadingIcon": "/img/ico/logo-new.svg",
             "loadingText": "TMP.LINK",
@@ -285,7 +285,10 @@
                     "preload": ["init"],
                     "append": ["tmplink"],
                     "body": {
-                        "/tpl/503.html": { "type": "html", "target": { "type": "body" } }
+                        "/css/file.css": { "type": "css", "reload": false },
+                        "/tpl/503.html": { "type": "html", "target": { "type": "body" } },
+                        "/tpl/503_mobile.html": { "type": "file" },
+                        "/js/init/init_503.js": { "type": "js" }
                     }
                 },
                 "/404": {
@@ -293,7 +296,10 @@
                     "preload": ["init"],
                     "append": ["tmplink"],
                     "body": {
-                        "/tpl/404.html": { "type": "html", "target": { "type": "body" } }
+                        "/css/file.css": { "type": "css", "reload": false },
+                        "/tpl/404.html": { "type": "html", "target": { "type": "body" } },
+                        "/tpl/404_mobile.html": { "type": "file" },
+                        "/js/init/init_404.js": { "type": "js" }
                     }
                 },
                 "/403": {
@@ -301,7 +307,21 @@
                     "preload": ["init"],
                     "append": ["tmplink"],
                     "body": {
-                        "/tpl/403.html": { "type": "html", "target": { "type": "body" } }
+                        "/css/file.css": { "type": "css", "reload": false },
+                        "/tpl/403.html": { "type": "html", "target": { "type": "body" } },
+                        "/tpl/403_mobile.html": { "type": "file" },
+                        "/js/init/init_403.js": { "type": "js" }
+                    }
+                },
+                "/504": {
+                    "title": "TMP.link - 504",
+                    "preload": ["init"],
+                    "append": ["tmplink"],
+                    "body": {
+                        "/css/file.css": { "type": "css", "reload": false },
+                        "/tpl/504.html": { "type": "html", "target": { "type": "body" } },
+                        "/tpl/504_mobile.html": { "type": "file" },
+                        "/js/init/init_504.js": { "type": "js" }
                     }
                 },
                 "/file": {
