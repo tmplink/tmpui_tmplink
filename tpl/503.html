@@ -1,26 +1,53 @@
-<div class="container d-flex flex-grow-1">
-    <div class="align-self-center w-100">
-        <div class="text-center mb-6 d-none d-md-block">
-            <a href="/">
-            <img id="top_loggo" src="/img/ico/logo-red.svg" alt="tmp.link" style="width: 64px;">
+<div class="file-page-root">
+    <div class="file-screen">
+        <header class="file-header">
+            <a class="file-logo" href="/">
+                <img id="top_loggo" src="/img/ico/logo-new.svg" alt="tmp.link">
             </a>
-        </div>
-        <div id="file_messenger" class="align-self-center mx-auto default-filebox"
-            style="margin-top: 20px;max-width: 550px;">
-            <div class="glass" style="border-radius: 24px;">
-                <div class="card-body p-5 default-filebox  d-flex flex-grow-1">
-                    <!-- 垂直居中 -->
-                    <div class="align-self-center w-100">
-                        <div class="text-center pt-2">
-                            <iconpark-icon name="loader" class="fa-fw fa-8x mb-3"></iconpark-icon>
-                            <h3 i18n="page_503_title" class="text-center">服务器繁忙</h3>
-                        </div>
-                        <div class="text-center h3 mt-4">
-                            <h4 i18n="page_503_content" class="text-center">.</h4>
-                        </div>
-                    </div>
+        </header>
+        <section class="file-body">
+            <div class="file-message-card">
+                <div class="file-message-icon">
+                    <iconpark-icon name="loader" class="fa-fw fa-6x mb-3"></iconpark-icon>
                 </div>
+                <div class="file-message-text">
+                    <div class="h4 mb-2" i18n="page_503_title">服务器繁忙</div>
+                    <div class="text-muted" i18n="page_503_content">.</div>
+                </div>
+                <div class="file-message-actions">
+                    <a href="/" class="file-btn primary" i18n="return_index">.</a>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<div id="footer" class="d-flex align-self-end">
+    <div class="container topnav-addon">
+        <div class="d-none d-sm-block">
+            <div>
+                <ul class="list-inline mb-0">
+                    <li class="list-inline-item">
+                        <span class="btn-pointer" onclick="app.open('/tos.html', true);" i18n="footer_tos">.</span>
+                    </li>
+                    <li class="list-inline-item">
+                        <span class="btn-pointer" onclick="app.open('/privacy.html', true);" i18n="footer_privacy">.</span>
+                    </li>
+                    <li class="list-inline-item " i18n="footer_news">.</a>
+                    </li>
+                    <li class="list-inline-item">
+                        <a target="_blank" href="mailto:admin@tmp.link" i18n="footer_contact">.</a>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                © 2018 - 2026 TMPLINK STUDIO &trade;
+            </div>
+        </div>
+        <div class="d-none d-sm-block" style="font-size: 12px;line-height: normal;">
+            <div>
+                Build with love &amp; tmpUI.
             </div>
         </div>
     </div>
 </div>
+<div id="tpl_model"></div>
