@@ -1332,7 +1332,7 @@ var VX_FILELIST = VX_FILELIST || {
         if (!this.directDomainReady || !this.directDomain || !dkey) return '';
         const name = filename ? encodeURIComponent(String(filename)) : '';
         return `${this.directProtocol}${this.directDomain}/files/${dkey}/${name}`;
-    }
+    },
 
     async copyDirectFileLinkByUkey(ukey) {
         const file = (this.fileList || []).find(f => String(f.ukey) === String(ukey));
