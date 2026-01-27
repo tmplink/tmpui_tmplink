@@ -329,6 +329,30 @@
         <span data-tpl="vx_direct_share">通过直链分享</span>
     </div>
 
+    <!-- Video Stream Options (Sponsor Only) -->
+    <div class="vx-context-divider" id="vx-fl-menu-stream-divider" style="display:none;"></div>
+    <div class="vx-context-label" id="vx-fl-menu-stream-label" style="display:none;" data-tpl="file_btn_play">在线观看</div>
+    <div class="vx-context-item" id="vx-fl-menu-stream-browser" style="display:none;" onclick="VX_FILELIST.streamContextItem('web')">
+        <iconpark-icon name="browser"></iconpark-icon>
+        <span>Browser</span>
+    </div>
+    <div class="vx-context-item" id="vx-fl-menu-stream-potplayer" style="display:none;" onclick="VX_FILELIST.streamContextItem('potplayer')">
+        <iconpark-icon name="send-backward"></iconpark-icon>
+        <span>PotPlayer</span>
+    </div>
+    <div class="vx-context-item" id="vx-fl-menu-stream-iina" style="display:none;" onclick="VX_FILELIST.streamContextItem('iina')">
+        <iconpark-icon name="send-backward"></iconpark-icon>
+        <span>IINA</span>
+    </div>
+    <div class="vx-context-item" id="vx-fl-menu-stream-nplayer" style="display:none;" onclick="VX_FILELIST.streamContextItem('nplayer')">
+        <iconpark-icon name="send-backward"></iconpark-icon>
+        <span>nPlayer</span>
+    </div>
+    <div class="vx-context-item" id="vx-fl-menu-stream-copy" style="display:none;" onclick="VX_FILELIST.streamContextItem('copy')">
+        <iconpark-icon name="copy"></iconpark-icon>
+        <span>Stream URL</span>
+    </div>
+
     <div class="vx-context-divider" id="vx-fl-menu-expire-divider"></div>
     <div class="vx-context-label" id="vx-fl-menu-expire-label" data-tpl="on_select_change_model">修改有效期</div>
     <div class="vx-context-item" id="vx-fl-menu-expire-3" onclick="VX_FILELIST.setExpireContextItem(99)">

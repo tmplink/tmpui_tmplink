@@ -447,6 +447,7 @@
     "direct_add_link_success": "The direct download link for this file has been copied to the clipboard, you can manage these links from Direct Link.",
     "menu_addlink": "Generate direct link",
     "copied": "Copied!",
+    "player_not_installed": "{player} not installed, stream URL copied",
     "model_title_skip": "Skip",
     "model_title_skip_des": "Skip when the file has already existed in the current folder.",
     "status_area": "This file is not available in this area",

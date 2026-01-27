@@ -3962,6 +3962,29 @@ var VX_FILELIST = VX_FILELIST || {
                 <span data-tpl="vx_direct_share">通过直链分享</span>
             </div>
 
+            <div class="vx-context-divider" id="vx-fl-menu-stream-divider" style="display:none;"></div>
+            <div class="vx-context-label" id="vx-fl-menu-stream-label" style="display:none;" data-tpl="file_btn_play">在线观看</div>
+            <div class="vx-context-item" id="vx-fl-menu-stream-browser" style="display:none;" onclick="VX_FILELIST.streamContextItem('web')">
+                <iconpark-icon name="browser"></iconpark-icon>
+                <span>Browser</span>
+            </div>
+            <div class="vx-context-item" id="vx-fl-menu-stream-potplayer" style="display:none;" onclick="VX_FILELIST.streamContextItem('potplayer')">
+                <iconpark-icon name="send-backward"></iconpark-icon>
+                <span>PotPlayer</span>
+            </div>
+            <div class="vx-context-item" id="vx-fl-menu-stream-iina" style="display:none;" onclick="VX_FILELIST.streamContextItem('iina')">
+                <iconpark-icon name="send-backward"></iconpark-icon>
+                <span>IINA</span>
+            </div>
+            <div class="vx-context-item" id="vx-fl-menu-stream-nplayer" style="display:none;" onclick="VX_FILELIST.streamContextItem('nplayer')">
+                <iconpark-icon name="send-backward"></iconpark-icon>
+                <span>nPlayer</span>
+            </div>
+            <div class="vx-context-item" id="vx-fl-menu-stream-copy" style="display:none;" onclick="VX_FILELIST.streamContextItem('copy')">
+                <iconpark-icon name="copy"></iconpark-icon>
+                <span>Stream URL</span>
+            </div>
+
             <div class="vx-context-divider" id="vx-fl-menu-expire-divider"></div>
             <div class="vx-context-label" id="vx-fl-menu-expire-label" data-tpl="on_select_change_model">修改有效期</div>
             <div class="vx-context-item" id="vx-fl-menu-expire-3" onclick="VX_FILELIST.setExpireContextItem(99)">
@@ -4205,6 +4228,8 @@ var VX_FILELIST = VX_FILELIST || {
             const file = this.fileList.find(f => f.ukey === ukey);
             title = file ? (file.fname_ex || file.fname) : this.t('file', '文件');
             const currentModel = file ? file.model : -1;
+            const fileName = file ? (file.fname_ex || file.fname || '') : '';
+            const fileOwner = file ? file.owner : null;
             
             // 下载
             menuItems.push({
@@ -4229,6 +4254,50 @@ var VX_FILELIST = VX_FILELIST || {
                     text: this.t('vx_direct_share', '通过直链分享'),
                     action: () => this.copyDirectFileLinkByUkey(ukey)
                 });
+            }
+
+            // 视频流媒体选项（赞助者专用）
+            const canStreamBrowser = this.checkStreamAllow(fileName, fileOwner);
+            const canStreamApps = this.checkStreamForOpenOnApps(fileName, fileOwner);
+            if (canStreamBrowser || canStreamApps) {
+                // 添加分组标题
+                menuItems.push({
+                    type: 'label',
+                    text: this.t('file_btn_play', '在线观看')
+                });
+                
+                // Browser 播放
+                if (canStreamBrowser) {
+                    menuItems.push({
+                        icon: 'browser',
+                        text: 'Browser',
+                        action: () => this.requestStream(ukey, 'web')
+                    });
+                }
+                
+                // 外部播放器选项
+                if (canStreamApps) {
+                    menuItems.push({
+                        icon: 'send-backward',
+                        text: 'PotPlayer',
+                        action: () => this.requestStream(ukey, 'potplayer')
+                    });
+                    menuItems.push({
+                        icon: 'send-backward',
+                        text: 'IINA',
+                        action: () => this.requestStream(ukey, 'iina')
+                    });
+                    menuItems.push({
+                        icon: 'send-backward',
+                        text: 'nPlayer',
+                        action: () => this.requestStream(ukey, 'nplayer')
+                    });
+                    menuItems.push({
+                        icon: 'copy',
+                        text: 'Stream URL',
+                        action: () => this.requestStream(ukey, 'copy')
+                    });
+                }
             }
             
             // 修改有效期（仅所有者，排除当前有效期）
@@ -4381,6 +4450,29 @@ var VX_FILELIST = VX_FILELIST || {
         // 显示有效期分隔线
         if (elExpireDivider) elExpireDivider.style.display = (isFile && canOwnerOps) ? '' : 'none';
 
+        // 视频流媒体选项（赞助者专用）
+        const fileName = file ? (file.fname_ex || file.fname || '') : '';
+        const fileOwner = file ? file.owner : null;
+        const canStreamBrowser = isFile && this.checkStreamAllow(fileName, fileOwner);
+        const canStreamApps = isFile && this.checkStreamForOpenOnApps(fileName, fileOwner);
+        const showStreamOptions = canStreamBrowser || canStreamApps;
+
+        const elStreamDivider = document.getElementById('vx-fl-menu-stream-divider');
+        const elStreamLabel = document.getElementById('vx-fl-menu-stream-label');
+        const elStreamBrowser = document.getElementById('vx-fl-menu-stream-browser');
+        const elStreamPotplayer = document.getElementById('vx-fl-menu-stream-potplayer');
+        const elStreamIina = document.getElementById('vx-fl-menu-stream-iina');
+        const elStreamNplayer = document.getElementById('vx-fl-menu-stream-nplayer');
+        const elStreamCopy = document.getElementById('vx-fl-menu-stream-copy');
+
+        if (elStreamDivider) elStreamDivider.style.display = showStreamOptions ? '' : 'none';
+        if (elStreamLabel) elStreamLabel.style.display = showStreamOptions ? '' : 'none';
+        if (elStreamBrowser) elStreamBrowser.style.display = canStreamBrowser ? '' : 'none';
+        if (elStreamPotplayer) elStreamPotplayer.style.display = canStreamApps ? '' : 'none';
+        if (elStreamIina) elStreamIina.style.display = canStreamApps ? '' : 'none';
+        if (elStreamNplayer) elStreamNplayer.style.display = canStreamApps ? '' : 'none';
+        if (elStreamCopy) elStreamCopy.style.display = canStreamApps ? '' : 'none';
+
         // 非 owner：隐藏重命名/删除
         if (elRename) elRename.style.display = canOwnerOps ? '' : 'none';
         if (elDelete) elDelete.style.display = canOwnerOps ? '' : 'none';
@@ -4478,6 +4570,237 @@ var VX_FILELIST = VX_FILELIST || {
         }, 'json').fail(() => {
             VXUI.toastError(this.t('vx_update_failed', '修改失败'));
         });
+    },
+
+    // ==================== 视频流媒体 (赞助者专用) ====================
+
+    // 支持浏览器播放的视频格式
+    streamCanplayList: [
+        ['video/mp4', 'mp4'],
+        ['video/webm', 'webm'],
+        ['video/ogg', 'ogg'],
+        ['video/quicktime', 'mov'],
+        ['video/3gpp', '3gp'],
+        ['video/mpeg', 'mpeg'],
+    ],
+
+    // 支持外部播放器的视频格式
+    streamOpenOnAppsExt: ['mp4', 'webm', 'ogg', 'mov', '3gp', 'mpeg', 'mkv', 'rm', 'rmvb', 'avi', 'm4v', 'flv', 'wmv', 'mpv'],
+
+    // 浏览器支持的视频格式缓存
+    _streamAllowExt: null,
+
+    /**
+     * 获取浏览器支持播放的视频格式列表
+     */
+    getStreamAllowExt() {
+        if (this._streamAllowExt !== null) {
+            return this._streamAllowExt;
+        }
+        this._streamAllowExt = [];
+        const video = document.createElement('video');
+        for (const [mimeType, ext] of this.streamCanplayList) {
+            const canplay = video.canPlayType(mimeType);
+            if (canplay === 'probably' || canplay === 'maybe') {
+                this._streamAllowExt.push(ext);
+            }
+        }
+        return this._streamAllowExt;
+    },
+
+    /**
+     * 检查浏览器是否可以播放该视频格式（赞助者专用）
+     */
+    checkStreamAllow(filename, owner) {
+        // 需要登录
+        if (typeof TL === 'undefined' || TL.logined !== 1) {
+            return false;
+        }
+        // 需要是赞助者
+        if (TL.sponsor === false) {
+            return false;
+        }
+        // 检查文件格式
+        const allowExt = this.getStreamAllowExt();
+        if (allowExt.length === 0) {
+            return false;
+        }
+        const ext = (filename || '').substring((filename || '').lastIndexOf('.') + 1).toLowerCase();
+        return allowExt.some(e => ext.indexOf(e) > -1);
+    },
+
+    /**
+     * 检查是否可以使用外部播放器打开
+     */
+    checkStreamForOpenOnApps(filename, owner) {
+        // 需要登录
+        if (typeof TL === 'undefined' || TL.logined !== 1) {
+            return false;
+        }
+        // 文件不是自己的，需要是赞助者
+        if (owner !== TL.uid) {
+            if (TL.sponsor === false) {
+                return false;
+            }
+        }
+        // 检查文件格式
+        const ext = (filename || '').substring((filename || '').lastIndexOf('.') + 1).toLowerCase();
+        return this.streamOpenOnAppsExt.some(e => ext.indexOf(e) > -1);
+    },
+
+    /**
+     * 右键菜单中选择视频播放方式
+     */
+    streamContextItem(playerApp) {
+        if (!this.contextTarget) return;
+        const type = this.contextTarget.dataset.type;
+        if (type !== 'file') {
+            this.hideContextMenu();
+            return;
+        }
+        const ukey = this.contextTarget.dataset.ukey;
+        this.requestStream(ukey, playerApp);
+        this.hideContextMenu();
+    },
+
+    /**
+     * 请求视频流并使用指定播放器播放 (VXUI 专用实现)
+     */
+    requestStream(ukey, playerApp) {
+        // 检查登录状态
+        if (typeof TL === 'undefined' || TL.logined !== 1) {
+            VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
+            return;
+        }
+
+        this.trackUI(`vui_filelist[stream_${playerApp}]`);
+
+        const token = this.getToken();
+        const apiUrl = (typeof TL !== 'undefined' && TL.api_file)
+            ? TL.api_file
+            : '/api_v2/file';
+
+        // 显示加载提示
+        VXUI.toastInfo(this.t('vx_loading', '加载中...'));
+
+        // 请求流媒体 URL
+        $.post(apiUrl, {
+            action: 'stream_req',
+            ukey: ukey,
+            token: token,
+            captcha: '0'
+        }, (req) => {
+            if (req && req.status == 1) {
+                this.playStreamWith(req.data, playerApp);
+            } else {
+                VXUI.toastError(this.t('vx_stream_error', '获取播放地址失败'));
+            }
+        }, 'json').fail(() => {
+            VXUI.toastError(this.t('vx_stream_error', '获取播放地址失败'));
+        });
+    },
+
+    /**
+     * 使用指定播放器播放视频流
+     */
+    async playStreamWith(url, playerApp) {
+        switch (playerApp) {
+            case 'vlc':
+                this.openExternalPlayer('vlc://', url, 'VLC');
+                break;
+            case 'iina':
+                this.openExternalPlayer('iina://weblink?url=', url, 'IINA');
+                break;
+            case 'potplayer':
+                this.openExternalPlayer('potplayer://', url, 'PotPlayer');
+                break;
+            case 'kmplayer':
+                this.openExternalPlayer('kmplayer://', url, 'KMPlayer');
+                break;
+            case 'nplayer':
+                this.openExternalPlayer('nplayer-https://', url, 'nPlayer');
+                break;
+            case 'copy':
+                await this.copyStreamUrl(url);
+                break;
+            default:
+                // web - 在浏览器中播放
+                this.playInBrowser(url);
+        }
+    },
+
+    /**
+     * 在浏览器中播放视频
+     */
+    playInBrowser(url) {
+        const player = 'https://ix.ng-ccc.com/go.html?stream=' + btoa(url);
+        window.open(player, '_blank');
+    },
+
+    /**
+     * 复制流媒体地址
+     */
+    async copyStreamUrl(url) {
+        try {
+            if (typeof copyToClip === 'function') {
+                await copyToClip(url);
+            } else {
+                await navigator.clipboard.writeText(url);
+            }
+            VXUI.toastSuccess(this.t('copied', '已复制'));
+        } catch (e) {
+            VXUI.toastError(this.t('vx_copy_failed', '复制失败'));
+        }
+    },
+
+    /**
+     * 尝试打开外部播放器，失败时复制链接并提示
+     */
+    openExternalPlayer(scheme, url, playerName) {
+        const fullUrl = scheme + url;
+
+        // 使用 iframe 方式尝试打开，避免直接 location.href 导致页面跳转失败
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+
+        // 设置超时检测
+        const timeout = setTimeout(() => {
+            if (document.body.contains(iframe)) {
+                document.body.removeChild(iframe);
+            }
+            // 如果超时，说明可能没有安装播放器，复制链接并提示
+            const msg = this.t('player_not_installed', '{player} 未安装，已复制播放地址').replace('{player}', playerName);
+            VXUI.toastError(msg);
+            this.copyStreamUrl(url);
+        }, 2000);
+
+        // 监听页面可见性变化（如果播放器成功打开，页面会失去焦点）
+        const handleVisibility = () => {
+            if (document.hidden) {
+                clearTimeout(timeout);
+                document.removeEventListener('visibilitychange', handleVisibility);
+                setTimeout(() => {
+                    if (document.body.contains(iframe)) {
+                        document.body.removeChild(iframe);
+                    }
+                }, 100);
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+
+        // 尝试打开
+        try {
+            iframe.contentWindow.location.href = fullUrl;
+        } catch (e) {
+            clearTimeout(timeout);
+            document.removeEventListener('visibilitychange', handleVisibility);
+            if (document.body.contains(iframe)) {
+                document.body.removeChild(iframe);
+            }
+            // 降级：直接尝试打开
+            window.location.href = fullUrl;
+        }
     },
     
     deleteContextItem() {
