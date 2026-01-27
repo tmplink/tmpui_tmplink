@@ -1197,7 +1197,6 @@ var PHOTO = {
         $('body').css('overflow', 'hidden');
 
         this.lastTrackedLightboxIndex = null;
-        this.track('LightboxOpen');
     },
 
     /**
@@ -1206,8 +1205,6 @@ var PHOTO = {
     closeLightbox: function() {
         $('#album-lightbox').removeClass('active');
         $('body').css('overflow', '');
-
-        this.track('LightboxClose');
     },
 
     /**
@@ -1219,7 +1216,6 @@ var PHOTO = {
 
         if (this.lastTrackedLightboxIndex !== this.lightboxIndex) {
             this.lastTrackedLightboxIndex = this.lightboxIndex;
-            this.track('ViewPhoto');
         }
 
         const imageUrl = this.buildImageUrl(photo, 'thumb', '0x0');
@@ -1311,7 +1307,7 @@ var PHOTO = {
         this.lightboxRotation = (this.lightboxRotation + 90) % 360;
         $('#lightbox-image').css('transform', `rotate(${this.lightboxRotation}deg)`);
 
-        this.track('Rotate');
+        // analytics removed: Rotate
     },
 
     // ==================== UI Helpers ====================
