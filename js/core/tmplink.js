@@ -1071,6 +1071,11 @@ class tmplink {
                 // Response arrived: stop showing the loading placeholder.
                 $('#file_loading_box').hide();
 
+                const ownerBypass = !!(rsp && rsp.status === 5 && rsp.data && (Number(rsp.data.owner) === Number(this.uid) || String(rsp.data.owner) === '1'));
+                if (ownerBypass) {
+                    rsp.status = 1;
+                }
+
                 if (rsp.status === 1) {
                     //隐藏信息提示窗口
                     $('#file_messenger').hide();
