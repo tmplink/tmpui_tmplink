@@ -1073,6 +1073,15 @@ var VX_FILELIST = VX_FILELIST || {
         if (shareBtn) {
             shareBtn.style.display = this.isDesktop ? 'none' : '';
         }
+
+        // 更新顶部栏右侧的分享链接按钮
+        // 逻辑：如果用户在某个子文件夹内，并且这个子文件夹不是私有文件夹，则显示
+        const shareLnkBtn = document.getElementById('vx-fl-share-lnk-btn');
+        if (shareLnkBtn) {
+            const isPrivate = (this.room && this.room.model === 'private');
+            const showShare = (!this.isDesktop && !isPrivate);
+            shareLnkBtn.style.display = showShare ? '' : 'none';
+        }
         
         // 根据是否为文件夹所有者控制上传/创建文件夹按钮的显示
         // 非所有者不应看到这些操作按钮
