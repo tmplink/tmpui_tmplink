@@ -248,6 +248,7 @@ body.vx-active #tmpui_body {
 .vx-list-body {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .vx-list-row {
@@ -257,6 +258,8 @@ body.vx-active #tmpui_body {
     border-bottom: 1px solid var(--vx-border);
     transition: background 0.15s ease;
     cursor: pointer;
+    overflow: hidden;
+    max-width: 100%;
 }
 
 .vx-list-row:hover {
@@ -336,6 +339,7 @@ body.vx-active #tmpui_body {
     align-items: center;
     gap: 12px;
     min-width: 0;
+    overflow: hidden;
 }
 
 .vx-list-icon {
@@ -636,8 +640,10 @@ body.vx-active #tmpui_body {
     min-width: 0;
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 4px;
+    overflow: hidden;
+    position: relative;
 }
 
 .vx-list-filename a {
@@ -648,10 +654,39 @@ body.vx-active #tmpui_body {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
+    display: inline-block;
+    flex-shrink: 1;
 }
 
-.vx-list-filename a:hover {
+/* Desktop: Hover marquee effect for long filenames */
+.vx-list-filename:hover a {
     color: var(--vx-primary);
+}
+
+/* Only animate filenames that are marked as overflowing */
+.vx-list-filename.is-overflow:hover a {
+    animation: vx-filename-scroll 12s ease-in-out infinite;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+/* No-scroll class disables animation */
+.vx-list-filename a.no-scroll {
+    animation: none !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+@keyframes vx-filename-scroll {
+    0%, 20% {
+        transform: translateX(0);
+    }
+    50%, 70% {
+        transform: translateX(calc(-100% + 250px));
+    }
+    100% {
+        transform: translateX(0);
+    }
 }
 
 /* ==================== Selection Bar (Shared) ==================== */
@@ -1036,14 +1071,18 @@ html.vx-dark .vx-lang-option:hover {
     display: flex;
     flex-direction: column;
     transition: margin-left 0.3s ease;
+    overflow-x: hidden;
+    min-width: 0;
 }
 
 /* Module container should fill remaining height so module content can scroll correctly */
 #vx-module-container {
     flex: 1;
     min-height: 0;
+    min-width: 0;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 /* Allow flex children with overflow to actually shrink and scroll */
@@ -1097,11 +1136,20 @@ html.vx-dark .vx-lang-option:hover {
     z-index: var(--vx-z-sticky);
 }
 
-.vx-header-left,
+.vx-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
 .vx-header-right {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-shrink: 0;
 }
 
 /* Breadcrumb */
@@ -1110,6 +1158,9 @@ html.vx-dark .vx-lang-option:hover {
     align-items: center;
     gap: 4px;
     font-size: var(--vx-text-sm);
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
 }
 
 .vx-breadcrumb-item {
@@ -1120,6 +1171,28 @@ html.vx-dark .vx-lang-option:hover {
     padding: 4px 8px;
     border-radius: var(--vx-radius-sm);
     transition: var(--vx-transition-fast);
+}
+
+/* All breadcrumb items have max-width and truncate */
+.vx-breadcrumb a,
+.vx-breadcrumb > span:not(.vx-breadcrumb-sep) {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Last item can shrink further if needed */
+.vx-breadcrumb > span:last-child:not(.vx-breadcrumb-sep),
+.vx-breadcrumb > a:last-child {
+    flex-shrink: 1;
+    min-width: 60px;
+}
+
+/* Separator should never shrink */
+.vx-breadcrumb-sep {
+    flex-shrink: 0;
 }
 
 .vx-breadcrumb-item:hover {
@@ -1180,6 +1253,8 @@ html.vx-dark .vx-lang-option:hover {
     height: 100%;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+    max-width: 100%;
 }
 
 /* Minimal header (filelist-like) */

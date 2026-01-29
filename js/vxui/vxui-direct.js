@@ -1466,6 +1466,9 @@ const VX_DIRECT = {
 
         this.updateSelectionUI();
         this.updateStats();
+        
+        // 初始化文件名滚动效果
+        this.initFilenameScroll();
     },
 
     createDirectFileRow(item) {
@@ -1627,6 +1630,9 @@ const VX_DIRECT = {
         }
         
         this.updateStats();
+        
+        // 初始化文件名滚动效果
+        this.initFilenameScroll();
     },
 
     createDirectFolderRow(item) {
@@ -2056,9 +2062,47 @@ const VX_DIRECT = {
         const folderCountEl = document.getElementById('vx-direct-folder-count');
         if (countEl) countEl.textContent = String(this.files.length || 0);
         if (folderCountEl) folderCountEl.textContent = String(this.folders.length || 0);
-    }
-
-    ,
+    },
+    
+    /**
+     * 初始化超长文件名滚动效果
+     * 移动端：对于不需要滚动的短文件名，添加 no-scroll 类禁用动画
+     * 桌面端：对于溢出的文件名，添加 is-overflow 类启用悬停滚动
+     */
+    initFilenameScroll() {
+        const isMobile = window.innerWidth <= 768;
+        
+        // 在下一帧执行，确保DOM已渲染
+        requestAnimationFrame(() => {
+            document.querySelectorAll('.vx-list-filename').forEach((container) => {
+                const link = container.querySelector('a');
+                if (!link) return;
+                
+                // 检测文本是否溢出
+                const containerWidth = container.offsetWidth;
+                const linkWidth = link.scrollWidth;
+                const isOverflow = linkWidth > containerWidth;
+                
+                if (isMobile) {
+                    // 移动端：只有溢出时才启用滚动动画
+                    if (isOverflow) {
+                        link.classList.remove('no-scroll');
+                        container.classList.add('is-overflow');
+                    } else {
+                        link.classList.add('no-scroll');
+                        container.classList.remove('is-overflow');
+                    }
+                } else {
+                    // 桌面端：标记溢出状态，用于悬停时的动画
+                    if (isOverflow) {
+                        container.classList.add('is-overflow');
+                    } else {
+                        container.classList.remove('is-overflow');
+                    }
+                }
+            });
+        });
+    },
 
     // ==================== API Key ====================
     async resetAPIKey() {

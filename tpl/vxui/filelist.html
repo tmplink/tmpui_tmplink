@@ -140,6 +140,10 @@
             <iconpark-icon name="folder-plus"></iconpark-icon>
             <span data-tpl="model_title_folder_title">新建文件夹</span>
         </button>
+        <button class="vx-btn vx-btn-ghost vx-btn-outline" id="vx-fl-share-lnk-btn" onclick="VX_FILELIST.shareFolder()" title="." i18n="on_select_share" i18n-only="title" style="display:none;">
+            <iconpark-icon name="share-from-square"></iconpark-icon>
+            <span data-tpl="model_copy">分享</span>
+        </button>
         <button class="vx-btn vx-btn-ghost vx-btn-outline" id="vx-fl-refresh-btn" onclick="VX_FILELIST.refresh()" title="." i18n="album_refresh" i18n-only="title">
             <iconpark-icon name="rotate" data-role="refresh-icon"></iconpark-icon>
             <span data-role="refresh-text" data-tpl="album_refresh">刷新</span>
@@ -251,6 +255,20 @@
             <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
             <span data-tpl="nav_upload">上传文件</span>
         </button>
+    </div>
+</div>
+
+<!-- Sponsor Inline (Non-owner) -->
+<div class="vx-fl-sponsor-card userinfo" id="vx-fl-sponsor-card" style="display: none;">
+    <div class="vx-fl-sponsor-avatar">
+        <img class="userinfo_avatar_card_img" src="/img/loading.svg" alt="Avatar">
+    </div>
+    <div class="vx-fl-sponsor-name">
+        <span class="userinfo_nickname userinfo_card_nickname"></span>
+        <span class="userinfo_pro userinfo_card_pro" style="display: none;">
+            <iconpark-icon name="circle-check"></iconpark-icon>
+        </span>
+        <span class="userinfo_sd" style="display: none;"></span>
     </div>
 </div>
 
@@ -785,6 +803,89 @@
     border-radius: var(--vx-radius-sm);
 }
 
+/* Sponsor Inline (Non-owner, bottom-right) */
+.vx-fl-sponsor-card {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 10px;
+    background: var(--vx-bg);
+    border-radius: 999px;
+    border: 1px solid var(--vx-border);
+    box-shadow: 0 8px 20px -16px rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(6px);
+    z-index: 40;
+    max-width: 360px;
+    white-space: nowrap;
+}
+
+body.vx-fl-has-sponsor .vx-content {
+    padding-bottom: 80px;
+}
+
+.vx-fl-sponsor-avatar {
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(99, 102, 241, 0.12);
+    flex-shrink: 0;
+}
+
+.vx-fl-sponsor-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.vx-fl-sponsor-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+    color: var(--vx-text);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.vx-fl-sponsor-card .userinfo_card_nickname {
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vx-fl-sponsor-name .userinfo_card_nickname {
+    color: var(--vx-text);
+}
+
+.vx-fl-sponsor-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .vx-fl-sponsor-card {
+        right: 16px;
+        bottom: 16px;
+        max-width: calc(100% - 32px);
+    }
+
+    body.vx-fl-has-sponsor .vx-content {
+        padding-bottom: 88px;
+    }
+}
+
 @media (max-width: 768px) {
     .vx-mobile-header {
         padding: 14px 16px;
@@ -882,6 +983,8 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+    max-width: 100%;
 }
 
 /* Mobile Folder Title Bar */
@@ -1009,6 +1112,7 @@
 .vx-list-body {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* List Row */
@@ -1020,6 +1124,8 @@
     border-bottom: 1px solid var(--vx-border);
     transition: background 0.15s ease, opacity 0.3s ease, transform 0.3s ease;
     cursor: pointer;
+    overflow: hidden;
+    max-width: 100%;
 }
 
 .vx-list-row:hover {
@@ -1170,6 +1276,7 @@
     align-items: center;
     gap: 12px;
     min-width: 0;
+    overflow: hidden;
 }
 
 .vx-list-icon {
@@ -1295,8 +1402,10 @@
     min-width: 0;
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 4px;
+    overflow: hidden;
+    position: relative;
 }
 
 .vx-list-filename a {
@@ -1307,10 +1416,39 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
+    display: inline-block;
+    flex-shrink: 1;
 }
 
-.vx-list-filename a:hover {
+/* Desktop: Hover marquee effect for long filenames */
+.vx-list-filename:hover a {
     color: var(--vx-primary);
+}
+
+/* Only animate filenames that are marked as overflowing */
+.vx-list-filename.is-overflow:hover a {
+    animation: vx-filename-scroll 12s ease-in-out infinite;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+/* No-scroll class disables animation */
+.vx-list-filename a.no-scroll {
+    animation: none !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+@keyframes vx-filename-scroll {
+    0%, 20% {
+        transform: translateX(0);
+    }
+    50%, 70% {
+        transform: translateX(calc(-100% + 250px));
+    }
+    100% {
+        transform: translateX(0);
+    }
 }
 
 /* Hot Badge */
@@ -1335,11 +1473,33 @@
     align-items: center;
     gap: 4px;
     font-size: 14px;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
 }
 
-.vx-breadcrumb a {
+/* All breadcrumb items have max-width and truncate */
+.vx-breadcrumb a,
+.vx-breadcrumb > span:not(.vx-breadcrumb-sep) {
     color: var(--vx-text-secondary);
     text-decoration: none;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Last item can shrink further if needed */
+.vx-breadcrumb > span:last-child:not(.vx-breadcrumb-sep),
+.vx-breadcrumb > a:last-child {
+    flex-shrink: 1;
+    min-width: 60px;
+}
+
+/* Separator should never shrink */
+.vx-breadcrumb-sep {
+    flex-shrink: 0;
 }
 
 .vx-breadcrumb a:hover {

@@ -270,6 +270,8 @@ class dir {
         this.parent_op.loading_box_on();
         
         var params = get_url_params();
+        const currentPath = location.pathname + location.search;
+
         $('#room_userlist').hide();
         $('.permission-room-file').hide();
         $('.permission-room-user').hide();
@@ -299,7 +301,7 @@ class dir {
                 this.room.ownner = 0;
                 this.room.mr_id = 0;
                 app.open('/404');
-                this.parent_op.ga('Dir-Unavailable');
+                this.parent_op.ga('Dir-Unavailable', currentPath);
                 return false;
             }
             //会议室不可用
@@ -309,7 +311,7 @@ class dir {
                 this.room.ownner = 0;
                 this.room.mr_id = 0;
                 app.open('/404');
-                this.parent_op.ga('Dir-Reported');
+                this.parent_op.ga('Dir-Reported', currentPath);
                 return false;
             }
 
@@ -320,7 +322,7 @@ class dir {
                 app.open('/app&listview=login');
                 return false;
             }
-            this.parent_op.ga('Dir-' + rsp.data.name);
+            this.parent_op.ga('Dir-' + rsp.data.name, currentPath);
             //更新统计信息
             this.total(rsp.data.mr_id);
             this.room.parent = rsp.data.parent;

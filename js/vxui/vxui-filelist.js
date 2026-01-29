@@ -644,12 +644,23 @@ var VX_FILELIST = VX_FILELIST || {
                 }
             });
         }
+        
+        // 窗口大小调整时重新计算文件名溢出
+        window.addEventListener('resize', this._onResize = () => {
+            clearTimeout(this._resizeTimer);
+            this._resizeTimer = setTimeout(() => {
+                this.initFilenameScroll();
+            }, 200);
+        });
     },
     
     /**
      * 解绑事件
      */
     unbindEvents() {
+        if (this._onResize) {
+            window.removeEventListener('resize', this._onResize);
+        }
         if (this._onMoreClick) {
             document.removeEventListener('click', this._onMoreClick, true);
         }
@@ -1073,6 +1084,15 @@ var VX_FILELIST = VX_FILELIST || {
         if (shareBtn) {
             shareBtn.style.display = this.isDesktop ? 'none' : '';
         }
+
+        // 更新顶部栏右侧的分享链接按钮
+        // 逻辑：如果用户在某个子文件夹内，并且这个子文件夹不是私有文件夹，则显示
+        const shareLnkBtn = document.getElementById('vx-fl-share-lnk-btn');
+        if (shareLnkBtn) {
+            const isPrivate = (this.room && this.room.model === 'private');
+            const showShare = (!this.isDesktop && !isPrivate);
+            shareLnkBtn.style.display = showShare ? '' : 'none';
+        }
         
         // 根据是否为文件夹所有者控制上传/创建文件夹按钮的显示
         // 非所有者不应看到这些操作按钮
@@ -1116,6 +1136,49 @@ var VX_FILELIST = VX_FILELIST || {
                 }
             }
         }
+
+        // 非属主模式下显示赞助者信息卡片
+        this.applySponsorInfoUI();
+    },
+
+    /**
+     * 非属主文件夹：显示赞助者信息卡片
+     */
+    applySponsorInfoUI() {
+        const card = document.getElementById('vx-fl-sponsor-card');
+        if (!card) return;
+
+        const room = this.room || {};
+        const shouldShow = !this.isOwner
+            && room.ui_publish === 'yes'
+            && room.ui_publish_status === 'ok'
+            && room.ui_nickname;
+
+        card.style.display = shouldShow ? '' : 'none';
+        document.body.classList.toggle('vx-fl-has-sponsor', shouldShow);
+        if (!shouldShow) return;
+
+        const nicknameEl = card.querySelector('.userinfo_card_nickname');
+        const avatarEl = card.querySelector('.userinfo_avatar_card_img');
+        const proEl = card.querySelector('.userinfo_card_pro');
+        const sdEl = card.querySelector('.userinfo_sd');
+
+        if (nicknameEl) {
+            nicknameEl.textContent = room.ui_nickname || '';
+        }
+
+        if (avatarEl) {
+            if (room.ui_avatar_id) {
+                avatarEl.src = `https://tmp-static.vx-cdn.com/static/avatar?id=${room.ui_avatar_id}`;
+            } else {
+                avatarEl.src = '/img/loading.svg';
+            }
+        }
+
+        const isPro = room.ui_pro === 'yes';
+        if (proEl) proEl.style.display = isPro ? '' : 'none';
+        if (sdEl) sdEl.style.display = isPro ? 'none' : '';
+        if (nicknameEl) nicknameEl.classList.toggle('is-pro', isPro);
     },
 
     // ==================== Folder Direct (直链文件夹) ====================
@@ -1399,28 +1462,29 @@ var VX_FILELIST = VX_FILELIST || {
                     html += '<span class="vx-breadcrumb-sep">›</span>';
                 }
 
+                // 所有项都添加 title 属性以便悬停显示完整名称
                 if (!isLast) {
                     // 未登录时避免展示桌面链接（桌面需登录）
                     if (id === '0' && !isLoggedIn) {
-                        html += `<span>${this.escapeHtml(desktopTitle)}</span>`;
+                        html += `<span title="${this.escapeHtml(desktopTitle)}">${this.escapeHtml(desktopTitle)}</span>`;
                     } else {
-                        html += `<a href="javascript:;" onclick="VX_FILELIST.openFolder('${this.escapeHtml(id)}')">${this.escapeHtml(name)}</a>`;
+                        html += `<a href="javascript:;" title="${this.escapeHtml(name)}" onclick="VX_FILELIST.openFolder('${this.escapeHtml(id)}')">${this.escapeHtml(name)}</a>`;
                     }
                 } else {
-                    html += `<span>${this.escapeHtml(name)}</span>`;
+                    html += `<span title="${this.escapeHtml(name)}">${this.escapeHtml(name)}</span>`;
                 }
             });
         } else {
             // 未登录时不显示桌面链接（桌面需要登录才能访问）
             if (isLoggedIn) {
-                html = `<a href="javascript:;" onclick="VX_FILELIST.openFolder(0)">${this.escapeHtml(desktopTitle)}</a>`;
+                html = `<a href="javascript:;" title="${this.escapeHtml(desktopTitle)}" onclick="VX_FILELIST.openFolder(0)">${this.escapeHtml(desktopTitle)}</a>`;
             }
 
             if (this.mrid != 0 && this.room.name) {
                 if (html) {
                     html += '<span class="vx-breadcrumb-sep">›</span>';
                 }
-                html += `<a href="javascript:;">${this.escapeHtml(this.room.name)}</a>`;
+                html += `<span title="${this.escapeHtml(this.room.name)}">${this.escapeHtml(this.room.name)}</span>`;
             }
         }
         
@@ -1605,6 +1669,9 @@ var VX_FILELIST = VX_FILELIST || {
         // 初始化剩余时间倒计时
         this.initLeftTimeCountdown();
 
+        // 处理超长文件名滚动效果
+        this.initFilenameScroll();
+
         // Translate any dynamic rows (e.g. folder type label)
         if (typeof TL !== 'undefined' && typeof TL.tpl_lang === 'function') {
             TL.tpl_lang(listBody);
@@ -1785,6 +1852,46 @@ var VX_FILELIST = VX_FILELIST || {
             if (span && span.id && time > 0 && typeof countDown === 'function') {
                 countDown(span.id, time, lang);
             }
+        });
+    },
+    
+    /**
+     * 初始化超长文件名滚动效果
+     * 移动端：对于不需要滚动的短文件名，添加 no-scroll 类禁用动画
+     * 桌面端：对于溢出的文件名，添加 is-overflow 类启用悬停滚动
+     */
+    initFilenameScroll() {
+        const isMobile = window.innerWidth <= 768;
+        
+        // 在下一帧执行，确保DOM已渲染
+        requestAnimationFrame(() => {
+            document.querySelectorAll('.vx-list-filename').forEach((container) => {
+                const link = container.querySelector('a');
+                if (!link) return;
+                
+                // 检测文本是否溢出
+                const containerWidth = container.offsetWidth;
+                const linkWidth = link.scrollWidth;
+                const isOverflow = linkWidth > containerWidth;
+                
+                if (isMobile) {
+                    // 移动端：只有溢出时才启用滚动动画
+                    if (isOverflow) {
+                        link.classList.remove('no-scroll');
+                        container.classList.add('is-overflow');
+                    } else {
+                        link.classList.add('no-scroll');
+                        container.classList.remove('is-overflow');
+                    }
+                } else {
+                    // 桌面端：标记溢出状态，用于悬停时的动画
+                    if (isOverflow) {
+                        container.classList.add('is-overflow');
+                    } else {
+                        container.classList.remove('is-overflow');
+                    }
+                }
+            });
         });
     },
     
@@ -2839,6 +2946,21 @@ var VX_FILELIST = VX_FILELIST || {
      * 下载文件
      */
     downloadFile(ukey, filename) {
+        // 如果没有提供文件名，尝试从当前文件列表中查找
+        if (!filename) {
+            // 尝试在 fileList 中查找
+            const foundFile = this.fileList && this.fileList.find(f => f.ukey === ukey);
+            if (foundFile && foundFile.fname) {
+                filename = foundFile.fname;
+            } else {
+                // 也尝试在 photoList 中查找 (以防万一是在相册模式下调用的)
+                const foundPhoto = this.photoList && this.photoList.find(p => p.ukey === ukey);
+                if (foundPhoto && foundPhoto.fname) {
+                    filename = foundPhoto.fname;
+                }
+            }
+        }
+
         const name = filename || ukey || 'file';
         this.trackUI(`vui_download[${name}]`);
         if (typeof VXUI !== 'undefined' && typeof VXUI.toastInfo === 'function') {

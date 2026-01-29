@@ -142,11 +142,13 @@ iconpark-icon.fa-fw {
     font-weight: 600;
     color: #333;
     margin-right: 4px;
-    display: inline-block;
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: inline;
+    max-width: none;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 /* 赞助者名字样式 */
@@ -168,6 +170,7 @@ iconpark-icon.fa-fw {
     display: flex;
     align-items: center;
     line-height: 1.2;
+    flex-wrap: wrap;
 }
 
 /* 用户介绍内容 */

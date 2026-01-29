@@ -449,16 +449,20 @@ body.file-page .file-page-root .align-self-center {
     color: #f97316;
 }
 
-/* Publisher Card */
+/* Publisher Card - 赞助者/分享者卡片 */
 .publisher-card {
     margin-top: 20px;
     padding: 14px 16px;
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.06) 100%);
     border-radius: 16px;
     border: 1px solid rgba(99, 102, 241, 0.12);
-    display: flex;
-    align-items: center;
-    gap: 14px;
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    grid-template-areas:
+        "avatar info"
+        "intro intro";
+    column-gap: 12px;
+    row-gap: 8px;
     width: 100%;
     box-sizing: border-box;
     transition: all 0.2s ease;
@@ -469,11 +473,13 @@ body.file-page .file-page-root .align-self-center {
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.1) 100%);
 }
 
+/* 头像 */
 .publisher-card .publisher-icon {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    border-radius: 12px;
+    grid-area: avatar;
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    border-radius: 14px;
     background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
     overflow: hidden;
     flex-shrink: 0;
@@ -486,51 +492,88 @@ body.file-page .file-page-root .align-self-center {
     object-fit: cover;
 }
 
-.publisher-card .publisher-content {
-    flex: 1;
-    min-width: 0;
+/* 用户信息区域 */
+.publisher-card .publisher-info {
+    grid-area: info;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    text-align: left;
+    gap: 3px;
+    width: 100%;
 }
 
+/* 用户名 */
 .publisher-card .publisher-name-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
     font-size: 15px;
     font-weight: 600;
     color: var(--app-text);
+    line-height: 1.4;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
-.publisher-card .publisher-name-row .userinfo_card_pro,
-.publisher-card .publisher-name-row .userinfo_pro {
+/* 认证图标 + 徽章行 */
+.publisher-card .publisher-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+}
+
+.publisher-card .publisher-meta .userinfo_card_pro,
+.publisher-card .publisher-meta .userinfo_pro {
     color: #6366f1;
-    font-size: 16px;
+    font-size: 14px;
     display: inline-flex;
     align-items: center;
 }
 
-.publisher-card .publisher-intro {
-    font-size: 13px;
-    color: var(--app-text-sub);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.4;
-}
-
 .publisher-card .publisher-badge {
-    flex-shrink: 0;
-    padding: 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    border-radius: 20px;
-    font-size: 11px;
+    border-radius: 10px;
+    font-size: 10px;
     font-weight: 600;
     color: #fff;
-    white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
+}
+
+/* 个人简介 */
+.publisher-card .publisher-intro {
+    grid-area: intro;
+    grid-column: 1 / -1;
+    font-size: 13px;
+    color: var(--app-text-sub);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    text-align: left;
+    margin-top: 4px;
+    width: 100%;
+}
+
+.publisher-card .publisher-intro .userinfo_card_intro {
+    display: block;
+    width: 100%;
+    max-width: none;
+}
+
+/* 兼容旧结构 */
+.publisher-card .publisher-header,
+.publisher-card .publisher-content {
+    display: contents;
+}
+
+/* 简介为空时隐藏 */
+.publisher-card .publisher-intro:empty,
+.publisher-card .publisher-intro:has(.userinfo_card_intro:empty) {
+    display: none;
 }
 
 @media (max-width: 360px) {

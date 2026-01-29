@@ -212,7 +212,7 @@ class tmplink_api {
         this.site_domain = window.location.hostname == 'www.ttttt.link' ? 'ttttt.link' : 'tmp.link';
     }
 
-    ga(title) {
+    ga(title, path) {
         if (!title) return;
         if (this.api_token == null) return;
         if (!this.api_user) return;
@@ -220,7 +220,7 @@ class tmplink_api {
             action: 'event_ui',
             token: this.api_token,
             title: title,
-            path: location.pathname + location.search,
+            path: path || (location.pathname + location.search),
         });
     }
 

@@ -205,13 +205,13 @@ class dynamic {
     }
 
     login() {
-        TL.ga('Login');
         if (isMobileScreen()) {
             $('#home_view').html(app.getFile('/tpl/listview/mobile_login.html'));
         } else {
             $('#home_view').html(app.getFile('/tpl/listview/login.html'));
         }
         app.dynOpen('/app&listview=login');
+        TL.ga('Login');
         app.linkRebind();
         TL.navbar.disabled();
         INIT_login();
