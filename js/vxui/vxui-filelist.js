@@ -2848,6 +2848,21 @@ var VX_FILELIST = VX_FILELIST || {
      * 下载文件
      */
     downloadFile(ukey, filename) {
+        // 如果没有提供文件名，尝试从当前文件列表中查找
+        if (!filename) {
+            // 尝试在 fileList 中查找
+            const foundFile = this.fileList && this.fileList.find(f => f.ukey === ukey);
+            if (foundFile && foundFile.fname) {
+                filename = foundFile.fname;
+            } else {
+                // 也尝试在 photoList 中查找 (以防万一是在相册模式下调用的)
+                const foundPhoto = this.photoList && this.photoList.find(p => p.ukey === ukey);
+                if (foundPhoto && foundPhoto.fname) {
+                    filename = foundPhoto.fname;
+                }
+            }
+        }
+
         const name = filename || ukey || 'file';
         this.trackUI(`vui_download[${name}]`);
         if (typeof VXUI !== 'undefined' && typeof VXUI.toastInfo === 'function') {
