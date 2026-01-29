@@ -234,6 +234,9 @@ class FilePageController {
                         TL.current_file_details.ui_intro_is_default = true;
                     }
                 }
+                
+                // 初始化赞助者名称滚动效果
+                this.initPublisherNameScroll();
             }
 
             if (typeof TL !== 'undefined' && typeof TL.fileicon === 'function') {
@@ -604,6 +607,46 @@ class FilePageController {
     isWeixin() {
         const ua = navigator.userAgent.toLowerCase();
         return ua.match(/MicroMessenger/i) == "micromessenger";
+    }
+
+    /**
+     * 初始化赞助者名称滚动效果
+     * 完全按照 filelist 模块的策略：检测溢出并添加 is-overflow 类
+     */
+    initPublisherNameScroll() {
+        const isMobile = window.innerWidth <= 768;
+        
+        // 在下一帧执行，确保 DOM 已渲染
+        requestAnimationFrame(() => {
+            // 支持桌面端 .publisher-name 和移动端 .publisher-name-row
+            document.querySelectorAll('.publisher-name, .publisher-name-row').forEach((container) => {
+                const nickname = container.querySelector('.userinfo_card_nickname');
+                if (!nickname) return;
+                
+                // 检测文本是否溢出
+                const containerWidth = container.offsetWidth;
+                const nicknameWidth = nickname.scrollWidth;
+                const isOverflow = nicknameWidth > containerWidth;
+                
+                if (isMobile) {
+                    // 移动端：只有溢出时才启用滚动动画
+                    if (isOverflow) {
+                        nickname.classList.remove('no-scroll');
+                        container.classList.add('is-overflow');
+                    } else {
+                        nickname.classList.add('no-scroll');
+                        container.classList.remove('is-overflow');
+                    }
+                } else {
+                    // 桌面端：标记溢出状态，用于悬停时的动画
+                    if (isOverflow) {
+                        container.classList.add('is-overflow');
+                    } else {
+                        container.classList.remove('is-overflow');
+                    }
+                }
+            });
+        });
     }
 
     // ========== 进度 UI 控制 ==========
