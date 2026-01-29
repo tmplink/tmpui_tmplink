@@ -50,6 +50,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const selector = document.getElementById('lang-selector');
         if (selector) selector.value = lang;
 
+        // Update dropdown label
+        const label = document.querySelector('.selected_lang');
+        if (label) {
+            label.textContent = getLangLabel(lang);
+        }
+
         // Update html lang attribute
         document.documentElement.lang = lang;
     }
@@ -83,12 +89,56 @@ document.addEventListener('DOMContentLoaded', function() {
         // For example, if there's a privacy link in TOS
     }
 
+    function getLangLabel(lang) {
+        switch (lang) {
+            case 'cn': return '简体中文';
+            case 'hk': return '繁體中文';
+            case 'jp': return '日本語';
+            case 'en':
+            default: return 'English';
+        }
+    }
+
+    function closeDropdowns() {
+        document.querySelectorAll('.file-dropdown.open').forEach(drop => {
+            drop.classList.remove('open');
+            const toggle = drop.querySelector('.file-dropdown-toggle');
+            if (toggle) toggle.setAttribute('aria-expanded', 'false');
+        });
+    }
+
     function initLanguageSwitcher() {
         const selector = document.getElementById('lang-selector');
-        if (!selector) return;
+        if (selector) {
+            selector.addEventListener('change', (e) => {
+                setLanguage(e.target.value);
+            });
+        }
 
-        selector.addEventListener('change', (e) => {
-            setLanguage(e.target.value);
+        const dropdown = document.getElementById('legal_lang_dropdown');
+        if (dropdown) {
+            const toggle = dropdown.querySelector('.file-dropdown-toggle');
+            if (toggle) {
+                toggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = dropdown.classList.toggle('open');
+                    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                });
+            }
+
+            dropdown.querySelectorAll('[data-lang]').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const lang = item.getAttribute('data-lang');
+                    setLanguage(lang);
+                    closeDropdowns();
+                });
+            });
+        }
+
+        document.addEventListener('click', () => closeDropdowns());
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDropdowns();
         });
     }
 

@@ -1,61 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="file-page legal-page">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
     <title>Privacy Policy - TMP.LINK</title>
-    <link rel="stylesheet" href="/css/legal.css">
+    <link rel="stylesheet" href="/css/file.css">
     <link rel="icon" href="/img/ico/favicon.ico" type="image/x-icon" />
 </head>
-<body>
-    <header class="legal-header">
-        <a href="/" class="brand">
-            <img src="/img/ico/logo-new.svg" alt="Logo">
-            TMP.LINK
-        </a>
-        <div class="lang-switch">
-            <select id="lang-selector">
-                <option value="en">English</option>
-                <option value="cn">简体中文</option>
-                <option value="hk">繁體中文</option>
-                <option value="jp">日本語</option>
-            </select>
-        </div>
-    </header>
+<body class="file-page legal-page">
+    <div class="file-page-root">
+        <div class="file-screen legal-screen">
+            <header class="file-header">
+                <a class="file-logo" href="/">
+                    <img src="/img/ico/logo-new.svg" alt="Logo">
+                </a>
+                <div class="file-header-actions">
+                    <div class="file-dropdown" id="legal_lang_dropdown">
+                        <button class="lang-toggle file-dropdown-toggle" type="button" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="selected_lang">Language/语言</span>
+                        </button>
+                        <div class="file-dropdown-menu file-dropdown-menu-right" role="listbox">
+                            <button class="file-dropdown-item" type="button" data-lang="cn">简体中文</button>
+                            <button class="file-dropdown-item" type="button" data-lang="hk">繁體中文</button>
+                            <button class="file-dropdown-item" type="button" data-lang="en">English</button>
+                            <button class="file-dropdown-item" type="button" data-lang="jp">日本語</button>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
-    <div class="container">
-        <div class="card">
-            <h1 i18n="privacy_1">Privacy Policy</h1>
-            
-            <p i18n="privacy_2"></p>
-            
-            <h3 i18n="privacy_3"></h3>
-            <p i18n="privacy_4"></p>
-            
-            <ul>
-                <li i18n="privacy_5"></li>
-                <li i18n="privacy_6"></li>
-                <li i18n="privacy_14"></li>
-            </ul>
-            
-            <h3 i18n="privacy_7"></h3>
-            <p i18n="privacy_8"></p>
-            <p i18n="privacy_nsfw"></p>
+            <section class="file-body legal-body">
+                <div class="file-content legal-content">
+                    <div class="file-panel legal-panel">
+                        <h1 i18n="privacy_1">Privacy Policy</h1>
+                        <p i18n="privacy_2"></p>
 
-            <h3 i18n="privacy_9"></h3>
-            <p i18n="privacy_10"></p>
+                        <h3 i18n="privacy_3"></h3>
+                        <p i18n="privacy_4"></p>
 
-            <h3 i18n="privacy_11"></h3>
-            <p i18n="privacy_12"></p>
-            
-            <br>
-            <p i18n="privacy_13"></p>
-        </div>
+                        <ul>
+                            <li i18n="privacy_5"></li>
+                            <li i18n="privacy_6"></li>
+                            <li i18n="privacy_14"></li>
+                        </ul>
 
-        <div class="footer">
-            &copy; 2026 TMP.LINK. All rights reserved.
+                        <h3 i18n="privacy_7"></h3>
+                        <p i18n="privacy_8"></p>
+                        <p i18n="privacy_nsfw"></p>
+
+                        <h3 i18n="privacy_9"></h3>
+                        <p i18n="privacy_10"></p>
+
+                        <h3 i18n="privacy_11"></h3>
+                        <p i18n="privacy_12"></p>
+
+                        <br>
+                        <p i18n="privacy_13"></p>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
+
+    <div id="footer" class="legal-footer">
+        <div class="legal-footer-inner">
+            <div class="legal-footer-links">
+                <a href="/tos.html" i18n="footer_tos">.</a>
+                <a href="/privacy.html" i18n="footer_privacy">.</a>
+                <span i18n="footer_news">.</span>
+                <a href="mailto:admin@tmp.link" i18n="footer_contact">.</a>
+            </div>
+            <div>© 2018 - 2026 TMPLINK STUDIO &trade;</div>
+            <div class="legal-footer-note">Build with love &amp; tmpUI.</div>
+        </div>
+    </div>
+    <div id="tpl_model"></div>
 
     <script src="/js/legal.js"></script>
 </body>
