@@ -258,10 +258,10 @@ class tmplink {
         }
     }
 
-    ga(title) {
+    ga(title, path) {
         if (this.api_token == null) {
             setTimeout(() => {
-                this.ga(title);
+                this.ga(title, path);
             }, 3000);
             return false;
         }
@@ -271,7 +271,7 @@ class tmplink {
             action: 'event_ui',
             token: this.api_token,
             title: title,
-            path: location.pathname + location.search,
+            path: path || (location.pathname + location.search),
         }, (rsp) => {
             this.ga_processing = false;
         });
