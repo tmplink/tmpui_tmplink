@@ -258,6 +258,20 @@
     </div>
 </div>
 
+<!-- Sponsor Inline (Non-owner) -->
+<div class="vx-fl-sponsor-card userinfo" id="vx-fl-sponsor-card" style="display: none;">
+    <div class="vx-fl-sponsor-avatar">
+        <img class="userinfo_avatar_card_img" src="/img/loading.svg" alt="Avatar">
+    </div>
+    <div class="vx-fl-sponsor-name">
+        <span class="userinfo_nickname userinfo_card_nickname"></span>
+        <span class="userinfo_pro userinfo_card_pro" style="display: none;">
+            <iconpark-icon name="circle-check"></iconpark-icon>
+        </span>
+        <span class="userinfo_sd" style="display: none;"></span>
+    </div>
+</div>
+
 <!-- Selection Bar -->
 <div class="vx-selection-bar" id="vx-fl-selection-bar" style="display: none;">
     <div class="vx-selection-info">
@@ -787,6 +801,89 @@
     width: 32px;
     height: 32px;
     border-radius: var(--vx-radius-sm);
+}
+
+/* Sponsor Inline (Non-owner, bottom-right) */
+.vx-fl-sponsor-card {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 10px;
+    background: var(--vx-bg);
+    border-radius: 999px;
+    border: 1px solid var(--vx-border);
+    box-shadow: 0 8px 20px -16px rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(6px);
+    z-index: 40;
+    max-width: 360px;
+    white-space: nowrap;
+}
+
+body.vx-fl-has-sponsor .vx-content {
+    padding-bottom: 80px;
+}
+
+.vx-fl-sponsor-avatar {
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(99, 102, 241, 0.12);
+    flex-shrink: 0;
+}
+
+.vx-fl-sponsor-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.vx-fl-sponsor-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+    color: var(--vx-text);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.vx-fl-sponsor-card .userinfo_card_nickname {
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vx-fl-sponsor-name .userinfo_card_nickname {
+    color: var(--vx-text);
+}
+
+.vx-fl-sponsor-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .vx-fl-sponsor-card {
+        right: 16px;
+        bottom: 16px;
+        max-width: calc(100% - 32px);
+    }
+
+    body.vx-fl-has-sponsor .vx-content {
+        padding-bottom: 88px;
+    }
 }
 
 @media (max-width: 768px) {

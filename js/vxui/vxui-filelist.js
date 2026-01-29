@@ -1136,6 +1136,49 @@ var VX_FILELIST = VX_FILELIST || {
                 }
             }
         }
+
+        // 非属主模式下显示赞助者信息卡片
+        this.applySponsorInfoUI();
+    },
+
+    /**
+     * 非属主文件夹：显示赞助者信息卡片
+     */
+    applySponsorInfoUI() {
+        const card = document.getElementById('vx-fl-sponsor-card');
+        if (!card) return;
+
+        const room = this.room || {};
+        const shouldShow = !this.isOwner
+            && room.ui_publish === 'yes'
+            && room.ui_publish_status === 'ok'
+            && room.ui_nickname;
+
+        card.style.display = shouldShow ? '' : 'none';
+        document.body.classList.toggle('vx-fl-has-sponsor', shouldShow);
+        if (!shouldShow) return;
+
+        const nicknameEl = card.querySelector('.userinfo_card_nickname');
+        const avatarEl = card.querySelector('.userinfo_avatar_card_img');
+        const proEl = card.querySelector('.userinfo_card_pro');
+        const sdEl = card.querySelector('.userinfo_sd');
+
+        if (nicknameEl) {
+            nicknameEl.textContent = room.ui_nickname || '';
+        }
+
+        if (avatarEl) {
+            if (room.ui_avatar_id) {
+                avatarEl.src = `https://tmp-static.vx-cdn.com/static/avatar?id=${room.ui_avatar_id}`;
+            } else {
+                avatarEl.src = '/img/loading.svg';
+            }
+        }
+
+        const isPro = room.ui_pro === 'yes';
+        if (proEl) proEl.style.display = isPro ? '' : 'none';
+        if (sdEl) sdEl.style.display = isPro ? 'none' : '';
+        if (nicknameEl) nicknameEl.classList.toggle('is-pro', isPro);
     },
 
     // ==================== Folder Direct (直链文件夹) ====================
