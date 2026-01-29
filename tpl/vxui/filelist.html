@@ -886,6 +886,8 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+    max-width: 100%;
 }
 
 /* Mobile Folder Title Bar */
@@ -1013,6 +1015,7 @@
 .vx-list-body {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* List Row */
@@ -1024,6 +1027,8 @@
     border-bottom: 1px solid var(--vx-border);
     transition: background 0.15s ease, opacity 0.3s ease, transform 0.3s ease;
     cursor: pointer;
+    overflow: hidden;
+    max-width: 100%;
 }
 
 .vx-list-row:hover {
@@ -1174,6 +1179,7 @@
     align-items: center;
     gap: 12px;
     min-width: 0;
+    overflow: hidden;
 }
 
 .vx-list-icon {
@@ -1299,8 +1305,10 @@
     min-width: 0;
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 4px;
+    overflow: hidden;
+    position: relative;
 }
 
 .vx-list-filename a {
@@ -1311,10 +1319,39 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
+    display: inline-block;
+    flex-shrink: 1;
 }
 
-.vx-list-filename a:hover {
+/* Desktop: Hover marquee effect for long filenames */
+.vx-list-filename:hover a {
     color: var(--vx-primary);
+}
+
+/* Only animate filenames that are marked as overflowing */
+.vx-list-filename.is-overflow:hover a {
+    animation: vx-filename-scroll 12s ease-in-out infinite;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+/* No-scroll class disables animation */
+.vx-list-filename a.no-scroll {
+    animation: none !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+@keyframes vx-filename-scroll {
+    0%, 20% {
+        transform: translateX(0);
+    }
+    50%, 70% {
+        transform: translateX(calc(-100% + 250px));
+    }
+    100% {
+        transform: translateX(0);
+    }
 }
 
 /* Hot Badge */
@@ -1339,11 +1376,33 @@
     align-items: center;
     gap: 4px;
     font-size: 14px;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
 }
 
-.vx-breadcrumb a {
+/* All breadcrumb items have max-width and truncate */
+.vx-breadcrumb a,
+.vx-breadcrumb > span:not(.vx-breadcrumb-sep) {
     color: var(--vx-text-secondary);
     text-decoration: none;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Last item can shrink further if needed */
+.vx-breadcrumb > span:last-child:not(.vx-breadcrumb-sep),
+.vx-breadcrumb > a:last-child {
+    flex-shrink: 1;
+    min-width: 60px;
+}
+
+/* Separator should never shrink */
+.vx-breadcrumb-sep {
+    flex-shrink: 0;
 }
 
 .vx-breadcrumb a:hover {

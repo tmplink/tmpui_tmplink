@@ -644,12 +644,23 @@ var VX_FILELIST = VX_FILELIST || {
                 }
             });
         }
+        
+        // 窗口大小调整时重新计算文件名溢出
+        window.addEventListener('resize', this._onResize = () => {
+            clearTimeout(this._resizeTimer);
+            this._resizeTimer = setTimeout(() => {
+                this.initFilenameScroll();
+            }, 200);
+        });
     },
     
     /**
      * 解绑事件
      */
     unbindEvents() {
+        if (this._onResize) {
+            window.removeEventListener('resize', this._onResize);
+        }
         if (this._onMoreClick) {
             document.removeEventListener('click', this._onMoreClick, true);
         }
@@ -1408,28 +1419,29 @@ var VX_FILELIST = VX_FILELIST || {
                     html += '<span class="vx-breadcrumb-sep">›</span>';
                 }
 
+                // 所有项都添加 title 属性以便悬停显示完整名称
                 if (!isLast) {
                     // 未登录时避免展示桌面链接（桌面需登录）
                     if (id === '0' && !isLoggedIn) {
-                        html += `<span>${this.escapeHtml(desktopTitle)}</span>`;
+                        html += `<span title="${this.escapeHtml(desktopTitle)}">${this.escapeHtml(desktopTitle)}</span>`;
                     } else {
-                        html += `<a href="javascript:;" onclick="VX_FILELIST.openFolder('${this.escapeHtml(id)}')">${this.escapeHtml(name)}</a>`;
+                        html += `<a href="javascript:;" title="${this.escapeHtml(name)}" onclick="VX_FILELIST.openFolder('${this.escapeHtml(id)}')">${this.escapeHtml(name)}</a>`;
                     }
                 } else {
-                    html += `<span>${this.escapeHtml(name)}</span>`;
+                    html += `<span title="${this.escapeHtml(name)}">${this.escapeHtml(name)}</span>`;
                 }
             });
         } else {
             // 未登录时不显示桌面链接（桌面需要登录才能访问）
             if (isLoggedIn) {
-                html = `<a href="javascript:;" onclick="VX_FILELIST.openFolder(0)">${this.escapeHtml(desktopTitle)}</a>`;
+                html = `<a href="javascript:;" title="${this.escapeHtml(desktopTitle)}" onclick="VX_FILELIST.openFolder(0)">${this.escapeHtml(desktopTitle)}</a>`;
             }
 
             if (this.mrid != 0 && this.room.name) {
                 if (html) {
                     html += '<span class="vx-breadcrumb-sep">›</span>';
                 }
-                html += `<a href="javascript:;">${this.escapeHtml(this.room.name)}</a>`;
+                html += `<span title="${this.escapeHtml(this.room.name)}">${this.escapeHtml(this.room.name)}</span>`;
             }
         }
         
@@ -1614,6 +1626,9 @@ var VX_FILELIST = VX_FILELIST || {
         // 初始化剩余时间倒计时
         this.initLeftTimeCountdown();
 
+        // 处理超长文件名滚动效果
+        this.initFilenameScroll();
+
         // Translate any dynamic rows (e.g. folder type label)
         if (typeof TL !== 'undefined' && typeof TL.tpl_lang === 'function') {
             TL.tpl_lang(listBody);
@@ -1794,6 +1809,46 @@ var VX_FILELIST = VX_FILELIST || {
             if (span && span.id && time > 0 && typeof countDown === 'function') {
                 countDown(span.id, time, lang);
             }
+        });
+    },
+    
+    /**
+     * 初始化超长文件名滚动效果
+     * 移动端：对于不需要滚动的短文件名，添加 no-scroll 类禁用动画
+     * 桌面端：对于溢出的文件名，添加 is-overflow 类启用悬停滚动
+     */
+    initFilenameScroll() {
+        const isMobile = window.innerWidth <= 768;
+        
+        // 在下一帧执行，确保DOM已渲染
+        requestAnimationFrame(() => {
+            document.querySelectorAll('.vx-list-filename').forEach((container) => {
+                const link = container.querySelector('a');
+                if (!link) return;
+                
+                // 检测文本是否溢出
+                const containerWidth = container.offsetWidth;
+                const linkWidth = link.scrollWidth;
+                const isOverflow = linkWidth > containerWidth;
+                
+                if (isMobile) {
+                    // 移动端：只有溢出时才启用滚动动画
+                    if (isOverflow) {
+                        link.classList.remove('no-scroll');
+                        container.classList.add('is-overflow');
+                    } else {
+                        link.classList.add('no-scroll');
+                        container.classList.remove('is-overflow');
+                    }
+                } else {
+                    // 桌面端：标记溢出状态，用于悬停时的动画
+                    if (isOverflow) {
+                        container.classList.add('is-overflow');
+                    } else {
+                        container.classList.remove('is-overflow');
+                    }
+                }
+            });
         });
     },
     

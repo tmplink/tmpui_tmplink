@@ -58,6 +58,41 @@
         overflow: hidden !important;
         white-space: nowrap !important;
         text-overflow: ellipsis !important;
+        max-width: calc(100vw - 120px) !important; /* Ensure actions remain visible */
+    }
+    
+    /* Mobile: Default state - no animation, show ellipsis */
+    .vx-list-filename a {
+        display: inline-block !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* Mobile: Auto-scroll only for long filenames marked as overflow */
+    .vx-list-filename.is-overflow a:not(.no-scroll) {
+        animation: vx-mobile-filename-scroll 15s ease-in-out infinite !important;
+        animation-delay: 2s !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+    }
+    
+    /* No-scroll class disables animation */
+    .vx-list-filename a.no-scroll {
+        animation: none !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    @keyframes vx-mobile-filename-scroll {
+        0%, 20% {
+            transform: translateX(0);
+        }
+        50%, 70% {
+            transform: translateX(calc(-100% + 180px));
+        }
+        100% {
+            transform: translateX(0);
+        }
     }
 
     /* 7. Mobile Layout: Actions */
