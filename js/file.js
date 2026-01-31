@@ -720,113 +720,9 @@ class FilePageController {
     // ========== 多线程下载核心 ==========
 
     async startMultiThreadDownload(url, filename) {
-        if (this.fastDownloadInProgress) {
-            console.warn('[FilePageController] Download already in progress');
-            return false;
-        }
-
-        this.fastDownloadInProgress = true;
-
-        try {
-            // 获取文件大小
-            console.log('[FilePageController] Fetching HEAD for:', url);
-            const headResponse = await fetch(url, { method: 'HEAD' });
-            console.log('[FilePageController] HEAD response status:', headResponse.status, 'ok:', headResponse.ok);
-            
-            if (!headResponse.ok) {
-                console.log('[FilePageController] HEAD request failed, falling back');
-                return this.fallbackDownload(url);
-            }
-
-            this.totalSize = parseInt(headResponse.headers.get('content-length'));
-            console.log('[FilePageController] Content-Length:', this.totalSize);
-            
-            if (!Number.isFinite(this.totalSize) || this.totalSize <= 0) {
-                console.log('[FilePageController] Invalid content-length, falling back');
-                return this.fallbackDownload(url, true);
-            }
-
-            // 小文件直接下载
-            if (this.totalSize < FilePageController.SMALL_FILE_THRESHOLD) {
-                console.log(`[FilePageController] Small file (${this.formatBytes(this.totalSize)} < ${this.formatBytes(FilePageController.SMALL_FILE_THRESHOLD)}), using direct download`);
-                return this.fallbackDownload(url, true);
-            }
-
-            // 服务器已确认支持 Range 请求，直接进行分片下载
-            console.log('[FilePageController] Starting chunked download for', this.formatBytes(this.totalSize));
-
-            // 计算分块
-            const chunkSize = FilePageController.CHUNK_SIZE;
-            const numberOfChunks = Math.ceil(this.totalSize / chunkSize);
-
-            // 初始化下载状态
-            this.initDownloadState(numberOfChunks);
-            this.showProgress();
-
-            // 创建下载任务
-            const downloadTasks = Array.from({ length: numberOfChunks }, (_, i) => {
-                const start = i * chunkSize;
-                const end = i === numberOfChunks - 1 
-                    ? this.totalSize - 1 
-                    : Math.min(start + chunkSize - 1, this.totalSize - 1);
-                return { index: i, start, end, expectedSize: end - start + 1 };
-            });
-
-            // 启动速度计算
-            this.startSpeedCalculator();
-
-            // 下载所有块
-            const chunks = new Array(numberOfChunks);
-            const queue = [...downloadTasks];
-            const activeDownloads = [];
-
-            while (queue.length > 0 || activeDownloads.length > 0) {
-                while (activeDownloads.length < FilePageController.MAX_CONCURRENT_DOWNLOADS && queue.length > 0) {
-                    const task = queue.shift();
-                    const downloadPromise = this.downloadChunk(url, task.index, task.start, task.end, task.expectedSize)
-                        .then(chunk => {
-                            chunks[task.index] = chunk;
-                            const idx = activeDownloads.indexOf(downloadPromise);
-                            if (idx !== -1) activeDownloads.splice(idx, 1);
-                            return chunk;
-                        });
-                    activeDownloads.push(downloadPromise);
-                }
-                if (activeDownloads.length > 0) {
-                    await Promise.race(activeDownloads);
-                }
-            }
-
-            // 验证完整性
-            let totalReceived = 0;
-            chunks.forEach((chunk, i) => {
-                const task = downloadTasks[i];
-                if (chunk.byteLength !== task.expectedSize) {
-                    throw new Error(`Chunk ${i} size mismatch`);
-                }
-                totalReceived += chunk.byteLength;
-            });
-
-            if (totalReceived !== this.totalSize) {
-                throw new Error(`Total size mismatch: expected ${this.totalSize}, got ${totalReceived}`);
-            }
-
-            // 合并并触发下载
-            const blob = new Blob(chunks, { 
-                type: headResponse.headers.get('content-type') || 'application/octet-stream' 
-            });
-            this.triggerBlobDownload(blob, filename);
-
-            this.cleanupDownload();
-            return true;
-
-        } catch (error) {
-            console.error('[FilePageController] Multi-thread download failed:', error);
-            this.cleanupDownload();
-            return this.fallbackDownload(url);
-        } finally {
-            this.fastDownloadInProgress = false;
-        }
+        // 统一使用浏览器下载，不再使用多线程分块下载
+        console.log('[FilePageController] Using browser download (multi-thread disabled)');
+        return this.fallbackDownload(url, true);
     }
 
     async probeRangeSupport(url) {
@@ -1098,33 +994,13 @@ class FilePageController {
                 throw new Error('Failed to get download URL');
             }
 
-            // 对于快速下载模式，直接尝试多线程下载
-            // startMultiThreadDownload 内部会自行检测文件大小和 Range 支持，失败则自动回退
-            if (mode === 'fast') {
-                if (this.isMobileContext()) {
-                    // 移动端也显示下载开始反馈
-                    this.setButtonLoading(false);
-                    this.showDownloadFeedback();
-                    window.location.href = url;
-                    return true;
-                }
-                console.log('[FilePageController] Fast mode: attempting multi-thread download');
-                // 立即恢复按钮状态，避免长时间显示 loading
-                this.setButtonLoading(false);
-                
-                const success = await this.startMultiThreadDownload(url, filename);
-                if (success) {
-                    return true;
-                }
-                // startMultiThreadDownload 返回 false 或内部已触发 fallbackDownload
-                // 如果到这里说明已经处理完毕
-                return true;
-            }
-
-            // 小文件、普通模式或 HEAD 失败：直接下载
+            // 统一使用浏览器下载
+            console.log('[FilePageController] Using browser download');
+            this.setButtonLoading(false);
+            this.showDownloadFeedback();
             window.location.href = url;
+            
             setTimeout(() => {
-                this.setButtonLoading(false);
                 this.updateButtonText(app?.languageData?.file_btn_download_fast || '高速下载');
             }, 3000);
 
@@ -1148,26 +1024,11 @@ class FilePageController {
             this.setButtonLoading(true);
             this.updateButtonText('<img src="/img/loading-outline.svg" style="height:1.2em"/>');
 
-            if (mode === 'fast') {
-                if (this.isMobileContext()) {
-                    window.location.href = url;
-                    setTimeout(() => {
-                        this.setButtonLoading(false);
-                        this.updateButtonText(app?.languageData?.file_btn_download_fast || '高速下载');
-                    }, 3000);
-                    return true;
-                }
-                const headResponse = await fetch(url, { method: 'HEAD' });
-                if (headResponse.ok) {
-                    const fileSize = parseInt(headResponse.headers.get('content-length'));
-                    if (Number.isFinite(fileSize) && fileSize >= FilePageController.SMALL_FILE_THRESHOLD) {
-                        await this.startMultiThreadDownload(url, filename);
-                        return true;
-                    }
-                }
-            }
-
+            // 统一使用浏览器下载
+            console.log('[FilePageController] Using browser direct download');
+            this.showDownloadFeedback();
             window.location.href = url;
+            
             setTimeout(() => {
                 this.setButtonLoading(false);
                 this.updateButtonText(app?.languageData?.file_btn_download_fast || '高速下载');
