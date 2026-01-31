@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 57
+ * version: 58
  * Github : https://github.com/tmplink/tmpUI
- * Date :2026-01-23
+ * Date :2026-01-31
  */
 
 class tmpUI {
@@ -584,6 +584,15 @@ class tmpUI {
 
         //下载所需组件
         this.loaderStart(url, () => {
+            
+            // 为了防止 FOUC (无样式内容闪烁)，在内容更新前将主体隐藏
+            // 等到所有资源(包括CSS)加载完毕(readyEvent触发loadpage(false))后再显示
+            let tb = document.getElementById('tmpui_body');
+            if (tb) {
+                tb.style.transition = ''; // 移除过渡，立即隐藏
+                tb.style.opacity = '0';
+            }
+
             //调整网页标题
             document.title = this.config.path[url].title;
             //写入到页面,处理资源时需要根据对应的资源类型进行处理
@@ -646,8 +655,24 @@ class tmpUI {
                         continue;
                     }
                 }
+                
                 this.htmlAppend('head', `<!--[${i}]-->`);
-                this.htmlAppend('head', `<link class="${contentReloadTarget}" rel="stylesheet" href="${contentURL}">`);
+
+                // 使用 createElement 创建 link 标签，并监听 onload 事件
+                // 这样可以将 CSS 加载纳入 readyQueue 队列，确保样式加载完成后再显示页面
+                window.tmpuiHelper.readyTotal++;
+                let link = document.createElement('link');
+                link.className = contentReloadTarget;
+                link.rel = 'stylesheet';
+                link.href = contentURL;
+                link.onload = () => {
+                    window.tmpuiHelper.readyQueue++;
+                };
+                link.onerror = () => {
+                    window.tmpuiHelper.readyQueue++;
+                    this.logError('Failed to load CSS: ' + contentURL);
+                }
+                document.head.appendChild(link);
             }
 
             if (contentType === 'js' && contentType === type) {
@@ -1168,6 +1193,20 @@ class tmpUI {
     }
 
     loadpage(status, isCached = false) {
+
+        // 无论是否启用 loadingPage，都需要处理 FOUC 问题
+        // 如果 status 为 false (加载完成)，强制显示内容区域
+        if (status === false) {
+             // 页面加载完成（CSS已就绪），显示主体内容
+             let tb = document.getElementById('tmpui_body');
+             if (tb) {
+                 // 强制重绘以确保 transition 生效
+                 // requestAnimationFrame(() => {
+                     tb.style.transition = 'opacity 0.3s ease';
+                     tb.style.opacity = '1';
+                 // });
+             }
+        }
 
         if (!this.loadingPage) {
             this.log('Loading page exit.');
