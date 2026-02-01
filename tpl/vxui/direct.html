@@ -307,203 +307,260 @@
                 </div>
             </div>
 
-            <div class="vx-card">
-                <div class="vx-card-header">
-                    <div class="vx-card-title" data-tpl="direct_api_overview">接口概览</div>
-                </div>
-                <div class="vx-card-body">
-                    <div class="vx-text-muted vx-api-base" style="margin-bottom: 12px;"><span data-tpl="direct_api_base_url">基础地址</span>：<span id="vx-direct-api-base" class="vx-api-endpoint"></span></div>
-                    <div class="vx-text-sm vx-api-overview-list">
-                        <div class="vx-api-overview-item">
-                            <span class="vx-api-method">POST</span>
-                            <span class="vx-api-endpoint">https://tmp-cli.vx-cdn.com/app/upload_cli</span>
-                            <span class="vx-text-muted" data-tpl="direct_api_upload_file_desc">上传文件（返回 ukey）</span>
-                        </div>
-                        <div class="vx-api-overview-item">
-                            <span class="vx-api-method">POST</span>
-                            <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span>
-                            <span class="vx-text-muted" data-tpl="direct_api_services_desc">配额/列表/直链管理（action=quota / list_of_workspace / list_of_direct / link_add / link_del）</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="vx-card" style="margin-top: 16px;">
                 <div class="vx-card-header">
-                    <div class="vx-card-title" data-tpl="direct_api_docs_title">接口文档（服务端 API）</div>
+                    <div class="vx-card-title" data-tpl="direct_api_docs_title">API 文档</div>
                 </div>
                 <div class="vx-card-body">
-                    <div class="vx-text-muted" style="margin-bottom: 12px;" data-tpl="direct_api_docs_desc">以下内容迁移自旧版直链 API 文档，便于对接脚本/CLI。</div>
+                    <!-- 文件上传 API -->
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--vx-text);">
+                            <iconpark-icon name="cloud-arrow-up"></iconpark-icon> 文件上传 API
+                        </h3>
+                        
+                        <details class="vx-api-detail" style="padding: 10px 0;">
+                            <summary class="vx-api-summary">
+                                <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
+                                <span>上传文件</span>
+                            </summary>
+                            <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
+                                <div style="margin-bottom: 8px;"><span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-cli.vx-cdn.com/app/upload_cli</span></div>
+                                <div style="margin-bottom: 8px;"><span class="vx-api-method">Content-Type</span> <span class="vx-api-endpoint">multipart/form-data</span></div>
 
-                    <details class="vx-api-detail" style="padding: 10px 0;">
-                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-cli.vx-cdn.com/app/upload_cli</span><span data-tpl="direct_api_sum_upload">（上传文件）</span></summary>
-                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
-                            <div style="margin-bottom: 8px;">Endpoint：<span class="vx-api-endpoint">https://tmp-cli.vx-cdn.com/app/upload_cli</span></div>
-                            <div style="margin-bottom: 8px;">Content-Type：<span style="font-family: var(--vx-font-mono);">application/x-www-form-urlencoded</span></div>
+                                <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_example">请求示例</div>
+                                <div class="vx-code-block">
+curl -F "file=@/root/test.bin" -F "key=YOUR_API_KEY" https://tmp-cli.vx-cdn.com/app/upload_cli
+                                </div>
 
-                            <div style="margin-top: 10px; font-weight: 600;" data-tpl="direct_api_example">示例</div>
-                            <div class="vx-code-block">
-curl -k -F "file=@/root/test.bin" -F "key=API key" -X POST "https://tmp-cli.vx-cdn.com/app/upload_cli"
-                            </div>
+                                <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_params">参数说明</div>
+                                <div class="vx-api-table-wrap">
+                                    <table class="vx-api-table">
+                                        <tbody>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td>
+                                                <td style="padding: 10px;">API Key（必填）</td>
+                                            </tr>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">file</td>
+                                                <td style="padding: 10px;">文件内容（必填）</td>
+                                            </tr>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">model</td>
+                                                <td style="padding: 10px;">
+                                                    <span data-tpl="direct_api_storage_mode">存储模式（可选）</span>
+                                                    <div class="vx-text-muted" style="margin-top: 6px;">
+                                                        <div><span style="font-family: var(--vx-font-mono);">99</span> - <span data-tpl="direct_api_permanent">永久</span></div>
+                                                        <div><span style="font-family: var(--vx-font-mono);">0</span> - <span data-tpl="direct_api_24h">24小时</span></div>
+                                                        <div><span style="font-family: var(--vx-font-mono);">1</span> - <span data-tpl="direct_api_3days">3天</span></div>
+                                                        <div><span style="font-family: var(--vx-font-mono);">2</span> - <span data-tpl="direct_api_7days">7天</span></div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
 
-                            <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
-                            <div class="vx-api-table-wrap">
-                                <table class="vx-api-table">
-                                    <tbody>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);">
-                                            <td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td>
-                                            <td style="padding: 10px;">API Key</td>
-                                        </tr>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);">
-                                            <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">mrid</td>
-                                            <td style="padding: 10px;" data-tpl="direct_api_file_validity">文件有效期</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">model</td>
-                                            <td style="padding: 10px;">
-                                                <span data-tpl="direct_api_storage_mode">存储模式</span>
-                                                <div class="vx-text-muted" style="margin-top: 6px;">
-                                                    <div><span style="font-family: var(--vx-font-mono);">99</span>：<span data-tpl="direct_api_permanent">永久</span></div>
-                                                    <div><span style="font-family: var(--vx-font-mono);">0</span>：<span data-tpl="direct_api_24h">24h 后销毁</span></div>
-                                                    <div><span style="font-family: var(--vx-font-mono);">1</span>：<span data-tpl="direct_api_3days">3 天</span></div>
-                                                    <div><span style="font-family: var(--vx-font-mono);">2</span>：<span data-tpl="direct_api_7days">7 天</span></div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_return">返回值</div>
+                                <div style="margin-top: 6px;">
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-success);">status: 1</span> - 成功，data 为文件 UKEY</div>
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">status: 0</span> - 无效请求</div>
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">status: 2</span> - 文件过大</div>
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">status: 3</span> - 服务器繁忙</div>
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">status: 4</span> - 空间不足</div>
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">status: 5</span> - 配额不足</div>
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">status: 6</span> - API Key 无效</div>
+                                </div>
                             </div>
+                        </details>
+                    </div>
 
-                            <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_return">返回值</div>
-                            <div class="vx-text-muted">Status：</div>
-                            <div style="margin-top: 6px;">
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-success);">1</span>：<span data-tpl="direct_api_upload_ok">上传完成，此时返回的 data 为文件的 UKEY。</span></div>
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">0</span>：<span data-tpl="direct_api_upload_fail_invalid">上传失败，无效的请求。</span></div>
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">2</span>：<span data-tpl="direct_api_upload_fail_size">上传失败，文件大小超过限制。</span></div>
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">3</span>：<span data-tpl="direct_api_upload_fail_busy">上传失败，服务器繁忙，无法处理此次请求。</span></div>
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">4</span>：<span data-tpl="direct_api_upload_fail_space">上传失败，私有空间不足，无法存储文件。</span></div>
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">5</span>：<span data-tpl="direct_api_upload_fail_quota">上传失败，目前上传的文件总量已经超出了当日配额（存储至私有空间时不受限制）。</span></div>
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">6</span>：<span data-tpl="direct_api_upload_fail_key">上传失败，API Key 已失效。</span></div>
-                            </div>
-                            <div style="margin-top: 8px;">Data：<span data-tpl="direct_api_upload_data">成功时为 UKEY；失败时为错误信息。</span></div>
-                        </div>
-                    </details>
+                    <!-- 直链管理 API -->
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--vx-text);">
+                            <iconpark-icon name="link"></iconpark-icon> 直链管理 API
+                        </h3>
 
-                    <details class="vx-api-detail" style="padding: 10px 0;">
-                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span><span data-tpl="direct_api_sum_general">（通用说明）</span></summary>
-                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
-                            <div style="margin-bottom: 8px;">Endpoint：<span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span></div>
-                            <div style="margin-bottom: 8px;">Content-Type：<span style="font-family: var(--vx-font-mono);">application/x-www-form-urlencoded</span></div>
-                            <div><span data-tpl="direct_api_common_params">通用参数</span>：<span style="font-family: var(--vx-font-mono);">action</span>、<span style="font-family: var(--vx-font-mono);">key</span>（API Key）、<span style="font-family: var(--vx-font-mono);">page</span>。</div>
-                        </div>
-                    </details>
+                        <details class="vx-api-detail" style="padding: 10px 0;">
+                            <summary class="vx-api-summary">
+                                <iconpark-icon name="battery-three-quarters"></iconpark-icon>
+                                <span>查询配额</span>
+                            </summary>
+                            <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
+                                <div style="margin-bottom: 8px;"><span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span></div>
+                                <div style="margin-bottom: 8px;"><span class="vx-api-method">Content-Type</span> <span class="vx-api-endpoint">application/x-www-form-urlencoded</span></div>
+                                <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
+                                <div class="vx-api-table-wrap">
+                                    <table class="vx-api-table">
+                                        <tbody>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td>
+                                                <td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">quota</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td>
+                                                <td style="padding: 10px;">API Key</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_return">返回值</div>
+                                <div>status：<span style="font-family: var(--vx-font-mono);">1</span> 成功 / <span style="font-family: var(--vx-font-mono);">0</span> 失败</div>
+                                <div>data.quota：已购买配额（字节）</div>
+                            </div>
+                        </details>
 
-                    <details class="vx-api-detail" style="padding: 10px 0;">
-                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span><span data-tpl="direct_api_sum_quota">（action=quota 获取直链流量配额）</span></summary>
-                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
-                            <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
-                            <div class="vx-api-table-wrap">
-                                <table class="vx-api-table">
-                                    <tbody>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">quota</span></td></tr>
-                                        <tr><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
-                                    </tbody>
-                                </table>
+                        <details class="vx-api-detail" style="padding: 10px 0;">
+                            <summary class="vx-api-summary">
+                                <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+                                <span>获取仓库文件列表</span>
+                            </summary>
+                            <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
+                                <div style="margin-bottom: 8px;"><span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span></div>
+                                <div style="margin-bottom: 8px;"><span class="vx-api-method">Content-Type</span> <span class="vx-api-endpoint">application/x-www-form-urlencoded</span></div>
+                                <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
+                                <div class="vx-api-table-wrap">
+                                    <table class="vx-api-table">
+                                        <tbody>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td>
+                                                <td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">list_of_workspace</span></td>
+                                            </tr>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td>
+                                                <td style="padding: 10px;">API Key</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">page</td>
+                                                <td style="padding: 10px;">页码（可选）</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_return">返回值</div>
+                                <div>status：<span style="font-family: var(--vx-font-mono);">1</span> 成功 / <span style="font-family: var(--vx-font-mono);">0</span> 失败</div>
+                                <div>data[]：文件数组，包含 <span style="font-family: var(--vx-font-mono);">ukey</span>、<span style="font-family: var(--vx-font-mono);">name</span>、<span style="font-family: var(--vx-font-mono);">size</span></div>
                             </div>
-                            <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_return">返回值</div>
-                            <div>status：<span style="font-family: var(--vx-font-mono);">1</span> <span data-tpl="direct_api_has_data">有数据</span>；<span style="font-family: var(--vx-font-mono);">0</span> <span data-tpl="direct_api_no_data">没有数据</span></div>
-                            <div>data：<span style="font-family: var(--vx-font-mono);">quota</span>（<span data-tpl="direct_api_quota_purchased">已购买的配额</span>）</div>
-                        </div>
-                    </details>
+                        </details>
 
-                    <details class="vx-api-detail" style="padding: 10px 0;">
-                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span><span data-tpl="direct_api_sum_workspace">（action=list_of_workspace 获取仓库文件列表）</span></summary>
-                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
-                            <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
-                            <div class="vx-api-table-wrap">
-                                <table class="vx-api-table">
-                                    <tbody>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">list_of_workspace</span></td></tr>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
-                                        <tr><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">page</td><td style="padding: 10px;" data-tpl="direct_api_page_num">页码</td></tr>
-                                    </tbody>
-                                </table>
+                        <details class="vx-api-detail" style="padding: 10px 0;">
+                            <summary class="vx-api-summary">
+                                <iconpark-icon name="list"></iconpark-icon>
+                                <span>获取直链列表</span>
+                            </summary>
+                            <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
+                                <div style="margin-bottom: 8px;"><span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span></div>
+                                <div style="margin-bottom: 8px;"><span class="vx-api-method">Content-Type</span> <span class="vx-api-endpoint">application/x-www-form-urlencoded</span></div>
+                                <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
+                                <div class="vx-api-table-wrap">
+                                    <table class="vx-api-table">
+                                        <tbody>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td>
+                                                <td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">list_of_direct</span></td>
+                                            </tr>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td>
+                                                <td style="padding: 10px;">API Key</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">page</td>
+                                                <td style="padding: 10px;">页码（可选）</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_return">返回值</div>
+                                <div>status：<span style="font-family: var(--vx-font-mono);">1</span> 成功 / <span style="font-family: var(--vx-font-mono);">0</span> 失败</div>
+                                <div>data[]：直链数组，包含 <span style="font-family: var(--vx-font-mono);">dkey</span>、<span style="font-family: var(--vx-font-mono);">link</span>、<span style="font-family: var(--vx-font-mono);">name</span>、<span style="font-family: var(--vx-font-mono);">size</span>、<span style="font-family: var(--vx-font-mono);">etime</span></div>
                             </div>
-                            <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_return">返回值</div>
-                            <div>status：<span style="font-family: var(--vx-font-mono);">1</span> <span data-tpl="direct_api_has_data">有数据</span>；<span style="font-family: var(--vx-font-mono);">0</span> <span data-tpl="direct_api_no_data">没有数据</span></div>
-                            <div>data：（Array）<span data-tpl="direct_api_workspace_data">每项包含</span> <span style="font-family: var(--vx-font-mono);">ukey</span> / <span style="font-family: var(--vx-font-mono);">name</span> / <span style="font-family: var(--vx-font-mono);">size</span></div>
-                        </div>
-                    </details>
+                        </details>
 
-                    <details class="vx-api-detail" style="padding: 10px 0;">
-                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span><span data-tpl="direct_api_sum_list">（action=list_of_direct 获取直链文件列表）</span></summary>
-                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
-                            <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
-                            <div class="vx-api-table-wrap">
-                                <table class="vx-api-table">
-                                    <tbody>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">list_of_direct</span></td></tr>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
-                                        <tr><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">page</td><td style="padding: 10px;" data-tpl="direct_api_page_num">页码</td></tr>
-                                    </tbody>
-                                </table>
+                        <details class="vx-api-detail" style="padding: 10px 0;">
+                            <summary class="vx-api-summary">
+                                <iconpark-icon name="circle-plus"></iconpark-icon>
+                                <span>创建直链</span>
+                            </summary>
+                            <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
+                                <div style="margin-bottom: 8px;"><span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span></div>
+                                <div style="margin-bottom: 8px;"><span class="vx-api-method">Content-Type</span> <span class="vx-api-endpoint">application/x-www-form-urlencoded</span></div>
+                                <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
+                                <div class="vx-api-table-wrap">
+                                    <table class="vx-api-table">
+                                        <tbody>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td>
+                                                <td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">link_add</span></td>
+                                            </tr>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td>
+                                                <td style="padding: 10px;">API Key</td>
+                                            </tr>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">ukey</td>
+                                                <td style="padding: 10px;">文件 UKEY</td>
+                                            </tr>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">valid_time</td>
+                                                <td style="padding: 10px;">有效期（分钟，可选）</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">download_limit</td>
+                                                <td style="padding: 10px;">下载次数限制（可选）</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_return">返回值</div>
+                                <div style="margin-top: 6px;">
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-success);">status: 1</span> - 成功</div>
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">status: 0</span> - 失败</div>
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">status: 1001</span> - 文件不存在</div>
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">status: 1002</span> - 内部错误</div>
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">status: 1005</span> - 文件未就绪</div>
+                                </div>
                             </div>
-                            <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_return">返回值</div>
-                            <div>status：<span style="font-family: var(--vx-font-mono);">1</span> <span data-tpl="direct_api_has_data">有数据</span>；<span style="font-family: var(--vx-font-mono);">0</span> <span data-tpl="direct_api_no_data">没有数据</span></div>
-                            <div>data：（Array）<span data-tpl="direct_api_list_data">每项包含</span> <span style="font-family: var(--vx-font-mono);">dkey</span> / <span style="font-family: var(--vx-font-mono);">link</span> / <span style="font-family: var(--vx-font-mono);">name</span> / <span style="font-family: var(--vx-font-mono);">size</span> / <span style="font-family: var(--vx-font-mono);">etime</span></div>
-                        </div>
-                    </details>
+                        </details>
 
-                    <details class="vx-api-detail" style="padding: 10px 0;">
-                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span><span data-tpl="direct_api_sum_add">（action=link_add 添加直链）</span></summary>
-                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
-                            <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
-                            <div class="vx-api-table-wrap">
-                                <table class="vx-api-table">
-                                    <tbody>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">link_add</span></td></tr>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">ukey</td><td style="padding: 10px;">UKEY</td></tr>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">valid_time</td><td style="padding: 10px;" data-tpl="direct_api_valid_time">有效期（分）</td></tr>
-                                        <tr><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">download_limit</td><td style="padding: 10px;" data-tpl="direct_api_download_limit">下载次数限制</td></tr>
-                                    </tbody>
-                                </table>
+                        <details class="vx-api-detail" style="padding: 10px 0;">
+                            <summary class="vx-api-summary">
+                                <iconpark-icon name="trash"></iconpark-icon>
+                                <span>删除直链</span>
+                            </summary>
+                            <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
+                                <div style="margin-bottom: 8px;"><span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span></div>
+                                <div style="margin-bottom: 8px;"><span class="vx-api-method">Content-Type</span> <span class="vx-api-endpoint">application/x-www-form-urlencoded</span></div>
+                                <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
+                                <div class="vx-api-table-wrap">
+                                    <table class="vx-api-table">
+                                        <tbody>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td>
+                                                <td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">link_del</span></td>
+                                            </tr>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td>
+                                                <td style="padding: 10px;">API Key</td>
+                                            </tr>
+                                            <tr style="border-bottom: 1px solid var(--vx-border);">
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">dkey</td>
+                                                <td style="padding: 10px;">直链 DKEY</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">delete</td>
+                                                <td style="padding: 10px;">是否同时删除文件（可选）</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_return">返回值</div>
+                                <div style="margin-top: 6px;">
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-success);">status: 1</span> - 成功</div>
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">status: 0</span> - 失败</div>
+                                    <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">status: 1003</span> - 直链不存在</div>
+                                </div>
                             </div>
-                            <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_return">返回值</div>
-                            <div>status：</div>
-                            <div style="margin-top: 6px;">
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-success);">1</span>：<span data-tpl="direct_api_done">完成</span></div>
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">0</span>：<span data-tpl="direct_api_failed">失败</span></div>
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">1001</span>：<span data-tpl="direct_api_err_1001">失败，文件不存在</span></div>
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">1002</span>：<span data-tpl="direct_api_err_1002">失败，内部错误</span></div>
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">1005</span>：<span data-tpl="direct_api_err_1005">失败，文件尚未就绪，请稍后再添加</span></div>
-                            </div>
-                        </div>
-                    </details>
-
-                    <details class="vx-api-detail" style="padding: 10px 0;">
-                        <summary class="vx-api-summary"> <span class="vx-api-method">POST</span> <span class="vx-api-endpoint">https://tmp-api.vx-cdn.com/services/direct</span><span data-tpl="direct_api_sum_del">（action=link_del 移除直链）</span></summary>
-                        <div class="vx-text-sm" style="margin-top: 10px; line-height: 1.8;">
-                            <div style="margin-top: 8px; font-weight: 600;" data-tpl="direct_api_params">参数</div>
-                            <div class="vx-api-table-wrap">
-                                <table class="vx-api-table">
-                                    <tbody>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; width: 180px; font-family: var(--vx-font-mono); color: var(--vx-primary);">action</td><td style="padding: 10px;"><span style="font-family: var(--vx-font-mono);">link_del</span></td></tr>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">key</td><td style="padding: 10px;">API Key</td></tr>
-                                        <tr style="border-bottom: 1px solid var(--vx-border);"><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">dkey</td><td style="padding: 10px;">DKEY</td></tr>
-                                        <tr><td style="padding: 10px; font-family: var(--vx-font-mono); color: var(--vx-primary);">delete</td><td style="padding: 10px;" data-tpl="direct_api_delete_file">同时删除文件</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div style="margin-top: 12px; font-weight: 600;" data-tpl="direct_api_return">返回值</div>
-                            <div>status：</div>
-                            <div style="margin-top: 6px;">
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-success);">1</span>：<span data-tpl="direct_api_done">完成</span></div>
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">0</span>：<span data-tpl="direct_api_failed">失败</span></div>
-                                <div><span style="font-family: var(--vx-font-mono); color: var(--vx-danger);">1003</span>：<span data-tpl="direct_api_err_1003">失败，没有找到对应的直链</span></div>
-                            </div>
-                        </div>
-                    </details>
+                        </details>
+                    </div>
                 </div>
             </div>
         </section>
@@ -578,5 +635,64 @@ curl -k -F "file=@/root/test.bin" -F "key=API key" -X POST "https://tmp-cli.vx-c
 </div>
 
 <style>
-/* (tabs removed; navigation uses left sidebar) */
+/* API Documentation Styles */
+.vx-api-detail summary.vx-api-summary {
+    cursor: pointer;
+    padding: 12px 16px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: var(--vx-text);
+    user-select: none;
+    border: 1px solid transparent;
+}
+
+.vx-api-detail summary.vx-api-summary:hover {
+    background: var(--vx-bg-tertiary);
+    border-color: var(--vx-border);
+    transform: translateY(-1px);
+}
+
+.vx-api-detail summary.vx-api-summary:active {
+    transform: translateY(0);
+}
+
+.vx-api-detail summary.vx-api-summary iconpark-icon {
+    font-size: 18px;
+    color: var(--vx-primary);
+    flex-shrink: 0;
+}
+
+.vx-api-detail[open] summary.vx-api-summary {
+    background: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+    margin-bottom: 12px;
+}
+
+.vx-api-detail[open] summary.vx-api-summary iconpark-icon {
+    color: var(--vx-primary);
+}
+
+/* Remove default marker */
+.vx-api-detail summary::-webkit-details-marker,
+.vx-api-detail summary::marker {
+    display: none;
+}
+
+/* Add custom expand indicator */
+.vx-api-detail summary.vx-api-summary::after {
+    content: "▼";
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    transition: transform 0.2s ease;
+}
+
+.vx-api-detail[open] summary.vx-api-summary::after {
+    transform: rotate(180deg);
+}
 </style>
