@@ -255,8 +255,22 @@ function Login() {
     document.body.style.transition = 'opacity 0.3s ease';
 
     setTimeout(() => {
-        const url = '/?tmpui_page=/app&listview=preload';
-        location.href = url;
+        // Direct navigation logic to avoid preload page
+        // Check login status based on cached token and validation result
+        const apiToken = localStorage.getItem('app_token');
+        
+        if (apiToken && currentButtonState === 'continue') {
+            // User is logged in, redirect based on UI preference
+            const uiPreference = localStorage.getItem('tmplink_ui_preference');
+            if (uiPreference === 'classic') {
+                location.href = '/?tmpui_page=/app&listview=room';
+            } else {
+                location.href = '/?tmpui_page=/vx';
+            }
+        } else {
+            // Not logged in or validation failed, go to login
+            location.href = '/?tmpui_page=/app&listview=login';
+        }
     }, 150);
 }
 
