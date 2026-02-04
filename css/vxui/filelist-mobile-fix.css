@@ -72,7 +72,7 @@
     /* Mobile: Auto-scroll only for long filenames marked as overflow */
     .vx-list-filename.is-overflow a:not(.no-scroll) {
         animation: vx-mobile-filename-scroll 15s ease-in-out infinite !important;
-        animation-delay: 2s !important;
+        animation-delay: 1s !important;
         overflow: visible !important;
         text-overflow: clip !important;
     }
