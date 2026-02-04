@@ -1879,9 +1879,13 @@ var VX_FILELIST = VX_FILELIST || {
                     if (isOverflow) {
                         link.classList.remove('no-scroll');
                         container.classList.add('is-overflow');
+                        // 计算需要滚动的距离：文件名宽度 - 容器宽度 + 一点余量
+                        const scrollDistance = linkWidth - containerWidth + 10;
+                        link.style.setProperty('--scroll-distance', `-${scrollDistance}px`);
                     } else {
                         link.classList.add('no-scroll');
                         container.classList.remove('is-overflow');
+                        link.style.removeProperty('--scroll-distance');
                     }
                 } else {
                     // 桌面端：标记溢出状态，用于悬停时的动画

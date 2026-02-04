@@ -71,7 +71,7 @@
     
     /* Mobile: Auto-scroll only for long filenames marked as overflow */
     .vx-list-filename.is-overflow a:not(.no-scroll) {
-        animation: vx-mobile-filename-scroll 15s ease-in-out infinite !important;
+        animation: vx-mobile-filename-scroll 8s ease-in-out infinite !important;
         animation-delay: 1s !important;
         overflow: visible !important;
         text-overflow: clip !important;
@@ -85,13 +85,13 @@
     }
     
     @keyframes vx-mobile-filename-scroll {
-        0%, 20% {
+        0%, 15% {
             transform: translateX(0);
         }
-        50%, 70% {
-            transform: translateX(calc(-100% + 180px));
+        45%, 55% {
+            transform: translateX(var(--scroll-distance, -50px));
         }
-        100% {
+        85%, 100% {
             transform: translateX(0);
         }
     }
