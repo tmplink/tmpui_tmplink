@@ -277,7 +277,7 @@ body.vx-active #tmpui_body {
 .vx-list-checkbox {
     width: 20px;
     height: 20px;
-    margin-right: 12px;
+    margin-right: 0px;
     border: 2px solid var(--vx-border-hover);
     border-radius: 4px;
     cursor: pointer;

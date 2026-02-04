@@ -40,7 +40,7 @@
 
     /* 5. Mobile Layout: Checkbox */
     .vx-list-checkbox {
-        margin-right: 2px !important;
+        margin-right: 0px !important;
     }
 
     /* 6. Mobile Layout: Name Area (Icon + Text) */
@@ -48,9 +48,19 @@
         flex: 1 1 auto !important; /* Grow, Shrink, Basis Auto */
         display: flex !important;
         align-items: center !important;
-        gap: 4px !important;
+        gap: 12px !important;
         max-width: none !important; /* Let flex handle it */
         overflow: hidden !important;
+    }
+
+    /* 7. Mobile Layout: Icon - 缩小容器以减少视觉留白 */
+    .vx-list-icon {
+        width: 24px !important;
+        height: 24px !important;
+    }
+    
+    .vx-list-icon iconpark-icon {
+        font-size: 22px !important;
     }
 
     .vx-list-filename {
