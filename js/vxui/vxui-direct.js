@@ -2067,7 +2067,7 @@ const VX_DIRECT = {
     /**
      * 初始化超长文件名滚动效果
      * 移动端：对于不需要滚动的短文件名，添加 no-scroll 类禁用动画
-     * 桌面端：对于溢出的文件名，添加 is-overflow 类启用悬停滚动
+     * 桌面端：对于溢出的文件名，添加 is-overflow 类启用悬停滚动，并设置动态滚动距离
      */
     initFilenameScroll() {
         const isMobile = window.innerWidth <= 768;
@@ -2088,16 +2088,28 @@ const VX_DIRECT = {
                     if (isOverflow) {
                         link.classList.remove('no-scroll');
                         container.classList.add('is-overflow');
+                        // 计算需要滚动的距离
+                        const scrollDistance = linkWidth - containerWidth + 10;
+                        link.style.setProperty('--scroll-distance', `-${scrollDistance}px`);
                     } else {
                         link.classList.add('no-scroll');
                         container.classList.remove('is-overflow');
+                        link.style.removeProperty('--scroll-distance');
                     }
                 } else {
-                    // 桌面端：标记溢出状态，用于悬停时的动画
+                    // 桌面端：标记溢出状态，用于悬停时的动画，并设置动态滚动距离
                     if (isOverflow) {
                         container.classList.add('is-overflow');
+                        // 计算需要滚动的距离：文件名宽度 - 容器宽度 + 一点余量
+                        const scrollDistance = linkWidth - containerWidth + 20;
+                        link.style.setProperty('--scroll-distance', `-${scrollDistance}px`);
+                        // 根据滚动距离动态设置动画时长，确保滚动速度一致（约50px/s）
+                        const duration = Math.max(3, Math.min(10, scrollDistance / 50));
+                        link.style.setProperty('--scroll-duration', `${duration}s`);
                     } else {
                         container.classList.remove('is-overflow');
+                        link.style.removeProperty('--scroll-distance');
+                        link.style.removeProperty('--scroll-duration');
                     }
                 }
             });

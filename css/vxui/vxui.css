@@ -227,6 +227,7 @@ body.vx-active #tmpui_body {
     min-width: 200px;
     display: flex;
     align-items: center;
+    gap: 12px;
 }
 
 .vx-list-col-size {
@@ -277,7 +278,7 @@ body.vx-active #tmpui_body {
 .vx-list-checkbox {
     width: 20px;
     height: 20px;
-    margin-right: 12px;
+    margin-right: 0px;
     border: 2px solid var(--vx-border-hover);
     border-radius: 4px;
     cursor: pointer;
@@ -380,226 +381,6 @@ body.vx-active #tmpui_body {
     gap: 4px;
 }
 
-/* ==================== Upload Row Styles ==================== */
-.vx-upload-row {
-    position: relative;
-    background: var(--vx-surface);
-    border-left: 3px solid var(--vx-primary);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
-    z-index: 5;
-    transition: background 0.2s;
-}
-
-.vx-upload-row:hover {
-    background: var(--vx-surface-hover);
-}
-
-.vx-upload-row.completed {
-    background: var(--vx-surface);
-    border-left-color: var(--vx-success);
-    box-shadow: none;
-}
-
-.vx-upload-row.failed {
-    background: var(--vx-surface);
-    border-left-color: var(--vx-danger);
-    box-shadow: none;
-}
-
-/* Upload progress cell - Desktop */
-.vx-upload-progress-cell {
-    min-width: 180px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-}
-
-.vx-upload-progress-wrap {
-    width: 100%;
-    height: 4px;
-    background: rgba(37, 99, 235, 0.2);
-    border-radius: var(--vx-radius-full);
-    overflow: hidden;
-}
-
-.vx-upload-row.completed .vx-upload-progress-wrap {
-    background: rgba(16, 185, 129, 0.2);
-}
-
-.vx-upload-row.failed .vx-upload-progress-wrap {
-    background: rgba(239, 68, 68, 0.2);
-}
-
-.vx-upload-progress-bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, var(--vx-primary), #60a5fa);
-    border-radius: var(--vx-radius-full);
-    transition: width 0.3s ease;
-}
-
-.vx-upload-row.completed .vx-upload-progress-bar {
-    background: var(--vx-success);
-}
-
-.vx-upload-row.failed .vx-upload-progress-bar {
-    background: var(--vx-danger);
-}
-
-.vx-upload-progress-info {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    gap: 8px;
-}
-
-.vx-upload-progress-percent {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--vx-primary);
-    min-width: 36px;
-    text-align: right;
-}
-
-.vx-upload-row.completed .vx-upload-progress-percent {
-    color: var(--vx-success);
-}
-
-.vx-upload-row.failed .vx-upload-progress-percent {
-    color: var(--vx-danger);
-}
-
-.vx-upload-progress-text {
-    font-size: 12px;
-    color: var(--vx-text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-    text-align: right;
-}
-
-/* Upload filename with validity badge inline */
-.vx-upload-row .vx-list-filename {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-}
-
-.vx-upload-filename {
-    font-weight: 500;
-    color: var(--vx-text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
-
-.vx-upload-validity {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--vx-primary);
-    background: var(--vx-primary-light);
-    border-radius: 6px;
-    margin-left: 8px;
-    white-space: nowrap;
-}
-
-/* Cancel button styling */
-.vx-upload-row .vx-list-action-btn {
-    opacity: 0.7;
-    transition: all 0.15s ease;
-}
-
-.vx-upload-row .vx-list-action-btn:hover {
-    opacity: 1;
-    background: rgba(239, 68, 68, 0.15);
-    color: var(--vx-danger);
-}
-
-/* Animation for uploading state */
-@keyframes vx-upload-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-.vx-upload-row.uploading .vx-upload-progress-percent {
-    animation: vx-upload-pulse 1.5s ease-in-out infinite;
-}
-
-/* Row removing animation */
-.vx-upload-row-removing {
-    animation: vx-row-fade-out 0.3s ease forwards;
-}
-
-@keyframes vx-row-fade-out {
-    to {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-}
-
-/* ==================== File Sync Status Styles ==================== */
-.vx-file-sync {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-.vx-sync-status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--vx-text-secondary);
-    font-size: var(--vx-text-sm);
-}
-
-.vx-sync-spinner {
-    width: 18px;
-    height: 18px;
-}
-
-.vx-sync-text {
-    white-space: nowrap;
-}
-
-/* Photo album sync overlay */
-.vx-photo-sync-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: #fff;
-    font-size: var(--vx-text-sm);
-    border-radius: var(--vx-radius);
-    z-index: 5;
-}
-
-.vx-photo-sync-overlay .vx-sync-spinner {
-    width: 32px;
-    height: 32px;
-    filter: brightness(0) invert(1);
-}
-
-/* 上传进度条旋转动画 */
-@keyframes vx-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
 .vx-list-action-btn {
     width: 32px;
     height: 32px;
@@ -665,7 +446,7 @@ body.vx-active #tmpui_body {
 
 /* Only animate filenames that are marked as overflowing */
 .vx-list-filename.is-overflow:hover a {
-    animation: vx-filename-scroll 12s ease-in-out infinite;
+    animation: vx-filename-scroll var(--scroll-duration, 6s) ease-in-out infinite;
     overflow: visible;
     text-overflow: clip;
 }
@@ -678,13 +459,13 @@ body.vx-active #tmpui_body {
 }
 
 @keyframes vx-filename-scroll {
-    0%, 20% {
+    0%, 5% {
         transform: translateX(0);
     }
-    50%, 70% {
-        transform: translateX(calc(-100% + 250px));
+    45%, 55% {
+        transform: translateX(var(--scroll-distance, -200px));
     }
-    100% {
+    95%, 100% {
         transform: translateX(0);
     }
 }
@@ -1876,23 +1657,6 @@ body.vx-modal-body-open {
 .vx-toast-close iconpark-icon {
     font-size: 14px;
     line-height: 1;
-}
-
-    background: rgba(0, 0, 0, 0.02);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
-    background: transparent;
-    border: none;
-    border-radius: var(--vx-radius-sm);
-    background: var(--vx-surface-hover);
-    color: var(--vx-text);
-    transform: scale(1.05);
-    cursor: pointer;
-    flex-shrink: 0;
 }
 
 .vx-toast-close:hover {

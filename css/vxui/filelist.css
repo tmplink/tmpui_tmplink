@@ -1,0 +1,1879 @@
+/* FileList Module Styles - 双视图支持 */
+/* 注意：基础列表样式（.vx-list-checkbox, .vx-list-row 等）已在 vxui.css 中定义 */
+
+/* ==================== Sidebar Module ==================== */
+.vx-sidebar-module-info {
+    padding: 8px 12px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    margin: 0 4px;
+}
+
+.vx-sidebar-folder-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin: 0 0 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vx-sidebar-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-sidebar-meta iconpark-icon {
+    font-size: 14px;
+}
+
+/* ==================== Toggle Button Groups ==================== */
+.vx-view-toggle,
+.vx-action-toggle,
+.vx-album-controls {
+    display: flex;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    padding: 2px;
+    margin-right: 8px;
+}
+
+.vx-view-toggle .vx-btn-icon,
+.vx-action-toggle .vx-btn-icon,
+.vx-album-controls .vx-btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--vx-radius-sm);
+}
+
+.vx-view-toggle .vx-btn-icon.active,
+.vx-album-controls .vx-btn-icon.active {
+    background: var(--vx-primary);
+    color: white;
+}
+
+/* ==================== Sponsor Card ==================== */
+.vx-fl-sponsor-card {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 10px;
+    background: var(--vx-bg);
+    border-radius: 999px;
+    border: 1px solid var(--vx-border);
+    box-shadow: 0 8px 20px -16px rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(6px);
+    z-index: 40;
+    max-width: 360px;
+    white-space: nowrap;
+}
+
+body.vx-fl-has-sponsor .vx-content {
+    padding-bottom: 80px;
+}
+
+.vx-fl-sponsor-avatar {
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(99, 102, 241, 0.12);
+    flex-shrink: 0;
+}
+
+.vx-fl-sponsor-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.vx-fl-sponsor-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+    color: var(--vx-text);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.vx-fl-sponsor-card .userinfo_card_nickname,
+.vx-fl-sponsor-name .userinfo_card_nickname {
+    color: var(--vx-text);
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vx-fl-sponsor-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* ==================== Content Layout ==================== */
+.vx-content-list {
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+/* Mobile Folder Title Bar */
+.vx-mobile-folder-bar {
+    display: none;
+    align-items: center;
+    padding: 10px 16px 8px;
+    background: var(--vx-header-bg);
+    border-bottom: 1px solid var(--vx-border);
+}
+
+.vx-mobile-folder-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vx-text);
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vx-mobile-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.vx-mobile-breadcrumb a,
+.vx-mobile-breadcrumb span {
+    color: var(--vx-text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vx-mobile-breadcrumb .vx-breadcrumb-sep {
+    color: var(--vx-text-muted);
+    font-weight: 400;
+}
+
+/* ==================== Album Container ==================== */
+.vx-album-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0;
+}
+
+.vx-album-container .album-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0;
+}
+
+.vx-album-container .album-grid.large {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.vx-album-container .album-grid.small {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+/* ==================== List Container ==================== */
+.vx-list-container {
+    width: 100%;
+    flex: 1;
+    background: var(--vx-surface);
+    border-radius: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.vx-list-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    background: var(--vx-bg-secondary);
+    border-bottom: 1px solid var(--vx-border);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--vx-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* FileList 特有：列表行扩展 */
+.vx-list-row {
+    gap: 16px;
+}
+
+/* ==================== Row Animations ==================== */
+.vx-list-row.vx-row-adding {
+    animation: vx-row-slide-in 0.3s ease forwards;
+}
+
+.vx-list-row.vx-row-removing {
+    animation: vx-row-slide-out 0.3s ease forwards;
+}
+
+@keyframes vx-row-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+        background: var(--vx-primary-light);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        background: transparent;
+    }
+}
+
+@keyframes vx-row-slide-out {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(20px); }
+}
+
+/* Photo Card Animation */
+.photo-card.vx-card-adding {
+    animation: vx-card-fade-in 0.3s ease forwards;
+}
+
+.photo-card.vx-card-removing {
+    animation: vx-card-fade-out 0.3s ease forwards;
+}
+
+@keyframes vx-card-fade-in {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes vx-card-fade-out {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.9); }
+}
+
+/* ==================== File Type Icons ==================== */
+.vx-list-icon.vx-icon-folder iconpark-icon { color: #4A90E2; }
+.vx-list-icon.vx-icon-file iconpark-icon { color: var(--vx-text-secondary); }
+.vx-list-icon.vx-icon-image iconpark-icon { color: #E91E63; }
+.vx-list-icon.vx-icon-video iconpark-icon { color: #9C27B0; }
+.vx-list-icon.vx-icon-audio iconpark-icon { color: #FF9800; }
+.vx-list-icon.vx-icon-document iconpark-icon { color: #2196F3; }
+.vx-list-icon.vx-icon-archive iconpark-icon { color: #795548; }
+.vx-list-icon.vx-icon-code iconpark-icon { color: #00BCD4; }
+
+/* ==================== List Action Buttons ==================== */
+.vx-list-action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    border-radius: var(--vx-radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--vx-text-secondary);
+    transition: all 0.15s ease;
+}
+
+.vx-list-action-btn:hover {
+    background: var(--vx-bg-secondary);
+    color: var(--vx-primary);
+}
+
+.vx-list-action-btn.vx-action-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+}
+
+.vx-list-action-btn.is-downloading {
+    background: var(--vx-primary-light);
+    color: var(--vx-primary);
+}
+
+.vx-list-action-btn.is-downloading iconpark-icon {
+    animation: vx-spin 0.9s linear infinite;
+}
+
+/* Folder indicator */
+.vx-list-row[data-type="folder"] .vx-list-filename a {
+    font-weight: 600;
+}
+
+/* ==================== Filename & Badges ==================== */
+.vx-list-filename {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.vx-list-filename a {
+    color: var(--vx-text);
+    text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: inline-block;
+    flex-shrink: 1;
+}
+
+.vx-list-filename:hover a {
+    color: var(--vx-primary);
+}
+
+.vx-list-filename.is-overflow:hover a {
+    animation: vx-filename-scroll var(--scroll-duration, 6s) ease-in-out infinite;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+.vx-list-filename a.no-scroll {
+    animation: none !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+@keyframes vx-filename-scroll {
+    0%, 5% { transform: translateX(0); }
+    45%, 55% { transform: translateX(var(--scroll-distance, -200px)); }
+    95%, 100% { transform: translateX(0); }
+}
+
+/* Lefttime Badge */
+.vx-lefttime {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 12px;
+    padding: 2px 8px;
+    background: var(--vx-bg-secondary);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.vx-lefttime iconpark-icon {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.vx-hot-badge {
+    color: #EF4444;
+    margin-left: 4px;
+}
+
+.vx-like-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 8px;
+    color: #EC4899;
+    font-size: 12px;
+}
+
+.vx-type-folder {
+    color: var(--vx-text-muted);
+    font-size: 12px;
+}
+
+/* ==================== Breadcrumb ==================== */
+.vx-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+}
+
+.vx-breadcrumb a,
+.vx-breadcrumb > span:not(.vx-breadcrumb-sep) {
+    color: var(--vx-text-secondary);
+    text-decoration: none;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.vx-breadcrumb > span:last-child:not(.vx-breadcrumb-sep),
+.vx-breadcrumb > a:last-child {
+    flex-shrink: 1;
+    min-width: 60px;
+}
+
+.vx-breadcrumb a:hover {
+    color: var(--vx-primary);
+}
+
+.vx-breadcrumb-sep {
+    flex-shrink: 0;
+    color: var(--vx-text-muted);
+    margin: 0 4px;
+}
+
+/* ==================== Header ==================== */
+.vx-header-minimal {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 12px 16px;
+    background: var(--vx-surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--vx-border);
+    margin-bottom: 0;
+}
+
+@supports (backdrop-filter: blur(12px)) {
+    .vx-header-minimal {
+        background: rgba(30, 41, 59, 0.85);
+    }
+    
+    @media (prefers-color-scheme: light) {
+        html:not(.vx-dark) .vx-header-minimal {
+            background: rgba(255, 255, 255, 0.85);
+        }
+    }
+    
+    html.vx-light .vx-header-minimal {
+        background: rgba(255, 255, 255, 0.85);
+    }
+}
+
+.vx-header-minimal .vx-page-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.vx-btn-outline {
+    border: 1px solid var(--vx-border);
+    background: var(--vx-surface);
+}
+
+.vx-btn-outline:hover {
+    border-color: var(--vx-primary-light);
+    background: var(--vx-surface-hover);
+}
+
+/* Refresh button feedback */
+#vx-fl-refresh-btn[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+#vx-fl-refresh-btn[data-refreshing="1"] [data-role="refresh-icon"] {
+    animation: vx-spin 0.85s linear infinite;
+}
+
+/* ==================== Empty State ==================== */
+.vx-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.vx-empty-icon {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vx-empty-icon iconpark-icon {
+    font-size: 64px;
+    color: var(--vx-text-muted);
+}
+
+.vx-empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin-bottom: 8px;
+}
+
+.vx-empty-text {
+    color: var(--vx-text-secondary);
+    margin-bottom: 20px;
+}
+
+/* ==================== Move Folder Modal ==================== */
+#vx-fl-move-modal .vx-modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 16px 20px;
+}
+
+.vx-move-search-wrapper {
+    position: sticky;
+    top: 0;
+    background: var(--vx-surface);
+    z-index: 10;
+    padding-bottom: 12px;
+    margin-bottom: 8px;
+}
+
+.vx-move-search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.vx-move-search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--vx-text-muted);
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.vx-move-search-input {
+    width: 100%;
+    padding: 10px 36px 10px 38px;
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    font-size: 14px;
+    color: var(--vx-text);
+    background-color: var(--vx-bg-secondary);
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.vx-move-search-input:focus {
+    border-color: var(--vx-primary);
+    background-color: var(--vx-surface);
+    box-shadow: 0 0 0 3px var(--vx-primary-light);
+}
+
+.vx-move-search-input::placeholder {
+    color: var(--vx-text-muted);
+}
+
+.vx-move-search-clear {
+    position: absolute;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--vx-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.vx-move-search-clear:hover {
+    background-color: var(--vx-bg-secondary);
+    color: var(--vx-text-secondary);
+}
+
+.vx-move-tree-wrapper,
+.vx-move-tree-root,
+.vx-move-search-results {
+    margin: 0;
+    padding: 0;
+}
+
+.vx-move-folder-item,
+.vx-move-search-item {
+    cursor: pointer;
+    border-radius: var(--vx-radius-md);
+    transition: all 0.2s ease;
+    padding: 10px 14px;
+    margin: 2px 0;
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.vx-move-search-item {
+    align-items: flex-start;
+}
+
+.vx-move-folder-item:hover,
+.vx-move-folder-item.selected,
+.vx-move-search-item:hover,
+.vx-move-search-item.selected {
+    background-color: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+}
+
+.vx-move-folder-item.selected .vx-move-folder-name,
+.vx-move-search-item.selected .vx-move-folder-name {
+    color: var(--vx-primary);
+    font-weight: 500;
+}
+
+.vx-move-folder-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    margin-right: 8px;
+}
+
+.vx-move-folder-icon iconpark-icon {
+    font-size: 18px;
+    color: var(--vx-primary);
+}
+
+.vx-move-folder-name {
+    font-size: 14px;
+    color: var(--vx-text);
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+.vx-move-subtree {
+    padding-left: 20px;
+    margin-bottom: 0;
+}
+
+.vx-move-search-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.vx-move-search-item .vx-move-folder-name {
+    font-weight: 500;
+}
+
+.vx-move-folder-path {
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vx-move-search-item.selected .vx-move-folder-path {
+    color: var(--vx-primary);
+    opacity: 0.8;
+}
+
+.vx-move-no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--vx-text-muted);
+    font-size: 14px;
+}
+
+.vx-move-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+/* ==================== Context Menu ==================== */
+.vx-context-menu {
+    position: fixed;
+    z-index: 1000;
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    box-shadow: var(--vx-shadow-lg);
+    min-width: 160px;
+    padding: 6px 0;
+    display: none;
+}
+
+.vx-context-menu.show {
+    display: block;
+}
+
+.vx-context-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    color: var(--vx-text);
+    cursor: pointer;
+    transition: background 0.15s ease;
+    font-size: 14px;
+}
+
+.vx-context-item:hover {
+    background: var(--vx-surface-hover);
+}
+
+.vx-context-item iconpark-icon {
+    font-size: 16px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-context-item.vx-text-danger,
+.vx-context-item.vx-text-danger iconpark-icon {
+    color: #EF4444;
+}
+
+.vx-context-divider {
+    height: 1px;
+    background: var(--vx-border);
+    margin: 6px 0;
+}
+
+.vx-context-label {
+    padding: 6px 16px 4px;
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    font-weight: 500;
+}
+
+/* ==================== Selection Bar ==================== */
+.vx-selection-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: color-mix(in srgb, var(--vx-surface) 80%, transparent);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    box-shadow: var(--vx-shadow-lg);
+    padding: 12px 20px;
+    display: none;
+    align-items: center;
+    gap: 16px;
+    z-index: calc(var(--vx-z-fixed) + 10);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.vx-selection-info {
+    font-weight: 500;
+    color: var(--vx-text);
+}
+
+.vx-selection-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ==================== Download Progress ==================== */
+.lightbox-action.is-downloading,
+.photo-card-action.is-downloading {
+    position: relative;
+    pointer-events: none;
+}
+
+.photo-card-action.is-downloading {
+    opacity: 1 !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+}
+
+.lightbox-action .spin {
+    animation: vx-spin 1s linear infinite;
+}
+
+.lightbox-download-progress,
+.card-download-progress {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+.card-download-progress {
+    width: 32px;
+    height: 32px;
+}
+
+.lightbox-download-progress .progress-bg,
+.card-download-progress .progress-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.2);
+    stroke-width: 2;
+}
+
+.lightbox-download-progress .progress-bar,
+.card-download-progress .progress-bar {
+    fill: none;
+    stroke: #10b981;
+    stroke-width: 2;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.2s ease;
+}
+
+.lightbox-action.is-downloading .progress-icon,
+.photo-card-action.is-downloading .progress-icon {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.lightbox-action.download-complete,
+.photo-card-action.download-complete {
+    background: rgba(16, 185, 129, 0.5) !important;
+    border-color: #10b981 !important;
+}
+
+.lightbox-action.download-error,
+.photo-card-action.download-error {
+    background: rgba(239, 68, 68, 0.5) !important;
+    border-color: #ef4444 !important;
+}
+
+.lightbox-action.download-complete iconpark-icon,
+.lightbox-action.download-error iconpark-icon,
+.photo-card-action.download-complete iconpark-icon,
+.photo-card-action.download-error iconpark-icon {
+    color: #fff;
+}
+
+/* ==================== Upload Modal ==================== */
+.vx-modal-lg .vx-modal-container {
+    max-width: 560px;
+}
+
+.vx-upload-settings {
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.vx-upload-settings-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin-bottom: 16px;
+}
+
+.vx-upload-settings-header iconpark-icon {
+    font-size: 18px;
+}
+
+.vx-upload-settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.vx-upload-setting-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.vx-upload-setting-item .vx-label {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+    margin: 0;
+}
+
+.vx-upload-setting-item .vx-select {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.vx-upload-setting-hint {
+    font-size: 11px;
+    color: var(--vx-text-muted);
+}
+
+.vx-upload-settings-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 10px 12px;
+    background: var(--vx-info-light);
+    border-radius: var(--vx-radius-sm);
+    font-size: 12px;
+    color: var(--vx-info);
+}
+
+.vx-upload-settings-note iconpark-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+/* Upload Dropzone */
+.vx-upload-dropzone {
+    border: 2px dashed var(--vx-border-hover);
+    border-radius: var(--vx-radius-lg);
+    padding: 40px 20px;
+    text-align: center;
+    transition: all 0.2s ease;
+    background: var(--vx-surface);
+}
+
+.vx-upload-dropzone:hover,
+.vx-upload-dropzone.dragover {
+    border-color: var(--vx-primary);
+    background: var(--vx-primary-light);
+}
+
+.vx-upload-dropzone-icon {
+    margin-bottom: 16px;
+}
+
+.vx-upload-dropzone-icon iconpark-icon {
+    font-size: 48px;
+    color: var(--vx-text-muted);
+}
+
+.vx-upload-dropzone:hover .vx-upload-dropzone-icon iconpark-icon,
+.vx-upload-dropzone.dragover .vx-upload-dropzone-icon iconpark-icon {
+    color: var(--vx-primary);
+}
+
+.vx-upload-dropzone-text {
+    font-size: 14px;
+    color: var(--vx-text-secondary);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.vx-upload-dropzone-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ==================== Upload Row Styles ==================== */
+.vx-upload-row {
+    position: relative;
+    background: var(--vx-surface);
+    border-left: 3px solid var(--vx-primary);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+    z-index: 5;
+    transition: background 0.2s;
+}
+
+.vx-upload-row:hover {
+    background: var(--vx-surface-hover);
+}
+
+.vx-upload-row.completed {
+    background: var(--vx-surface);
+    border-left-color: var(--vx-success);
+    box-shadow: none;
+}
+
+.vx-upload-row.failed {
+    background: var(--vx-surface);
+    border-left-color: var(--vx-danger);
+    box-shadow: none;
+}
+
+/* Upload progress cell - Desktop */
+.vx-upload-progress-cell {
+    min-width: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.vx-upload-progress-wrap {
+    width: 100%;
+    height: 4px;
+    background: rgba(37, 99, 235, 0.2);
+    border-radius: var(--vx-radius-full);
+    overflow: hidden;
+}
+
+.vx-upload-row.completed .vx-upload-progress-wrap {
+    background: rgba(16, 185, 129, 0.2);
+}
+
+.vx-upload-row.failed .vx-upload-progress-wrap {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.vx-upload-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--vx-primary), #60a5fa);
+    border-radius: var(--vx-radius-full);
+    transition: width 0.3s ease;
+}
+
+.vx-upload-row.completed .vx-upload-progress-bar {
+    background: var(--vx-success);
+}
+
+.vx-upload-row.failed .vx-upload-progress-bar {
+    background: var(--vx-danger);
+}
+
+.vx-upload-progress-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+}
+
+.vx-upload-progress-percent {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vx-primary);
+    min-width: 36px;
+    text-align: right;
+}
+
+.vx-upload-row.completed .vx-upload-progress-percent {
+    color: var(--vx-success);
+}
+
+.vx-upload-row.failed .vx-upload-progress-percent {
+    color: var(--vx-danger);
+}
+
+.vx-upload-progress-text {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    text-align: right;
+}
+
+/* Upload filename with validity badge inline */
+.vx-upload-row .vx-list-filename {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+
+.vx-upload-filename {
+    font-weight: 500;
+    color: var(--vx-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.vx-upload-validity {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--vx-primary);
+    background: var(--vx-primary-light);
+    border-radius: 6px;
+    margin-left: 8px;
+    white-space: nowrap;
+}
+
+/* Cancel button styling */
+.vx-upload-row .vx-list-action-btn {
+    opacity: 0.7;
+    transition: all 0.15s ease;
+}
+
+.vx-upload-row .vx-list-action-btn:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--vx-danger);
+}
+
+/* Animation for uploading state */
+@keyframes vx-upload-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.vx-upload-row.uploading .vx-upload-progress-percent {
+    animation: vx-upload-pulse 1.5s ease-in-out infinite;
+}
+
+/* Row removing animation */
+.vx-upload-row-removing {
+    animation: vx-row-fade-out 0.3s ease forwards;
+}
+
+@keyframes vx-row-fade-out {
+    to {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+}
+
+/* ==================== File Sync Status Styles ==================== */
+.vx-file-sync {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.vx-sync-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--vx-text-secondary);
+    font-size: var(--vx-text-sm);
+}
+
+.vx-sync-spinner {
+    width: 18px;
+    height: 18px;
+}
+
+.vx-sync-text {
+    white-space: nowrap;
+}
+
+/* Photo album sync overlay */
+.vx-photo-sync-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #fff;
+    font-size: var(--vx-text-sm);
+    border-radius: var(--vx-radius);
+    z-index: 5;
+}
+
+.vx-photo-sync-overlay .vx-sync-spinner {
+    width: 32px;
+    height: 32px;
+    filter: brightness(0) invert(1);
+}
+
+/* FileList 特有的上传行样式覆盖 */
+.vx-upload-row .vx-list-checkbox {
+    visibility: hidden;
+}
+
+.vx-upload-status {
+    width: 80px !important;
+}
+
+.vx-upload-status-text {
+    font-size: 12px;
+    color: var(--vx-primary);
+}
+
+/* Upload Row States */
+.vx-upload-row.preparing .vx-upload-progress-bar {
+    background: var(--vx-warning);
+    animation: vx-pulse 1.5s infinite;
+}
+
+.vx-upload-row.merging .vx-upload-progress-bar {
+    background: var(--vx-info);
+    width: 100% !important;
+    animation: vx-pulse 1.5s infinite;
+}
+
+.vx-upload-row.completed .vx-upload-status-text {
+    color: var(--vx-success);
+}
+
+.vx-upload-row.failed .vx-upload-status-text {
+    color: var(--vx-danger);
+}
+
+@keyframes vx-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* Drag Overlay */
+.vx-drag-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(37, 99, 235, 0.1);
+    border: 4px dashed var(--vx-primary);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.vx-drag-overlay.active {
+    display: flex;
+}
+
+.vx-drag-overlay-content {
+    text-align: center;
+    padding: 40px;
+    background: var(--vx-surface);
+    border-radius: var(--vx-radius-lg);
+    box-shadow: var(--vx-shadow-xl);
+}
+
+.vx-drag-overlay-icon {
+    font-size: 64px;
+    color: var(--vx-primary);
+    margin-bottom: 16px;
+}
+
+.vx-drag-overlay-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--vx-text);
+}
+
+/* ==================== CLI Upload Modal ==================== */
+.vx-modal-md .vx-modal-container {
+    max-width: 520px;
+}
+
+.vx-cli-warning {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.08) 100%);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: var(--vx-radius-lg);
+    margin-bottom: 20px;
+}
+
+.vx-cli-warning-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 193, 7, 0.2);
+    border-radius: 50%;
+    color: #f59e0b;
+}
+
+.vx-cli-warning-icon iconpark-icon {
+    font-size: 18px;
+}
+
+.vx-cli-warning-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.vx-cli-warning-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #d97706;
+    margin-bottom: 6px;
+}
+
+.vx-cli-warning-text {
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+    line-height: 1.5;
+    margin-bottom: 2px;
+}
+
+.vx-cli-token-section {
+    margin-bottom: 20px;
+}
+
+.vx-cli-token-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vx-text-secondary);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.vx-cli-token-label iconpark-icon {
+    font-size: 14px;
+    color: var(--vx-primary);
+}
+
+.vx-cli-token-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--vx-bg-secondary) 0%, var(--vx-bg-tertiary) 100%);
+    border: 2px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    position: relative;
+}
+
+.vx-cli-token-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--vx-primary), transparent);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.vx-cli-token-value {
+    flex: 1;
+    font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-size: 14px;
+    color: var(--vx-text);
+    word-break: break-all;
+    line-height: 1.4;
+    background: transparent;
+    padding: 0;
+    user-select: all;
+}
+
+.vx-cli-token-copy {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: var(--vx-primary);
+    color: white;
+    border: none;
+    border-radius: var(--vx-radius-md);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vx-cli-token-copy:hover {
+    background: var(--vx-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(var(--vx-primary-rgb), 0.3);
+}
+
+.vx-cli-token-copy:active {
+    transform: translateY(0);
+}
+
+.vx-cli-token-copy iconpark-icon {
+    font-size: 14px;
+}
+
+.vx-cli-token-copy.copied {
+    background: var(--vx-success);
+}
+
+.vx-cli-help-section {
+    margin-bottom: 20px;
+}
+
+.vx-cli-help-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: var(--vx-bg-secondary);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    color: var(--vx-text);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.vx-cli-help-link:hover {
+    background: var(--vx-bg-tertiary);
+    border-color: var(--vx-primary);
+    color: var(--vx-primary);
+    text-decoration: none;
+}
+
+.vx-cli-help-link iconpark-icon {
+    font-size: 18px;
+}
+
+.vx-cli-help-link .vx-cli-external {
+    margin-left: auto;
+    font-size: 12px;
+    opacity: 0.5;
+}
+
+.vx-cli-help-link:hover .vx-cli-external {
+    opacity: 1;
+}
+
+.vx-cli-notes {
+    padding: 14px 16px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-lg);
+}
+
+.vx-cli-notes-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin-bottom: 10px;
+}
+
+.vx-cli-notes-title iconpark-icon {
+    font-size: 14px;
+    color: var(--vx-info);
+}
+
+.vx-cli-notes-list {
+    margin: 0;
+    padding-left: 18px;
+    list-style-type: disc;
+}
+
+.vx-cli-notes-list li {
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 4px;
+}
+
+.vx-cli-notes-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* ==================== Thumbnail & Preview ==================== */
+.vx-list-thumb {
+    width: 32px; 
+    height: 32px; 
+    flex-shrink: 0;
+    cursor: zoom-in;
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--vx-bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--vx-border);
+}
+
+.vx-list-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.2s;
+}
+
+.vx-list-thumb:hover img {
+    opacity: 0.8;
+}
+
+.vx-filename-preview {
+    cursor: zoom-in;
+    color: var(--vx-text);
+    text-decoration: none;
+}
+
+.vx-filename-preview:hover {
+    color: var(--vx-primary);
+}
+
+/* Preview Modal */
+.vx-preview-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: color-mix(in srgb, var(--vx-bg, #000), transparent 5%);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    backdrop-filter: blur(5px);
+}
+
+.vx-preview-modal.active {
+    display: flex;
+    animation: vx-preview-fade-in 0.25s ease forwards;
+}
+
+.vx-preview-modal.closing {
+    animation: vx-preview-fade-out 0.25s ease forwards;
+}
+
+@keyframes vx-preview-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes vx-preview-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.vx-preview-content {
+    width: min(90vw, 1024px);
+    height: min(90vh, 768px);
+    position: relative;
+    border-radius: 8px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+.vx-preview-modal.active .vx-preview-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.vx-preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    user-select: none;
+    z-index: 1;
+    opacity: 0;
+    transform: scale(0.92);
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.vx-preview-image.loaded {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.vx-preview-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    color: var(--vx-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background: transparent;
+    border-radius: 50%;
+    z-index: 3;
+}
+
+.vx-preview-close:hover {
+    color: var(--vx-primary);
+}
+
+.vx-preview-details {
+    position: absolute;
+    bottom: 12px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: var(--vx-text);
+    font-size: 14px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease 0.1s;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 4px 12px;
+    border-radius: 12px;
+    display: inline-block;
+    max-width: 80%;
+    margin: 0 auto;
+    backdrop-filter: blur(4px);
+    z-index: 2;
+}
+
+.vx-preview-details.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.vx-preview-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--vx-text);
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.vx-preview-loading img {
+    width: 32px;
+    height: 32px;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+    .vx-preview-close { color: rgba(255, 255, 255, 0.8); }
+    .vx-preview-close:hover { color: white; }
+    .vx-preview-details {
+        color: rgba(255, 255, 255, 0.9);
+        background: rgba(0, 0, 0, 0.5);
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+    .vx-preview-loading { color: white; }
+}
+
+body.dark .vx-preview-close,
+[data-theme="dark"] .vx-preview-close {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+body.dark .vx-preview-close:hover,
+[data-theme="dark"] .vx-preview-close:hover {
+    color: white;
+}
+
+body.dark .vx-preview-details,
+[data-theme="dark"] .vx-preview-details {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+body.dark .vx-preview-loading,
+[data-theme="dark"] .vx-preview-loading {
+    color: white;
+}
+
+/* ==================== Shared Animation ==================== */
+@keyframes vx-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 768px) {
+    .vx-fl-sponsor-card {
+        right: 16px;
+        bottom: 16px;
+        max-width: calc(100% - 32px);
+    }
+
+    body.vx-fl-has-sponsor .vx-content {
+        padding-bottom: 88px;
+    }
+    
+    .vx-mobile-header {
+        padding: 14px 16px;
+        gap: 10px;
+    }
+
+    .vx-mobile-header .vx-btn-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .vx-mobile-title {
+        font-size: var(--vx-text-lg);
+    }
+
+    .vx-mobile-view-toggle,
+    .vx-mobile-action-toggle {
+        margin-left: 0;
+        padding: 0;
+        background: transparent;
+        gap: 2px;
+    }
+
+    .vx-mobile-view-toggle .vx-btn-icon,
+    .vx-mobile-action-toggle .vx-btn-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .vx-btn-icon-primary {
+        background: var(--vx-primary);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(30, 92, 246, 0.25);
+    }
+
+    .vx-btn-icon-primary iconpark-icon {
+        color: #fff;
+    }
+
+    #vx-mobile-report-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: var(--vx-radius-md);
+        background: var(--vx-bg-secondary);
+        color: var(--vx-danger);
+    }
+
+    .vx-mobile-folder-bar {
+        display: flex;
+    }
+
+    .vx-upload-dropzone-text,
+    .vx-upload-dropzone-actions .vx-btn-secondary {
+        display: none;
+    }
+    
+    .vx-hide-mobile {
+        display: none !important;
+    }
+    
+    .vx-list-col-size {
+        width: 80px;
+    }
+    
+    .vx-list-col-actions {
+        width: 80px;
+    }
+    
+    .vx-list-actions {
+        gap: 0;
+    }
+    
+    .vx-list-row {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    
+    .vx-selection-bar {
+        left: 10px;
+        right: 10px;
+        bottom: calc(var(--vx-mobile-bar-height, 64px) + 10px);
+        transform: none;
+        flex-wrap: wrap;
+    }
+    
+    .vx-album-container .album-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    .vx-logged-out .vx-list-header .vx-list-checkbox {
+        display: none;
+    }
+    
+    .vx-upload-settings-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .vx-upload-dropzone-actions {
+        flex-direction: column;
+    }
+    
+    .vx-upload-progress-cell {
+        width: 100px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    #vx-fl-move-modal .vx-modal-container {
+        margin: 0;
+        max-width: 100%;
+        height: 100%;
+        border-radius: 0;
+    }
+
+    #vx-fl-move-modal .vx-modal-body {
+        max-height: calc(100vh - 140px);
+        padding: 12px 16px;
+    }
+
+    .vx-move-folder-item {
+        padding: 12px 14px;
+    }
+
+    .vx-move-folder-name {
+        font-size: 15px;
+    }
+    
+    .vx-modal-md .vx-modal-container {
+        max-width: 100%;
+        margin: 0 12px;
+    }
+    
+    .vx-cli-token-box {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .vx-cli-token-copy {
+        justify-content: center;
+    }
+    
+    .vx-cli-warning {
+        flex-direction: column;
+    }
+    
+    .vx-cli-warning-icon {
+        align-self: flex-start;
+    }
+}
