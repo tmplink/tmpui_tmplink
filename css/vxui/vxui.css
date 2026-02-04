@@ -774,7 +774,7 @@ body.vx-sidebar-open .vx-sidebar {
     
     /* Add padding to prevent content being hidden by mobile bar */
     body.vx-sidebar-open .vx-sidebar {
-        padding-bottom: calc(var(--vx-mobile-bar-height) + 20px);
+        padding-bottom: calc(var(--vx-mobile-bar-height) + 40px + env(safe-area-inset-bottom));
     }
 }
 
@@ -782,6 +782,7 @@ body.vx-sidebar-open .vx-sidebar {
 .vx-sidebar {
     width: var(--vx-sidebar-width);
     height: 100vh;
+    height: 100dvh;
     position: fixed;
     top: 0;
     left: 0;

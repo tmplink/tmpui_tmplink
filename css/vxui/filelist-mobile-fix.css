@@ -20,8 +20,9 @@
     /* 3. Redefine List Row as a Mobile Card/Item */
     .vx-list-row {
         display: flex !important;
-        flex-wrap: wrap !important;
-        padding: 12px 16px !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        padding: 10px 10px !important;
         height: auto !important;
         border-bottom: 1px solid var(--vx-border) !important;
         position: relative;
@@ -39,7 +40,7 @@
 
     /* 5. Mobile Layout: Checkbox */
     .vx-list-checkbox {
-        margin-right: 12px !important;
+        margin-right: 2px !important;
     }
 
     /* 6. Mobile Layout: Name Area (Icon + Text) */
@@ -47,8 +48,8 @@
         flex: 1 1 auto !important; /* Grow, Shrink, Basis Auto */
         display: flex !important;
         align-items: center !important;
-        gap: 10px !important;
-        max-width: calc(100% - 40px) !important; /* Reserve space for actions if needed */
+        gap: 4px !important;
+        max-width: none !important; /* Let flex handle it */
         overflow: hidden !important;
     }
 
@@ -58,7 +59,7 @@
         overflow: hidden !important;
         white-space: nowrap !important;
         text-overflow: ellipsis !important;
-        max-width: calc(100vw - 120px) !important; /* Ensure actions remain visible */
+        max-width: none !important; /* Let flex handle it */
     }
     
     /* Mobile: Default state - no animation, show ellipsis */
@@ -71,7 +72,7 @@
     /* Mobile: Auto-scroll only for long filenames marked as overflow */
     .vx-list-filename.is-overflow a:not(.no-scroll) {
         animation: vx-mobile-filename-scroll 15s ease-in-out infinite !important;
-        animation-delay: 2s !important;
+        animation-delay: 1s !important;
         overflow: visible !important;
         text-overflow: clip !important;
     }
@@ -105,6 +106,7 @@
         gap: 8px !important;
         width: auto !important;
         margin-left: auto !important; /* Push to right */
+        flex-shrink: 0 !important;
     }
     
     /* Ensure only relevant buttons are shown if not handled by JS */
