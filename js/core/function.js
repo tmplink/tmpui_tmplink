@@ -62,7 +62,7 @@ function getChartThemeOptions(options) {
             background: 'transparent',
             foreColor: isDarkMode ? '#e1e1e1' : '#304758',
             toolbar: {
-                show: true
+                show: false
             }
         },
         grid: {

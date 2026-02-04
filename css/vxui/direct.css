@@ -1,0 +1,62 @@
+/* Direct Module Styles */
+
+/* API Documentation Styles */
+.vx-api-detail summary.vx-api-summary {
+    cursor: pointer;
+    padding: 12px 16px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: var(--vx-text);
+    user-select: none;
+    border: 1px solid transparent;
+}
+
+.vx-api-detail summary.vx-api-summary:hover {
+    background: var(--vx-bg-tertiary);
+    border-color: var(--vx-border);
+    transform: translateY(-1px);
+}
+
+.vx-api-detail summary.vx-api-summary:active {
+    transform: translateY(0);
+}
+
+.vx-api-detail summary.vx-api-summary iconpark-icon {
+    font-size: 18px;
+    color: var(--vx-primary);
+    flex-shrink: 0;
+}
+
+.vx-api-detail[open] summary.vx-api-summary {
+    background: var(--vx-primary-light);
+    border-color: var(--vx-primary);
+    margin-bottom: 12px;
+}
+
+.vx-api-detail[open] summary.vx-api-summary iconpark-icon {
+    color: var(--vx-primary);
+}
+
+/* Remove default marker */
+.vx-api-detail summary::-webkit-details-marker,
+.vx-api-detail summary::marker {
+    display: none;
+}
+
+/* Add custom expand indicator */
+.vx-api-detail summary.vx-api-summary::after {
+    content: "▼";
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    transition: transform 0.2s ease;
+}
+
+.vx-api-detail[open] summary.vx-api-summary::after {
+    transform: rotate(180deg);
+}
