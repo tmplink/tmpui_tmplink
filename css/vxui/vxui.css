@@ -1659,23 +1659,6 @@ body.vx-modal-body-open {
     line-height: 1;
 }
 
-    background: rgba(0, 0, 0, 0.02);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
-    background: transparent;
-    border: none;
-    border-radius: var(--vx-radius-sm);
-    background: var(--vx-surface-hover);
-    color: var(--vx-text);
-    transform: scale(1.05);
-    cursor: pointer;
-    flex-shrink: 0;
-}
-
 .vx-toast-close:hover {
     background: var(--vx-surface-hover);
     color: var(--vx-text);
