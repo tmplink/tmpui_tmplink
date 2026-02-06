@@ -58,6 +58,12 @@ class tmplink_api {
     bulkCopyTmp = '';
     bulkCopyTimer = 0;
 
+    ga_keeper = null;
+    ga_title = 'vxui_keepalive';
+    ga_processing = false;
+    lastEventAt = 0;
+    lastKeepAliveAt = 0;
+
     constructor(options = {}) {
         if (options.api_url) this.api_url = options.api_url;
         if (options.api_url_sec) this.api_url_sec = options.api_url_sec;
@@ -216,12 +222,38 @@ class tmplink_api {
         if (!title) return;
         if (this.api_token == null) return;
         if (!this.api_user) return;
+        this.ga_processing = true;
+        this.ga_title = title;
+        this.lastEventAt = Date.now();
         $.post(this.api_user, {
             action: 'event_ui',
             token: this.api_token,
             title: title,
             path: path || (location.pathname + location.search),
+        }).always(() => {
+            this.ga_processing = false;
         });
+    }
+
+    keep_alive() {
+        if (this.ga_keeper !== null) return;
+        this.lastEventAt = Date.now();
+
+        const activeInterval = 60000;
+        const idleInterval = 180000;
+
+        this.ga_keeper = setInterval(() => {
+            if (this.ga_processing) return;
+
+            const now = Date.now();
+            const idle = (now - this.lastEventAt) >= idleInterval;
+            const minGap = idle ? idleInterval : activeInterval;
+
+            if (this.lastKeepAliveAt && (now - this.lastKeepAliveAt) < minGap) return;
+
+            this.lastKeepAliveAt = now;
+            this.ga(this.ga_title);
+        }, activeInterval);
     }
 
     ready(cb) {
