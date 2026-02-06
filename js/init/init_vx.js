@@ -58,6 +58,10 @@
         // 初始化框架
         VXUI.init();
 
+        if (typeof TL !== 'undefined' && typeof TL.keep_alive === 'function') {
+            TL.keep_alive();
+        }
+
         console.log('[init_vx] VXUI initialized');
     }
 
