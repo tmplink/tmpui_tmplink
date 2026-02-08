@@ -84,6 +84,17 @@
     </div>
     <div id="tpl_model"></div>
 
+    <script src="/js/tools/jquery.min.js"></script>
+    <script src="/js/core/api.js"></script>
+    <script>
+        $(document).ready(function() {
+            window.TL = new tmplink_api();
+            window.TL.ready(() => {
+                window.TL.ga(document.title);
+            });
+            window.TL.keep_alive();
+        });
+    </script>
     <script src="/js/legal.js"></script>
 </body>
 </html>

@@ -235,25 +235,44 @@ class tmplink_api {
         });
     }
 
+    setupActivityTracking() {
+        if (this._activityTrackingSetup) return;
+        this._activityTrackingSetup = true;
+    }
+
     keep_alive() {
         if (this.ga_keeper !== null) return;
+        
         this.lastEventAt = Date.now();
+        this.setupActivityTracking();
 
-        const activeInterval = 60000;
-        const idleInterval = 180000;
+        const IDLE_THRESHOLD = 3 * 60 * 1000; // 3 minutes
 
         this.ga_keeper = setInterval(() => {
-            if (this.ga_processing) return;
-
             const now = Date.now();
-            const idle = (now - this.lastEventAt) >= idleInterval;
-            const minGap = idle ? idleInterval : activeInterval;
+            
+            // Logic: 
+            // 1. User must be idle (> 3 mins no input)
+            // 2. Heartbeat throttled (> 3 mins since last send)
+            if (now - this.lastEventAt >= IDLE_THRESHOLD) {
+                if (now - this.lastKeepAliveAt >= IDLE_THRESHOLD) {
+                     if (this.ga_processing) return;
+                     if (!this.api_token || !this.api_user) return;
 
-            if (this.lastKeepAliveAt && (now - this.lastKeepAliveAt) < minGap) return;
-
-            this.lastKeepAliveAt = now;
-            this.ga(this.ga_title);
-        }, activeInterval);
+                     this.ga_processing = true;
+                     $.post(this.api_user, {
+                        action: 'event_ui',
+                        token: this.api_token,
+                        title: this.ga_title,
+                        path: (location.pathname + location.search),
+                    }).always(() => {
+                        this.ga_processing = false;
+                        this.lastKeepAliveAt = Date.now(); 
+                        // Do NOT update lastEventAt here, preserving idle state
+                    });
+                }
+            }
+        }, 5000);
     }
 
     ready(cb) {
