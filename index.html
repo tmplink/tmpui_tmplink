@@ -74,7 +74,7 @@
     <script type="text/javascript" src="./tmpui.js?v=53"></script>
     <script type="text/javascript">
         let config = {
-            "version": 1706,
+            "version": 1707,
             "siteroot": "/",
             "loadingIcon": "/img/ico/logo-new.svg",
             "loadingText": "TMP.LINK",
@@ -138,6 +138,7 @@
                     "/js/core/file.js": { "type": "js", "reload": false },
                     "/js/core/mobile-file.js": { "type": "js", "reload": false },
                     "/js/core/ai.js": { "type": "js", "reload": false },
+                    "/js/core/api.js": { "type": "js", "reload": false },
 
                     "/css/reset.css": { "type": "css", "reload": false },
                     "/css/index.css": { "type": "css", "reload": false },
@@ -179,6 +180,7 @@
                     "/js/core/function.js": { "type": "js", "reload": false },
                     "/js/core/api.js": { "type": "js", "reload": false }
                 },
+
                 "file_init": {
                     "/js/tools/jquery.min.js": { "type": "js", "reload": false },
                     "/js/tools/clipboard.min.js": { "type": "js", "reload": false },
@@ -199,6 +201,26 @@
                     "/css/sponsor.css": { "type": "css", "reload": false },
                     "/css/file.css": { "type": "css", "reload": false },
                     "/css/user-info-card.css": { "type": "css", "reload": false },
+                    "/tpl/include/gtpl.html": { "type": "tpl", "reload": false }
+                },
+                "auth_init": {
+                    "/js/tools/jquery.min.js": { "type": "js", "reload": false },
+                    "/js/tools/jquery.cookie.js": { "type": "js", "reload": false },
+                    "/js/tools/sha1.js": { "type": "js", "reload": false },
+                    "/js/tools/base64.js": { "type": "js", "reload": false },
+
+                    "/js/core/function.js": { "type": "js", "reload": false },
+                    "/js/core/api.js": { "type": "js", "reload": false },
+                    "/js/core/oauth.js": { "type": "js", "reload": false },
+                    "/js/auth.js": { "type": "js", "reload": false },
+
+                    "/css/reset.css": { "type": "css", "reload": false },
+                    "/css/sp.css": { "type": "css", "reload": false },
+                    "/css/fa.css": { "type": "css", "reload": false },
+                    "/css/dark.css": { "type": "css", "reload": false },
+                    "/css/sponsor.css": { "type": "css", "reload": false },
+                    "/css/file.css": { "type": "css", "reload": false },
+                    "/css/auth.css": { "type": "css", "reload": false },
                     "/tpl/include/gtpl.html": { "type": "tpl", "reload": false }
                 }
             },
@@ -332,6 +354,36 @@
                         "/tpl/file.html": { "type": "html", "target": { "type": "body" } },
                         "/tpl/file_desktop.html": { "type": "file" },
                         "/tpl/file_mobile.html": { "type": "file" }
+                    }
+                },
+                "/login": {
+                    "title": "TMP.link - Login",
+                    "preload": ["auth_init"],
+                    "body": {
+                        "/tpl/auth.html": { "type": "html", "target": { "type": "body" } },
+                        "/tpl/auth_login.html": { "type": "file" },
+                        "/tpl/auth_login_mobile.html": { "type": "file" },
+                        "/js/init/init_auth.js": { "type": "js" }
+                    }
+                },
+                "/reg": {
+                    "title": "TMP.link - Register",
+                    "preload": ["auth_init"],
+                    "body": {
+                        "/tpl/auth.html": { "type": "html", "target": { "type": "body" } },
+                        "/tpl/auth_reg.html": { "type": "file" },
+                        "/tpl/auth_reg_mobile.html": { "type": "file" },
+                        "/js/init/init_auth.js": { "type": "js" }
+                    }
+                },
+                "/reset": {
+                    "title": "TMP.link - Reset Password",
+                    "preload": ["auth_init"],
+                    "body": {
+                        "/tpl/auth.html": { "type": "html", "target": { "type": "body" } },
+                        "/tpl/auth_reset.html": { "type": "file" },
+                        "/tpl/auth_reset_mobile.html": { "type": "file" },
+                        "/js/init/init_auth.js": { "type": "js" }
                     }
                 },
                 "/vx": {

@@ -404,7 +404,7 @@ class direct {
         this.parent_op.Selecter.pageInit();
 
         if (this.parent_op.logined != 1) {
-            app.open('/app&listview=login');
+            app.open('/login');
             return false;
         }
 
@@ -473,7 +473,7 @@ class direct {
 
     open() {
         if (this.parent_op.logined != 1) {
-            app.open('/app&listview=login');
+            app.open('/login');
         }
 
         if (this.domain == 0) {

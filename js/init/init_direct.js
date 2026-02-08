@@ -3,7 +3,7 @@ function INIT_direct() {
         //判断是否登录
         if (TL.isLogin() === false) {
             //跳转到登录页面
-            app.open('/app&listview=login');
+            app.open('/login');
             return;
         }
         TL.direct.init_details(()=>{

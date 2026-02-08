@@ -37,7 +37,16 @@ function initializeModernHomepage() {
     initIntersectionObserver();
     initMenubarXTracking();
     autoLogin();
-    sendAnalytics();
+
+    if (typeof tmplink_api !== 'undefined') {
+        window.TL = new tmplink_api();
+        window.TL.ready(() => {
+            window.TL.ga('TMPLINK - Modern Index');
+        });
+        window.TL.keep_alive();
+    } else {
+        sendAnalytics();
+    }
 }
 
 /**
@@ -203,7 +212,7 @@ function Login() {
             }
         } else {
              // Not logged in or validation failed, go to login
-             location.href = '/?tmpui_page=/app&listview=login';
+             location.href = '/?tmpui_page=/login';
         }
     }, 150);
 }

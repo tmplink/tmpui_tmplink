@@ -1,0 +1,343 @@
+/* ================================================================
+   Auth Mobile Styles v4 (Refined)
+   Fixes: Dark mode inputs, font sizes, duplication logic.
+   ================================================================ */
+
+/* Reset desktop footer */
+body.auth-mobile #footer { display: none !important; }
+
+/* Variables */
+:root {
+    --auth-bg: #ffffff;
+    --auth-text: #000000;
+    --auth-text-sub: #555555;
+    --auth-accent: #007aff;
+    --auth-surface: #f2f2f7;
+    --auth-border: #e5e5ea;
+    
+    /* Input Colors - Light Mode */
+    --auth-input-bg: #f2f2f7; 
+    --auth-input-text: #000000;
+    --auth-input-placeholder: #8e8e93;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --auth-bg: #000000;
+        --auth-text: #ffffff;
+        --auth-text-sub: #8e8e93;
+        --auth-accent: #0a84ff;
+        --auth-surface: #1c1c1e;
+        --auth-border: #2c2c2e;
+        
+        /* Input Colors - Dark Mode */
+        --auth-input-bg: #1c1c1e;
+        --auth-input-text: #ffffff;
+        --auth-input-placeholder: #636366;
+    }
+}
+
+body.dark-mode {
+    --auth-bg: #000000;
+    --auth-text: #ffffff;
+    --auth-text-sub: #8e8e93;
+    --auth-accent: #0a84ff;
+    --auth-surface: #1c1c1e;
+    --auth-border: #2c2c2e;
+    
+    --auth-input-bg: #1c1c1e;
+    --auth-input-text: #ffffff;
+    --auth-input-placeholder: #636366;
+}
+
+/* Shell */
+.auth-m {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: var(--auth-bg);
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Hero */
+.auth-m-hero {
+    flex-shrink: 0;
+    padding: calc(env(safe-area-inset-top, 0px) + 60px) 24px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.auth-m-logo {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 24px;
+}
+
+.auth-m-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.auth-m-hero h1 {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--auth-text);
+    margin: 0;
+    line-height: 1.2;
+    text-align: center;
+}
+
+/* Remove redundant subtitle to fix duplication */
+.auth-m-hero p {
+    display: none; 
+}
+
+/* Language toggle */
+.auth-m-lang {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 16px);
+    right: 20px;
+    z-index: 10;
+}
+
+.auth-m-lang-btn {
+    background: transparent;
+    border: none;
+    width: 32px;
+    height: 32px;
+    color: var(--auth-text-sub);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Body */
+.auth-m-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 24px 24px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.auth-notice {
+    margin-bottom: 20px;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
+    font-size: 15px;
+    text-align: center;
+}
+
+/* Modern Inputs */
+.auth-m-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Increased gap */
+}
+
+.auth-m-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-m-field label {
+    font-size: 15px; /* Increased from 13px */
+    font-weight: 500;
+    color: var(--auth-text-sub);
+    margin-bottom: 8px;
+    margin-left: 4px;
+}
+
+.auth-m-input-box {
+    position: relative;
+    background-color: var(--auth-input-bg) !important;
+    border-radius: 14px;
+    height: 56px; /* Taller touch target */
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    transition: box-shadow 0.2s;
+    overflow: hidden; /* For autofill radius */
+}
+
+.auth-m-input-box:focus-within {
+    box-shadow: 0 0 0 2px var(--auth-accent);
+}
+
+.auth-m-input-box input {
+    background-color: transparent !important;
+    border: none;
+    width: 100%;
+    height: 100%;
+    font-size: 17px; /* 17px+ prevents iOS zoom */
+    color: var(--auth-text) !important;
+    outline: none;
+    padding: 0;
+    font-family: inherit;
+    font-weight: 400;
+}
+
+.auth-m-input-box input::placeholder {
+    color: var(--auth-input-placeholder);
+    opacity: 1;
+}
+
+/* Autofill Hack for Dark Mode */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px var(--auth-input-bg) inset !important;
+    -webkit-text-fill-color: var(--auth-text) !important;
+    background-color: transparent !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Code Row */
+.auth-m-code-row {
+    display: flex;
+    gap: 12px;
+}
+
+.auth-m-code-btn {
+    height: 56px;
+    padding: 0 20px;
+    border-radius: 14px;
+    background: var(--auth-surface);
+    color: var(--auth-accent);
+    border: none;
+    font-weight: 600;
+    font-size: 16px;
+    white-space: nowrap;
+}
+
+/* Helper Links */
+.auth-m-helper_links {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.auth-m-helper_links a {
+    color: var(--auth-accent);
+    text-decoration: none;
+    font-size: 15px; /* Increased */
+    font-weight: 500;
+}
+
+/* Footer Action */
+.auth-m-action {
+    flex-shrink: 0;
+    padding: 12px 24px calc(env(safe-area-inset-bottom, 0px) + 20px);
+    background: var(--auth-bg);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.auth-m-btn {
+    width: 100%;
+    height: 56px; /* Taller */
+    background: var(--auth-accent);
+    color: #fff;
+    border: none;
+    border-radius: 28px;
+    font-size: 18px; /* Larger */
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-m-btn:active {
+    transform: scale(0.98);
+}
+
+.auth-m-btn-social {
+    width: 100%;
+    height: 56px;
+    margin: 0;
+    background: transparent;
+    border: 1.5px solid var(--auth-border);
+    border-radius: 28px;
+    color: var(--auth-text);
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none !important;
+}
+
+.auth-m-btn-social iconpark-icon {
+    font-size: 22px;
+}
+
+/* Switch Link - Simplified */
+.auth-m-switch {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 15px;
+    color: var(--auth-text-sub);
+}
+
+.auth-m-switch a {
+    color: var(--auth-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* Fine print */
+.auth-m-fine {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--auth-text-sub);
+    line-height: 1.4;
+}
+
+.auth-m-fine a, .auth-m-fine button {
+    background: none; border: none; padding: 0;
+    color: var(--auth-text-sub); text-decoration: underline;
+    font-size: inherit;
+}
+
+/* Modal */
+.auth-m-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0.5);
+    align-items: flex-end;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+.auth-m-modal-overlay.open { display: flex; }
+.auth-m-modal-sheet {
+    background: var(--auth-surface);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 500px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.auth-m-modal-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px 24px;
+}
+.auth-m-modal-header h3 { margin: 0; font-size: 19px; color: var(--auth-text); font-weight: 700; }
+.auth-m-modal-close { background: none; border: none; font-size: 24px; color: var(--auth-text-sub); padding: 4px; }
+.auth-m-modal-body { padding: 0 24px 32px; color: var(--auth-text); font-size: 15px; line-height: 1.6; }

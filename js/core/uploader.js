@@ -396,7 +396,7 @@ class uploader {
             $('#uploadCliModal').modal('show');
         } else {
             alert(app.languageData.status_need_login);
-            app.open('/app&listview=login');
+            app.open('/login');
         }
     }
 
@@ -407,7 +407,7 @@ class uploader {
             $('#uploadEfficiencyModal').modal('show');
         } else {
             alert(app.languageData.status_need_login);
-            app.open('/app&listview=login');
+            app.open('/login');
         }
     }
 

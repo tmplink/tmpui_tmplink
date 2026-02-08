@@ -185,7 +185,7 @@ var PHOTO = {
     initWorkspaceMode: function() {
         // Check login
         if (TL.isLogin() === false) {
-            app.open('/app&listview=login');
+            app.open('/login');
             return;
         }
         
@@ -398,7 +398,7 @@ var PHOTO = {
             
             if (rsp.status === 3) {
                 localStorage.setItem('return_page', window.location.href);
-                app.open('/app&listview=login');
+                app.open('/login');
                 return;
             }
             

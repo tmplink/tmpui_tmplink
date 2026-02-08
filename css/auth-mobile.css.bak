@@ -1,0 +1,519 @@
+/* ================================================================
+   Auth Mobile Styles v2
+   Inspired by Telegram, Notion, Linear, Stripe mobile auth flows.
+   Key patterns: hero branding area, grouped card inputs, sticky CTA
+   ================================================================ */
+
+/* Reset desktop footer */
+body.auth-mobile #footer { display: none !important; }
+
+/* Shell */
+.auth-m {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: var(--file-bg);
+    overflow: hidden;
+}
+
+/* ============================================================
+   Hero / Branding Area
+   ============================================================ */
+.auth-m-hero {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: calc(env(safe-area-inset-top, 0px) + 48px) 24px 32px;
+    position: relative;
+}
+
+.auth-m-hero::before {
+    content: '';
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    pointer-events: none;
+}
+
+.auth-m-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-m-logo img {
+    width: 44px;
+    height: 44px;
+}
+
+.auth-m-hero h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--file-text-main);
+    margin: 0;
+    line-height: 1.15;
+    letter-spacing: -0.3px;
+    text-align: center;
+}
+
+.auth-m-hero p {
+    font-size: 15px;
+    color: var(--file-text-sub);
+    margin: 8px 0 0;
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* Language toggle */
+.auth-m-lang {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 14px);
+    right: 16px;
+    z-index: 10;
+}
+
+.auth-m-lang-btn {
+    background: rgba(0, 0, 0, 0.04);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    color: var(--file-text-sub);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.auth-m-lang-btn:active {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================================
+   Content - scrollable form area
+   ============================================================ */
+.auth-m-body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 20px 24px;
+}
+
+/* Notice */
+.auth-m .auth-notice {
+    margin-bottom: 16px;
+    border-radius: 14px;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Input Card: grouped inputs inside a rounded card */
+.auth-m-card {
+    background: var(--file-card-bg);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.auth-m-field {
+    position: relative;
+    padding: 0;
+}
+
+.auth-m-field + .auth-m-field::before {
+    content: '';
+    display: block;
+    height: 1px;
+    background: var(--file-border);
+    margin: 0 16px;
+}
+
+.auth-m-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--file-text-sub);
+    padding: 12px 16px 0;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.auth-m-field input {
+    display: block;
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 6px 16px 14px;
+    font-size: 16px;
+    color: var(--file-text-main);
+    outline: none;
+    font-family: inherit;
+    -webkit-appearance: none;
+    box-sizing: border-box;
+}
+
+.auth-m-field input::placeholder {
+    color: var(--file-text-sub);
+    opacity: 0.5;
+}
+
+/* Code field row */
+.auth-m-code-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0;
+}
+
+.auth-m-code-row .auth-m-field {
+    flex: 1;
+    min-width: 0;
+}
+
+.auth-m-code-btn {
+    flex-shrink: 0;
+    height: 44px;
+    margin: 0 12px 10px 0;
+    padding: 0 16px;
+    background: var(--file-accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+}
+
+.auth-m-code-btn:active {
+    opacity: 0.85;
+}
+
+.auth-m-code-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Inline links */
+.auth-m-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 4px 0;
+}
+
+.auth-m-meta a,
+.auth-m-meta button {
+    font-size: 14px;
+    color: var(--file-accent);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    padding: 0;
+    transition: opacity 0.15s;
+}
+
+.auth-m-meta a:active,
+.auth-m-meta button:active {
+    opacity: 0.7;
+}
+
+/* Divider with text */
+.auth-m-or {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 20px 0;
+    color: var(--file-text-sub);
+    font-size: 13px;
+}
+
+.auth-m-or::before,
+.auth-m-or::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--file-border);
+}
+
+/* Social / secondary button */
+.auth-m-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 50px;
+    border: 1.5px solid var(--file-border);
+    border-radius: 14px;
+    background: var(--file-card-bg);
+    color: var(--file-text-main);
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none !important;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.auth-m-social:active {
+    border-color: var(--file-accent);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
+}
+
+.auth-m-social.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.auth-m-social iconpark-icon {
+    font-size: 20px;
+}
+
+/* TOS / fine print */
+.auth-m-fine {
+    text-align: center;
+    padding: 16px 0 0;
+    font-size: 13px;
+    color: var(--file-text-sub);
+    line-height: 1.6;
+}
+
+.auth-m-fine a,
+.auth-m-fine button {
+    color: var(--file-accent);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 500;
+    padding: 0;
+}
+
+.auth-m-fine a:active,
+.auth-m-fine button:active {
+    opacity: 0.7;
+}
+
+/* Switch auth mode link */
+.auth-m-switch {
+    text-align: center;
+    padding: 20px 0 8px;
+    font-size: 15px;
+    color: var(--file-text-sub);
+}
+
+.auth-m-switch a {
+    color: var(--file-accent);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.auth-m-switch a:active {
+    opacity: 0.7;
+}
+
+/* ============================================================
+   Sticky Bottom Action Bar
+   ============================================================ */
+.auth-m-action {
+    flex-shrink: 0;
+    padding: 12px 20px calc(env(safe-area-inset-bottom, 0px) + 14px);
+    background: var(--file-bg);
+    box-shadow: 0 -1px 0 rgba(0,0,0,0.04);
+}
+
+.auth-m-btn {
+    width: 100%;
+    height: 54px;
+    background: var(--file-accent);
+    color: #fff;
+    border: none;
+    border-radius: 16px;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.1s, opacity 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.25);
+}
+
+.auth-m-btn:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+}
+
+.auth-m-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.auth-m-action-secondary {
+    margin-top: 10px;
+}
+
+/* ============================================================
+   Supported Emails Modal (bottom sheet)
+   ============================================================ */
+.auth-m-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0.35);
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.auth-m-modal-overlay.active {
+    display: flex;
+}
+
+.auth-m-modal-sheet {
+    background: var(--file-card-bg);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 460px;
+    max-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    animation: authSheetUp 0.3s ease;
+}
+
+@keyframes authSheetUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
+.auth-m-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--file-border);
+}
+
+.auth-m-modal-header h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--file-text-main);
+}
+
+.auth-m-modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.06);
+    border: none;
+    font-size: 18px;
+    color: var(--file-text-sub);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-m-modal-body {
+    padding: 16px 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: 14px;
+    line-height: 2;
+    color: var(--file-text-main);
+}
+
+/* ============================================================
+   Small screens
+   ============================================================ */
+@media (max-width: 360px) {
+    .auth-m-hero {
+        padding-top: calc(env(safe-area-inset-top, 0px) + 36px);
+        padding-bottom: 24px;
+    }
+    .auth-m-logo { width: 48px; height: 48px; }
+    .auth-m-logo img { width: 36px; height: 36px; }
+    .auth-m-hero h1 { font-size: 22px; }
+    .auth-m-field label { font-size: 11px; }
+    .auth-m-field input { font-size: 16px; padding: 4px 16px 12px; }
+    .auth-m-btn { height: 50px; font-size: 16px; }
+    .auth-m-social { height: 46px; font-size: 14px; }
+}
+
+/* ============================================================
+   Dark Mode - System Preference
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+    .auth-m-hero::before {
+        background: radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%);
+    }
+    .auth-m-card {
+        background: rgba(255,255,255,0.04);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.06);
+    }
+    .auth-m-field + .auth-m-field::before { background: rgba(255,255,255,0.06); }
+    .auth-m-field input { color: var(--file-text-main); }
+    .auth-m-field input::placeholder { color: rgba(255,255,255,0.3); }
+    .auth-m-social {
+        background: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.1);
+        color: var(--file-text-main);
+    }
+    .auth-m-lang-btn { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); }
+    .auth-m-lang-btn:active { background: rgba(255,255,255,0.12); }
+    .auth-m-action { background: var(--file-bg); box-shadow: 0 -1px 0 rgba(255,255,255,0.05); }
+    .auth-m-modal-sheet { background: var(--file-card-bg); }
+    .auth-m-modal-close { background: rgba(255,255,255,0.08); }
+}
+
+/* ============================================================
+   Dark Mode - Manual .dark-mode class
+   ============================================================ */
+body.dark-mode .auth-m-hero::before {
+    background: radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%);
+}
+body.dark-mode .auth-m-card {
+    background: rgba(255,255,255,0.04);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15), inset 0 0.5px 0 rgba(255,255,255,0.06);
+}
+body.dark-mode .auth-m-field + .auth-m-field::before { background: rgba(255,255,255,0.06); }
+body.dark-mode .auth-m-field input { color: var(--file-text-main); }
+body.dark-mode .auth-m-field input::placeholder { color: rgba(255,255,255,0.3); }
+body.dark-mode .auth-m-social {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.1);
+    color: var(--file-text-main);
+}
+body.dark-mode .auth-m-lang-btn { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); }
+body.dark-mode .auth-m-lang-btn:active { background: rgba(255,255,255,0.12); }
+body.dark-mode .auth-m-action { background: var(--file-bg); box-shadow: 0 -1px 0 rgba(255,255,255,0.05); }
+body.dark-mode .auth-m-modal-sheet { background: var(--file-card-bg); }
+body.dark-mode .auth-m-modal-close { background: rgba(255,255,255,0.08); }

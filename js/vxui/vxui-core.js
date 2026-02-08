@@ -474,6 +474,25 @@ class VXUICore {
             const el = document.getElementById('vx-lang-dropdown');
             if (el) TL.tpl_lang(el);
         }
+
+        this.updateCommunityLinkVisibility();
+    }
+
+    updateCommunityLinkVisibility() {
+        const el = document.getElementById('vx-community-link');
+        if (!el) return;
+
+        const storedLang = localStorage.getItem('app_lang');
+        const settingLang = (typeof app !== 'undefined' && app && app.languageSetting)
+            ? app.languageSetting
+            : '';
+        const browserLang = (typeof navigator !== 'undefined' && (navigator.language || navigator.userLanguage))
+            ? (navigator.language || navigator.userLanguage)
+            : '';
+        const lang = String(storedLang || settingLang || browserLang || '').toLowerCase();
+        const shouldShow = lang === 'cn' || lang === 'hk' || lang.startsWith('zh');
+
+        el.style.display = shouldShow ? '' : 'none';
     }
 
     /**
@@ -518,6 +537,8 @@ class VXUICore {
         if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
             TL.tpl_lang();
         }
+
+        this.updateCommunityLinkVisibility();
 
         // 通知当前模块刷新动态文本（如状态文本等通过 JS 设置的内容）
         this.refreshCurrentModuleDynamicText();
@@ -640,7 +661,7 @@ class VXUICore {
                     : '请先登录';
                 this.toastWarning(msg);
             }
-            app.open('/app&listview=login');
+            app.open('/login');
             return;
         }
 
@@ -664,7 +685,7 @@ class VXUICore {
             console.error(`[VXUI] Module not found: ${moduleName}`);
             // 兼容：旧模块可能尝试跳转到 login 模块，但登录页是独立路由
             if (moduleName === 'login') {
-                app.open('/app&listview=login');
+                app.open('/login');
                 return;
             }
             this.toastError(`模块 ${moduleName} 未找到`);

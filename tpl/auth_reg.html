@@ -1,0 +1,124 @@
+<link rel="stylesheet" href="/css/auth.css?v=2">
+
+<div class="file-screen" id="auth_screen">
+    <header class="file-header">
+        <a class="file-logo" href="/">
+            <img src="/img/ico/logo-new.svg" alt="tmp.link">
+        </a>
+        <div class="file-header-actions" id="index_lang" style="display: none;">
+            <div class="file-dropdown">
+                <button class="lang-toggle file-dropdown-toggle" type="button" onclick="authUI.toggleDropdown(this)">
+                    <iconpark-icon name="language"></iconpark-icon>
+                    <span class="selected_lang">Language/语言</span>
+                </button>
+                <div class="file-dropdown-menu file-dropdown-menu-right">
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('cn');authUI.closeDropdowns();">简体中文</a>
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('hk');authUI.closeDropdowns();">繁体中文</a>
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('en');authUI.closeDropdowns();">English</a>
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('jp');authUI.closeDropdowns();">日本語</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="file-body">
+        <div class="file-content auth-content">
+            <section class="file-panel auth-info-panel">
+                <div class="auth-hero">
+                    <h1 class="auth-title" i18n="form_btn_reg">.</h1>
+                </div>
+            </section>
+            <section class="file-panel auth-form-panel">
+                <div class="auth-notice" id="msg_notice" style="display: none;"></div>
+
+                <div class="auth-form">
+                    <div class="auth-field">
+                        <label class="auth-label" for="email_new" i18n="form_email">.</label>
+                        <input type="email" autocomplete="off" id="email_new" class="auth-input" required autofocus>
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="checkcode" i18n="form_code">.</label>
+                        <div class="auth-input-group">
+                            <input type="text" id="checkcode" class="auth-input" autocomplete="off" required>
+                            <button class="auth-btn-getcode" type="button" id="button-reg-checkcode"
+                                onclick="authPage.cc_send()">
+                                <span i18n="form_getcode">.</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="password" i18n="form_password">.</label>
+                        <input type="password" autocomplete="off" id="password" class="auth-input" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="rpassword" i18n="form_repassword">.</label>
+                        <input type="password" autocomplete="new-password" id="rpassword" class="auth-input" required
+                            onkeyup="if(event.keyCode==13){authPage.register()}">
+                    </div>
+
+                    <button id="submit" class="auth-btn auth-btn-primary" type="button" onclick="authPage.register();">
+                        <span i18n="form_btn_reg">.</span>
+                    </button>
+
+                    <div class="auth-divider"></div>
+
+                    <div class="auth-tos">
+                        <a href="/tos.html" target="_blank" i18n="reg_term">.</a>
+                    </div>
+                    <div class="auth-tos">
+                        <button type="button" i18n="reg_supported_emails"
+                            onclick="authUI.openModal('supportedEmailsModal');">.</button>
+                    </div>
+
+                    <div class="auth-links">
+                        <a href="javascript:void(0)" onclick="app.open('/login')" i18n="form_btn_login">.</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+</div>
+
+<!-- Supported Emails Modal -->
+<div class="auth-modal" id="supportedEmailsModal">
+    <div class="auth-modal-dialog">
+        <div class="auth-modal-header">
+            <h4 class="auth-modal-title" i18n="reg_supported_emails">.</h4>
+            <button type="button" class="auth-modal-close" onclick="authUI.closeModal('supportedEmailsModal')">&times;</button>
+        </div>
+        <div class="auth-modal-body">
+            <ul>
+                <li>@qq.com</li>
+                <li>@163.com</li>
+                <li>@126.com</li>
+                <li>@sina.com</li>
+                <li>@gmail.com</li>
+                <li>@hotmail.com</li>
+                <li>@sohu.com</li>
+                <li>@139.com</li>
+                <li>@189.cn</li>
+                <li>@foxmail.com</li>
+                <li>@live.com</li>
+                <li>@outlook.com</li>
+                <li>@yeah.net</li>
+                <li>@vip.163.com</li>
+                <li>@vip.qq.com</li>
+                <li>@icloud.com</li>
+                <li>@me.com</li>
+                <li>@mail.com</li>
+                <li>@yahoo.com</li>
+                <li>@yahoo.com.cn</li>
+                <li>@yahoo.cn</li>
+                <li>@yahoo.co.jp</li>
+                <li>@88.com</li>
+            </ul>
+        </div>
+        <div class="auth-modal-footer">
+            <button type="button" class="auth-modal-btn" onclick="authUI.closeModal('supportedEmailsModal')"
+                i18n="model_btn_cancel">.</button>
+        </div>
+    </div>
+</div>
