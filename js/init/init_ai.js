@@ -5,7 +5,7 @@ function INIT_ai() {
     TL.ready(() => {
         // 检查用户登录状态
         if (TL.isLogin() === false) {
-            dynamicView.login()
+            app.open('/login')
             return
         }
         

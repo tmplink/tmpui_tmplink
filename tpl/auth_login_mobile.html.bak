@@ -1,0 +1,75 @@
+<link rel="stylesheet" href="/css/auth-mobile.css?v=2">
+
+<div class="auth-m" id="auth_screen">
+
+    <!-- Hero: branding + title -->
+    <div class="auth-m-hero">
+        <div class="auth-m-lang">
+            <div class="file-dropdown" id="index_lang" style="display: none;">
+                <button class="auth-m-lang-btn file-dropdown-toggle" type="button" onclick="authUI.toggleDropdown(this)">
+                    <iconpark-icon name="language"></iconpark-icon>
+                </button>
+                <div class="file-dropdown-menu file-dropdown-menu-right">
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('cn');authUI.closeDropdowns();">简体中文</a>
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('hk');authUI.closeDropdowns();">繁体中文</a>
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('en');authUI.closeDropdowns();">English</a>
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('jp');authUI.closeDropdowns();">日本語</a>
+                </div>
+            </div>
+        </div>
+        <div class="auth-m-logo">
+            <img src="/img/ico/logo-new.svg" alt="tmp.link">
+        </div>
+        <h1 i18n="form_btn_login">.</h1>
+        <p i18n="des_login">.</p>
+    </div>
+
+    <!-- Body: form -->
+    <div class="auth-m-body">
+        <div class="auth-notice" id="msg_notice" style="display: none;"></div>
+
+        <div class="auth-m-card">
+            <div class="auth-m-field">
+                <label i18n="form_email">.</label>
+                <input type="email" id="email" placeholder="name@example.com" required autofocus>
+            </div>
+            <div class="auth-m-field">
+                <label i18n="form_password">.</label>
+                <input type="password" id="password" placeholder="••••••••" required
+                    onkeyup="if(event.keyCode==13){authPage.login()}">
+            </div>
+        </div>
+
+        <div class="auth-m-meta">
+            <a href="javascript:void(0)" onclick="app.open('/reset')" i18n="login_found">.</a>
+        </div>
+
+        <!-- Social login divider -->
+        <div class="auth-m-or" id="google_login_divider">or</div>
+        <a class="auth-m-social" id="google_login" href="javascript:void(0)">
+            <iconpark-icon name="google"></iconpark-icon>
+            <span id="google_login_msg" i18n="oauth_btn_google_login">.</span>
+        </a>
+
+        <!-- Switch to register -->
+        <div class="area_global">
+            <div class="auth-m-switch">
+                <span i18n="login_reg">.</span>&nbsp;
+                <a href="javascript:void(0)" onclick="app.open('/reg')" i18n="form_btn_reg">.</a>
+            </div>
+        </div>
+        <div class="area_cn">
+            <div class="auth-m-switch">
+                <span i18n="login_reg">.</span>&nbsp;
+                <a href="javascript:void(0)" onclick="app.open('/reg')" i18n="form_btn_reg">.</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky CTA -->
+    <div class="auth-m-action">
+        <button id="submit" class="auth-m-btn" type="button" onclick="authPage.login();">
+            <span i18n="form_btn_login">.</span>
+        </button>
+    </div>
+</div>

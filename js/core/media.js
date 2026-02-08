@@ -80,7 +80,7 @@ class media {
         //需要登录
         if (!this.parent.isLogin()) {
             alert(this.parent.languageData.status_need_login);
-            app.open('/app&listview=login');
+            app.open('/login');
             return false;
         }
         $('#videoPlayerModal').modal('show');
@@ -147,7 +147,7 @@ class media {
                     $('#video_status_icon_process').hide();
                     $('#video_status_icon_fail').show();
                     alert(this.parent.languageData.status_need_login);
-                    app.open('/app&listview=login');
+                    app.open('/login');
                     break;
             }
         });

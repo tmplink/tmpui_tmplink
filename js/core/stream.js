@@ -82,7 +82,7 @@ class stream {
     request(ukey,app) {
         //未登录的情况下，跳转到登录界面
         if (this.parent.logined !== 1) {
-            location.href = '/?tmpui_page=/app&listview=login';
+            location.href = '/?tmpui_page=/login';
             return;
         }
 

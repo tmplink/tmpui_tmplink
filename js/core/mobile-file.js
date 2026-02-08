@@ -92,7 +92,7 @@
             showButtonFeedback($btn, '已收藏', 3000);
         } else {
             // Not logged in, redirect to login
-            app.open('/app&listview=login');
+            app.open('/login');
         }
     };
 

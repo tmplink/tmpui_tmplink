@@ -1,0 +1,53 @@
+<link rel="stylesheet" href="/css/auth.css?v=2">
+
+<div class="file-screen" id="auth_screen">
+    <header class="file-header">
+        <a class="file-logo" href="/">
+            <img src="/img/ico/logo-new.svg" alt="tmp.link">
+        </a>
+        <div class="file-header-actions" id="index_lang" style="display: none;">
+            <div class="file-dropdown">
+                <button class="lang-toggle file-dropdown-toggle" type="button" onclick="authUI.toggleDropdown(this)">
+                    <iconpark-icon name="language"></iconpark-icon>
+                    <span class="selected_lang">Language/语言</span>
+                </button>
+                <div class="file-dropdown-menu file-dropdown-menu-right">
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('cn');authUI.closeDropdowns();">简体中文</a>
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('hk');authUI.closeDropdowns();">繁体中文</a>
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('en');authUI.closeDropdowns();">English</a>
+                    <a class="file-dropdown-item" href="javascript:void(0)" onclick="TL.language('jp');authUI.closeDropdowns();">日本語</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="file-body">
+        <div class="file-content auth-content">
+            <section class="file-panel auth-info-panel">
+                <div class="auth-hero">
+                    <h1 class="auth-title" i18n="form_btn_reset">.</h1>
+                    <p class="auth-subtitle" i18n="des_reset">.</p>
+                </div>
+            </section>
+            <section class="file-panel auth-form-panel">
+                <div class="auth-notice" id="msg_notice" style="display: none;"></div>
+
+                <div class="auth-form">
+                    <div class="auth-field">
+                        <label class="auth-label" for="email_new" i18n="form_reset_email">.</label>
+                        <input type="email" id="email_new" class="auth-input" required autofocus>
+                    </div>
+
+                    <button id="submit" class="auth-btn auth-btn-primary" type="button" onclick="authPage.password_found();">
+                        <span i18n="form_btn_reset">.</span>
+                    </button>
+
+                    <div class="auth-links">
+                        <a href="javascript:void(0)" onclick="app.open('/login')" i18n="form_btn_login">.</a>
+                        <a href="javascript:void(0)" onclick="app.open('/')" i18n="return_index">.</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+</div>

@@ -319,7 +319,7 @@ class dir {
             if (rsp.status === 3) {
                 //设定登录后跳转的页面
                 localStorage.setItem('return_page', getCurrentURL());
-                app.open('/app&listview=login');
+                app.open('/login');
                 return false;
             }
             this.parent_op.ga('Dir-' + rsp.data.name, currentPath);
@@ -590,7 +590,7 @@ class dir {
 
     favoriteAdd(mr_id) {
         if (!this.parent_op.isLogin()) {
-            app.open('/app&listview=login');
+            app.open('/login');
             return false;
         }
         alert(app.languageData.favorite_add_success);

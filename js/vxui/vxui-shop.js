@@ -94,7 +94,7 @@ window.VX_SHOP = {
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
             VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
             setTimeout(() => {
-                app.open('/app&listview=login');
+                app.open('/login');
             }, 1000);
             return;
         }
@@ -1006,7 +1006,7 @@ window.VX_SHOP = {
             VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
             setTimeout(() => {
                 if (typeof app !== 'undefined' && typeof app.open === 'function') {
-                    app.open('/app&listview=login');
+                    app.open('/login');
                 }
             }, 800);
             return;
@@ -1045,7 +1045,7 @@ window.VX_SHOP = {
                 VXUI.toastError(this.t('sponsor_exchange_auth_fail', '登录已失效，请重新登录'));
                 setTimeout(() => {
                     if (typeof app !== 'undefined' && typeof app.open === 'function') {
-                        app.open('/app&listview=login');
+                        app.open('/login');
                     }
                 }, 800);
             } else {

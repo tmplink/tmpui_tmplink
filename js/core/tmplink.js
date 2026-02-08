@@ -1342,7 +1342,7 @@ class tmplink {
                         } else {
                             //设定登录后跳转的页面
                             localStorage.setItem('return_page', getCurrentURL());
-                            app.open('/app&listview=login');
+                            app.open('/login');
                         }
                     });
 

@@ -203,7 +203,7 @@ function Login() {
             }
         } else {
              // Not logged in or validation failed, go to login
-             location.href = '/?tmpui_page=/app&listview=login';
+             location.href = '/?tmpui_page=/login';
         }
     }, 150);
 }

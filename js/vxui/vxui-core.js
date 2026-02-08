@@ -640,7 +640,7 @@ class VXUICore {
                     : '请先登录';
                 this.toastWarning(msg);
             }
-            app.open('/app&listview=login');
+            app.open('/login');
             return;
         }
 
@@ -664,7 +664,7 @@ class VXUICore {
             console.error(`[VXUI] Module not found: ${moduleName}`);
             // 兼容：旧模块可能尝试跳转到 login 模块，但登录页是独立路由
             if (moduleName === 'login') {
-                app.open('/app&listview=login');
+                app.open('/login');
                 return;
             }
             this.toastError(`模块 ${moduleName} 未找到`);

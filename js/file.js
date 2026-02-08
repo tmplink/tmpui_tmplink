@@ -389,7 +389,7 @@ class FilePageController {
                     $('#btn_add_to_workspace').off('click');
                 } else {
                     localStorage.setItem('return_page', getCurrentURL());
-                    app.open('/app&listview=login');
+                    app.open('/login');
                 }
             });
 

@@ -30,13 +30,13 @@ app.ready(() => {
             window.location.href = '/?tmpui_page=/vx&module=direct';
             break;
         case 'login':
-            dynamicView.login();
+            app.open('/login');
             break;
         case 'reg':
-            dynamicView.reg();
+            app.open('/reg');
             break;
         case 'reset':
-            dynamicView.reset();
+            app.open('/reset');
             break;
         case 'tos':
             dynamicView.tos();
