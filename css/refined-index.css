@@ -1026,9 +1026,7 @@ body.dark-mode .floating-element svg path {
     .float-layer {
         bottom: var(--space-lg);
         right: var(--space-lg);
-        left: var(--space-lg);
-        display: flex;
-        justify-content: center;
+        left: auto;
     }
     
     .container {
