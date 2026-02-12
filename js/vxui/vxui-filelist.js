@@ -47,9 +47,8 @@ var VX_FILELIST = VX_FILELIST || {
     // 刷新状态
     refreshing: false,
 
-    // 排序状态 (默认时间倒序)
-    currentSortBy: 0,
-    currentSortType: 0, 
+    // 排序管理器 (VxSort)
+    sorter: null,
 
     // Folder privacy toggle state
     _privacyLoading: false,
@@ -130,6 +129,21 @@ var VX_FILELIST = VX_FILELIST || {
      */
     init(params = {}) {
         console.log('[VX_FILELIST] Initializing...', params);
+
+        // 初始化排序管理器
+        if (!this.sorter) {
+            if (typeof VxSort !== 'undefined') {
+                this.sorter = new VxSort({
+                    key: 'vx_room_',
+                    onSortChange: (by, type) => {
+                         // 排序变更时，重新加载列表 (reset page to 0)
+                        this.loadFileList(0);
+                    }
+                });
+            } else {
+                console.error('VxSort module not loaded');
+            }
+        }
 
         // 防止事件监听器重复绑定
         this.unbindEvents();
@@ -1503,56 +1517,17 @@ var VX_FILELIST = VX_FILELIST || {
      * @param {number} column 0:时间, 1:名称, 2:大小
      */
     setSort(column) {
-        // 如果点击的是当前排序列，则切换顺序
-        if (this.currentSortBy === column) {
-            this.currentSortType = this.currentSortType === 0 ? 1 : 0;
-        } else {
-            // 否则切换到新列，默认升序（名称/大小）或倒序（时间）？
-            // 通常：
-            // 时间：默认倒序 (0) -> 最新的在前
-            // 名称：默认升序 (1) -> A-Z
-            // 大小：默认倒序 (0) -> 大的在前
-            this.currentSortBy = column;
-            if (column === 1) { 
-                this.currentSortType = 1; // Name asc default
-            } else {
-                this.currentSortType = 0; // Time/Size desc default
-            }
+        if (this.sorter) {
+            this.sorter.set(column);
         }
-        
-        // 保存设置
-        localStorage.setItem(`vx_room_sort_by_${this.mrid}`, this.currentSortBy);
-        localStorage.setItem(`vx_room_sort_type_${this.mrid}`, this.currentSortType);
-        
-        // 更新图标
-        this.updateSortIcons();
-        
-        // 重新加载列表（触发后端排序或前端重排）
-        this.loadFileList(0);
     },
 
     /**
      * 更新排序图标
      */
     updateSortIcons() {
-        // 重置所有图标
-        for (let i = 0; i <= 2; i++) {
-            const icon = document.getElementById(`vx-sort-icon-${i}`);
-            if (icon) {
-                // 如果是当前排序
-                if (i === this.currentSortBy) {
-                    icon.classList.add('active');
-                    if (this.currentSortType === 1) {
-                        icon.setAttribute('name', 'sort-amount-up'); // 升序
-                    } else {
-                        icon.setAttribute('name', 'sort-amount-down'); // 降序
-                    }
-                } else {
-                    // 非当前排序 - 恢复默认状态
-                    icon.classList.remove('active');
-                    icon.setAttribute('name', 'sort-amount-down');
-                }
-            }
+        if (this.sorter) {
+            this.sorter.updateIcons();
         }
     },
 
@@ -1561,21 +1536,26 @@ var VX_FILELIST = VX_FILELIST || {
      */
     clearAllSortSettings() {
         try {
-            const toRemove = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && (key.startsWith('vx_room_sort_by_') || key.startsWith('vx_room_sort_type_'))) {
-                    toRemove.push(key);
-                }
+            if (this.sorter) {
+                 this.sorter.clearAll();
+            } else {
+                 // Fallback manually clearing
+                 const toRemove = [];
+                 for (let i = 0; i < localStorage.length; i++) {
+                     const key = localStorage.key(i);
+                     if (key && (key.startsWith('vx_room_sort_by_') || key.startsWith('vx_room_sort_type_'))) {
+                         toRemove.push(key);
+                     }
+                 }
+                 toRemove.forEach(key => localStorage.removeItem(key));
             }
-            toRemove.forEach(key => localStorage.removeItem(key));
+
             VXUI.toastSuccess(this.t('vx_sort_cleared', '排序设置已重置'));
             
             // 如果在文件列表页面，重置当前状态并刷新
-            this.currentSortBy = 0;
-            this.currentSortType = 0;
-            this.updateSortIcons();
-            if (this.mrid) {
+            if (this.mrid !== undefined && this.sorter) {
+                // Reset to default
+                this.sorter.setRaw(0, 0); 
                 this.loadFileList(0);
             }
         } catch (e) {
@@ -1604,22 +1584,17 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 优先使用当前内存中的状态，如果未初始化（page=0且可能是首次），则从 storage 读取
         if (page === 0) {
-            let savedSortBy = localStorage.getItem(`vx_room_sort_by_${this.mrid}`);
-            let savedSortType = localStorage.getItem(`vx_room_sort_type_${this.mrid}`);
-            
-            // 如果 storage 里没有，回退到 room info 或者默认值
-            if (savedSortBy === null) savedSortBy = (this.room && this.room.sort_by) !== undefined ? this.room.sort_by : 0;
-            if (savedSortType === null) savedSortType = (this.room && this.room.sort_type) !== undefined ? this.room.sort_type : 0;
-            
-            this.currentSortBy = parseInt(savedSortBy);
-            this.currentSortType = parseInt(savedSortType);
-            
-            // 确保更新 UI
-            setTimeout(() => this.updateSortIcons(), 0);
+            // Load sort state for this room
+            if (this.sorter) {
+                const defaultBy = (this.room && this.room.sort_by) !== undefined ? this.room.sort_by : 0;
+                const defaultType = (this.room && this.room.sort_type) !== undefined ? this.room.sort_type : 0;
+                this.sorter.load(this.mrid, defaultBy, defaultType);
+                setTimeout(() => this.updateSortIcons(), 0);
+            }
         }
 
-        const sortBy = this.currentSortBy;
-        const sortType = this.currentSortType;
+        const sortBy = this.sorter ? this.sorter.currentBy : 0;
+        const sortType = this.sorter ? this.sorter.currentType : 0;
 
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
         
@@ -1737,29 +1712,12 @@ var VX_FILELIST = VX_FILELIST || {
      */
     sortSubRooms() {
         if (!this.subRooms || this.subRooms.length <= 1) return;
+        if (!this.sorter) return;
         
-        const by = this.currentSortBy;
-        const type = this.currentSortType;
-        
-        this.subRooms.sort((a, b) => {
-            let valA, valB;
-            
-            // 0: Time, 1: Name, 2: Size
-            if (by === 0) { // Time
-                valA = parseInt(a.ctime || 0);
-                valB = parseInt(b.ctime || 0);
-            } else if (by === 1) { // Name
-                valA = (a.name || a.mr_name || '').toLowerCase();
-                valB = (b.name || b.mr_name || '').toLowerCase();
-            } else if (by === 2) { // Size
-                // 文件夹通常没有大小，可以用文件数代替，或者回退到名称
-                valA = parseInt(a.file_count || 0);
-                valB = parseInt(b.file_count || 0);
-            }
-            
-            if (valA < valB) return type === 0 ? 1 : -1;
-            if (valA > valB) return type === 0 ? -1 : 1;
-            return 0;
+        this.subRooms = this.sorter.sortArray(this.subRooms, {
+            0: (a) => parseInt(a.ctime || 0),
+            1: (a) => (a.name || a.mr_name || '').toLowerCase(),
+            2: (a) => parseInt(a.file_count || 0)
         });
     },
 

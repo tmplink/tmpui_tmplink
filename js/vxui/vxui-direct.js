@@ -48,10 +48,12 @@ const VX_DIRECT = {
     filesPreloaded: false,
     foldersPreloaded: false,
 
-    // search/sort
-    sort_by: 0,
-    sort_type: 0,
+    // search
     search: '',
+
+    // Sorters (initialized in init)
+    fileSorter: null,
+    folderSorter: null,
 
     // timers
     _readyTimer: null,
@@ -78,9 +80,49 @@ const VX_DIRECT = {
         }
     },
 
+    // ==================== Sorting ====================
+    setFileSort(col) {
+        if (this.fileSorter) {
+            this.fileSorter.set(col);
+        }
+    },
+    
+    setFolderSort(col) {
+        if (this.folderSorter) {
+            this.folderSorter.set(col);
+        }
+    },
+    
     // ==================== Lifecycle ====================
     init(params = {}) {
         console.log('[VX_DIRECT] Initializing...', params);
+
+        // 初始化排序管理器
+        if (typeof VxSort !== 'undefined') {
+            if (!this.fileSorter) {
+                this.fileSorter = new VxSort({
+                    key: 'vx_direct_file_',
+                    iconPrefix: 'vx-direct-file-sort-icon-',
+                    onSortChange: () => {
+                        this.pageNumber = 0;
+                        this.files = [];
+                        this.loadFiles(true);
+                    }
+                });
+                this.fileSorter.load('default', 0, 0);
+            }
+            if (!this.folderSorter) {
+                this.folderSorter = new VxSort({
+                    key: 'vx_direct_folder_', 
+                    iconPrefix: 'vx-direct-folder-sort-icon-',
+                    onSortChange: () => {
+                        this.folders = [];
+                        this.loadFolders(true);
+                    }
+                });
+                this.folderSorter.load('default', 0, 0);
+            }
+        }
 
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
             VXUI.toastWarning('请先登录');
@@ -103,7 +145,6 @@ const VX_DIRECT = {
 
         this.resetState();
         this.applyUrlParams(params);
-        this.sortSettingsInit();
         this.updateSidebar();
         this.bindEvents();
 
@@ -247,29 +288,44 @@ const VX_DIRECT = {
             delete params.module;
         }
         params.tab = this.activeTab;
-        const key = this.keyGet();
-        const sort_by = localStorage.getItem(key.sort_by) ?? String(this.sort_by);
-        const sort_type = localStorage.getItem(key.sort_type) ?? String(this.sort_type);
-        if (sort_by !== '' && sort_by !== null && sort_by !== undefined) params.sort_by = String(sort_by);
-        if (sort_type !== '' && sort_type !== null && sort_type !== undefined) params.sort_type = String(sort_type);
+
+        let sorter = null;
+        if (this.activeTab === 'files') sorter = this.fileSorter;
+        else if (this.activeTab === 'folders') sorter = this.folderSorter;
+
+        if (sorter) {
+             params.sort_by = String(sorter.currentBy);
+             params.sort_type = String(sorter.currentType);
+        } else {
+             delete params.sort_by;
+             delete params.sort_type;
+        }
+
         if (this.search) params.search = String(this.search);
         else delete params.search;
         VXUI.updateUrl('direct', params);
     },
 
     applyUrlParams(params = {}) {
-        const key = this.keyGet();
+        const tab = params.tab || 'dashboard';
         const urlSortBy = params.sort_by;
         const urlSortType = params.sort_type;
         const urlSearch = params.search;
-        if (urlSortBy !== undefined && urlSortBy !== null && String(urlSortBy) !== '') {
-            localStorage.setItem(key.sort_by, String(urlSortBy));
-        }
-        if (urlSortType !== undefined && urlSortType !== null && String(urlSortType) !== '') {
-            localStorage.setItem(key.sort_type, String(urlSortType));
-        }
+
         if (urlSearch !== undefined && urlSearch !== null) {
             this.search = String(urlSearch);
+        }
+
+        let sorter = null;
+        if (tab === 'files') sorter = this.fileSorter;
+        else if (tab === 'folders') sorter = this.folderSorter;
+
+        if (sorter && urlSortBy !== undefined) {
+             let by = parseInt(urlSortBy);
+             let type = urlSortType !== undefined ? parseInt(urlSortType) : 0;
+             if (!isNaN(by)) {
+                  sorter.setRaw(by, type);
+             }
         }
     },
 
@@ -1271,9 +1327,8 @@ const VX_DIRECT = {
      */
     async preloadFiles() {
         try {
-            const key = this.keyGet();
-            const sort_by = localStorage.getItem(key.sort_by) ?? String(this.sort_by);
-            const sort_type = localStorage.getItem(key.sort_type) ?? String(this.sort_type);
+            const sort_by = this.fileSorter ? this.fileSorter.currentBy : 0;
+            const sort_type = this.fileSorter ? this.fileSorter.currentType : 0;
 
             const rsp = await this.apiPost({
                 action: 'filelist_page',
@@ -1341,9 +1396,8 @@ const VX_DIRECT = {
         this.isLoading = true;
 
         try {
-            const key = this.keyGet();
-            const sort_by = localStorage.getItem(key.sort_by) ?? String(this.sort_by);
-            const sort_type = localStorage.getItem(key.sort_type) ?? String(this.sort_type);
+            const sort_by = this.fileSorter ? this.fileSorter.currentBy : 0;
+            const sort_type = this.fileSorter ? this.fileSorter.currentType : 0;
 
             const rsp = await this.apiPost({
                 action: 'filelist_page',
@@ -1448,6 +1502,8 @@ const VX_DIRECT = {
     },
 
     renderFiles() {
+        if (this.fileSorter) this.fileSorter.updateIcons();
+
         const container = document.getElementById('vx-direct-files-list');
         const body = document.getElementById('vx-direct-files-list-body');
         const empty = document.getElementById('vx-direct-files-empty');
@@ -1613,6 +1669,8 @@ const VX_DIRECT = {
 
     // ==================== Render (Folders) ====================
     renderFolders() {
+        if (this.folderSorter) this.folderSorter.updateIcons();
+
         const container = document.getElementById('vx-direct-folders-list');
         const body = document.getElementById('vx-direct-folders-list-body');
         const empty = document.getElementById('vx-direct-folders-empty');
@@ -1638,6 +1696,15 @@ const VX_DIRECT = {
         }
 
         empty.style.display = 'none';
+        
+        // Sorting Logic
+        if (this.folderSorter) {
+             this.folders = this.folderSorter.sortArray(this.folders, {
+                 0: (f) => parseInt(f.ctime || 0),
+                 1: (f) => (f.name || '').toLowerCase(),
+                 2: (f) => parseInt(f.size || f.count || 0)
+             });
+        }
 
         if (listContainer) listContainer.style.display = '';
         listBody.innerHTML = '';
@@ -2167,38 +2234,34 @@ const VX_DIRECT = {
         this._searchTimer = setTimeout(() => this.loadFiles(true), 250);
     },
 
-    onSortChange() {
-        const sortByEl = document.getElementById('vx-direct-sort-by');
-        const sortTypeEl = document.getElementById('vx-direct-sort-type');
-        const key = this.keyGet();
-        if (sortByEl) localStorage.setItem(key.sort_by, String(sortByEl.value));
-        if (sortTypeEl) localStorage.setItem(key.sort_type, String(sortTypeEl.value));
-        this.syncUrlState();
-        this.loadFiles(true);
+    setSort(target, column) {
+        if (typeof VX_SORT === 'undefined') return;
+        
+        const isFiles = target === 'files';
+        const currentBy = isFiles ? this.files_sort_by : this.folders_sort_by;
+        const currentType = isFiles ? this.files_sort_type : this.folders_sort_type;
+        
+        const next = VX_SORT.nextState(currentBy, currentType, column);
+        
+        if (isFiles) {
+            this.files_sort_by = next.by;
+            this.files_sort_type = next.type;
+            VX_SORT.save('vx_direct_sort', 'files', next.by, next.type);
+            this.updateSortIcons();
+            this.loadFiles(true); // reload
+        } else {
+            this.folders_sort_by = next.by;
+            this.folders_sort_type = next.type;
+            VX_SORT.save('vx_direct_sort', 'folders', next.by, next.type);
+            this.updateSortIcons();
+            this.renderFolders(); // re-render only, as sort is frontend
+        }
     },
-
-    sortSettingsInit() {
-        const key = this.keyGet();
-        const sortByEl = document.getElementById('vx-direct-sort-by');
-        const sortTypeEl = document.getElementById('vx-direct-sort-type');
-
-        const storage_sort_by = localStorage.getItem(key.sort_by);
-        const storage_sort_type = localStorage.getItem(key.sort_type);
-        const sort_by = storage_sort_by === null ? String(this.sort_by) : String(storage_sort_by);
-        const sort_type = storage_sort_type === null ? String(this.sort_type) : String(storage_sort_type);
-
-        localStorage.setItem(key.sort_by, sort_by);
-        localStorage.setItem(key.sort_type, sort_type);
-
-        if (sortByEl) sortByEl.value = sort_by;
-        if (sortTypeEl) sortTypeEl.value = sort_type;
-    },
-
-    keyGet() {
-        return {
-            sort_by: 'vx_direct_sort_by',
-            sort_type: 'vx_direct_sort_type'
-        };
+    
+    updateSortIcons() {
+        if (typeof VX_SORT === 'undefined') return;
+        VX_SORT.updateIcons('vx-direct-files-sort-icon-', this.files_sort_by, this.files_sort_type);
+        VX_SORT.updateIcons('vx-direct-folders-sort-icon-', this.folders_sort_by, this.folders_sort_type);
     },
 
     // ==================== Link helpers ====================
