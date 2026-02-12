@@ -1917,6 +1917,17 @@ var VX_FILELIST = VX_FILELIST || {
     },
 
     /**
+     * 格式化时间显示 (去除秒)
+     */
+    formatTime(timeStr) {
+        if (!timeStr) return '--';
+        if (typeof timeStr === 'string' && timeStr.length >= 16) {
+            return timeStr.substring(0, 16);
+        }
+        return timeStr;
+    },
+
+    /**
      * 创建文件夹行
      */
     createFolderRow(folder) {
@@ -1994,7 +2005,7 @@ var VX_FILELIST = VX_FILELIST || {
                 <span class="vx-type-folder" data-tpl="filelist_dir">文件夹</span>
             </div>
             <div class="vx-list-date vx-hide-mobile">
-                ${folder.ctime || '--'}
+                ${this.formatTime(folder.ctime)}
             </div>
             <div class="vx-list-actions">
                 ${actionsHtml}
@@ -2103,7 +2114,7 @@ var VX_FILELIST = VX_FILELIST || {
                 ${file.fsize_formated || this.formatSize(file.fsize || 0)}
             </div>
             <div class="vx-list-date vx-hide-mobile">
-                ${file.ctime || '--'}
+                ${this.formatTime(file.ctime)}
             </div>
             <!-- 正常状态的操作按钮 -->
             <div class="vx-list-actions vx-file-ok" data-ukey="${file.ukey}" style="${isSyncing ? 'display: none !important;' : ''}">
