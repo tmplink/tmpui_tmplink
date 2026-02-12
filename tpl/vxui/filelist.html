@@ -217,15 +217,18 @@
     <div class="vx-list-container" id="vx-fl-list" style="display: none;">
         <!-- List Header -->
         <div class="vx-list-header">
-            <div class="vx-list-col vx-list-col-name">
+            <div class="vx-list-col vx-list-col-name" onclick="VX_FILELIST.setSort(1)" style="cursor: pointer;">
                 <div class="vx-list-checkbox" id="vx-fl-select-all" onclick="event.stopPropagation(); VX_FILELIST.toggleSelectAllFromHeader()" title="." i18n="on_select_all" i18n-only="title"></div>
                 <span data-tpl="filename">文件名</span>
+                <iconpark-icon name="sort-amount-down" class="vx-sort-icon" id="vx-sort-icon-1"></iconpark-icon>
             </div>
-            <div class="vx-list-col vx-list-col-size">
+            <div class="vx-list-col vx-list-col-size" onclick="VX_FILELIST.setSort(2)" style="cursor: pointer;">
                 <span data-tpl="filesize">大小</span>
+                <iconpark-icon name="sort-amount-down" class="vx-sort-icon" id="vx-sort-icon-2"></iconpark-icon>
             </div>
-            <div class="vx-list-col vx-list-col-date vx-hide-mobile">
+            <div class="vx-list-col vx-list-col-date vx-hide-mobile" onclick="VX_FILELIST.setSort(0)" style="cursor: pointer;">
                 <span data-tpl="filedate">日期</span>
+                <iconpark-icon name="sort-amount-down" class="vx-sort-icon" id="vx-sort-icon-0"></iconpark-icon>
             </div>
             <div class="vx-list-col vx-list-col-actions">
                 <span data-tpl="actions">操作</span>
@@ -415,11 +418,17 @@
                 <input type="text" class="vx-input" id="vx-fl-folder-name" data-tpl="model_title_folder_name" placeholder="请输入文件夹名称">
             </div>
             <div class="vx-form-group">
-                <label class="vx-label" i18n="modal_meetingroom_create_type">权限</label>
-                <select class="vx-select" id="vx-fl-folder-model">
-                    <option value="0" i18n-only="html" i18n="modal_meetingroom_type1">公开，所有人都可访问。</option>
-                    <option value="1" i18n-only="html" i18n="modal_meetingroom_type2">私有，仅自己可访问。</option>
-                </select>
+                <div style="display:flex; align-items:center; justify-content: space-between;">
+                    <div>
+                        <div class="vx-label" style="margin-bottom:0;" i18n="modal_meetingroom_create_type">权限</div>
+                        <div id="vx-fl-create-privacy-hint" style="margin-top:4px;" i18n="modal_meetingroom_type1" i18n-only="html">公开，所有人都可访问。</div>
+                    </div>
+                    <label class="vx-switch">
+                         <input type="checkbox" id="vx-fl-create-privacy-switch" onchange="VX_FILELIST.onCreateFolderPrivacyChange(this)">
+                         <span class="vx-switch-slider"></span>
+                    </label>
+                </div>
+                <input type="hidden" id="vx-fl-folder-model" value="0">
             </div>
         </div>
         <div class="vx-modal-footer">
@@ -577,8 +586,8 @@
                         <iconpark-icon name="folder-plus"></iconpark-icon>
                         <span data-tpl="upload_dirs">上传文件夹</span>
                     </button>
-                    <button class="vx-btn vx-btn-outline" onclick="VX_UPLOADER.openCliModal()">
-                        <iconpark-icon name="laptop-arrow-down"></iconpark-icon>
+                    <button class="vx-btn vx-btn-secondary" onclick="VX_UPLOADER.openCliModal()">
+                        <iconpark-icon name="rectangle-terminal"></iconpark-icon>
                         <span data-tpl="model_title_upload_cli">使用 CLI 上传</span>
                     </button>
                 </div>

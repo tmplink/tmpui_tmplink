@@ -199,15 +199,18 @@
 
             <div class="vx-list-container" id="vx-direct-files-list" style="display:none;">
                 <div class="vx-list-header">
-                    <div class="vx-list-col vx-list-col-name">
+                    <div class="vx-list-col vx-list-col-name" onclick="VX_DIRECT.setFileSort(1)" style="cursor: pointer;">
                         <div class="vx-list-checkbox" id="vx-direct-select-all" onclick="event.stopPropagation(); VX_DIRECT.toggleSelectAllFromHeader()" title="全选"></div>
                         <span data-tpl="filename">文件名</span>
+                        <iconpark-icon name="sort-amount-down" class="vx-sort-icon" id="vx-direct-file-sort-icon-1"></iconpark-icon>
                     </div>
-                    <div class="vx-list-col vx-list-col-size">
+                    <div class="vx-list-col vx-list-col-size" onclick="VX_DIRECT.setFileSort(2)" style="cursor: pointer;">
                         <span data-tpl="filesize">大小</span>
+                        <iconpark-icon name="sort-amount-down" class="vx-sort-icon" id="vx-direct-file-sort-icon-2"></iconpark-icon>
                     </div>
-                    <div class="vx-list-col vx-list-col-date vx-hide-mobile">
+                    <div class="vx-list-col vx-list-col-date vx-hide-mobile" onclick="VX_DIRECT.setFileSort(0)" style="cursor: pointer;">
                         <span data-tpl="filedate">日期</span>
+                        <iconpark-icon name="sort-amount-down" class="vx-sort-icon" id="vx-direct-file-sort-icon-0"></iconpark-icon>
                     </div>
                     <div class="vx-list-col vx-list-col-actions">
                         <span data-tpl="actions">操作</span>
@@ -247,15 +250,18 @@
 
             <div class="vx-list-container" id="vx-direct-folders-list" style="display:none;">
                 <div class="vx-list-header">
-                    <div class="vx-list-col vx-list-col-name">
+                    <div class="vx-list-col vx-list-col-name" onclick="VX_DIRECT.setFolderSort(1)" style="cursor: pointer;">
                         <div class="vx-list-checkbox" id="vx-direct-folder-select-all" onclick="event.stopPropagation(); VX_DIRECT.toggleFolderSelectAll()" title="全选"></div>
                         <span data-tpl="filename">文件名</span>
+                        <iconpark-icon name="sort-amount-down" class="vx-sort-icon" id="vx-direct-folder-sort-icon-1"></iconpark-icon>
                     </div>
-                    <div class="vx-list-col vx-list-col-size">
+                    <div class="vx-list-col vx-list-col-size" onclick="VX_DIRECT.setFolderSort(2)" style="cursor: pointer;">
                         <span data-tpl="filesize">大小</span>
+                        <iconpark-icon name="sort-amount-down" class="vx-sort-icon" id="vx-direct-folder-sort-icon-2"></iconpark-icon>
                     </div>
-                    <div class="vx-list-col vx-list-col-date vx-hide-mobile">
+                    <div class="vx-list-col vx-list-col-date vx-hide-mobile" onclick="VX_DIRECT.setFolderSort(0)" style="cursor: pointer;">
                         <span data-tpl="filedate">日期</span>
+                        <iconpark-icon name="sort-amount-down" class="vx-sort-icon" id="vx-direct-folder-sort-icon-0"></iconpark-icon>
                     </div>
                     <div class="vx-list-col vx-list-col-actions">
                         <span data-tpl="actions">操作</span>

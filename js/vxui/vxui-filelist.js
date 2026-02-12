@@ -47,6 +47,9 @@ var VX_FILELIST = VX_FILELIST || {
     // 刷新状态
     refreshing: false,
 
+    // 排序管理器 (VxSort)
+    sorter: null,
+
     // Folder privacy toggle state
     _privacyLoading: false,
 
@@ -126,6 +129,21 @@ var VX_FILELIST = VX_FILELIST || {
      */
     init(params = {}) {
         console.log('[VX_FILELIST] Initializing...', params);
+
+        // 初始化排序管理器
+        if (!this.sorter) {
+            if (typeof VxSort !== 'undefined') {
+                this.sorter = new VxSort({
+                    key: 'vx_room_',
+                    onSortChange: (by, type) => {
+                         // 排序变更时，重新加载列表 (reset page to 0)
+                        this.loadFileList(0);
+                    }
+                });
+            } else {
+                console.error('VxSort module not loaded');
+            }
+        }
 
         // 防止事件监听器重复绑定
         this.unbindEvents();
@@ -1495,6 +1513,57 @@ var VX_FILELIST = VX_FILELIST || {
     },
     
     /**
+     * 设置排序
+     * @param {number} column 0:时间, 1:名称, 2:大小
+     */
+    setSort(column) {
+        if (this.sorter) {
+            this.sorter.set(column);
+        }
+    },
+
+    /**
+     * 更新排序图标
+     */
+    updateSortIcons() {
+        if (this.sorter) {
+            this.sorter.updateIcons();
+        }
+    },
+
+    /**
+     * 清除所有排序偏好
+     */
+    clearAllSortSettings() {
+        try {
+            if (this.sorter) {
+                 this.sorter.clearAll();
+            } else {
+                 // Fallback manually clearing
+                 const toRemove = [];
+                 for (let i = 0; i < localStorage.length; i++) {
+                     const key = localStorage.key(i);
+                     if (key && (key.startsWith('vx_room_sort_by_') || key.startsWith('vx_room_sort_type_'))) {
+                         toRemove.push(key);
+                     }
+                 }
+                 toRemove.forEach(key => localStorage.removeItem(key));
+            }
+
+            VXUI.toastSuccess(this.t('vx_sort_cleared', '排序设置已重置'));
+            
+            // 如果在文件列表页面，重置当前状态并刷新
+            if (this.mrid !== undefined && this.sorter) {
+                // Reset to default
+                this.sorter.setRaw(0, 0); 
+                this.loadFileList(0);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    },
+
+    /**
      * 加载文件列表
      */
     loadFileList(page) {
@@ -1513,8 +1582,20 @@ var VX_FILELIST = VX_FILELIST || {
             return;
         }
         
-        const sortBy = localStorage.getItem(`vx_room_sort_by_${this.mrid}`) || this.room.sort_by || 0;
-        const sortType = localStorage.getItem(`vx_room_sort_type_${this.mrid}`) || this.room.sort_type || 0;
+        // 优先使用当前内存中的状态，如果未初始化（page=0且可能是首次），则从 storage 读取
+        if (page === 0) {
+            // Load sort state for this room
+            if (this.sorter) {
+                const defaultBy = (this.room && this.room.sort_by) !== undefined ? this.room.sort_by : 0;
+                const defaultType = (this.room && this.room.sort_type) !== undefined ? this.room.sort_type : 0;
+                this.sorter.load(this.mrid, defaultBy, defaultType);
+                setTimeout(() => this.updateSortIcons(), 0);
+            }
+        }
+
+        const sortBy = this.sorter ? this.sorter.currentBy : 0;
+        const sortType = this.sorter ? this.sorter.currentType : 0;
+
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
         
         $.post(apiUrl, {
@@ -1627,9 +1708,26 @@ var VX_FILELIST = VX_FILELIST || {
     },
     
     /**
+     * 对文件夹列表进行排序
+     */
+    sortSubRooms() {
+        if (!this.subRooms || this.subRooms.length <= 1) return;
+        if (!this.sorter) return;
+        
+        this.subRooms = this.sorter.sortArray(this.subRooms, {
+            0: (a) => parseInt(a.ctime || 0),
+            1: (a) => (a.name || a.mr_name || '').toLowerCase(),
+            2: (a) => parseInt(a.file_count || 0)
+        });
+    },
+
+    /**
      * 渲染列表视图
      */
     renderList() {
+        // 先对文件夹排序
+        this.sortSubRooms();
+
         const listContainer = document.getElementById('vx-fl-list');
         const albumContainer = document.getElementById('vx-fl-album');
         const listBody = document.getElementById('vx-fl-list-body');
@@ -1690,6 +1788,9 @@ var VX_FILELIST = VX_FILELIST || {
      * 渲染相册视图
      */
     renderAlbum() {
+        // 先对文件夹排序
+        this.sortSubRooms();
+
         const listContainer = document.getElementById('vx-fl-list');
         const albumContainer = document.getElementById('vx-fl-album');
         const albumGrid = document.getElementById('vx-fl-album-grid');
@@ -1917,6 +2018,28 @@ var VX_FILELIST = VX_FILELIST || {
     },
 
     /**
+     * 格式化时间显示 (去除秒)
+     */
+    formatTime(timeStr) {
+        if (!timeStr) return '--';
+        if (typeof timeStr === 'string' && timeStr.length >= 16) {
+            return timeStr.substring(0, 16);
+        }
+        return timeStr;
+    },
+
+    /**
+     * 格式化日期显示 (仅日期)
+     */
+    formatDateOnly(timeStr) {
+        if (!timeStr) return '--';
+        if (typeof timeStr === 'string' && timeStr.length >= 10) {
+            return timeStr.substring(0, 10);
+        }
+        return timeStr;
+    },
+
+    /**
      * 创建文件夹行
      */
     createFolderRow(folder) {
@@ -1993,8 +2116,8 @@ var VX_FILELIST = VX_FILELIST || {
             <div class="vx-list-size">
                 <span class="vx-type-folder" data-tpl="filelist_dir">文件夹</span>
             </div>
-            <div class="vx-list-date vx-hide-mobile">
-                ${folder.ctime || '--'}
+            <div class="vx-list-date vx-hide-mobile" title="${this.formatTime(folder.ctime)}">
+                ${this.formatDateOnly(folder.ctime)}
             </div>
             <div class="vx-list-actions">
                 ${actionsHtml}
@@ -2102,8 +2225,8 @@ var VX_FILELIST = VX_FILELIST || {
             <div class="vx-list-size">
                 ${file.fsize_formated || this.formatSize(file.fsize || 0)}
             </div>
-            <div class="vx-list-date vx-hide-mobile">
-                ${file.ctime || '--'}
+            <div class="vx-list-date vx-hide-mobile" title="${this.formatTime(file.ctime)}">
+                ${this.formatDateOnly(file.ctime)}
             </div>
             <!-- 正常状态的操作按钮 -->
             <div class="vx-list-actions vx-file-ok" data-ukey="${file.ukey}" style="${isSyncing ? 'display: none !important;' : ''}">
@@ -4973,7 +5096,19 @@ var VX_FILELIST = VX_FILELIST || {
         if (input) input.value = '';
         if (modelSelect) {
             modelSelect.value = '0';
-            modelSelect.disabled = (Number(parent) > 0);
+            // modelSelect.disabled = (Number(parent) > 0);
+        }
+
+        // Reset switch status
+        const privacySwitch = document.getElementById('vx-fl-create-privacy-switch');
+        const privacyHint = document.getElementById('vx-fl-create-privacy-hint');
+        if (privacySwitch) {
+             const isSubFolder = (Number(parent) > 0);
+             privacySwitch.checked = false;
+             privacySwitch.disabled = isSubFolder;
+        }
+        if (privacyHint) {
+             privacyHint.innerHTML = this.t('modal_meetingroom_type1', '公开，所有人都可访问。');
         }
 
         if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.openModal === 'function') {
@@ -4998,6 +5133,24 @@ var VX_FILELIST = VX_FILELIST || {
         }
     },
     
+    onCreateFolderPrivacyChange(el) {
+        const isPrivate = el.checked;
+        const modelInput = document.getElementById('vx-fl-folder-model');
+        const hint = document.getElementById('vx-fl-create-privacy-hint');
+        
+        if (modelInput) {
+            modelInput.value = isPrivate ? '1' : '0';
+        }
+        
+        if (hint) {
+            if (isPrivate) {
+                hint.innerHTML = this.t('modal_meetingroom_type2', '私有，仅自己可访问。');
+            } else {
+                hint.innerHTML = this.t('modal_meetingroom_type1', '公开，所有人都可访问。');
+            }
+        }
+    },
+
     createFolder() {
         const name = document.getElementById('vx-fl-folder-name')?.value?.trim();
         if (!name) {

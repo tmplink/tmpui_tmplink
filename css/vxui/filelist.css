@@ -1877,3 +1877,20 @@ body.dark .vx-preview-loading,
         align-self: flex-start;
     }
 }
+
+/* Sort Icons */
+.vx-sort-icon {
+    font-size: 12px;
+    margin-left: 4px;
+    color: var(--vx-text-disabled);
+    vertical-align: middle;
+    transition: color 0.2s;
+}
+
+.vx-list-col:hover .vx-sort-icon {
+    color: var(--vx-text-secondary);
+}
+
+.vx-sort-icon.active {
+    color: var(--vx-primary);
+}
