@@ -1928,6 +1928,17 @@ var VX_FILELIST = VX_FILELIST || {
     },
 
     /**
+     * 格式化日期显示 (仅日期)
+     */
+    formatDateOnly(timeStr) {
+        if (!timeStr) return '--';
+        if (typeof timeStr === 'string' && timeStr.length >= 10) {
+            return timeStr.substring(0, 10);
+        }
+        return timeStr;
+    },
+
+    /**
      * 创建文件夹行
      */
     createFolderRow(folder) {
@@ -2004,8 +2015,8 @@ var VX_FILELIST = VX_FILELIST || {
             <div class="vx-list-size">
                 <span class="vx-type-folder" data-tpl="filelist_dir">文件夹</span>
             </div>
-            <div class="vx-list-date vx-hide-mobile">
-                ${this.formatTime(folder.ctime)}
+            <div class="vx-list-date vx-hide-mobile" title="${this.formatTime(folder.ctime)}">
+                ${this.formatDateOnly(folder.ctime)}
             </div>
             <div class="vx-list-actions">
                 ${actionsHtml}
@@ -2113,8 +2124,8 @@ var VX_FILELIST = VX_FILELIST || {
             <div class="vx-list-size">
                 ${file.fsize_formated || this.formatSize(file.fsize || 0)}
             </div>
-            <div class="vx-list-date vx-hide-mobile">
-                ${this.formatTime(file.ctime)}
+            <div class="vx-list-date vx-hide-mobile" title="${this.formatTime(file.ctime)}">
+                ${this.formatDateOnly(file.ctime)}
             </div>
             <!-- 正常状态的操作按钮 -->
             <div class="vx-list-actions vx-file-ok" data-ukey="${file.ukey}" style="${isSyncing ? 'display: none !important;' : ''}">

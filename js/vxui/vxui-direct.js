@@ -1431,6 +1431,22 @@ const VX_DIRECT = {
     },
 
     // ==================== Render (Files) ====================
+    formatTime(timeStr) {
+        if (!timeStr) return '--';
+        if (typeof timeStr === 'string' && timeStr.length >= 16) {
+            return timeStr.substring(0, 16);
+        }
+        return timeStr;
+    },
+
+    formatDateOnly(timeStr) {
+        if (!timeStr) return '--';
+        if (typeof timeStr === 'string' && timeStr.length >= 10) {
+            return timeStr.substring(0, 10);
+        }
+        return timeStr;
+    },
+
     renderFiles() {
         const container = document.getElementById('vx-direct-files-list');
         const body = document.getElementById('vx-direct-files-list-body');
@@ -1498,7 +1514,7 @@ const VX_DIRECT = {
                 </div>
             </div>
             <div class="vx-list-size">${this.escapeHtml(fileSize)}</div>
-            <div class="vx-list-date vx-hide-mobile">${this.escapeHtml(createTime)}</div>
+            <div class="vx-list-date vx-hide-mobile" title="${this.formatTime(createTime)}">${this.formatDateOnly(createTime)}</div>
             <div class="vx-list-actions">
                 <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_DIRECT.copyUrl('${this.escapeAttr(directLink)}')" title="复制链接">
                     <iconpark-icon name="copy"></iconpark-icon>
@@ -1658,7 +1674,7 @@ const VX_DIRECT = {
                 </div>
             </div>
             <div class="vx-list-size"><span class="vx-type-folder">文件夹</span></div>
-            <div class="vx-list-date vx-hide-mobile">${this.escapeHtml(createTime)}</div>
+            <div class="vx-list-date vx-hide-mobile" title="${this.formatTime(createTime)}">${this.formatDateOnly(createTime)}</div>
             <div class="vx-list-actions">
                 <button class="vx-list-action-btn" onclick="event.stopPropagation(); VXUI.navigate('filelist', { mrid: '${String(mrid)}', view: 'list' })" title="打开文件夹">
                     <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
