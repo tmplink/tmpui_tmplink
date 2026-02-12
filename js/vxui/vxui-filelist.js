@@ -4995,7 +4995,19 @@ var VX_FILELIST = VX_FILELIST || {
         if (input) input.value = '';
         if (modelSelect) {
             modelSelect.value = '0';
-            modelSelect.disabled = (Number(parent) > 0);
+            // modelSelect.disabled = (Number(parent) > 0);
+        }
+
+        // Reset switch status
+        const privacySwitch = document.getElementById('vx-fl-create-privacy-switch');
+        const privacyHint = document.getElementById('vx-fl-create-privacy-hint');
+        if (privacySwitch) {
+             const isSubFolder = (Number(parent) > 0);
+             privacySwitch.checked = false;
+             privacySwitch.disabled = isSubFolder;
+        }
+        if (privacyHint) {
+             privacyHint.innerHTML = this.t('modal_meetingroom_type1', '公开，所有人都可访问。');
         }
 
         if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.openModal === 'function') {
@@ -5020,6 +5032,24 @@ var VX_FILELIST = VX_FILELIST || {
         }
     },
     
+    onCreateFolderPrivacyChange(el) {
+        const isPrivate = el.checked;
+        const modelInput = document.getElementById('vx-fl-folder-model');
+        const hint = document.getElementById('vx-fl-create-privacy-hint');
+        
+        if (modelInput) {
+            modelInput.value = isPrivate ? '1' : '0';
+        }
+        
+        if (hint) {
+            if (isPrivate) {
+                hint.innerHTML = this.t('modal_meetingroom_type2', '私有，仅自己可访问。');
+            } else {
+                hint.innerHTML = this.t('modal_meetingroom_type1', '公开，所有人都可访问。');
+            }
+        }
+    },
+
     createFolder() {
         const name = document.getElementById('vx-fl-folder-name')?.value?.trim();
         if (!name) {
