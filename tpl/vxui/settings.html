@@ -23,6 +23,44 @@
 <!-- Content -->
 <div class="vx-content vx-account-content">
     <div class="vx-account-tab-content" id="vx-account-settings">
+        <!-- Preferences Section -->
+        <div class="vx-settings-section">
+            <h3 class="vx-settings-title">
+                <iconpark-icon name="gear"></iconpark-icon>
+                <span data-tpl="model_profile_title">偏好设置</span>
+            </h3>
+            <div class="vx-settings-card">
+                <label class="vx-switch-item">
+                    <div style="display:flex;align-items:center;">
+                        <iconpark-icon name="copy" style="margin-right:8px;font-size:16px;color:var(--vx-text-secondary);"></iconpark-icon>
+                        <span class="vx-switch-label" data-tpl="model_profile_bulk_copy">批量复制链接</span>
+                    </div>
+                    <input type="checkbox" class="vx-switch" id="vx-pref-bulk-copy" onchange="VX_ACCOUNT.setPrefBulkCopy()">
+                </label>
+                <label class="vx-switch-item">
+                    <div style="display:flex;align-items:center;">
+                        <iconpark-icon name="trash" style="margin-right:8px;font-size:16px;color:var(--vx-text-secondary);"></iconpark-icon>
+                        <span class="vx-switch-label" data-tpl="model_profile_confirm_delete">删除确认</span>
+                    </div>
+                    <input type="checkbox" class="vx-switch" id="vx-pref-confirm-delete" onchange="VX_ACCOUNT.setPrefConfirmDelete()">
+                </label>
+
+                <div style="border-top: 1px solid var(--vx-border-color); margin: 12px 0; padding-top: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display:flex;align-items:center;">
+                            <iconpark-icon name="sort-amount-down" style="margin-right:8px;font-size:16px;color:var(--vx-text-secondary);"></iconpark-icon>
+                            <span class="vx-switch-label" data-tpl="reset_sort">重置所有文件夹排序</span>
+                        </div>
+                        <button class="vx-btn vx-btn-sm vx-btn-secondary" onclick="if(typeof VX_FILELIST!=='undefined') VX_FILELIST.clearAllSortSettings(); else alert('请在文件列表页面执行此操作');">
+                            <iconpark-icon name="rotate"></iconpark-icon>
+                            <span data-tpl="reset">重置</span>
+                        </button>
+                    </div>
+                    <div class="vx-text-muted" style="margin-top: 4px; font-size: var(--vx-text-xs); margin-left: 24px;" data-tpl="reset_sort_desc">清除所有浏览器侧记录的文件夹独立排序偏好。</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Password Section -->
         <div class="vx-settings-section">
             <h3 class="vx-settings-title">
@@ -99,24 +137,6 @@
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Preferences Section -->
-        <div class="vx-settings-section">
-            <h3 class="vx-settings-title">
-                <iconpark-icon name="sliders"></iconpark-icon>
-                <span data-tpl="model_profile_title">偏好设置</span>
-            </h3>
-            <div class="vx-settings-card">
-                <label class="vx-switch-item">
-                    <span class="vx-switch-label" data-tpl="model_profile_bulk_copy">批量复制链接</span>
-                    <input type="checkbox" class="vx-switch" id="vx-pref-bulk-copy" onchange="VX_ACCOUNT.setPrefBulkCopy()">
-                </label>
-                <label class="vx-switch-item">
-                    <span class="vx-switch-label" data-tpl="model_profile_confirm_delete">删除确认</span>
-                    <input type="checkbox" class="vx-switch" id="vx-pref-confirm-delete" onchange="VX_ACCOUNT.setPrefConfirmDelete()">
-                </label>
             </div>
         </div>
     </div>
