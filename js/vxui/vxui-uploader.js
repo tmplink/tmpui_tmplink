@@ -528,6 +528,7 @@ var VX_UPLOADER = VX_UPLOADER || {
         // 计算 SHA1 (如果启用秒传)
         if (this.prepare_sha1) {
             this.calculateSHA1(task.file, task.id, (sha1) => {
+                if (task.status === 'cancelled') return;
                 task.sha1 = sha1;
                 this.requestUpload(task);
             });
@@ -553,17 +554,18 @@ var VX_UPLOADER = VX_UPLOADER || {
         const reader = new FileReader();
         
         reader.onload = () => {
+            // 检查任务是否已取消
+            const task = this.uploading[id];
+            if (!task || task.status === 'cancelled') return;
+            
             const data = new Uint8Array(reader.result);
             sha1.update(CryptoJS.lib.WordArray.create(data));
             currentBlock++;
             
             // 更新进度
             const progress = Math.floor(currentBlock / totalBlocks * 30); // SHA1计算占30%
-            const task = this.uploading[id];
-            if (task) {
-                task.progress = progress;
-                this.updateUploadRow(task);
-            }
+            task.progress = progress;
+            this.updateUploadRow(task);
             
             if (currentBlock < totalBlocks) {
                 readNextBlock();
@@ -589,12 +591,16 @@ var VX_UPLOADER = VX_UPLOADER || {
         const api = this.getUploadApi();
         
         this.recaptchaDo('upload_request_select2', (captcha) => {
+            // 检查任务是否已取消
+            if (task.status === 'cancelled') return;
+            
             $.post(api, {
                 token: token,
                 action: 'upload_request_select2',
                 filesize: task.file.size,
                 captcha: captcha
             }, (rsp) => {
+                if (task.status === 'cancelled') return;
                 if (rsp.status === 1) {
                     task.utoken = rsp.data.utoken;
                     this.uploadSlice(task);
@@ -602,6 +608,7 @@ var VX_UPLOADER = VX_UPLOADER || {
                     this.uploadFailed(task, '无法获取上传服务器');
                 }
             }, 'json').fail(() => {
+                if (task.status === 'cancelled') return;
                 this.uploadFailed(task, '网络错误');
             });
         });
@@ -648,6 +655,9 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 准备分片
      */
     prepareSlice(api, task, uptoken) {
+        // 检查任务是否已取消
+        if (task.status === 'cancelled') return;
+        
         const token = this.getToken();
         
         $.post(api, {
@@ -703,6 +713,8 @@ var VX_UPLOADER = VX_UPLOADER || {
                     this.uploadFailed(task, `未知错误: ${rsp.status}`);
             }
         }, 'json').fail(() => {
+            // 检查任务是否已取消
+            if (task.status === 'cancelled') return;
             // 重试
             setTimeout(() => this.prepareSlice(api, task, uptoken), 3000);
         });
@@ -712,11 +724,17 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 上传分片数据
      */
     uploadSliceData(api, task, uptoken, sliceInfo) {
+        // 检查任务是否已取消
+        if (task.status === 'cancelled') return;
+        
         const index = sliceInfo.next;
         const blob = task.file.slice(index * this.slice_size, (index + 1) * this.slice_size);
         
         const xhr = new XMLHttpRequest();
         const fd = new FormData();
+        
+        // 保存 xhr 引用到 task，以便取消时 abort
+        task._xhr = xhr;
         
         fd.append('filedata', blob, 'slice');
         fd.append('uptoken', uptoken);
@@ -742,6 +760,8 @@ var VX_UPLOADER = VX_UPLOADER || {
         
         // 完成
         xhr.onload = () => {
+            task._xhr = null;
+            if (task.status === 'cancelled') return;
             const rsp = JSON.parse(xhr.responseText);
             if (rsp.status === 5 || rsp.status === 1) {
                 // 继续下一个分片或完成
@@ -753,6 +773,8 @@ var VX_UPLOADER = VX_UPLOADER || {
         
         // 错误
         xhr.onerror = () => {
+            task._xhr = null;
+            if (task.status === 'cancelled') return;
             setTimeout(() => this.prepareSlice(api, task, uptoken), 3000);
         };
         
@@ -826,9 +848,17 @@ var VX_UPLOADER = VX_UPLOADER || {
         const task = this.uploading[id];
         if (task) {
             task.status = 'cancelled';
+            
+            // 中断正在进行的 XHR 请求
+            if (task._xhr) {
+                try { task._xhr.abort(); } catch (e) { /* ignore */ }
+                task._xhr = null;
+            }
+            
             delete this.uploading[id];
             this.active_count--;
             this.removeUploadRow(id);
+            VXUI.toastSuccess(`已取消上传: ${task.filename}`);
             this.processQueue();
         } else {
             // 从队列中移除
