@@ -386,3 +386,72 @@ html.vx-dark body.sponsor-mode .vx-profile-edit-btn.vx-btn:hover {
     background: rgba(0, 0, 0, 0.3);
     border-color: rgba(255, 255, 255, 0.2);
 }
+
+/* ==================== Upload Indicator - Sponsor Gold Theme ==================== */
+
+/* 侧边栏上传脉冲：金色呼吸灯 */
+body.sponsor-mode .vx-nav-item.vx-uploading::before {
+    background: var(--sponsor-gold-soft);
+}
+
+/* 上传徽标：金色渐变 */
+body.sponsor-mode .vx-upload-badge {
+    background: var(--sponsor-gradient);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px -2px var(--sponsor-glow);
+}
+
+/* 暗色模式下的金色上传徽标 */
+body.dark-mode.sponsor-mode .vx-upload-badge,
+html.vx-dark body.sponsor-mode .vx-upload-badge {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #1a1a1a;
+    text-shadow: none;
+    box-shadow: 0 2px 10px -2px rgba(251, 191, 36, 0.5);
+}
+
+/* ==================== Upload Row - Sponsor Gold Theme ==================== */
+
+/* 上传行左边框 */
+body.sponsor-mode .vx-upload-row {
+    border-left-color: var(--sponsor-gold-strong);
+    box-shadow: 0 4px 12px var(--sponsor-glow);
+}
+
+/* 有效期徽章 */
+body.sponsor-mode .vx-upload-validity {
+    color: var(--sponsor-gold-strong);
+    background: var(--sponsor-gold-soft);
+}
+
+/* 进度百分比 */
+body.sponsor-mode .vx-upload-progress-percent {
+    color: var(--sponsor-gold-strong);
+}
+
+/* 进度条 */
+body.sponsor-mode .vx-upload-progress-bar {
+    background: var(--sponsor-gradient);
+}
+
+/* 进度条底色 */
+body.sponsor-mode .vx-upload-progress-wrap {
+    background: var(--sponsor-gold-soft);
+}
+
+/* 上传状态文字（"上传中"） */
+body.sponsor-mode .vx-upload-status-text {
+    color: var(--sponsor-gold-strong);
+}
+
+/* 暗色模式微调 */
+body.dark-mode.sponsor-mode .vx-upload-row,
+html.vx-dark body.sponsor-mode .vx-upload-row {
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.15);
+}
+
+body.dark-mode.sponsor-mode .vx-upload-progress-bar,
+html.vx-dark body.sponsor-mode .vx-upload-progress-bar {
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+}

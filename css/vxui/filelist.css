@@ -1236,6 +1236,41 @@ body.vx-fl-has-sponsor .vx-content {
     color: var(--vx-danger);
 }
 
+/* 其它文件夹上传汇总提示条 */
+.vx-upload-other-banner {
+    border-left: 3px solid var(--vx-warning, #f59e0b);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.06) 0%, transparent 100%);
+    animation: vx-pulse 2s ease-in-out infinite;
+}
+
+.vx-upload-other-banner:hover {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, transparent 100%);
+}
+
+.vx-upload-other-banner .vx-list-icon {
+    color: var(--vx-warning, #f59e0b);
+}
+
+.vx-upload-other-banner .vx-upload-progress-bar {
+    background: linear-gradient(90deg, var(--vx-warning, #f59e0b), #fbbf24);
+}
+
+/* 上传行恢复动画 */
+.vx-upload-row-restored {
+    animation: vx-upload-restore-in 0.3s ease-out;
+}
+
+@keyframes vx-upload-restore-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @keyframes vx-pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.6; }

@@ -758,6 +758,48 @@ html.vx-dark .vx-lang-option:hover {
     color: var(--vx-primary);
 }
 
+/* 侧边栏上传指示器 */
+.vx-nav-item.vx-uploading {
+    position: relative;
+}
+
+.vx-nav-item.vx-uploading::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--vx-radius);
+    background: var(--vx-primary-light);
+    opacity: 0;
+    animation: vx-upload-pulse 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.vx-upload-badge {
+    margin-left: auto;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: var(--vx-primary);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 20px;
+    text-align: center;
+    flex-shrink: 0;
+    animation: vx-badge-in 0.3s ease;
+}
+
+@keyframes vx-upload-pulse {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes vx-badge-in {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
 .vx-nav-item iconpark-icon {
     font-size: 18px;
     width: 20px;

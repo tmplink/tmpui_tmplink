@@ -651,6 +651,16 @@ class VXUICore {
     /**
      * 导航到指定模块
      */
+    // 模块标题 i18n 键名映射（filelist 自行设置，不在此列）
+    static MODULE_TITLE_KEYS = {
+        direct:   'nav_direct',
+        notes:    'nav_notes',
+        ai:       'nav_ai',
+        shop:     'nav_shop',
+        profile:  'nav_info',
+        settings: 'nav_settings'
+    };
+
     navigate(moduleName, params = {}) {
         // 未登录时仅允许文件夹浏览（filelist）；其余模块跳转登录
         const restrictedModules = new Set(['direct', 'notes', 'ai', 'shop', 'profile', 'settings']);
@@ -727,6 +737,19 @@ class VXUICore {
             } finally {
                 // 更新 URL
                 this.updateUrl(moduleName, params);
+
+                // 设置页面标题（filelist 自行在 updateRoomUI 中设置，此处处理其他模块）
+                const titleKey = VXUICore.MODULE_TITLE_KEYS[moduleName];
+                if (titleKey) {
+                    const langData = (typeof app !== 'undefined' && app.languageData) ? app.languageData : null;
+                    const label = langData ? (langData[titleKey] || moduleName) : moduleName;
+                    const siteName = langData ? (langData['title_index'] || '钛盘').split(' - ')[0].trim() : '钛盘';
+                    document.title = `${siteName} - ${label}`;
+                    // 如果有上传进行中，附加上传进度前缀
+                    if (typeof VX_UPLOADER !== 'undefined' && VX_UPLOADER.hasActiveUploads()) {
+                        VX_UPLOADER._updateUploadIndicators();
+                    }
+                }
             }
 
             // i18n: translate newly injected DOM (module + dynamic sidebar)
