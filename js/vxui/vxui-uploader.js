@@ -748,6 +748,7 @@ var VX_UPLOADER = VX_UPLOADER || {
         fd.append('slice_size', this.slice_size);
         
         // 上传进度
+        let lastLoaded = 0;
         xhr.upload.onprogress = (evt) => {
             if (evt.lengthComputable) {
                 const sliceProgress = evt.loaded / evt.total;
@@ -755,8 +756,10 @@ var VX_UPLOADER = VX_UPLOADER || {
                 task.progress = Math.floor(overallProgress * 100);
                 task.uploaded = (sliceInfo.total - sliceInfo.wait) * this.slice_size + evt.loaded;
                 
-                // 计算速度
-                this.updateSpeed(task.id, evt.loaded);
+                // 计算速度（传递增量而非累计值）
+                const delta = evt.loaded - lastLoaded;
+                lastLoaded = evt.loaded;
+                this.updateSpeed(task.id, delta);
                 
                 this.updateUploadRow(task);
             }
