@@ -1092,6 +1092,11 @@ var VX_FILELIST = VX_FILELIST || {
         
         document.title = title;
         
+        // 如果上传器正在显示进度前缀，重新附加
+        if (typeof VX_UPLOADER !== 'undefined' && VX_UPLOADER.hasActiveUploads()) {
+            VX_UPLOADER._updateUploadIndicators();
+        }
+        
         // 更新面包屑
         this.updateBreadcrumb();
         

@@ -36,6 +36,10 @@ var VX_UPLOADER = VX_UPLOADER || {
     speed_data: {},
     total_uploaded: 0,
 
+    // 侧边栏/标题指示器
+    _indicatorTimer: null,
+    _titlePrefix: /^\[↑\d*\s*\d+%\]\s*/,
+
     /**
      * 初始化上传模块
      */
@@ -798,6 +802,9 @@ var VX_UPLOADER = VX_UPLOADER || {
         delete this.uploading[task.id];
         this.active_count--;
         
+        // 立即更新指示器
+        this._updateUploadIndicators();
+        
         // 显示成功提示
         VXUI.toastSuccess(`${task.filename} 上传完成`);
         
@@ -830,6 +837,9 @@ var VX_UPLOADER = VX_UPLOADER || {
         delete this.uploading[task.id];
         this.active_count--;
         
+        // 立即更新指示器
+        this._updateUploadIndicators();
+        
         VXUI.toastError(`${task.filename}: ${error}`);
         
         // 刷新其它文件夹上传提示条
@@ -858,6 +868,8 @@ var VX_UPLOADER = VX_UPLOADER || {
             delete this.uploading[id];
             this.active_count--;
             this.removeUploadRow(id);
+            // 立即更新指示器
+            this._updateUploadIndicators();
             VXUI.toastSuccess(`已取消上传: ${task.filename}`);
             this.processQueue();
         } else {
@@ -1226,6 +1238,9 @@ var VX_UPLOADER = VX_UPLOADER || {
         if (cancelBtn && (task.status === 'completed' || task.status === 'failed')) {
             cancelBtn.style.display = 'none';
         }
+        
+        // 更新侧边栏指示器和页面标题
+        this._throttledIndicatorUpdate();
     },
 
     /**
@@ -1508,6 +1523,90 @@ var VX_UPLOADER = VX_UPLOADER || {
                 TL.alert(this.getLang('copy_fail') || '复制失败，请手动复制');
             }
         }
+    },
+
+    // ==================== 侧边栏 & 标题上传指示器 ====================
+
+    /**
+     * 节流更新指示器（每秒最多更新 1 次）
+     */
+    _throttledIndicatorUpdate() {
+        if (this._indicatorTimer) return;
+        this._indicatorTimer = setTimeout(() => {
+            this._indicatorTimer = null;
+            this._updateUploadIndicators();
+        }, 1000);
+    },
+
+    /**
+     * 更新侧边栏徽标 + 页面标题
+     */
+    _updateUploadIndicators() {
+        const tasks = this.getActiveTasks();
+        const count = tasks.length;
+
+        if (count > 0) {
+            // 计算平均进度
+            const avgProgress = Math.floor(
+                tasks.reduce((sum, t) => sum + (t.progress || 0), 0) / count
+            );
+            this._showSidebarBadge(count, avgProgress);
+            this._showTitleProgress(count, avgProgress);
+        } else {
+            this._hideSidebarBadge();
+            this._hideTitleProgress();
+        }
+    },
+
+    /**
+     * 侧边栏“文件”按钮显示上传徽标
+     */
+    _showSidebarBadge(count, progress) {
+        const navItem = document.querySelector('.vx-nav-item[data-module="filelist"]');
+        if (!navItem) return;
+
+        // 添加上传中样式
+        navItem.classList.add('vx-uploading');
+
+        // 创建或更新徽标
+        let badge = navItem.querySelector('.vx-upload-badge');
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'vx-upload-badge';
+            navItem.appendChild(badge);
+        }
+        badge.textContent = count > 1 ? count : `${progress}%`;
+    },
+
+    /**
+     * 侧边栏移除上传徽标
+     */
+    _hideSidebarBadge() {
+        const navItem = document.querySelector('.vx-nav-item[data-module="filelist"]');
+        if (!navItem) return;
+
+        navItem.classList.remove('vx-uploading');
+
+        const badge = navItem.querySelector('.vx-upload-badge');
+        if (badge) badge.remove();
+    },
+
+    /**
+     * 页面标题显示上传进度（附加式，不依赖固定原始标题）
+     */
+    _showTitleProgress(count, progress) {
+        const base = document.title.replace(this._titlePrefix, '');
+        const prefix = count > 1
+            ? `[↑${count} ${progress}%]`
+            : `[↑ ${progress}%]`;
+        document.title = `${prefix} ${base}`;
+    },
+
+    /**
+     * 移除标题中的上传进度前缀
+     */
+    _hideTitleProgress() {
+        document.title = document.title.replace(this._titlePrefix, '');
     }
 };
 
