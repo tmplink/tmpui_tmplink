@@ -1488,3 +1488,13 @@ if (typeof VXUI !== 'undefined') {
         setTimeout(() => VX_UPLOADER.init(), 1000);
     });
 }
+
+// 页面离开保护：上传中刷新/关闭页面时提示用户
+window.addEventListener('beforeunload', function(e) {
+    if (typeof VX_UPLOADER === 'undefined') return;
+    if (typeof VX_UPLOADER.hasActiveUploads !== 'function') return;
+    if (!VX_UPLOADER.hasActiveUploads()) return;
+    e.preventDefault();
+    e.returnValue = '文件正在上传中，刷新页面将中断上传。确定要离开吗？';
+    return e.returnValue;
+});
