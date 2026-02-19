@@ -38,7 +38,7 @@ var VX_UPLOADER = VX_UPLOADER || {
 
     // 侧边栏/标题指示器
     _indicatorTimer: null,
-    _titlePrefix: /^\[↑[^\]]*\]\s*/,
+    _titleSuffix: /\s*\[↑[^\]]*\]$/,
 
     /**
      * 初始化上传模块
@@ -1579,8 +1579,7 @@ var VX_UPLOADER = VX_UPLOADER || {
             badge.className = 'vx-upload-badge';
             navItem.appendChild(badge);
         }
-        let text = count > 1 ? `${count} ${progress}%` : `${progress}%`;
-        if (speedStr) text += ` ${speedStr}`;
+        let text = speedStr || `${progress}%`;
         badge.textContent = text;
     },
 
@@ -1601,20 +1600,17 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 页面标题显示上传进度（附加式，不依赖固定原始标题）
      */
     _showTitleProgress(count, progress, speedStr) {
-        const base = document.title.replace(this._titlePrefix, '');
-        let prefix = count > 1
-            ? `[↑${count} ${progress}%`
-            : `[↑ ${progress}%`;
-        if (speedStr) prefix += ` ${speedStr}`;
-        prefix += ']';
-        document.title = `${prefix} ${base}`;
+        const base = document.title.replace(this._titleSuffix, '');
+        const info = speedStr || `${progress}%`;
+        const suffix = count > 1 ? ` [↑${count} ${info}]` : ` [↑ ${info}]`;
+        document.title = `${base}${suffix}`;
     },
 
     /**
      * 移除标题中的上传进度前缀
      */
     _hideTitleProgress() {
-        document.title = document.title.replace(this._titlePrefix, '');
+        document.title = document.title.replace(this._titleSuffix, '');
     }
 };
 
