@@ -38,7 +38,7 @@ var VX_UPLOADER = VX_UPLOADER || {
 
     // 侧边栏/标题指示器
     _indicatorTimer: null,
-    _titlePrefix: /^\[↑\d*\s*\d+%\]\s*/,
+    _titlePrefix: /^\[↑[^\]]*\]\s*/,
 
     /**
      * 初始化上传模块
@@ -566,9 +566,9 @@ var VX_UPLOADER = VX_UPLOADER || {
             sha1.update(CryptoJS.lib.WordArray.create(data));
             currentBlock++;
             
-            // 更新进度
-            const progress = Math.floor(currentBlock / totalBlocks * 30); // SHA1计算占30%
-            task.progress = progress;
+            // SHA1 计算进度显示为文字，不占用进度条
+            const sha1Pct = Math.floor(currentBlock / totalBlocks * 100);
+            task.sha1_progress = sha1Pct;
             this.updateUploadRow(task);
             
             if (currentBlock < totalBlocks) {
@@ -697,7 +697,7 @@ var VX_UPLOADER = VX_UPLOADER || {
                         
                         // 计算已上传进度
                         const uploaded = rsp.data.total - rsp.data.wait;
-                        task.progress = 30 + Math.floor((uploaded / rsp.data.total) * 70);
+                        task.progress = Math.floor((uploaded / rsp.data.total) * 100);
                     }
                     this.uploadSliceData(api, task, uptoken, rsp.data);
                     break;
@@ -752,7 +752,7 @@ var VX_UPLOADER = VX_UPLOADER || {
             if (evt.lengthComputable) {
                 const sliceProgress = evt.loaded / evt.total;
                 const overallProgress = ((sliceInfo.total - sliceInfo.wait + sliceProgress) / sliceInfo.total);
-                task.progress = 30 + Math.floor(overallProgress * 70);
+                task.progress = Math.floor(overallProgress * 100);
                 task.uploaded = (sliceInfo.total - sliceInfo.wait) * this.slice_size + evt.loaded;
                 
                 // 计算速度
@@ -1209,11 +1209,12 @@ var VX_UPLOADER = VX_UPLOADER || {
         }
         
         if (progressText) {
-            if (task.status === 'uploading') {
+            if (task.status === 'preparing' && task.sha1_progress !== undefined) {
+                progressText.textContent = `校验中... ${task.sha1_progress}%`;
+            } else if (task.status === 'uploading') {
                 const uploaded = this.formatSize(task.uploaded || 0);
                 const total = this.formatSize(task.file.size);
-                const speed = task.speed > 0 ? this.formatSize(task.speed) + '/s' : '';
-                progressText.textContent = speed ? `${uploaded} / ${total} · ${speed}` : `${uploaded} / ${total}`;
+                progressText.textContent = `${uploaded} / ${total}`;
             } else if (task.status === 'completed') {
                 progressText.textContent = `已完成 · ${this.formatSize(task.file.size)}`;
             } else if (task.status === 'failed') {
@@ -1550,8 +1551,11 @@ var VX_UPLOADER = VX_UPLOADER || {
             const avgProgress = Math.floor(
                 tasks.reduce((sum, t) => sum + (t.progress || 0), 0) / count
             );
-            this._showSidebarBadge(count, avgProgress);
-            this._showTitleProgress(count, avgProgress);
+            // 汇总速度
+            const totalSpeed = tasks.reduce((sum, t) => sum + (t.speed || 0), 0);
+            const speedStr = totalSpeed > 0 ? this.formatSize(totalSpeed) + '/s' : '';
+            this._showSidebarBadge(count, avgProgress, speedStr);
+            this._showTitleProgress(count, avgProgress, speedStr);
         } else {
             this._hideSidebarBadge();
             this._hideTitleProgress();
@@ -1561,7 +1565,7 @@ var VX_UPLOADER = VX_UPLOADER || {
     /**
      * 侧边栏“文件”按钮显示上传徽标
      */
-    _showSidebarBadge(count, progress) {
+    _showSidebarBadge(count, progress, speedStr) {
         const navItem = document.querySelector('.vx-nav-item[data-module="filelist"]');
         if (!navItem) return;
 
@@ -1575,7 +1579,9 @@ var VX_UPLOADER = VX_UPLOADER || {
             badge.className = 'vx-upload-badge';
             navItem.appendChild(badge);
         }
-        badge.textContent = count > 1 ? count : `${progress}%`;
+        let text = count > 1 ? `${count} ${progress}%` : `${progress}%`;
+        if (speedStr) text += ` ${speedStr}`;
+        badge.textContent = text;
     },
 
     /**
@@ -1594,11 +1600,13 @@ var VX_UPLOADER = VX_UPLOADER || {
     /**
      * 页面标题显示上传进度（附加式，不依赖固定原始标题）
      */
-    _showTitleProgress(count, progress) {
+    _showTitleProgress(count, progress, speedStr) {
         const base = document.title.replace(this._titlePrefix, '');
-        const prefix = count > 1
-            ? `[↑${count} ${progress}%]`
-            : `[↑ ${progress}%]`;
+        let prefix = count > 1
+            ? `[↑${count} ${progress}%`
+            : `[↑ ${progress}%`;
+        if (speedStr) prefix += ` ${speedStr}`;
+        prefix += ']';
         document.title = `${prefix} ${base}`;
     },
 
