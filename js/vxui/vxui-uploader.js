@@ -1,14 +1,14 @@
 /**
  * VXUI Uploader Module
  * 专为 VXUI 设计的上传模块，支持文件列表内嵌进度显示
- * @version 1.0.0
+ * 支持上传队列持久化：用户离开 filelist 页面后再回来，仍可恢复显示上传进度
+ * @version 1.1.0
  */
 var VX_UPLOADER = VX_UPLOADER || {
     // 配置
-    slice_size: 3 * 1024 * 1024, // 3MB per slice
+    slice_size: 80 * 1024 * 1024, // 80MB per slice
     single_file_size: 50 * 1024 * 1024 * 1024, // 50GB max
-    max_queue: 5, // 最大同时上传数
-    max_threads: 5, // 单文件最大线程数
+    max_queue: 10, // 最大同时上传数
 
     // 状态
     initialized: false,
@@ -781,11 +781,14 @@ var VX_UPLOADER = VX_UPLOADER || {
         
         // 通知文件列表进行增量更新
         if (typeof VX_FILELIST !== 'undefined') {
+            const currentMrid = VX_FILELIST.mrid;
             setTimeout(() => {
                 // 移除上传行
                 this.removeUploadRow(task.id);
                 // 增量更新文件列表（而不是完全刷新）
                 VX_FILELIST.onFileUploaded(task.mrid, task.ukey);
+                // 刷新其它文件夹上传提示条
+                this.refreshOtherFolderBanner(currentMrid);
             }, 1000);
         }
         
@@ -806,6 +809,11 @@ var VX_UPLOADER = VX_UPLOADER || {
         this.active_count--;
         
         VXUI.toastError(`${task.filename}: ${error}`);
+        
+        // 刷新其它文件夹上传提示条
+        if (typeof VX_FILELIST !== 'undefined') {
+            this.refreshOtherFolderBanner(VX_FILELIST.mrid);
+        }
         
         // 继续处理队列
         this.processQueue();
@@ -829,6 +837,221 @@ var VX_UPLOADER = VX_UPLOADER || {
                 this.upload_queue.splice(index, 1);
                 this.removeUploadRow(id);
             }
+        }
+    },
+
+    // ==================== 上传队列管理（支持页面恢复） ====================
+
+    /**
+     * 获取所有活跃的上传任务（正在上传 + 队列中等待的）
+     * @param {number|string} [mrid] - 可选，只返回指定文件夹的任务；不传则返回所有
+     * @returns {Array} 活跃任务列表
+     */
+    getActiveTasks(mrid) {
+        const tasks = [];
+
+        // 正在上传的任务
+        for (const id in this.uploading) {
+            const task = this.uploading[id];
+            if (task && task.status !== 'completed' && task.status !== 'failed' && task.status !== 'cancelled') {
+                if (mrid === undefined || mrid === null || String(task.mrid) === String(mrid)) {
+                    tasks.push(task);
+                }
+            }
+        }
+
+        // 队列中等待的任务
+        for (const task of this.upload_queue) {
+            if (mrid === undefined || mrid === null || String(task.mrid) === String(mrid)) {
+                tasks.push(task);
+            }
+        }
+
+        return tasks;
+    },
+
+    /**
+     * 获取所有活跃上传（按文件夹分组）
+     * @returns {Object} { mrid: { count, tasks, totalProgress } }
+     */
+    getAllActiveUploadsByFolder() {
+        const groups = {};
+        const allTasks = this.getActiveTasks();
+
+        for (const task of allTasks) {
+            const key = String(task.mrid || 0);
+            if (!groups[key]) {
+                groups[key] = { mrid: task.mrid, count: 0, tasks: [], totalProgress: 0 };
+            }
+            groups[key].count++;
+            groups[key].tasks.push(task);
+            groups[key].totalProgress += (task.progress || 0);
+        }
+
+        // 计算平均进度
+        for (const key in groups) {
+            groups[key].avgProgress = groups[key].count > 0
+                ? Math.floor(groups[key].totalProgress / groups[key].count)
+                : 0;
+        }
+
+        return groups;
+    },
+
+    /**
+     * 是否有活跃的上传任务
+     * @param {number|string} [mrid] - 可选，只检查指定文件夹
+     * @returns {boolean}
+     */
+    hasActiveUploads(mrid) {
+        // 快速检查正在上传的
+        for (const id in this.uploading) {
+            const task = this.uploading[id];
+            if (task && task.status !== 'completed' && task.status !== 'failed' && task.status !== 'cancelled') {
+                if (mrid === undefined || mrid === null || String(task.mrid) === String(mrid)) {
+                    return true;
+                }
+            }
+        }
+
+        // 检查队列中的
+        for (const task of this.upload_queue) {
+            if (mrid === undefined || mrid === null || String(task.mrid) === String(mrid)) {
+                return true;
+            }
+        }
+
+        return false;
+    },
+
+    /**
+     * 恢复上传行显示
+     * 当用户离开 filelist 页面后再回来时调用，重新渲染所有活跃上传任务的进度行
+     * @param {number|string} [currentMrid] - 当前文件夹 ID
+     */
+    restoreUploadRows(currentMrid) {
+        const listBody = document.getElementById('vx-fl-list-body');
+        if (!listBody) return;
+
+        // 获取当前文件夹的活跃任务
+        const currentTasks = this.getActiveTasks(currentMrid);
+
+        // 获取其它文件夹的活跃任务
+        const otherTasks = this.getActiveTasks().filter(
+            t => String(t.mrid) !== String(currentMrid)
+        );
+
+        // 恢复当前文件夹的上传行（带完整进度显示）
+        if (currentTasks.length > 0) {
+            console.log(`[VX_UPLOADER] Restoring ${currentTasks.length} upload rows for mrid=${currentMrid}`);
+            for (const task of currentTasks) {
+                this.renderUploadRow(task);
+                this.updateUploadRow(task);
+                // 添加恢复动画
+                const row = document.getElementById(`vx-upload-row-${task.id}`);
+                if (row) {
+                    row.classList.add('vx-upload-row-restored');
+                }
+            }
+        }
+
+        // 如果有其它文件夹的上传任务，显示一个汇总提示条
+        if (otherTasks.length > 0) {
+            this.renderOtherFolderUploadBanner(otherTasks);
+        } else {
+            this.removeOtherFolderUploadBanner();
+        }
+    },
+
+    /**
+     * 渲染其它文件夹上传任务的汇总提示条
+     * @param {Array} tasks - 其它文件夹的上传任务
+     */
+    renderOtherFolderUploadBanner(tasks) {
+        // 移除旧的
+        this.removeOtherFolderUploadBanner();
+
+        const listBody = document.getElementById('vx-fl-list-body');
+        if (!listBody) return;
+
+        const count = tasks.length;
+        const avgProgress = Math.floor(
+            tasks.reduce((sum, t) => sum + (t.progress || 0), 0) / count
+        );
+
+        const banner = document.createElement('div');
+        banner.className = 'vx-list-row vx-upload-other-banner';
+        banner.id = 'vx-upload-other-banner';
+        banner.innerHTML = `
+            <div class="vx-list-checkbox"></div>
+            <div class="vx-list-name">
+                <div class="vx-list-icon vx-icon-upload-bg">
+                    <iconpark-icon name="cloud-upload"></iconpark-icon>
+                </div>
+                <div class="vx-list-filename">
+                    <span class="vx-upload-filename">${count} 个文件正在其它文件夹上传中</span>
+                    <span class="vx-upload-validity">平均进度 ${avgProgress}%</span>
+                </div>
+            </div>
+            <div class="vx-list-size vx-upload-progress-cell">
+                <div class="vx-upload-progress-info">
+                    <span class="vx-upload-progress-text">上传中...</span>
+                    <span class="vx-upload-progress-percent">${avgProgress}%</span>
+                </div>
+                <div class="vx-upload-progress-wrap">
+                    <div class="vx-upload-progress-bar" style="width: ${avgProgress}%"></div>
+                </div>
+            </div>
+            <div class="vx-list-date vx-hide-mobile vx-upload-status">
+                <span class="vx-upload-status-text">上传中</span>
+            </div>
+            <div class="vx-list-actions"></div>
+        `;
+
+        // 插入到列表最顶部
+        if (typeof listBody.prepend === 'function') {
+            listBody.prepend(banner);
+        } else {
+            listBody.insertBefore(banner, listBody.firstChild);
+        }
+    },
+
+    /**
+     * 移除其它文件夹上传汇总提示条
+     */
+    removeOtherFolderUploadBanner() {
+        const banner = document.getElementById('vx-upload-other-banner');
+        if (banner) banner.remove();
+    },
+
+    /**
+     * 更新其它文件夹上传提示条（由定时器调用）
+     */
+    refreshOtherFolderBanner(currentMrid) {
+        const otherTasks = this.getActiveTasks().filter(
+            t => String(t.mrid) !== String(currentMrid)
+        );
+
+        if (otherTasks.length > 0) {
+            const banner = document.getElementById('vx-upload-other-banner');
+            if (banner) {
+                const count = otherTasks.length;
+                const avgProgress = Math.floor(
+                    otherTasks.reduce((sum, t) => sum + (t.progress || 0), 0) / count
+                );
+                const fnEl = banner.querySelector('.vx-upload-filename');
+                const valEl = banner.querySelector('.vx-upload-validity');
+                const pctEl = banner.querySelector('.vx-upload-progress-percent');
+                const barEl = banner.querySelector('.vx-upload-progress-bar');
+                if (fnEl) fnEl.textContent = `${count} 个文件正在其它文件夹上传中`;
+                if (valEl) valEl.textContent = `平均进度 ${avgProgress}%`;
+                if (pctEl) pctEl.textContent = `${avgProgress}%`;
+                if (barEl) barEl.style.width = `${avgProgress}%`;
+            } else {
+                this.renderOtherFolderUploadBanner(otherTasks);
+            }
+        } else {
+            this.removeOtherFolderUploadBanner();
         }
     },
 

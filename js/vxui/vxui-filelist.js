@@ -478,6 +478,9 @@ var VX_FILELIST = VX_FILELIST || {
         this.hideContextMenu();
         this.closeLightbox();
 
+        // 停止上传队列刷新定时器
+        this.stopUploadQueueRefresh();
+
         // 隐藏移动端视图切换按钮
         this.setMobileViewToggleVisible(false);
 
@@ -496,6 +499,31 @@ var VX_FILELIST = VX_FILELIST || {
         }
         if (container) {
             container.innerHTML = '';
+        }
+    },
+
+    // ==================== 上传队列刷新 ====================
+
+    /**
+     * 启动上传队列刷新定时器
+     * 定期更新"其它文件夹上传"提示条的进度
+     */
+    startUploadQueueRefresh() {
+        this.stopUploadQueueRefresh();
+        this._uploadRefreshTimer = setInterval(() => {
+            if (typeof VX_UPLOADER !== 'undefined') {
+                VX_UPLOADER.refreshOtherFolderBanner(this.mrid);
+            }
+        }, 3000);
+    },
+
+    /**
+     * 停止上传队列刷新定时器
+     */
+    stopUploadQueueRefresh() {
+        if (this._uploadRefreshTimer) {
+            clearInterval(this._uploadRefreshTimer);
+            this._uploadRefreshTimer = null;
         }
     },
 
@@ -1738,8 +1766,10 @@ var VX_FILELIST = VX_FILELIST || {
         listBody.innerHTML = '';
         
         const hasContent = (this.subRooms && this.subRooms.length > 0) || (this.fileList && this.fileList.length > 0);
+        // 检查是否有活跃上传任务（包括当前文件夹和其它文件夹）
+        const hasActiveUploads = typeof VX_UPLOADER !== 'undefined' && VX_UPLOADER.hasActiveUploads();
         
-        if (!hasContent) {
+        if (!hasContent && !hasActiveUploads) {
             if (empty) empty.style.display = 'flex';
             if (listContainer) listContainer.style.display = 'none';
             if (albumContainer) albumContainer.style.display = 'none';
@@ -1762,6 +1792,14 @@ var VX_FILELIST = VX_FILELIST || {
             this.fileList.forEach(file => {
                 listBody.appendChild(this.createFileRow(file));
             });
+        }
+        
+        // 恢复上传队列显示：如果有正在上传的文件，重新渲染上传进度行
+        if (typeof VX_UPLOADER !== 'undefined' && hasActiveUploads) {
+            VX_UPLOADER.restoreUploadRows(this.mrid);
+            this.startUploadQueueRefresh();
+        } else {
+            this.stopUploadQueueRefresh();
         }
         
         // 初始化剩余时间倒计时
@@ -1801,8 +1839,10 @@ var VX_FILELIST = VX_FILELIST || {
         albumGrid.innerHTML = '';
         
         const hasContent = (this.subRooms && this.subRooms.length > 0) || (this.photoList && this.photoList.length > 0);
+        // 检查是否有活跃上传任务
+        const hasActiveUploads = typeof VX_UPLOADER !== 'undefined' && VX_UPLOADER.hasActiveUploads();
         
-        if (!hasContent) {
+        if (!hasContent && !hasActiveUploads) {
             if (empty) empty.style.display = 'flex';
             if (listContainer) listContainer.style.display = 'none';
             if (albumContainer) albumContainer.style.display = 'none';
@@ -1810,8 +1850,14 @@ var VX_FILELIST = VX_FILELIST || {
         }
         
         if (empty) empty.style.display = 'none';
-        if (listContainer) listContainer.style.display = 'none';
         if (albumContainer) albumContainer.style.display = '';
+        
+        // 如果有活跃上传，同时显示列表视图以展示上传进度
+        if (hasActiveUploads) {
+            if (listContainer) listContainer.style.display = '';
+        } else {
+            if (listContainer) listContainer.style.display = 'none';
+        }
         
         // 应用网格大小
         albumGrid.classList.remove('small', 'normal', 'large');
@@ -1827,6 +1873,14 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 绑定图片加载事件
         this.bindPhotoImageLoading();
+        
+        // 恢复上传队列显示：在相册模式下，上传进度行显示在列表视图中
+        if (typeof VX_UPLOADER !== 'undefined' && hasActiveUploads) {
+            VX_UPLOADER.restoreUploadRows(this.mrid);
+            this.startUploadQueueRefresh();
+        } else {
+            this.stopUploadQueueRefresh();
+        }
     },
     
     /**
