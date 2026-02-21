@@ -315,10 +315,11 @@ body.vx-fl-has-sponsor .vx-content {
 .vx-list-action-btn.is-downloading {
     background: var(--vx-primary-light);
     color: var(--vx-primary);
+    animation: vx-download-blink 1s ease-in-out infinite;
 }
 
 .vx-list-action-btn.is-downloading iconpark-icon {
-    animation: vx-spin 0.9s linear infinite;
+    animation: none;
 }
 
 /* Folder indicator */
@@ -1751,6 +1752,17 @@ body.dark .vx-preview-loading,
     to { transform: rotate(360deg); }
 }
 
+@keyframes vx-download-blink {
+    0%, 100% {
+        color: var(--vx-primary);
+        background: var(--vx-primary-light);
+    }
+    50% {
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.15);
+    }
+}
+
 /* ==================== Responsive ==================== */
 @media (max-width: 768px) {
     .vx-fl-sponsor-card {
@@ -1789,6 +1801,14 @@ body.dark .vx-preview-loading,
     .vx-mobile-action-toggle .vx-btn-icon {
         width: 40px;
         height: 40px;
+    }
+
+    .vx-mobile-action-toggle .vx-btn-icon.vx-btn-icon-label {
+        width: auto;
+        padding: 0 12px;
+        gap: 4px;
+        font-size: 13px;
+        border-radius: var(--vx-radius-md);
     }
 
     .vx-btn-icon-primary {

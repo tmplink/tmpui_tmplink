@@ -400,6 +400,10 @@ class tmplink_api {
                 if (this.isSponsor && document.body) {
                     document.body.classList.add('sponsor-mode');
                 }
+            } else {
+                // token 无效或过期，清除登录状态
+                localStorage.setItem('app_login', 0);
+                this.logined = 0;
             }
 
             if (typeof cb === 'function') cb();
