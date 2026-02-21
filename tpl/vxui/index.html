@@ -141,11 +141,12 @@
                     <iconpark-icon name="circle-exclamation"></iconpark-icon>
                 </button>
                 <div class="vx-btn-group vx-action-toggle vx-mobile-action-toggle" id="vx-mobile-action-toggle" style="display: none;">
-                    <button class="vx-btn-icon vx-btn-icon-primary" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.upload()" title="." i18n="nav_upload" i18n-only="title">
-                        <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
-                    </button>
                     <button class="vx-btn-icon" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.showCreateModal()" title="." i18n="model_title_folder_title" i18n-only="title">
                         <iconpark-icon name="folder-plus"></iconpark-icon>
+                    </button>
+                    <button class="vx-btn-icon vx-btn-icon-primary vx-btn-icon-label" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.upload()" title="." i18n="nav_upload" i18n-only="title">
+                        <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
+                        <span data-tpl="nav_upload">上传</span>
                     </button>
                 </div>
             </div>

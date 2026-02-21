@@ -1791,6 +1791,14 @@ body.dark .vx-preview-loading,
         height: 40px;
     }
 
+    .vx-mobile-action-toggle .vx-btn-icon.vx-btn-icon-label {
+        width: auto;
+        padding: 0 12px;
+        gap: 4px;
+        font-size: 13px;
+        border-radius: var(--vx-radius-md);
+    }
+
     .vx-btn-icon-primary {
         background: var(--vx-primary);
         color: #fff;
