@@ -315,10 +315,11 @@ body.vx-fl-has-sponsor .vx-content {
 .vx-list-action-btn.is-downloading {
     background: var(--vx-primary-light);
     color: var(--vx-primary);
+    animation: vx-download-blink 1s ease-in-out infinite;
 }
 
 .vx-list-action-btn.is-downloading iconpark-icon {
-    animation: vx-spin 0.9s linear infinite;
+    animation: none;
 }
 
 /* Folder indicator */
@@ -1749,6 +1750,17 @@ body.dark .vx-preview-loading,
 @keyframes vx-spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+
+@keyframes vx-download-blink {
+    0%, 100% {
+        color: var(--vx-primary);
+        background: var(--vx-primary-light);
+    }
+    50% {
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.15);
+    }
 }
 
 /* ==================== Responsive ==================== */
