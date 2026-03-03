@@ -224,7 +224,7 @@
     "direct_intro_modal_msg_2": "無效的域名",
     "direct_intro_modal_msg_3": "此域名已經被使用",
     "direct_intro_modal_msg_4": "此域名的 CNAME 尚未指向 <span class=\"text-red\">cdn.5t-cdn.com</span>",
-    "direct_notice_cname": "綁定的域名還沒有配置 CNAME 記錄指向到 <span class=\"text-red\">cdn.5t-cdn.com</span>，請先完成該設定。否則無法啟用直鏈功能。",
+    "direct_notice_cname": "域名解析似乎未正確指向，請檢查 CNAME 記錄。",
     "direct_modal_bind_domain_2": "在綁定之前，請為想要綁定的域名添加一個 CNAME 記錄，指向 <span class=\"text-red\">cdn.5t-cdn.com</span>，您需要到購買域名的地方完成此操作。",
     "model_title_upload_tmpup": "使用 tmpUP 上傳檔案 (新)",
     "model_title_upload_tmpup_des": "在命令列環境下，使用 tmpUP 上傳檔案。擁有易於操作的實用界面。",
@@ -1158,7 +1158,6 @@
     "direct_traffic_limit_desc": "用於限制單個 IP 每日下載流量。",
     "direct_no_domain": "未綁定域名",
     "direct_processing": "正在處理中…",
-    "direct_notice_cname": "域名解析似乎未正確指向，請檢查 CNAME 記錄。",
     "direct_notice_quota": "剩餘配額較低，建議及時補充。",
     "direct_api_sum_upload": "（上傳檔案）",
     "direct_api_sum_general": "（通用說明）",
@@ -1213,5 +1212,10 @@
     "vx_fl_menu_set_price": "出售",
     "vx_fl_menu_remove_price": "取消出售",
     "vx_lang_label": "語言",
-    "vx_community_link": "交流社區"
+    "vx_community_link": "交流社區",
+    "nav_points_overview": "概要",
+    "nav_points_sold": "出售文件",
+    "nav_points_mall": "點數商城",
+    "nav_points_mall_coming": "即將到來...",
+    "vx_no_sold_files": "暫無售出的文件"
 }

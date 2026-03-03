@@ -135,7 +135,7 @@ window.VX_SHOP = {
 
         // Restore tab from URL (deep-link)
         const nextTab = (params && params.tab) ? String(params.tab) : 'products';
-        if (nextTab === 'purchased' || nextTab === 'products' || nextTab === 'points') {
+        if (nextTab === 'purchased' || nextTab === 'products') {
             this.showTab(nextTab);
         } else {
             this.showTab('products');
@@ -169,12 +169,12 @@ window.VX_SHOP = {
 
         this.trackUI(`vui_shop[${tab}]`);
 
-        // Sync URL so products/purchased/points can be directly opened
+        // Sync URL so products/purchased can be directly opened
         if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.updateUrl === 'function') {
             const currentParams = (typeof VXUI.getUrlParams === 'function') ? (VXUI.getUrlParams() || {}) : {};
             delete currentParams.module;
 
-            if (tab === 'purchased' || tab === 'points') {
+            if (tab === 'purchased') {
                 currentParams.tab = tab;
             } else {
                 delete currentParams.tab;
@@ -202,8 +202,6 @@ window.VX_SHOP = {
         if (subtitleEl) {
             if (tab === 'purchased') {
                 subtitleEl.textContent = ' - ' + this.t('navbar_hr_shop', '已购');
-            } else if (tab === 'points') {
-                subtitleEl.textContent = ' - ' + this.t('vx_points_tab', '点数');
             } else {
                 subtitleEl.textContent = '';
             }
@@ -212,14 +210,10 @@ window.VX_SHOP = {
         // Show/hide content
         document.getElementById('vx-shop-products').style.display = tab === 'products' ? 'block' : 'none';
         document.getElementById('vx-shop-purchased').style.display = tab === 'purchased' ? 'block' : 'none';
-        const pointsEl = document.getElementById('vx-shop-points');
-        if (pointsEl) pointsEl.style.display = tab === 'points' ? 'block' : 'none';
         
         // Load content for the tab
         if (tab === 'purchased') {
             this.loadOrders();
-        } else if (tab === 'points') {
-            this.loadPointLog(0);
         }
     },
     
@@ -1104,16 +1098,14 @@ window.VX_SHOP = {
         if (subtitleEl) {
             if (this.currentTab === 'purchased') {
                 subtitleEl.textContent = ' - ' + this.t('navbar_hr_shop', '已购');
-            } else if (this.currentTab === 'points') {
-                subtitleEl.textContent = ' - ' + this.t('vx_points_tab', '点数');
+            } else {
+                subtitleEl.textContent = '';
             }
         }
         
-        // Reload content if on purchased or points tab
+        // Reload content if on purchased tab
         if (this.currentTab === 'purchased') {
             this.loadOrders();
-        } else if (this.currentTab === 'points') {
-            this.loadPointLog(0);
         }
     },
     /**

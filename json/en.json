@@ -207,7 +207,7 @@
     "direct_intro_modal_msg_2": "Invalid domain name",
     "direct_intro_modal_msg_3": "This domain name has already been used",
     "direct_intro_modal_msg_4": "The CNAME of this domain name has not been pointed to <span class=\"text-red\">cdn.5t-cdn.com</span>",
-    "direct_notice_cname": "The bound domain name has not been configured with a CNAME record pointing to <span class=\"text-red\">cdn.5t-cdn.com</span>. Please complete this setting before enabling direct link function.",
+    "direct_notice_cname": "Domain resolution appears to be misconfigured. Please check the CNAME record.",
     "direct_modal_bind_domain_2": "Before binding, please add a CNAME record for the domain name to be bound pointing to <span class=\"text-red\">cdn.5t-cdn.com</span>. You need to complete this process in the website where you purchased the domain name.",
     "model_title_upload_tmpup": "Upload files using tmpUP (new)",
     "model_title_upload_tmpup_des": "Uploads files using tmpUP via command line. Makes user easier to operate with its practical interface.",
@@ -1171,7 +1171,6 @@
     "direct_traffic_limit_desc": "Limit daily download traffic per IP address.",
     "direct_no_domain": "No Domain Bound",
     "direct_processing": "Processing...",
-    "direct_notice_cname": "Domain resolution appears to be misconfigured. Please check the CNAME record.",
     "direct_notice_quota": "Remaining quota is low. Consider replenishing soon.",
     "direct_api_sum_upload": " (Upload File)",
     "direct_api_sum_general": " (General Instructions)",
@@ -1226,5 +1225,10 @@
     "vx_fl_menu_set_price": "Set price",
     "vx_fl_menu_remove_price": "Remove price",
     "vx_lang_label": "Language",
-    "vx_community_link": "Community"
+    "vx_community_link": "Community",
+    "nav_points_overview": "Overview",
+    "nav_points_sold": "Sold Files",
+    "nav_points_mall": "Points Mall",
+    "nav_points_mall_coming": "Coming Soon...",
+    "vx_no_sold_files": "No sold files"
 }

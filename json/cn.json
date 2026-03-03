@@ -697,7 +697,7 @@
     "direct_intro_modal_msg_2": "无效的域名",
     "direct_intro_modal_msg_3": "此域名已经被使用",
     "direct_intro_modal_msg_4": "此域名的 CNAME 尚未指向 <span class=\"text-red\">cdn.5t-cdn.com</span>",
-    "direct_notice_cname": "绑定的域名还没有配置 CNAME 记录指向到 <span class=\"text-red\">cdn.5t-cdn.com</span>，请先完成该设定。否则无法启用直链功能。",
+    "direct_notice_cname": "域名解析似乎未正确指向，请检查 CNAME 记录。",
     "direct_notice_usage": "剩余的优先配额不足 5GB。",
     "direct_modal_bind_domain_2": "在绑定之前，请为想要绑定的域名添加一个 CNAME 记录，指向 <span class=\"text-red\">cdn.5t-cdn.com</span>，您需要到购买域名的地方完成此操作。",
     "direct_intro_modal_body_1": "直链是最快捷的文件分享方式，您可以从 “仓库” 选择任意文件加入到直链，然后分享给其他人下载。并且，您可以为同一个文件创建多份分享链接，您可以随时撤销文件的分享。",
@@ -1153,7 +1153,6 @@
     "direct_traffic_limit_desc": "用于限制单个 IP 每日下载流量。",
     "direct_no_domain": "未绑定域名",
     "direct_processing": "正在处理中…",
-    "direct_notice_cname": "域名解析似乎未正确指向，请检查 CNAME 记录。",
     "direct_notice_quota": "剩余配额较低，建议及时补充。",
     "direct_api_sum_upload": "（上传文件）",
     "direct_api_sum_general": "（通用说明）",
@@ -1208,5 +1207,10 @@
     "vx_fl_menu_set_price": "出售",
     "vx_fl_menu_remove_price": "取消出售",
     "vx_lang_label": "语言",
-    "vx_community_link": "交流社区"
+    "vx_community_link": "交流社区",
+    "nav_points_overview": "概要",
+    "nav_points_sold": "出售文件",
+    "nav_points_mall": "点数商城",
+    "nav_points_mall_coming": "即将到来...",
+    "vx_no_sold_files": "暂无售出的文件"
 }

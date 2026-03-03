@@ -1,0 +1,586 @@
+<!-- VXUI Points Module Template -->
+<link rel="stylesheet" href="/css/vxui/filelist.css">
+<link rel="stylesheet" href="/css/vxui/filelist-mobile-fix.css">
+<link rel="stylesheet" href="/css/vxui/account.css">
+
+<template id="vx-points-sidebar-tpl">
+    <div class="vx-nav-section">
+        <div class="vx-nav-title" data-tpl="vx_points_tab">点数</div>
+        <a href="javascript:;" class="vx-nav-item active" id="nav-points-summary" onclick="VX_POINTS.showTab('summary')">
+            <iconpark-icon name="chart-line"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="vx_points_overview_tab">概要</span>
+        </a>
+        <a href="javascript:;" class="vx-nav-item" id="nav-points-selling" onclick="VX_POINTS.showTab('selling')">
+            <iconpark-icon name="list-check"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="vx_points_selling_tab">出售文件</span>
+        </a>
+        <a href="javascript:;" class="vx-nav-item" id="nav-points-mall" onclick="VX_POINTS.showTab('mall')">
+            <iconpark-icon name="bag-shopping"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="vx_points_mall_tab">点数商城</span>
+        </a>
+    </div>
+</template>
+
+<header class="vx-header vx-header-points">
+    <div class="vx-header-left">
+        <button class="vx-btn-icon vx-portrait-sidebar-btn" onclick="VXUI.toggleSidebar()" data-title-tpl="vx_menu" title="菜单">
+            <iconpark-icon name="bars"></iconpark-icon>
+        </button>
+        <h1 class="vx-page-title">
+            <iconpark-icon name="funds"></iconpark-icon>
+            <span data-tpl="vx_points_tab">点数</span>
+            <span id="vx-points-header-subtitle"></span>
+        </h1>
+    </div>
+
+    <div class="vx-header-right">
+        <button class="vx-btn-icon" onclick="VX_POINTS.refresh()" data-title-tpl="vx_refresh" title="刷新">
+            <iconpark-icon name="rotate"></iconpark-icon>
+        </button>
+    </div>
+</header>
+
+<div class="vx-content vx-points-content">
+    <div class="vx-points-tab-content" id="vx-points-summary">
+        <div class="vx-points-summary-shell">
+            <section class="vx-points-balance-panel">
+                <div class="vx-points-balance-label" data-tpl="vx_profile_points">点数余额</div>
+                <div class="vx-points-balance-value" id="vx-points-balance">--</div>
+            </section>
+
+            <section class="vx-points-actions-panel">
+                <button class="vx-points-quick-btn vx-points-quick-recharge" onclick="VX_POINTS.openPointRecharge()">
+                    <iconpark-icon name="paper-money-two"></iconpark-icon>
+                    <span data-tpl="vx_point_recharge_action">充值点数</span>
+                </button>
+                <button class="vx-points-quick-btn vx-points-quick-transfer" onclick="VX_POINTS.openPointTransfer()">
+                    <iconpark-icon name="expenses"></iconpark-icon>
+                    <span data-tpl="vx_point_transfer_action">点数转账</span>
+                </button>
+            </section>
+
+            <section class="vx-points-log-section">
+                <div class="vx-points-log-header" data-tpl="vx_point_log_title">变动记录</div>
+                <div class="vx-points-log-list" id="vx-point-log-list">
+                    <div class="vx-orders-loading">
+                        <div class="vx-spinner"></div>
+                        <span data-tpl="vx_loading">加载中...</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="vx-points-tab-content vx-points-tab-selling" id="vx-points-selling" style="display:none;">
+        <div class="vx-list-container" id="vx-points-selling-list">
+            <div class="vx-list-header">
+                <div class="vx-list-col vx-list-col-name">
+                    <span data-tpl="filename">文件名</span>
+                </div>
+                <div class="vx-list-col vx-list-col-size">
+                    <span data-tpl="filesize">大小</span>
+                </div>
+                <div class="vx-list-col vx-list-col-date vx-hide-mobile">
+                    <span data-tpl="filedate">日期</span>
+                </div>
+                <div class="vx-list-col vx-list-col-actions">
+                    <span data-tpl="actions">操作</span>
+                </div>
+            </div>
+            <div class="vx-list-body" id="vx-points-selling-body">
+                <div class="vx-skeleton-list">
+                    <div class="vx-skeleton-row">
+                        <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                        <div class="vx-skeleton-bone vx-skeleton-text" style="width: 58%"></div>
+                        <div class="vx-skeleton-bone vx-skeleton-text-sm"></div>
+                        <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+                        <div class="vx-skeleton-bone" style="width: 64px;"></div>
+                    </div>
+                    <div class="vx-skeleton-row">
+                        <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                        <div class="vx-skeleton-bone vx-skeleton-text" style="width: 45%"></div>
+                        <div class="vx-skeleton-bone vx-skeleton-text-sm"></div>
+                        <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+                        <div class="vx-skeleton-bone" style="width: 64px;"></div>
+                    </div>
+                    <div class="vx-skeleton-row">
+                        <div class="vx-skeleton-bone vx-skeleton-icon"></div>
+                        <div class="vx-skeleton-bone vx-skeleton-text" style="width: 66%"></div>
+                        <div class="vx-skeleton-bone vx-skeleton-text-sm"></div>
+                        <div class="vx-skeleton-bone vx-skeleton-text-date"></div>
+                        <div class="vx-skeleton-bone" style="width: 64px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="vx-points-selling-pagination"></div>
+    </div>
+
+    <div class="vx-points-tab-content" id="vx-points-mall" style="display:none;">
+        <div class="vx-shop-section">
+            <div class="vx-shop-section-title" data-tpl="vx_points_mall_tab">点数商城</div>
+            <div class="vx-points-coming-soon">
+                <div class="vx-points-coming-title" data-tpl="vx_coming_soon">即将到来</div>
+                <div class="vx-points-coming-desc" data-tpl="vx_points_mall_coming_desc">点数商城正在准备中，敬请期待。</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="vx-modal" id="vx-points-modal">
+    <div class="vx-modal-overlay" onclick="VX_POINTS.closeModal()"></div>
+    <div class="vx-modal-container vx-modal-lg">
+        <div class="vx-modal-header">
+            <h3 class="vx-modal-title" id="vx-points-modal-title">点数</h3>
+            <button class="vx-modal-close" onclick="VX_POINTS.closeModal()">
+                <iconpark-icon name="circle-xmark"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-modal-body" id="vx-points-modal-body"></div>
+        <div class="vx-modal-footer" id="vx-points-modal-footer">
+            <div></div>
+            <div class="vx-modal-actions">
+                <button class="vx-btn vx-btn-secondary" onclick="VX_POINTS.closeModal()" data-tpl="btn_cancel">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.vx-header-points {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 8px 20px;
+    background: var(--vx-surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--vx-border);
+}
+
+/* Selling tab: fill available space like filelist */
+.vx-points-tab-selling {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.vx-points-tab-selling .vx-list-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.vx-points-tab-selling .vx-list-body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 220px;
+}
+
+.vx-points-tab-selling #vx-points-selling-pagination {
+    flex-shrink: 0;
+}
+
+.vx-points-tab-selling .vx-list-body .vx-orders-empty {
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--vx-text-secondary);
+    text-align: center;
+}
+
+.vx-points-tab-selling .vx-list-body .vx-orders-empty p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--vx-text-muted);
+}
+
+.vx-header-points .vx-page-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.vx-header-points .vx-page-title iconpark-icon {
+    font-size: 22px;
+    color: var(--vx-primary);
+}
+
+.vx-points-content {
+    padding: 20px;
+}
+
+@media (min-width: 1024px) {
+    .vx-points-content {
+        padding: 24px 32px;
+    }
+}
+
+@media (min-width: 1440px) {
+    .vx-points-content {
+        padding: 24px 48px;
+    }
+}
+
+.vx-points-content.vx-points-content-selling {
+    padding: 0;
+}
+
+.vx-points-summary-shell {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.vx-points-balance-panel,
+.vx-points-actions-panel,
+.vx-points-log-section {
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    box-shadow: var(--vx-shadow-sm);
+}
+
+.vx-points-balance-panel {
+    padding: 26px 20px;
+    text-align: center;
+}
+
+.vx-points-balance-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--vx-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+}
+
+.vx-points-balance-value {
+    font-size: 44px;
+    font-weight: 800;
+    color: var(--vx-text);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.vx-points-actions-panel {
+    padding: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.vx-points-quick-btn {
+    width: 100%;
+    min-height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: var(--vx-radius-md);
+    border: 1px solid transparent;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.vx-points-quick-btn iconpark-icon {
+    font-size: 18px;
+}
+
+.vx-points-quick-recharge {
+    background: var(--vx-primary);
+    color: var(--vx-surface);
+}
+
+.vx-points-quick-recharge:hover {
+    filter: brightness(1.05);
+}
+
+.vx-points-quick-transfer {
+    background: var(--vx-bg-secondary);
+    color: var(--vx-text);
+    border-color: var(--vx-border);
+}
+
+.vx-points-quick-transfer:hover {
+    border-color: var(--vx-primary);
+    color: var(--vx-primary);
+    background: var(--vx-surface-hover);
+}
+
+.vx-points-log-section {
+    padding: 14px;
+}
+
+.vx-points-log-header {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--vx-text);
+    margin-bottom: 10px;
+    padding: 0 2px 10px;
+    border-bottom: 1px solid var(--vx-border);
+}
+
+.vx-point-log-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 8px;
+    border-bottom: 1px solid var(--vx-border);
+}
+
+.vx-point-log-item:last-child,
+.vx-point-log-item:last-of-type {
+    border-bottom: none;
+}
+
+.vx-point-log-icon {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--vx-bg-secondary);
+    font-size: 19px;
+}
+
+.vx-point-log-icon-income {
+    color: var(--vx-success);
+}
+
+.vx-point-log-icon-expense {
+    color: var(--vx-danger);
+}
+
+.vx-point-log-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.vx-point-log-action {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin-bottom: 2px;
+}
+
+.vx-point-log-content {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vx-point-log-time {
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    margin-top: 2px;
+}
+
+.vx-point-log-amount {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.vx-point-income {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--vx-success);
+}
+
+.vx-point-expense {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--vx-danger);
+}
+
+.vx-point-log-balance {
+    font-size: 11px;
+    color: var(--vx-text-muted);
+    margin-top: 2px;
+}
+
+.vx-point-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 0;
+    font-size: 14px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-recharge-presets {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+
+.vx-recharge-preset {
+    padding: 10px 6px;
+    background: var(--vx-bg-secondary);
+    border: 2px solid transparent;
+    border-radius: var(--vx-radius-md);
+    cursor: pointer;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--vx-text);
+    transition: all 0.2s ease;
+    line-height: 1.4;
+}
+
+.vx-recharge-preset:hover,
+.vx-recharge-preset-active {
+    border-color: var(--vx-primary);
+    background: rgba(var(--vx-primary-rgb), 0.08);
+    color: var(--vx-primary);
+}
+
+.vx-recharge-preset-points {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--vx-text-muted);
+    margin-top: 2px;
+}
+
+.vx-recharge-preset-active .vx-recharge-preset-points {
+    color: var(--vx-primary);
+    opacity: 0.8;
+}
+
+.vx-recharge-custom {
+    border-top: 1px solid var(--vx-border);
+    padding-top: 16px;
+}
+
+.vx-recharge-custom-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--vx-text-muted);
+    margin-bottom: 8px;
+}
+
+.vx-recharge-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vx-recharge-currency {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--vx-text);
+    min-width: 16px;
+}
+
+.vx-recharge-preview {
+    margin-top: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--vx-primary);
+    min-height: 22px;
+    transition: color 0.2s;
+}
+
+.vx-selling-stats-inline {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.vx-price-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 1px 7px;
+    background: linear-gradient(135deg, rgba(217,160,35,0.15), rgba(251,191,36,0.1));
+    color: #b8860b;
+    border: 1px solid rgba(217,160,35,0.35);
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 4px;
+    vertical-align: middle;
+    letter-spacing: 0.2px;
+}
+
+.vx-price-tag iconpark-icon {
+    font-size: 11px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .vx-price-tag {
+        color: #f5c842;
+        background: linear-gradient(135deg, rgba(245,200,66,0.18), rgba(251,191,36,0.1));
+        border-color: rgba(245,200,66,0.3);
+    }
+}
+
+.vx-points-coming-soon {
+    border: 1px dashed var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    padding: 28px;
+    text-align: center;
+    background: var(--vx-bg-secondary);
+}
+
+.vx-points-coming-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--vx-text);
+    margin-bottom: 6px;
+}
+
+.vx-points-coming-desc {
+    font-size: 14px;
+    color: var(--vx-text-secondary);
+}
+
+@media (max-width: 768px) {
+    .vx-points-content {
+        padding: 0;
+    }
+
+    .vx-points-summary-shell {
+        padding: 0;
+        gap: 12px;
+    }
+
+    .vx-points-balance-value {
+        font-size: 36px;
+    }
+
+    .vx-points-actions-panel {
+        grid-template-columns: 1fr;
+    }
+
+    .vx-recharge-presets {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
