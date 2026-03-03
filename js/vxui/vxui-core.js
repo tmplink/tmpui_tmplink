@@ -561,6 +561,11 @@ class VXUICore {
         if (mod === 'shop' && typeof VX_SHOP !== 'undefined' && VX_SHOP.refreshDynamicText) {
             VX_SHOP.refreshDynamicText();
         }
+
+        // 点数模块：刷新动态文本（标题、记录/出售列表等）
+        if (mod === 'points' && typeof VX_POINTS !== 'undefined' && VX_POINTS.refreshDynamicText) {
+            VX_POINTS.refreshDynamicText();
+        }
     }
 
     /**
@@ -657,13 +662,14 @@ class VXUICore {
         notes:    'nav_notes',
         ai:       'nav_ai',
         shop:     'nav_shop',
+        points:   'vx_points_tab',
         profile:  'nav_info',
         settings: 'nav_settings'
     };
 
     navigate(moduleName, params = {}) {
         // 未登录时仅允许文件夹浏览（filelist）；其余模块跳转登录
-        const restrictedModules = new Set(['direct', 'notes', 'ai', 'shop', 'profile', 'settings']);
+        const restrictedModules = new Set(['direct', 'notes', 'ai', 'shop', 'points', 'profile', 'settings']);
         if (restrictedModules.has(moduleName) && !this.isLoggedIn()) {
             if (typeof this.toastWarning === 'function') {
                 const msg = (typeof app !== 'undefined' && app.languageData && app.languageData.vx_need_login)
