@@ -3373,24 +3373,25 @@ var VX_FILELIST = VX_FILELIST || {
         modal.innerHTML = `
             <div class="vx-modal-overlay" onclick="VX_FILELIST.closeSetPriceModal()"></div>
             <div class="vx-modal-container" style="max-width:360px;">
-                <div class="vx-modal-header">
-                    <h3 class="vx-modal-title">
+                <div class="vx-modal-header" style="padding-top:12px;padding-bottom:12px;">
+                    <h3 class="vx-modal-title" style="margin:0;">
                         <iconpark-icon name="funds"></iconpark-icon>
-                        ${currentPrice ? this.t('vx_update_price', '调整价格') : this.t('vx_sell_file', '出售')} · <span style="font-weight:400;font-size:14px;opacity:.7;">${this.escapeHtml(fname)}</span>
+                        ${currentPrice ? this.t('vx_update_price', '调整价格') : this.t('vx_sell_file', '出售')}
                     </h3>
                     <button class="vx-modal-close" onclick="VX_FILELIST.closeSetPriceModal()">
                         <iconpark-icon name="circle-xmark"></iconpark-icon>
                     </button>
                 </div>
                 <div class="vx-modal-body" style="padding-top:12px;padding-bottom:12px;">
-                    <input type="number" id="vx-fl-price-input" class="vx-input"
-                        value="${currentPrice}" min="1"
-                        placeholder="${this.t('vx_price_placeholder', '\u51fa\u552e\u4ef7\u683c\uff08\u70b9\u6570\uff09')}"
-                        style="width:100%;font-size:20px;text-align:center;padding:12px;"
-                        oninput="VX_FILELIST._updatePricePreview()">
-                    <div id="vx-fl-price-preview" style="text-align:center;font-size:12px;color:var(--vx-text-muted);margin-top:6px;">
-                        ${currentPrice ? '≈ \u00a5' + (currentPrice / 100).toFixed(2) : '\u4e70\u5bb6\u70b9\u6570\u5168\u989d\u8f6c\u5165\u60a8\u7684\u8d26\u6237'}
+                    <div style="display:flex;align-items:center;justify-content:center;gap:2px;font-size:14px;color:var(--vx-text-secondary);margin-bottom:8px;">
+                        <span>${this.t('vx_set_price_for_prefix', '为')}</span>
+                        <span style="display:inline-block;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;">${this.escapeHtml(fname)}</span>
+                        <span>${this.t('vx_set_price_for_suffix', '设定售价。')}</span>
                     </div>
+                    <input type="number" id="vx-fl-price-input" class="vx-input"
+                        value="${currentPrice}" min="1" max="10000" step="1"
+                        placeholder="${this.t('vx_price_placeholder', '\u51fa\u552e\u4ef7\u683c\uff08\u70b9\u6570\uff09')}"
+                        style="width:100%;font-size:20px;text-align:center;padding:12px;">
                 </div>
                 <div class="vx-modal-footer">
                     <div></div>
@@ -3425,20 +3426,6 @@ var VX_FILELIST = VX_FILELIST || {
         }
     },
 
-    _updatePricePreview() {
-        const input = document.getElementById('vx-fl-price-input');
-        const preview = document.getElementById('vx-fl-price-preview');
-        if (!input || !preview) return;
-        const val = parseInt(input.value, 10);
-        if (val >= 1) {
-            preview.textContent = '≈ ¥' + (val / 100).toFixed(2) + ' · $' + (val / 600).toFixed(2);
-            preview.style.color = 'var(--vx-primary)';
-        } else {
-            preview.textContent = this.t('vx_price_placeholder', '出售价格（点数）');
-            preview.style.color = 'var(--vx-text-muted)';
-        }
-    },
-
     /**
      * 确认设定售价 (调用 file_price_set API)
      */
@@ -3449,8 +3436,8 @@ var VX_FILELIST = VX_FILELIST || {
         const priceInput = document.getElementById('vx-fl-price-input');
         const price = priceInput ? parseInt(priceInput.value, 10) : 0;
 
-        if (!price || price < 1) {
-            if (typeof VXUI !== 'undefined') VXUI.toastWarning(this.t('vx_price_invalid', '售价必须大于 0'));
+        if (!price || price < 1 || price > 10000) {
+            if (typeof VXUI !== 'undefined') VXUI.toastWarning(this.t('vx_price_invalid', '售价必须在 1 到 10000 之间'));
             return;
         }
 

@@ -182,21 +182,64 @@
 .vx-badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 12px;
+    gap: 6px;
+    padding: 5px 12px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 500;
+    border: 1px solid var(--vx-border);
+    background: var(--vx-surface);
+    color: var(--vx-text);
+}
+
+.vx-badge-uid {
+    border-color: var(--vx-border-hover);
+    gap: 8px;
+}
+
+.vx-uid-text {
+    line-height: 1;
+    color: var(--vx-text-secondary);
+}
+
+.vx-uid-copy-btn {
+    width: 20px;
+    height: 20px;
+    border: 1px solid transparent;
+    border-radius: var(--vx-radius-full);
+    background: transparent;
+    color: var(--vx-text-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--vx-transition-fast);
+}
+
+.vx-uid-copy-btn:hover {
+    background: var(--vx-primary-light);
+    color: var(--vx-primary);
+    border-color: var(--vx-primary);
+}
+
+.vx-uid-copy-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.vx-uid-copy-btn iconpark-icon {
+    font-size: 11px;
 }
 
 .vx-badge-rank {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
+    color: var(--vx-text-secondary);
 }
 
 .vx-badge-sponsor {
-    background: linear-gradient(135deg, #ffd700, #ffb347);
-    color: #5d4037;
+    background: var(--vx-surface);
+    color: var(--vx-warning-hover);
+    border-color: var(--vx-warning);
+    font-weight: 600;
 }
 
 /* Stats Grid */
@@ -484,6 +527,11 @@ input.vx-switch:checked::before {
     .vx-profile-badges {
         justify-content: center;
         margin-bottom: 6px;
+        gap: 10px;
+    }
+
+    .vx-badge {
+        font-size: 13px;
     }
 
     .vx-profile-display {

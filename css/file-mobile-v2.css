@@ -41,7 +41,8 @@ body {
     padding: 0;
     height: 100vh; /* Fallback */
     height: 100dvh;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 body.file-page {

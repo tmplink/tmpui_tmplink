@@ -54,6 +54,12 @@
                             <h2 class="vx-profile-name" id="vx-profile-name">--</h2>
                             <p class="vx-profile-intro" id="vx-profile-intro">--</p>
                             <div class="vx-profile-badges">
+                                <span class="vx-badge vx-badge-uid" id="vx-profile-uid" style="display:none;">
+                                    <span class="vx-uid-text" id="vx-profile-uid-text">UID: --</span>
+                                    <button type="button" class="vx-uid-copy-btn" id="vx-profile-uid-copy" onclick="VX_ACCOUNT.copyUid()" title="复制 UID" aria-label="复制 UID">
+                                        <iconpark-icon name="copy"></iconpark-icon>
+                                    </button>
+                                </span>
                                 <span class="vx-badge vx-badge-rank" id="vx-profile-rank" data-tpl="myprofile_rank_normal">普通用户</span>
                                 <span class="vx-badge vx-badge-sponsor" id="vx-profile-sponsor-badge" style="display:none;">
                                     <img src="/img/level/like.svg" width="14" alt="">
