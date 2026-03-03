@@ -365,10 +365,24 @@ const VX_ACCOUNT = {
             if (nameEl) nameEl.textContent = nickname;
             if (introEl) introEl.textContent = intro;
             
-            // Badges - if sponsor, only show sponsor badge; otherwise show rank badge (rank uses UID like legacy)
+            // Badges - show dedicated UID badge and copy action
+            const uidEl = document.getElementById('vx-profile-uid');
+            const uidTextEl = document.getElementById('vx-profile-uid-text');
+            const uidCopyEl = document.getElementById('vx-profile-uid-copy');
             const rankEl = document.getElementById('vx-profile-rank');
             const sponsorBadge = document.getElementById('vx-profile-sponsor-badge');
+            const hasUid = TL.uid !== undefined && TL.uid !== null && TL.uid !== '';
             
+            if (uidEl && hasUid) {
+                uidEl.style.display = 'inline-flex';
+                if (uidTextEl) {
+                    uidTextEl.textContent = 'UID: ' + String(TL.uid);
+                }
+            } else if (uidEl) {
+                uidEl.style.display = 'none';
+            }
+            if (uidCopyEl) uidCopyEl.disabled = !hasUid;
+
             if (TL.sponsor) {
                 // Sponsor: hide rank badge, show sponsor badge
                 if (rankEl) rankEl.style.display = 'none';
@@ -377,9 +391,7 @@ const VX_ACCOUNT = {
                 // Not sponsor: show rank badge, hide sponsor badge
                 if (rankEl) {
                     rankEl.style.display = 'inline-flex';
-                    rankEl.textContent = (TL.uid !== undefined && TL.uid !== null && TL.uid !== '')
-                        ? String(TL.uid)
-                        : this.lang('myprofile_rank_normal', '普通用户');
+                    rankEl.textContent = this.lang('myprofile_rank_normal', '普通用户');
                 }
                 if (sponsorBadge) sponsorBadge.style.display = 'none';
             }
@@ -610,6 +622,35 @@ const VX_ACCOUNT = {
         }, 'json').fail(() => {
             VXUI.toastError('网络错误');
         });
+    },
+
+    /**
+     * Copy current UID
+     */
+    copyUid() {
+        if (typeof TL === 'undefined' || TL.uid === undefined || TL.uid === null || TL.uid === '') {
+            VXUI.toastWarning('UID 不可用');
+            return;
+        }
+
+        if (typeof VXUI !== 'undefined' && typeof VXUI.copyToClipboard === 'function') {
+            VXUI.copyToClipboard(String(TL.uid));
+            return;
+        }
+
+        const textarea = document.createElement('textarea');
+        textarea.value = String(TL.uid);
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            VXUI.toastSuccess('已复制到剪贴板');
+        } catch (e) {
+            VXUI.toastError('复制失败');
+        }
+        document.body.removeChild(textarea);
     },
     
     /**
