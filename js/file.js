@@ -321,6 +321,9 @@ class FilePageController {
             const filePrice = Math.max(0, parseInt(fileinfo.price, 10) || 0);
             const userPoints = (typeof TL !== 'undefined' && TL.logined && typeof TL.user_point !== 'undefined') ? (parseInt(TL.user_point, 10) || 0) : 0;
             const pointsEnough = userPoints >= filePrice;
+            const purchaseBaseText = app?.languageData?.file_btn_purchase || '购买';
+            const pointsUnitText = app?.languageData?.vx_points_tab || '点数';
+            const purchaseBtnText = filePrice > 0 ? `${purchaseBaseText} · ${filePrice} ${pointsUnitText}` : purchaseBaseText;
 
             const downloadBtnText = this.$downloadBtn?.querySelector('.download-btn-text');
             const pointsHintEl = document.getElementById('file_download_points_hint');
@@ -335,12 +338,12 @@ class FilePageController {
                         pointsHintEl.style.display = 'block';
                     }
                     if (pointsEnough) {
-                        downloadBtnText.textContent = app?.languageData?.file_btn_purchase || '购买';
+                        downloadBtnText.textContent = purchaseBtnText;
                     } else {
                         downloadBtnText.textContent = app?.languageData?.file_btn_recharge || '去充值';
                     }
                 } else {
-                    downloadBtnText.textContent = app?.languageData?.file_btn_purchase || '购买';
+                    downloadBtnText.textContent = purchaseBtnText;
                     if (pointsHintEl) { pointsHintEl.style.display = 'none'; pointsHintEl.textContent = ''; }
                 }
             }
