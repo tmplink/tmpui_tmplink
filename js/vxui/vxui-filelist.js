@@ -280,8 +280,6 @@ var VX_FILELIST = VX_FILELIST || {
     applyFolderPrivacyUI() {
         const section = document.getElementById('vx-fl-privacy-section');
         const toggle = document.getElementById('vx-fl-privacy-toggle');
-        const stateEl = document.getElementById('vx-fl-privacy-state');
-        const hintEl = document.getElementById('vx-fl-privacy-hint');
 
         // 仅在文件夹（非桌面）且拥有者时展示
         const show = !!this.isOwner && !this.isDesktop && this.mrid && String(this.mrid) !== '0';
@@ -294,18 +292,6 @@ var VX_FILELIST = VX_FILELIST || {
             // checked = private (开=私有)
             toggle.checked = (current === 'private');
             toggle.disabled = !!this._privacyLoading;
-        }
-
-        if (stateEl) {
-            stateEl.textContent = (current === 'private')
-                ? this.t('vx_privacy_private', '私有')
-                : this.t('vx_privacy_public', '公开');
-        }
-
-        if (hintEl) {
-            hintEl.textContent = (current === 'private')
-                ? this.t('modal_meetingroom_type2', '私有，仅自己可访问。')
-                : this.t('modal_meetingroom_type1', '公开，所有人都可访问。');
         }
     },
 
@@ -5735,18 +5721,9 @@ var VX_FILELIST = VX_FILELIST || {
     onCreateFolderPrivacyChange(el) {
         const isPrivate = el.checked;
         const modelInput = document.getElementById('vx-fl-folder-model');
-        const hint = document.getElementById('vx-fl-create-privacy-hint');
         
         if (modelInput) {
             modelInput.value = isPrivate ? '1' : '0';
-        }
-        
-        if (hint) {
-            if (isPrivate) {
-                hint.innerHTML = this.t('modal_meetingroom_type2', '私有，仅自己可访问。');
-            } else {
-                hint.innerHTML = this.t('modal_meetingroom_type1', '公开，所有人都可访问。');
-            }
         }
     },
 
