@@ -618,15 +618,15 @@ window.VX_POINTS = {
 	showModal() {
 		const modal = document.getElementById('vx-points-modal');
 		if (!modal) return;
-		modal.classList.add('show');
-		document.body.classList.add('vx-modal-open');
+		modal.classList.add('vx-modal-open');
+		document.body.classList.add('vx-modal-body-open');
 	},
 
 	closeModal() {
 		const modal = document.getElementById('vx-points-modal');
 		if (!modal) return;
-		modal.classList.remove('show');
-		document.body.classList.remove('vx-modal-open');
+		modal.classList.remove('vx-modal-open');
+		document.body.classList.remove('vx-modal-body-open');
 		this.restoreModalFooter();
 	},
 
