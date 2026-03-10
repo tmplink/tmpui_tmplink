@@ -1695,10 +1695,25 @@ var VX_FILELIST = VX_FILELIST || {
         const folderCountEl = document.getElementById('vx-fl-folder-count');
         const fileCountEl = document.getElementById('vx-fl-file-count');
         const totalSizeEl = document.getElementById('vx-fl-total-size');
+        const statsEl = document.getElementById('vx-sidebar-stats');
 
-        if (folderCountEl) folderCountEl.textContent = folderCount;
-        if (fileCountEl) fileCountEl.textContent = fileCount;
-        if (totalSizeEl) totalSizeEl.textContent = this.formatSize(totalSize);
+        if (statsEl) statsEl.style.display = 'flex';
+
+        if (folderCountEl) {
+            folderCountEl.textContent = folderCount;
+            const parent = folderCountEl.closest('.vx-sidebar-stat-item');
+            if (parent) parent.style.display = folderCount === 0 ? 'none' : 'flex';
+        }
+        if (fileCountEl) {
+            fileCountEl.textContent = fileCount;
+            const parent = fileCountEl.closest('.vx-sidebar-stat-item');
+            if (parent) parent.style.display = fileCount === 0 ? 'none' : 'flex';
+        }
+        if (totalSizeEl) {
+            totalSizeEl.textContent = this.formatSize(totalSize);
+            const parent = totalSizeEl.closest('.vx-sidebar-stat-item');
+            if (parent) parent.style.display = totalSize === 0 ? 'none' : 'flex';
+        }
     },
     
     /**
