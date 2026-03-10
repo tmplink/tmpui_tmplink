@@ -301,6 +301,14 @@
             <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
             <span data-tpl="on_select_download">下载</span>
         </button>
+        <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.copySelectedUrls()">
+            <iconpark-icon name="copy"></iconpark-icon>
+            <span data-tpl="file_btn_copy">复制链接</span>
+        </button>
+        <button class="vx-btn vx-btn-ghost" id="vx-fl-copy-direct-btn" style="display: none;" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.copySelectedDirectUrls()">
+            <iconpark-icon name="link"></iconpark-icon>
+            <span data-tpl="on_select_copy_direct">复制直链</span>
+        </button>
         <button class="vx-btn vx-btn-ghost" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.moveSelected()">
             <iconpark-icon name="folder-plus"></iconpark-icon>
             <span data-tpl="on_select_move">移动</span>
@@ -310,6 +318,7 @@
             <span data-tpl="on_select_delete">删除</span>
         </button>
         <button class="vx-btn vx-btn-ghost" onclick="VX_FILELIST.clearSelection()">
+            <iconpark-icon name="close-one"></iconpark-icon>
             <span data-tpl="on_select_cancel">取消</span>
         </button>
     </div>
