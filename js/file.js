@@ -35,6 +35,9 @@ class FilePageController {
         this.currentDownloadUrl = null;
         this.currentCurlCommand = null;
         this.currentWgetCommand = null;
+        this.purchaseConfirmCountdown = null;
+        this.purchaseConfirmSeconds = 5;
+        this.isPurchasingFile = false;
 
         // DOM 缓存
         this.$downloadBtn = null;
@@ -106,6 +109,147 @@ class FilePageController {
     bindEvents() {
         // 下载按钮点击事件由 tmplink.js 绑定（因涉及 API token/recaptcha）
         // 这里只处理 UI 层面的事件
+    }
+
+    getPurchaseConfirmTexts(price) {
+        const pointsUnitText = app?.languageData?.vx_points_tab || '点数';
+        const actionText = app?.languageData?.file_purchase_confirm_action || '确认购买';
+        const waitText = app?.languageData?.file_purchase_confirm_wait || '请先阅读说明';
+        const format = (template, value) => String(template || '').replace('%s', String(value));
+
+        return {
+            title: app?.languageData?.file_purchase_confirm_title || '确认购买文件',
+            intro: app?.languageData?.file_purchase_confirm_intro || '购买前请确认以下说明，避免误操作。',
+            item1: format(
+                app?.languageData?.file_purchase_confirm_item1 || '本次将使用 %s 点数购买该文件。购买完成后，所购项目暂不支持退回，请确认后继续。',
+                price
+            ),
+            item2: app?.languageData?.file_purchase_confirm_item2 || '购买后，这份文件会加入您的桌面，默认保留 7 天，方便您随时下载。',
+            item3: app?.languageData?.file_purchase_confirm_item3 || '后续您可以调整有效期或主动删除；但若文件过期或被删除，将无法恢复，请提前保存。',
+            cancel: app?.languageData?.file_purchase_confirm_cancel || app?.languageData?.model_btn_cancel || '取消',
+            action: price > 0 ? `${actionText} · ${price} ${pointsUnitText}` : actionText,
+            wait: waitText,
+            waitWithSeconds: (seconds) => `${waitText}（${seconds}s）`
+        };
+    }
+
+    resetPurchaseConfirmModal() {
+        if (this.purchaseConfirmCountdown) {
+            clearInterval(this.purchaseConfirmCountdown);
+            this.purchaseConfirmCountdown = null;
+        }
+
+        this.purchaseConfirmSeconds = 5;
+
+        const confirmBtn = document.getElementById('file_purchase_confirm_btn');
+        const titleEl = document.getElementById('file_purchase_confirm_title');
+        const introEl = document.getElementById('file_purchase_confirm_intro');
+        const item1El = document.getElementById('file_purchase_confirm_item1');
+        const item2El = document.getElementById('file_purchase_confirm_item2');
+        const item3El = document.getElementById('file_purchase_confirm_item3');
+        const cancelBtn = document.getElementById('file_purchase_confirm_cancel_btn');
+
+        const price = Math.max(0, parseInt(this.currentFileDetails?.price, 10) || 0);
+        const texts = this.getPurchaseConfirmTexts(price);
+
+        if (titleEl) titleEl.textContent = texts.title;
+        if (introEl) introEl.textContent = texts.intro;
+        if (item1El) item1El.textContent = texts.item1;
+        if (item2El) item2El.textContent = texts.item2;
+        if (item3El) item3El.textContent = texts.item3;
+        if (cancelBtn) cancelBtn.textContent = texts.cancel;
+
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = texts.waitWithSeconds(this.purchaseConfirmSeconds);
+            confirmBtn.dataset.readyText = texts.action;
+            confirmBtn.removeAttribute('data-ukey');
+        }
+    }
+
+    openPurchaseConfirm(ukey) {
+        const confirmBtn = document.getElementById('file_purchase_confirm_btn');
+        if (!confirmBtn) {
+            this.purchaseFile(ukey);
+            return;
+        }
+
+        this.resetPurchaseConfirmModal();
+        confirmBtn.dataset.ukey = ukey;
+
+        fileUI.openModal('purchaseConfirmModal');
+
+        this.purchaseConfirmCountdown = window.setInterval(() => {
+            this.purchaseConfirmSeconds -= 1;
+
+            if (this.purchaseConfirmSeconds <= 0) {
+                clearInterval(this.purchaseConfirmCountdown);
+                this.purchaseConfirmCountdown = null;
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = confirmBtn.dataset.readyText || (app?.languageData?.file_purchase_confirm_action || '确认购买');
+                return;
+            }
+
+            const price = Math.max(0, parseInt(this.currentFileDetails?.price, 10) || 0);
+            const texts = this.getPurchaseConfirmTexts(price);
+            confirmBtn.textContent = texts.waitWithSeconds(this.purchaseConfirmSeconds);
+        }, 1000);
+    }
+
+    purchaseFile(ukey) {
+        if (this.isPurchasingFile) return;
+
+        const price = Math.max(0, parseInt(this.currentFileDetails?.price, 10) || 0);
+        const points = (typeof TL !== 'undefined' && typeof TL.user_point !== 'undefined') ? (parseInt(TL.user_point, 10) || 0) : 0;
+        if (points < price) {
+            if (typeof app !== 'undefined' && typeof app.open === 'function') app.open('/tpl/vxui/shop.html');
+            return;
+        }
+
+        this.isPurchasingFile = true;
+
+        const confirmBtn = document.getElementById('file_purchase_confirm_btn');
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = app?.languageData?.form_btn_processing || '处理中';
+        }
+
+        const apiFile = (typeof TL !== 'undefined' && TL.api_file) ? TL.api_file : '/api_v2/file';
+        const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
+
+        $.post(apiFile, { action: 'file_purchase', ukey: ukey, token: token }, (rsp) => {
+            this.isPurchasingFile = false;
+
+            if (rsp && rsp.status === 1) {
+                this.currentFileDetails.purchased = true;
+                if (typeof TL !== 'undefined' && TL.current_file_details) TL.current_file_details.purchased = true;
+                if (typeof TL !== 'undefined' && typeof TL.user_point !== 'undefined') {
+                    TL.user_point = Math.max(0, points - price);
+                }
+
+                const label = this.$downloadBtn?.querySelector('.download-btn-text');
+                if (label) label.textContent = app?.languageData?.file_btn_download_fast || '下载';
+
+                const hintEl = document.getElementById('file_download_points_hint');
+                if (hintEl) {
+                    hintEl.style.display = 'none';
+                    hintEl.textContent = '';
+                }
+
+                fileUI.closeModal('purchaseConfirmModal');
+            } else {
+                const msg = (rsp && rsp.data && rsp.data.message) || (app?.languageData?.alert_error || '购买失败');
+                if (typeof TL !== 'undefined' && typeof TL.alert === 'function') TL.alert(msg);
+                else alert(msg);
+                this.resetPurchaseConfirmModal();
+            }
+        }, 'json').fail(() => {
+            this.isPurchasingFile = false;
+            const msg = app?.languageData?.alert_error || '网络错误';
+            if (typeof TL !== 'undefined' && typeof TL.alert === 'function') TL.alert(msg);
+            else alert(msg);
+            this.resetPurchaseConfirmModal();
+        });
     }
 
     // ========== 文件详情加载 ==========
@@ -362,27 +506,7 @@ class FilePageController {
                         if (typeof app !== 'undefined' && typeof app.open === 'function') app.open('/tpl/vxui/shop.html');
                         return;
                     }
-                    const apiFile = (typeof TL !== 'undefined' && TL.api_file) ? TL.api_file : '/api_v2/file';
-                    const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
-                    $.post(apiFile, { action: 'file_purchase', ukey: params.ukey, token: token }, (rsp) => {
-                        if (rsp && rsp.status === 1) {
-                            this.currentFileDetails.purchased = true;
-                            if (typeof TL !== 'undefined' && TL.current_file_details) TL.current_file_details.purchased = true;
-                            const label = this.$downloadBtn?.querySelector('.download-btn-text');
-                            if (label) label.textContent = app?.languageData?.file_btn_download_fast || '下载';
-                            const hintEl = document.getElementById('file_download_points_hint');
-                            if (hintEl) { hintEl.style.display = 'none'; hintEl.textContent = ''; }
-                            // 仅刷新按钮状态，不弹窗；用户可点击「下载」开始下载
-                        } else {
-                            const msg = (rsp && rsp.data && rsp.data.message) || (app?.languageData?.alert_error || '购买失败');
-                            if (typeof TL !== 'undefined' && typeof TL.alert === 'function') TL.alert(msg);
-                            else alert(msg);
-                        }
-                    }, 'json').fail(() => {
-                        const msg = app?.languageData?.alert_error || '网络错误';
-                        if (typeof TL !== 'undefined' && typeof TL.alert === 'function') TL.alert(msg);
-                        else alert(msg);
-                    });
+                    this.openPurchaseConfirm(params.ukey);
                     return;
                 }
 
@@ -1356,6 +1480,10 @@ const fileUI = {
         
         modal.classList.remove('open');
         document.body.style.overflow = '';
+
+        if (modalId === 'purchaseConfirmModal' && typeof window.filePage !== 'undefined' && typeof window.filePage.resetPurchaseConfirmModal === 'function') {
+            window.filePage.resetPurchaseConfirmModal();
+        }
         
         document.removeEventListener('keydown', this._escKeyHandler);
         modal.removeEventListener('click', this._modalBackdropHandler);
@@ -1387,3 +1515,13 @@ const fileUI = {
 window.filePage = filePage;
 window.FilePageController = FilePageController;
 window.fileUI = fileUI;
+
+document.addEventListener('click', (event) => {
+    const target = event.target.closest('#file_purchase_confirm_btn');
+    if (!target || target.disabled || !window.filePage) return;
+
+    const { ukey } = target.dataset;
+    if (!ukey) return;
+
+    window.filePage.purchaseFile(ukey);
+});

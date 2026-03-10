@@ -1765,6 +1765,12 @@ body.file-page.dark-mode .lang-toggle:hover {
     transition: all 0.15s;
 }
 
+.file-modal-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
 .file-modal-btn-primary {
     background: var(--file-accent);
     color: #fff;
@@ -1931,6 +1937,26 @@ body.file-page.dark-mode .lang-toggle:hover {
     font-size: 14px;
     line-height: 1.6;
     color: var(--file-text-sub);
+}
+
+.file-purchase-confirm-intro {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--file-text-main);
+}
+
+.file-purchase-confirm-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.file-purchase-confirm-list li {
+    margin-bottom: 12px;
+}
+
+.file-purchase-confirm-list li:last-child {
+    margin-bottom: 0;
 }
 
 /* Player Modal */

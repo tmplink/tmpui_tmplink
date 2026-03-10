@@ -331,6 +331,30 @@
     </div>
 </div>
 
+<!-- Purchase Confirm Modal -->
+<div class="file-modal" id="purchaseConfirmModal">
+    <div class="file-modal-dialog">
+        <div class="file-modal-content">
+            <div class="file-modal-header">
+                <h4 class="file-modal-title" id="file_purchase_confirm_title">确认购买文件</h4>
+                <button type="button" class="file-modal-close" onclick="fileUI.closeModal('purchaseConfirmModal')">&times;</button>
+            </div>
+            <div class="file-modal-body">
+                <p class="file-purchase-confirm-intro" id="file_purchase_confirm_intro">购买前请确认以下说明，避免误操作。</p>
+                <ul class="file-purchase-confirm-list">
+                    <li id="file_purchase_confirm_item1">本次将使用点数购买该文件。购买完成后，所购项目暂不支持退回，请确认后继续。</li>
+                    <li id="file_purchase_confirm_item2">购买后，这份文件会加入您的桌面，默认保留 7 天，方便您随时下载。</li>
+                    <li id="file_purchase_confirm_item3">后续您可以调整有效期或主动删除；但若文件过期或被删除，将无法恢复，请提前保存。</li>
+                </ul>
+            </div>
+            <div class="file-modal-footer">
+                <button type="button" class="file-modal-btn file-modal-btn-success" id="file_purchase_confirm_btn" disabled>请先阅读说明（5s）</button>
+                <button type="button" class="file-modal-btn file-modal-btn-default" id="file_purchase_confirm_cancel_btn" onclick="fileUI.closeModal('purchaseConfirmModal')">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Open With Player Modal -->
 <div class="file-modal" id="openWithPlayerModal">
     <div class="file-modal-dialog">
