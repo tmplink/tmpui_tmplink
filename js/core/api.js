@@ -17,6 +17,7 @@ class tmplink_api {
     api_mr = null;
     api_notes = null;
     api_ai = null;
+    api_shop = null;
     api_toks = null;
     api_tokx = null;
     api_token = null;
@@ -93,6 +94,7 @@ class tmplink_api {
         this.api_mr = this.api_url + '/meetingroom';
         this.api_notes = this.api_url + '/notes';
         this.api_ai = this.api_url + '/ai';
+        this.api_shop = this.api_url + '/shop';
         this.api_toks = this.api_url_sec + '/token';
         this.api_tokx = this.api_url + '/token';
     }

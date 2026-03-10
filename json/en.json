@@ -1245,5 +1245,16 @@
     "vx_mall_points_unit": "Points",
     "vx_mall_exchange": "Redeem",
     "vx_mall_sold_out": "Sold Out",
+    "vx_mall_my_orders": "My Purchases",
+    "vx_mall_no_orders": "No purchase records",
+    "vx_mall_buy_success": "Redeemed Successfully",
+    "vx_mall_buy_failed": "Redemption Failed",
+    "vx_mall_card_code_label": "Card code below, please keep it safe:",
+    "vx_mall_cost_label": "Cost",
+    "vx_mall_copy": "Copy",
+    "vx_mall_copied": "Copied",
+    "vx_mall_copy_failed": "Copy failed, please copy manually",
+    "vx_mall_item_sold_out": "This item is sold out",
+    "vx_mall_insufficient_points": "Insufficient points",
     "vx_no_sold_files": "No sold files"
 }

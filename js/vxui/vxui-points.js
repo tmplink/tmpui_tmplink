@@ -53,7 +53,7 @@ window.VX_POINTS = {
 		}
 
 		const nextTab = (params && params.tab) ? String(params.tab) : 'summary';
-		if (nextTab === 'summary' || nextTab === 'selling' || nextTab === 'mall') {
+		if (nextTab === 'summary' || nextTab === 'selling' || nextTab === 'mall' || nextTab === 'orders') {
 			this.showTab(nextTab);
 		} else {
 			this.showTab('summary');
@@ -113,6 +113,8 @@ window.VX_POINTS = {
 				subtitleEl.textContent = ' - ' + this.t('vx_points_selling_tab', '出售文件');
 			} else if (tab === 'mall') {
 				subtitleEl.textContent = ' - ' + this.t('vx_points_mall_tab', '点数商城');
+			} else if (tab === 'orders') {
+				subtitleEl.textContent = ' - ' + this.t('vx_mall_my_orders', '兑换记录');
 			} else {
 				subtitleEl.textContent = '';
 			}
@@ -121,10 +123,12 @@ window.VX_POINTS = {
 		const summaryEl = document.getElementById('vx-points-summary');
 		const sellingEl = document.getElementById('vx-points-selling');
 		const mallEl = document.getElementById('vx-points-mall');
+		const ordersEl = document.getElementById('vx-points-orders');
 
 		if (summaryEl) summaryEl.style.display = tab === 'summary' ? 'block' : 'none';
 		if (sellingEl) sellingEl.style.display = tab === 'selling' ? 'flex' : 'none';
 		if (mallEl) mallEl.style.display = tab === 'mall' ? 'block' : 'none';
+		if (ordersEl) ordersEl.style.display = tab === 'orders' ? 'block' : 'none';
 
 		const pointsContentEl = document.querySelector('.vx-points-content');
 		if (pointsContentEl) {
@@ -138,6 +142,8 @@ window.VX_POINTS = {
 			this.loadSellingFiles(0);
 		} else if (tab === 'mall') {
 			this.renderMall();
+		} else if (tab === 'orders') {
+			this.loadMyPurchases(0);
 		}
 	},
 
@@ -146,12 +152,16 @@ window.VX_POINTS = {
 			this.loadSellingFiles(0);
 		} else if (this.currentTab === 'summary') {
 			this.loadPointLog(0);
-			// Re-fetch user info to get latest point balance from server
 			if (typeof TL !== 'undefined' && typeof TL.get_details === 'function') {
 				TL.get_details(() => { this.fetchBalance(); });
 			} else {
 				this.fetchBalance();
 			}
+		} else if (this.currentTab === 'orders') {
+			this.loadMyPurchases(0);
+		} else if (this.currentTab === 'mall') {
+			this._mallRendered = false;
+			this.renderMall();
 		}
 		VXUI.toastInfo(this.t('vx_refreshed', '已刷新'));
 	},
@@ -163,6 +173,8 @@ window.VX_POINTS = {
 				subtitleEl.textContent = ' - ' + this.t('vx_points_selling_tab', '出售文件');
 			} else if (this.currentTab === 'mall') {
 				subtitleEl.textContent = ' - ' + this.t('vx_points_mall_tab', '点数商城');
+			} else if (this.currentTab === 'orders') {
+				subtitleEl.textContent = ' - ' + this.t('vx_mall_my_orders', '兑换记录');
 			} else {
 				subtitleEl.textContent = '';
 			}
@@ -182,9 +194,9 @@ window.VX_POINTS = {
 		this._mallRendered = true;
 
 		const products = [
-			{ id: 'jd_50',  denomination: 50,  points: 6500,  img: '/img/mall/jd_ecard_50.svg'  },
-			{ id: 'jd_100', denomination: 100, points: 13000, img: '/img/mall/jd_ecard_100.svg' },
-			{ id: 'jd_500', denomination: 500, points: 65000, img: '/img/mall/jd_ecard_500.svg' },
+			{ id: 'jd_50',  item_code: 'JD50',  denomination: 50,  points: 6500,  img: '/img/mall/jd_ecard_50.svg'  },
+			{ id: 'jd_100', item_code: 'JD100', denomination: 100, points: 13000, img: '/img/mall/jd_ecard_100.svg' },
+			{ id: 'jd_500', item_code: 'JD500', denomination: 500, points: 65000, img: '/img/mall/jd_ecard_500.svg' },
 		];
 
 		const nameText = this.t('vx_mall_jd_ecard', '京东 E 卡');
@@ -206,7 +218,7 @@ window.VX_POINTS = {
 					<div class="vx-mall-card-name">${nameText}</div>
 					<div class="vx-mall-card-denom">¥${p.denomination}</div>
 					<div class="vx-mall-card-cost">${p.points.toLocaleString()} ${pointsUnit}</div>
-					<button class="vx-mall-exchange-btn" id="btn-${p.id}" onclick="VX_POINTS.exchangeMallItem('${p.id}')">${exchangeText}</button>
+					<button class="vx-mall-exchange-btn" id="btn-${p.id}" onclick="VX_POINTS.exchangeMallItem('${p.item_code}', '${p.id}')">${exchangeText}</button>
 				</div>
 			</div>`;
 		}
@@ -214,16 +226,206 @@ window.VX_POINTS = {
 		container.innerHTML = html;
 	},
 
-	exchangeMallItem(id) {
-		const btn = document.getElementById(`btn-${id}`);
-		const overlay = document.getElementById(`sold-out-${id}`);
-		const soldOutText = this.t('vx_mall_sold_out', '已兑换完');
+	async exchangeMallItem(itemCode, cardId) {
+		const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
+		if (!token) {
+			VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
+			return;
+		}
+
+		const btn = document.getElementById(`btn-${cardId}`);
 		if (btn) {
 			btn.disabled = true;
-			btn.textContent = soldOutText;
+			btn.textContent = this.t('vx_loading', '加载中...');
 		}
-		if (overlay) {
-			overlay.style.display = 'flex';
+
+		try {
+			const apiUrl = (typeof TL !== 'undefined' && TL.api_shop) ? TL.api_shop : (((typeof TL !== 'undefined' && TL.api_url) ? TL.api_url : 'https://connect.tmp.link/api_v2') + '/shop');
+			const response = await fetch(apiUrl, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: new URLSearchParams({ action: 'shop_buy', token, item_code: itemCode }).toString()
+			});
+			const rsp = await response.json();
+
+			if (rsp.status === 1 && rsp.data) {
+				// Success - show card code in modal
+				this._showPurchaseSuccess(rsp.data);
+				// Update balance
+				if (typeof TL !== 'undefined' && typeof TL.user_point !== 'undefined' && rsp.data.pirce) {
+					TL.user_point = Math.max(0, (parseInt(TL.user_point, 10) || 0) - rsp.data.pirce);
+				}
+				this.fetchBalance();
+				if (btn) {
+					btn.disabled = false;
+					btn.textContent = this.t('vx_mall_exchange', '兑换');
+				}
+			} else if (rsp.status === 2001) {
+				// Sold out
+				const soldOutText = this.t('vx_mall_sold_out', '已兑换完');
+				if (btn) {
+					btn.disabled = true;
+					btn.textContent = soldOutText;
+				}
+				const overlay = document.getElementById(`sold-out-${cardId}`);
+				if (overlay) overlay.style.display = 'flex';
+				VXUI.toastWarning(this.t('vx_mall_item_sold_out', '该商品已售罄'));
+			} else if (rsp.status === 2003) {
+				VXUI.toastWarning(this.t('vx_mall_insufficient_points', '点数不足'));
+				if (btn) {
+					btn.disabled = false;
+					btn.textContent = this.t('vx_mall_exchange', '兑换');
+				}
+			} else {
+				const msg = (rsp.data && rsp.data.message) || this.t('vx_mall_buy_failed', '兑换失败');
+				VXUI.toastError(msg);
+				if (btn) {
+					btn.disabled = false;
+					btn.textContent = this.t('vx_mall_exchange', '兑换');
+				}
+			}
+		} catch (e) {
+			console.error('[VX_POINTS] exchangeMallItem error:', e);
+			VXUI.toastError(this.t('error_network', '网络错误'));
+			if (btn) {
+				btn.disabled = false;
+				btn.textContent = this.t('vx_mall_exchange', '兑换');
+			}
+		}
+	},
+
+	_showPurchaseSuccess(data) {
+		const modalTitle = document.getElementById('vx-points-modal-title');
+		const modalBody = document.getElementById('vx-points-modal-body');
+		const modalFooter = document.getElementById('vx-points-modal-footer');
+		if (!modalTitle || !modalBody || !modalFooter) return;
+
+		modalTitle.innerHTML = `<iconpark-icon name="circle-check"></iconpark-icon> ${this.t('vx_mall_buy_success', '兑换成功')}`;
+		modalBody.innerHTML = `
+			<div style="text-align:center;padding:10px 0;">
+				<div style="font-size:14px;color:var(--vx-text-secondary);margin-bottom:12px;">${this.t('vx_mall_card_code_label', '卡号如下，请妥善保存：')}</div>
+				<div id="vx-mall-card-code" style="font-size:22px;font-weight:700;color:var(--vx-text);background:var(--vx-bg-secondary);border:1px solid var(--vx-border);border-radius:var(--vx-radius-md);padding:16px 20px;user-select:all;word-break:break-all;letter-spacing:1px;">${this.escapeHtml(data.content || '')}</div>
+				<div style="font-size:12px;color:var(--vx-text-muted);margin-top:10px;">${this.t('vx_mall_cost_label', '消耗')} ${data.pirce || 0} ${this.t('vx_mall_points_unit', '点数')}</div>
+			</div>
+		`;
+
+		this._originalFooter = modalFooter.innerHTML;
+		modalFooter.innerHTML = `
+			<div></div>
+			<div class="vx-modal-actions">
+				<button class="vx-btn vx-btn-secondary" onclick="VX_POINTS._copyCardCode()">
+					<iconpark-icon name="copy"></iconpark-icon> ${this.t('vx_mall_copy', '复制')}
+				</button>
+				<button class="vx-btn vx-btn-primary" onclick="VX_POINTS.closeModal()">${this.t('btn_confirm', '确认')}</button>
+			</div>
+		`;
+
+		this.showModal();
+	},
+
+	_copyCardCode() {
+		const el = document.getElementById('vx-mall-card-code');
+		if (!el) return;
+		const text = el.textContent.trim();
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			navigator.clipboard.writeText(text).then(() => {
+				VXUI.toastSuccess(this.t('vx_mall_copied', '已复制'));
+			}).catch(() => {
+				this._fallbackCopy(text);
+			});
+		} else {
+			this._fallbackCopy(text);
+		}
+	},
+
+	_fallbackCopy(text) {
+		const ta = document.createElement('textarea');
+		ta.value = text;
+		ta.style.position = 'fixed';
+		ta.style.opacity = '0';
+		document.body.appendChild(ta);
+		ta.select();
+		try {
+			document.execCommand('copy');
+			VXUI.toastSuccess(this.t('vx_mall_copied', '已复制'));
+		} catch (e) {
+			VXUI.toastWarning(this.t('vx_mall_copy_failed', '复制失败请手动复制'));
+		}
+		document.body.removeChild(ta);
+	},
+
+	async loadMyPurchases(page = 0) {
+		const container = document.getElementById('vx-mall-orders');
+		if (!container) return;
+
+		this._ordersPage = page;
+
+		const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
+		if (!token) {
+			container.innerHTML = `<div class="vx-orders-empty">${this.t('vx_need_login', '请先登录')}</div>`;
+			return;
+		}
+
+		container.innerHTML = `
+			<div class="vx-orders-loading">
+				<div class="vx-spinner"></div>
+				<span>${this.t('vx_loading', '加载中...')}</span>
+			</div>
+		`;
+
+		try {
+			const apiUrl = (typeof TL !== 'undefined' && TL.api_shop) ? TL.api_shop : (((typeof TL !== 'undefined' && TL.api_url) ? TL.api_url : 'https://connect.tmp.link/api_v2') + '/shop');
+			const response = await fetch(apiUrl, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: new URLSearchParams({ action: 'shop_my', token, page }).toString()
+			});
+			const rsp = await response.json();
+
+			if (!rsp.data || !Array.isArray(rsp.data) || rsp.data.length === 0) {
+				container.innerHTML = `
+					<div class="vx-orders-empty">
+						<iconpark-icon name="bag-shopping" style="font-size:48px;color:var(--vx-text-muted);"></iconpark-icon>
+						<p>${this.t('vx_mall_no_orders', '暂无兑换记录')}</p>
+					</div>
+				`;
+				return;
+			}
+
+			let html = '';
+			for (const item of rsp.data) {
+				const dateText = item.mtime || item.ctime || '';
+				html += `
+					<div class="vx-mall-order-item">
+						<div class="vx-mall-order-info">
+							<div class="vx-mall-order-code">${this.escapeHtml(item.item_code || '')}</div>
+							<div class="vx-mall-order-time">${this.escapeHtml(dateText)}</div>
+						</div>
+						<div class="vx-mall-order-content">
+							<code>${this.escapeHtml(item.content || '')}</code>
+						</div>
+						<div class="vx-mall-order-cost">-${item.pirce || 0} ${this.t('vx_mall_points_unit', '点数')}</div>
+					</div>
+				`;
+			}
+
+			html += `
+				<div class="vx-point-pagination">
+					${page > 0 ? `<button class="vx-btn vx-btn-secondary" onclick="VX_POINTS.loadMyPurchases(${page - 1})">${this.t('vx_prev_page', '上一页')}</button>` : ''}
+					<span>${this.t('vx_page', '第')} ${page + 1} ${this.t('vx_page_suffix', '页')}</span>
+					${rsp.data.length >= 20 ? `<button class="vx-btn vx-btn-secondary" onclick="VX_POINTS.loadMyPurchases(${page + 1})">${this.t('vx_next_page', '下一页')}</button>` : ''}
+				</div>
+			`;
+
+			container.innerHTML = html;
+		} catch (e) {
+			console.error('[VX_POINTS] loadMyPurchases error:', e);
+			container.innerHTML = `
+				<div class="vx-orders-empty">
+					<iconpark-icon name="circle-exclamation" style="font-size:48px;color:var(--vx-danger);"></iconpark-icon>
+					<p>${this.t('vx_load_failed', '加载失败')}</p>
+				</div>
+			`;
 		}
 	},
 

@@ -18,6 +18,10 @@
             <iconpark-icon name="bag-shopping"></iconpark-icon>
             <span class="vx-nav-item-text" data-tpl="vx_points_mall_tab">点数商城</span>
         </a>
+        <a href="javascript:;" class="vx-nav-item" id="nav-points-orders" onclick="VX_POINTS.showTab('orders')">
+            <iconpark-icon name="list-check"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="vx_mall_my_orders">兑换记录</span>
+        </a>
     </div>
 </template>
 
@@ -119,6 +123,12 @@
     <div class="vx-points-tab-content" id="vx-points-mall" style="display:none;">
         <div class="vx-shop-section">
             <div id="vx-mall-products"></div>
+        </div>
+    </div>
+
+    <div class="vx-points-tab-content" id="vx-points-orders" style="display:none;">
+        <div class="vx-shop-section">
+            <div id="vx-mall-orders"></div>
         </div>
     </div>
 </div>
@@ -690,6 +700,67 @@
 @media (max-width: 580px) {
     .vx-mall-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* === Mall Orders === */
+.vx-mall-order-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    margin-bottom: 8px;
+}
+
+.vx-mall-order-info {
+    flex-shrink: 0;
+    min-width: 90px;
+}
+
+.vx-mall-order-code {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vx-text);
+}
+
+.vx-mall-order-time {
+    font-size: 11px;
+    color: var(--vx-text-muted);
+    margin-top: 2px;
+}
+
+.vx-mall-order-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.vx-mall-order-content code {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vx-text);
+    background: var(--vx-bg-secondary);
+    padding: 4px 10px;
+    border-radius: var(--vx-radius-sm);
+    user-select: all;
+    word-break: break-all;
+}
+
+.vx-mall-order-cost {
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--vx-danger);
+    white-space: nowrap;
+}
+
+@media (max-width: 580px) {
+    .vx-mall-order-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
     }
 }
 </style>

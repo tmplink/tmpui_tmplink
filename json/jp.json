@@ -1245,5 +1245,16 @@
     "vx_mall_points_unit": "ポイント",
     "vx_mall_exchange": "交換",
     "vx_mall_sold_out": "在庫切れ",
+    "vx_mall_my_orders": "交換履歴",
+    "vx_mall_no_orders": "交換履歴はありません",
+    "vx_mall_buy_success": "交換成功",
+    "vx_mall_buy_failed": "交換失敗",
+    "vx_mall_card_code_label": "カード番号です。大切に保管してください：",
+    "vx_mall_cost_label": "消費",
+    "vx_mall_copy": "コピー",
+    "vx_mall_copied": "コピーしました",
+    "vx_mall_copy_failed": "コピー失敗、手動でコピーしてください",
+    "vx_mall_item_sold_out": "この商品は売り切れです",
+    "vx_mall_insufficient_points": "ポイントが不足しています",
     "vx_no_sold_files": "販売されたファイルはありません"
 }

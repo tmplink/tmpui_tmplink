@@ -1227,5 +1227,16 @@
     "vx_mall_points_unit": "点数",
     "vx_mall_exchange": "兑换",
     "vx_mall_sold_out": "已兑换完",
+    "vx_mall_my_orders": "兑换记录",
+    "vx_mall_no_orders": "暂无兑换记录",
+    "vx_mall_buy_success": "兑换成功",
+    "vx_mall_buy_failed": "兑换失败",
+    "vx_mall_card_code_label": "卡号如下，请妥善保存：",
+    "vx_mall_cost_label": "消耗",
+    "vx_mall_copy": "复制",
+    "vx_mall_copied": "已复制",
+    "vx_mall_copy_failed": "复制失败请手动复制",
+    "vx_mall_item_sold_out": "该商品已售罄",
+    "vx_mall_insufficient_points": "点数不足",
     "vx_no_sold_files": "暂无售出的文件"
 }
