@@ -2282,7 +2282,7 @@ var VX_FILELIST = VX_FILELIST || {
                 ${iconHtml}
                 <div class="vx-list-filename">
                     ${filenameLink}
-                    ${file.hot > 0 ? '<iconpark-icon name="fire" class="vx-hot-badge"></iconpark-icon>' : ''}
+                    ${file.hot > 0 ? '<span class="vx-hot-badge"><iconpark-icon name="fire"></iconpark-icon></span>' : ''}
                     ${file.like > 0 ? `<span class="vx-like-badge"><iconpark-icon name="like"></iconpark-icon>${file.like}</span>` : ''}
                     ${priceTag}
                     ${unpurchasedTag}
