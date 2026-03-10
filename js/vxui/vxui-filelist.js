@@ -1685,14 +1685,34 @@ var VX_FILELIST = VX_FILELIST || {
     },
     
     /**
+     * 将格式化的大小字符串（如 "46.21 MB"）转换回字节数
+     */
+    parseSizeFromFormatted(sizeStr) {
+        if (!sizeStr) return 0;
+        const units = { 'B': 1, 'KB': 1024, 'MB': 1048576, 'GB': 1073741824, 'TB': 1099511627776 };
+        const match = String(sizeStr).match(/^([\.\d]+)\s*(B|KB|MB|GB|TB)$/i);
+        if (!match) return 0;
+        return parseFloat(match[1]) * (units[match[2].toUpperCase()] || 1);
+    },
+
+    /**
      * 更新项目数量
      */
     updateItemCount() {
-        const count = (this.subRooms ? this.subRooms.length : 0) + (this.fileList ? this.fileList.length : 0);
-        const countEl = document.getElementById('vx-fl-item-count');
-        if (countEl) {
-            countEl.textContent = count;
-        }
+        const folderCount = this.subRooms ? this.subRooms.length : 0;
+        const fileCount = this.fileList ? this.fileList.length : 0;
+        const totalSize = this.fileList ? this.fileList.reduce((sum, f) => {
+            const raw = Number(f.filesize) || Number(f.fsize);
+            return sum + ((raw > 0 && !isNaN(raw)) ? raw : this.parseSizeFromFormatted(f.fsize_formated));
+        }, 0) : 0;
+
+        const folderCountEl = document.getElementById('vx-fl-folder-count');
+        const fileCountEl = document.getElementById('vx-fl-file-count');
+        const totalSizeEl = document.getElementById('vx-fl-total-size');
+
+        if (folderCountEl) folderCountEl.textContent = folderCount;
+        if (fileCountEl) fileCountEl.textContent = fileCount;
+        if (totalSizeEl) totalSizeEl.textContent = this.formatSize(totalSize);
     },
     
     /**

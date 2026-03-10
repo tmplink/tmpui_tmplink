@@ -18,11 +18,29 @@
     <!-- Current Folder Info -->
     <div class="vx-nav-section">
         <div class="vx-nav-title" data-tpl="vx_current_folder">当前文件夹</div>
-        <div class="vx-sidebar-module-info">
+        <div class="vx-sidebar-folder-info">
             <h3 class="vx-sidebar-folder-name" id="vx-fl-sidebar-title" data-tpl="navbar_meetingroom">桌面</h3>
-            <div class="vx-sidebar-meta">
-                <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
-                <span id="vx-fl-item-count">0</span> <span data-tpl="vx_item_unit">项</span>
+            <div class="vx-sidebar-stats">
+                <div class="vx-sidebar-stat-item">
+                    <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+                    <div class="vx-sidebar-stat-text">
+                        <span class="vx-sidebar-stat-val" id="vx-fl-folder-count">0</span>
+                        <span class="vx-sidebar-stat-lbl" data-tpl="vx_folder_unit">个文件夹</span>
+                    </div>
+                </div>
+                <div class="vx-sidebar-stat-item">
+                    <iconpark-icon name="file-lines"></iconpark-icon>
+                    <div class="vx-sidebar-stat-text">
+                        <span class="vx-sidebar-stat-val" id="vx-fl-file-count">0</span>
+                        <span class="vx-sidebar-stat-lbl" data-tpl="vx_file_unit">个文件</span>
+                    </div>
+                </div>
+                <div class="vx-sidebar-stat-item">
+                    <iconpark-icon name="compact-disc"></iconpark-icon>
+                    <div class="vx-sidebar-stat-text">
+                        <span class="vx-sidebar-stat-val" id="vx-fl-total-size">0 B</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

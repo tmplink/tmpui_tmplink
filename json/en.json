@@ -515,6 +515,8 @@
     "vx_privacy_public": "Public",
     "vx_privacy_private": "Private",
     "vx_item_unit": "items",
+    "vx_folder_unit": "folders",
+    "vx_file_unit": "files",
     "vx_selected_prefix": "Selected",
     "vx_empty_folder_title": "Empty folder",
     "vx_view_list": "List view",

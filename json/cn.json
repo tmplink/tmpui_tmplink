@@ -899,6 +899,8 @@
     "vx_privacy_public": "公开",
     "vx_privacy_private": "私有",
     "vx_item_unit": "项",
+    "vx_folder_unit": "个文件夹",
+    "vx_file_unit": "个文件",
     "vx_selected_prefix": "已选择",
     "vx_empty_folder_title": "空文件夹",
     "vx_view_list": "列表视图",
