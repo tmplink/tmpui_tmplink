@@ -74,7 +74,10 @@
     
     /* Mobile: Default state - no animation, show ellipsis */
     .vx-list-filename a {
-        display: inline-block !important;
+        display: block !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
     }

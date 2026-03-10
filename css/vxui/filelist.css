@@ -9,11 +9,15 @@
     margin: 0 4px;
 }
 
+.vx-sidebar-folder-info {
+    padding: 2px 12px 12px 12px;
+}
+
 .vx-sidebar-folder-name {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--vx-text);
-    margin: 0 0 4px 0;
+    margin: 0 0 10px 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -29,6 +33,45 @@
 
 .vx-sidebar-meta iconpark-icon {
     font-size: 14px;
+}
+
+.vx-sidebar-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.vx-sidebar-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+    line-height: 1;
+}
+
+.vx-sidebar-stat-item iconpark-icon {
+    font-size: 14px;
+    color: var(--vx-text-muted, #888);
+    width: 16px;
+    display: flex;
+    justify-content: center;
+}
+
+.vx-sidebar-stat-text {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.vx-sidebar-stat-val {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--vx-text, #333);
+}
+
+.vx-sidebar-stat-lbl {
+    font-size: 12px;
 }
 
 /* ==================== Toggle Button Groups ==================== */
@@ -346,9 +389,10 @@ body.vx-fl-has-sponsor .vx-content {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%;
-    display: inline-block;
-    flex-shrink: 1;
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
 }
 
 .vx-list-filename:hover a {
@@ -402,8 +446,20 @@ body.vx-fl-has-sponsor .vx-content {
     background: rgba(239, 68, 68, 0.08);
     border: 1px solid rgba(239, 68, 68, 0.22);
     border-radius: 10px;
-    padding: 1px 5px;
+    padding: 1px 6px;
     font-size: 11px;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+.vx-hot-badge iconpark-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 13px;
+    height: 13px;
+    font-size: 13px;
+    line-height: 1;
     vertical-align: middle;
 }
 
@@ -418,11 +474,19 @@ body.vx-fl-has-sponsor .vx-content {
     border-radius: 10px;
     padding: 1px 6px;
     font-size: 11px;
+    line-height: 1;
     vertical-align: middle;
 }
 
 .vx-like-badge iconpark-icon {
-    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 13px;
+    height: 13px;
+    font-size: 13px;
+    line-height: 1;
+    vertical-align: middle;
 }
 
 .vx-type-folder {

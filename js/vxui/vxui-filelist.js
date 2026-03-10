@@ -280,8 +280,6 @@ var VX_FILELIST = VX_FILELIST || {
     applyFolderPrivacyUI() {
         const section = document.getElementById('vx-fl-privacy-section');
         const toggle = document.getElementById('vx-fl-privacy-toggle');
-        const stateEl = document.getElementById('vx-fl-privacy-state');
-        const hintEl = document.getElementById('vx-fl-privacy-hint');
 
         // 仅在文件夹（非桌面）且拥有者时展示
         const show = !!this.isOwner && !this.isDesktop && this.mrid && String(this.mrid) !== '0';
@@ -294,18 +292,6 @@ var VX_FILELIST = VX_FILELIST || {
             // checked = private (开=私有)
             toggle.checked = (current === 'private');
             toggle.disabled = !!this._privacyLoading;
-        }
-
-        if (stateEl) {
-            stateEl.textContent = (current === 'private')
-                ? this.t('vx_privacy_private', '私有')
-                : this.t('vx_privacy_public', '公开');
-        }
-
-        if (hintEl) {
-            hintEl.textContent = (current === 'private')
-                ? this.t('modal_meetingroom_type2', '私有，仅自己可访问。')
-                : this.t('modal_meetingroom_type1', '公开，所有人都可访问。');
         }
     },
 
@@ -1685,13 +1671,48 @@ var VX_FILELIST = VX_FILELIST || {
     },
     
     /**
+     * 将格式化的大小字符串（如 "46.21 MB"）转换回字节数
+     */
+    parseSizeFromFormatted(sizeStr) {
+        if (!sizeStr) return 0;
+        const units = { 'B': 1, 'KB': 1024, 'MB': 1048576, 'GB': 1073741824, 'TB': 1099511627776 };
+        const match = String(sizeStr).match(/^([\.\d]+)\s*(B|KB|MB|GB|TB)$/i);
+        if (!match) return 0;
+        return parseFloat(match[1]) * (units[match[2].toUpperCase()] || 1);
+    },
+
+    /**
      * 更新项目数量
      */
     updateItemCount() {
-        const count = (this.subRooms ? this.subRooms.length : 0) + (this.fileList ? this.fileList.length : 0);
-        const countEl = document.getElementById('vx-fl-item-count');
-        if (countEl) {
-            countEl.textContent = count;
+        const folderCount = this.subRooms ? this.subRooms.length : 0;
+        const fileCount = this.fileList ? this.fileList.length : 0;
+        const totalSize = this.fileList ? this.fileList.reduce((sum, f) => {
+            const raw = Number(f.filesize) || Number(f.fsize);
+            return sum + ((raw > 0 && !isNaN(raw)) ? raw : this.parseSizeFromFormatted(f.fsize_formated));
+        }, 0) : 0;
+
+        const folderCountEl = document.getElementById('vx-fl-folder-count');
+        const fileCountEl = document.getElementById('vx-fl-file-count');
+        const totalSizeEl = document.getElementById('vx-fl-total-size');
+        const statsEl = document.getElementById('vx-sidebar-stats');
+
+        if (statsEl) statsEl.style.display = 'flex';
+
+        if (folderCountEl) {
+            folderCountEl.textContent = folderCount;
+            const parent = folderCountEl.closest('.vx-sidebar-stat-item');
+            if (parent) parent.style.display = folderCount === 0 ? 'none' : 'flex';
+        }
+        if (fileCountEl) {
+            fileCountEl.textContent = fileCount;
+            const parent = fileCountEl.closest('.vx-sidebar-stat-item');
+            if (parent) parent.style.display = fileCount === 0 ? 'none' : 'flex';
+        }
+        if (totalSizeEl) {
+            totalSizeEl.textContent = this.formatSize(totalSize);
+            const parent = totalSizeEl.closest('.vx-sidebar-stat-item');
+            if (parent) parent.style.display = totalSize === 0 ? 'none' : 'flex';
         }
     },
     
@@ -2282,7 +2303,7 @@ var VX_FILELIST = VX_FILELIST || {
                 ${iconHtml}
                 <div class="vx-list-filename">
                     ${filenameLink}
-                    ${file.hot > 0 ? '<iconpark-icon name="fire" class="vx-hot-badge"></iconpark-icon>' : ''}
+                    ${file.hot > 0 ? '<span class="vx-hot-badge"><iconpark-icon name="fire"></iconpark-icon></span>' : ''}
                     ${file.like > 0 ? `<span class="vx-like-badge"><iconpark-icon name="like"></iconpark-icon>${file.like}</span>` : ''}
                     ${priceTag}
                     ${unpurchasedTag}
@@ -5715,18 +5736,9 @@ var VX_FILELIST = VX_FILELIST || {
     onCreateFolderPrivacyChange(el) {
         const isPrivate = el.checked;
         const modelInput = document.getElementById('vx-fl-folder-model');
-        const hint = document.getElementById('vx-fl-create-privacy-hint');
         
         if (modelInput) {
             modelInput.value = isPrivate ? '1' : '0';
-        }
-        
-        if (hint) {
-            if (isPrivate) {
-                hint.innerHTML = this.t('modal_meetingroom_type2', '私有，仅自己可访问。');
-            } else {
-                hint.innerHTML = this.t('modal_meetingroom_type1', '公开，所有人都可访问。');
-            }
         }
     },
 

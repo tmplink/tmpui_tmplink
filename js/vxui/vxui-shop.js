@@ -1364,7 +1364,18 @@ window.VX_SHOP = {
                 // 刷新点数日志
                 this.loadPointLog(0);
             } else {
-                const msg = (result.data && result.data.message) || this.t('vx_transfer_failed', '转账失败');
+                const debugErrorMap = {
+                    'amount_too_low':        this.t('vx_transfer_err_amount_too_low', '转账金额未达最低限额（100 点）'),
+                    'transfer_to_self':      this.t('vx_transfer_err_to_self', '不能向自己转账'),
+                    'target_user_not_found': this.t('vx_transfer_err_user_not_found', '目标用户不存在'),
+                    'insufficient_points':   this.t('vx_transfer_err_insufficient', '点数不足'),
+                    'transfer_out_failed':   this.t('vx_transfer_err_system', '系统出错，请联系管理员'),
+                    'transfer_in_failed':    this.t('vx_transfer_err_system', '系统出错，请联系管理员'),
+                };
+                const debugKey = Array.isArray(result.debug) ? result.debug[0] : null;
+                const msg = (debugKey && debugErrorMap[debugKey])
+                    || (result.data && result.data.message)
+                    || this.t('vx_transfer_failed', '转账失败');
                 VXUI.toastError(msg);
                 if (btn) btn.disabled = false;
             }
