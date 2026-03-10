@@ -346,9 +346,10 @@ body.vx-fl-has-sponsor .vx-content {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%;
-    display: inline-block;
-    flex-shrink: 1;
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
 }
 
 .vx-list-filename:hover a {
