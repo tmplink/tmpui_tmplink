@@ -4155,6 +4155,12 @@ var VX_FILELIST = VX_FILELIST || {
             if (bar) bar.style.display = 'none';
         }
 
+        // 根据文件夹直链状态显示/隐藏「复制直链」按钮
+        const directBtn = document.getElementById('vx-fl-copy-direct-btn');
+        if (directBtn) {
+            directBtn.style.display = (this.isOwner && this.directDomainReady && this.directDirEnabled && this.directDirKey) ? '' : 'none';
+        }
+
         this.updateSelectAllCheckbox();
     },
 
@@ -4216,6 +4222,90 @@ var VX_FILELIST = VX_FILELIST || {
         }));
 
         await this.batchDownloader.folder_download(selectData);
+    },
+
+    /**
+     * 复制选中项链接
+     */
+    copySelectedUrls() {
+        if (!this.selectedItems || this.selectedItems.length === 0) {
+            VXUI.toastWarning(this.t('vx_select_files_to_copy_url', '请选择要复制链接的文件或文件夹'));
+            return;
+        }
+
+        this.trackUI('vui_filelist[copy_selected_urls]');
+
+        const urls = [];
+        const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
+
+        for (const item of this.selectedItems) {
+            let url = '';
+            if (item.type === 'folder') {
+                url = this.buildFolderShareUrl(item.id);
+            } else if (item.type === 'file') {
+                const safeKey = encodeURIComponent(String(item.id));
+                url = `https://${domain}/f/${safeKey}`;
+            }
+            if (url) {
+                urls.push(url);
+            }
+        }
+
+        if (urls.length === 0) return;
+
+        const text = urls.join('\n');
+        
+        if (typeof VXUI !== 'undefined' && VXUI.copyToClipboard) {
+            VXUI.copyToClipboard(text);
+            VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
+        } else if (typeof TL !== 'undefined' && typeof TL.bulkCopy === 'function') {
+            TL.bulkCopy(null, btoa(text), true);
+        } else {
+            navigator.clipboard.writeText(text).then(() => {
+                VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
+            }).catch(() => {
+                VXUI.toastError(this.t('vx_copy_failed', '复制失败'));
+            });
+        }
+        
+        this.clearSelection();
+    },
+
+    /**
+     * 复制选中文件的直链
+     */
+    copySelectedDirectUrls() {
+        if (!this.selectedItems || this.selectedItems.length === 0) {
+            VXUI.toastWarning(this.t('vx_select_files_to_copy_url', '请选择要复制链接的文件或文件夹'));
+            return;
+        }
+        if (!this.directDomainReady || !this.directDirEnabled || !this.directDirKey) {
+            VXUI.toastWarning(this.t('vx_direct_not_enabled', '未开启文件夹直链'));
+            return;
+        }
+
+        this.trackUI('vui_filelist[copy_selected_direct_urls]');
+
+        const urls = [];
+        for (const item of this.selectedItems) {
+            if (item.type === 'file') {
+                const file = (this.fileList || []).find(f => String(f.ukey) === String(item.id));
+                if (file) {
+                    const link = this.getDirectFileShareLink(file);
+                    if (link) urls.push(link);
+                }
+            }
+        }
+
+        if (urls.length === 0) {
+            VXUI.toastWarning(this.t('vx_no_files_selected', '没有可复制直链的文件'));
+            return;
+        }
+
+        const text = urls.join('\n');
+        VXUI.copyToClipboard(text);
+        VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
+        this.clearSelection();
     },
 
     /**

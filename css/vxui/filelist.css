@@ -861,6 +861,8 @@ body.vx-fl-has-sponsor .vx-content {
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
+    width: max-content;
+    max-width: calc(100vw - 40px);
     background: color-mix(in srgb, var(--vx-surface) 80%, transparent);
     border: 1px solid var(--vx-border);
     border-radius: var(--vx-radius-lg);
@@ -877,11 +879,14 @@ body.vx-fl-has-sponsor .vx-content {
 .vx-selection-info {
     font-weight: 500;
     color: var(--vx-text);
+    white-space: nowrap;
 }
 
 .vx-selection-actions {
     display: flex;
     align-items: center;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
     gap: 8px;
 }
 
