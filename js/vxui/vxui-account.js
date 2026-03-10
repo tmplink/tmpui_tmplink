@@ -472,11 +472,11 @@ const VX_ACCOUNT = {
                 }
             }
 
-            // Points balance (async fetch)
+            // Points balance (from user info API)
             const pointsEl = document.getElementById('vx-stat-points');
             if (pointsEl) {
-                pointsEl.textContent = '...';
-                this.fetchPointBalance(pointsEl);
+                const userPoint = (typeof TL !== 'undefined' && typeof TL.user_point !== 'undefined') ? TL.user_point : 0;
+                pointsEl.textContent = userPoint;
             }
             
             // Show publish section for sponsors or users with high share value

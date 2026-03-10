@@ -66,25 +66,8 @@ window.VX_POINTS = {
 	async fetchBalance() {
 		const el = document.getElementById('vx-points-balance');
 		if (!el) return;
-		el.textContent = '...';
-		try {
-			const apiUrl = (typeof TL !== 'undefined' && TL.api_pay) ? TL.api_pay : '/api_v2/pay';
-			const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
-			if (!token) { el.textContent = '--'; return; }
-			const response = await fetch(apiUrl, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-				body: `action=point_log&token=${encodeURIComponent(token)}&page=0`
-			});
-			const rsp = await response.json();
-			if (rsp.status === 1 && Array.isArray(rsp.data) && rsp.data.length > 0) {
-				el.textContent = this.formatPoints(rsp.data[0].now);
-			} else {
-				el.textContent = this.formatPoints(0);
-			}
-		} catch (e) {
-			el.textContent = '--';
-		}
+		const userPoint = (typeof TL !== 'undefined' && typeof TL.user_point !== 'undefined') ? TL.user_point : 0;
+		el.textContent = this.formatPoints(userPoint);
 	},
 
 	updateSidebar() {
