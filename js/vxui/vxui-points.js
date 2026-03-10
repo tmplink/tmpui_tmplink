@@ -144,7 +144,12 @@ window.VX_POINTS = {
 			this.loadSellingFiles(0);
 		} else if (this.currentTab === 'summary') {
 			this.loadPointLog(0);
-			this.fetchBalance();
+			// Re-fetch user info to get latest point balance from server
+			if (typeof TL !== 'undefined' && typeof TL.get_details === 'function') {
+				TL.get_details(() => { this.fetchBalance(); });
+			} else {
+				this.fetchBalance();
+			}
 		}
 		VXUI.toastInfo(this.t('vx_refreshed', '已刷新'));
 	},
@@ -702,6 +707,10 @@ window.VX_POINTS = {
 			if (result.status === 1) {
 				VXUI.toastSuccess(this.t('vx_transfer_success', '转账成功'));
 				this.closeModal();
+				// Update local point balance
+				if (typeof TL !== 'undefined' && typeof TL.user_point !== 'undefined') {
+					TL.user_point = Math.max(0, (parseInt(TL.user_point, 10) || 0) - amount);
+				}
 				this.loadPointLog(0);
 				this.fetchBalance();
 			} else {
