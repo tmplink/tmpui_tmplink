@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 224">
+  <!-- Main card -->
+  <rect width="400" height="224" rx="18" fill="#6CB535"/>
+
+  <!-- Background product silhouettes -->
+  <g opacity="0.14" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="translate(18,14)">
+      <rect x="0" y="0" width="22" height="38" rx="3"/>
+      <circle cx="11" cy="32" r="2.5"/>
+    </g>
+    <g transform="translate(62,6)">
+      <circle cx="16" cy="16" r="14"/>
+      <circle cx="16" cy="16" r="5"/>
+      <rect x="11" y="28" width="10" height="22" rx="4"/>
+    </g>
+    <g transform="translate(120,4)">
+      <rect x="0" y="14" width="34" height="28" rx="4"/>
+      <path d="M9,14 C9,4 25,4 25,14"/>
+    </g>
+    <g transform="translate(185,2)">
+      <rect x="4" y="18" width="20" height="30" rx="3"/>
+      <rect x="8" y="10" width="12" height="10" rx="2"/>
+      <rect x="12" y="4" width="4" height="8" rx="1"/>
+    </g>
+    <g transform="translate(250,8)">
+      <rect x="0" y="0" width="40" height="34" rx="2"/>
+      <line x1="20" y1="0" x2="20" y2="34"/>
+      <line x1="0" y1="17" x2="40" y2="17"/>
+    </g>
+    <g transform="translate(320,4)">
+      <rect x="4" y="0" width="48" height="30" rx="3"/>
+      <rect x="8" y="3" width="40" height="24" rx="1"/>
+      <path d="M0,32 L56,32 L52,36 L4,36 Z"/>
+    </g>
+    <g transform="translate(8,68)">
+      <circle cx="18" cy="20" r="16"/>
+      <circle cx="18" cy="20" r="11"/>
+      <line x1="18" y1="20" x2="18" y2="12"/>
+      <line x1="18" y1="20" x2="25" y2="20"/>
+      <rect x="12" y="0" width="12" height="6" rx="2"/>
+      <rect x="12" y="36" width="12" height="6" rx="2"/>
+    </g>
+    <g transform="translate(342,52)">
+      <rect x="0" y="0" width="42" height="26" rx="3"/>
+      <rect x="4" y="4" width="6" height="4" rx="1"/>
+      <rect x="14" y="4" width="6" height="4" rx="1"/>
+      <rect x="24" y="4" width="14" height="4" rx="1"/>
+      <rect x="4" y="11" width="12" height="4" rx="1"/>
+      <rect x="20" y="11" width="12" height="4" rx="1"/>
+      <rect x="8" y="18" width="26" height="4" rx="1"/>
+    </g>
+    <g transform="translate(310,88)">
+      <ellipse cx="22" cy="62" rx="20" ry="24"/>
+      <ellipse cx="22" cy="32" rx="14" ry="18"/>
+      <circle cx="22" cy="62" r="5"/>
+      <line x1="22" y1="8" x2="22" y2="14"/>
+      <rect x="16" y="2" width="12" height="8" rx="2"/>
+    </g>
+    <g transform="translate(12,148)">
+      <rect x="0" y="0" width="20" height="36" rx="3"/>
+      <line x1="7" y1="30" x2="13" y2="30"/>
+    </g>
+    <g transform="translate(48,145)">
+      <circle cx="18" cy="18" r="17"/>
+      <circle cx="18" cy="18" r="5"/>
+    </g>
+    <g transform="translate(88,148)">
+      <path d="M8,0 L32,0 L29,22 Q20,30 11,22 Z"/>
+      <rect x="15" y="26" width="10" height="4" rx="1"/>
+      <rect x="11" y="30" width="18" height="4" rx="2"/>
+      <path d="M8,4 Q-2,4 -2,12 Q-2,20 8,18"/>
+      <path d="M32,4 Q42,4 42,12 Q42,20 32,18"/>
+    </g>
+    <g transform="translate(220,152)">
+      <rect x="0" y="8" width="44" height="30" rx="5"/>
+      <rect x="14" y="2" width="16" height="10" rx="3"/>
+      <circle cx="22" cy="22" r="10"/>
+      <circle cx="22" cy="22" r="5"/>
+    </g>
+    <g transform="translate(280,155)">
+      <path d="M0,0 L0,28 Q15,36 30,28 L30,0"/>
+      <path d="M30,6 Q42,6 42,16 Q42,24 30,22"/>
+    </g>
+    <g transform="translate(336,158)">
+      <circle cx="14" cy="14" r="13"/>
+      <circle cx="14" cy="14" r="5"/>
+    </g>
+  </g>
+
+  <!-- Joy Mascot - Body -->
+  <ellipse cx="150" cy="145" rx="36" ry="48" fill="white"/>
+  <!-- Joy Mascot - Head -->
+  <circle cx="150" cy="85" r="30" fill="white"/>
+  <!-- Ears -->
+  <ellipse cx="129" cy="60" rx="8" ry="15" transform="rotate(-18 129 60)" fill="white"/>
+  <ellipse cx="171" cy="60" rx="8" ry="15" transform="rotate(18 171 60)" fill="white"/>
+  <!-- Eyes -->
+  <ellipse cx="138" cy="82" rx="4.5" ry="5.5" fill="#2a2a2a"/>
+  <circle cx="140.5" cy="79.5" r="1.8" fill="white"/>
+  <ellipse cx="162" cy="82" rx="4.5" ry="5.5" fill="#2a2a2a"/>
+  <circle cx="164.5" cy="79.5" r="1.8" fill="white"/>
+  <!-- Nose -->
+  <ellipse cx="150" cy="96" rx="5.5" ry="4" fill="#2a2a2a"/>
+  <!-- Mouth -->
+  <path d="M143 103 Q150 110 157 103" stroke="#999" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Collar -->
+  <rect x="122" y="112" width="56" height="12" rx="6" fill="#C62828"/>
+  <circle cx="150" cy="118" r="5.5" fill="#FFC107"/>
+  <circle cx="150" cy="118" r="2" fill="#E65100"/>
+  <!-- 京东 text -->
+  <text x="195" y="130" font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','Heiti SC',sans-serif" font-size="46" font-weight="800" fill="white">京东</text>
+</svg>

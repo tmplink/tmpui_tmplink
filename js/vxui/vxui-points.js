@@ -136,6 +136,8 @@ window.VX_POINTS = {
 			this.fetchBalance();
 		} else if (tab === 'selling') {
 			this.loadSellingFiles(0);
+		} else if (tab === 'mall') {
+			this.renderMall();
 		}
 	},
 
@@ -171,6 +173,57 @@ window.VX_POINTS = {
 		} else if (this.currentTab === 'summary') {
 			this.loadPointLog(0);
 			this.fetchBalance();
+		}
+	},
+
+	renderMall() {
+		const container = document.getElementById('vx-mall-products');
+		if (!container || this._mallRendered) return;
+		this._mallRendered = true;
+
+		const products = [
+			{ id: 'jd_50',  denomination: 50,  points: 6500,  img: '/img/mall/jd_ecard_50.svg'  },
+			{ id: 'jd_100', denomination: 100, points: 13000, img: '/img/mall/jd_ecard_100.svg' },
+			{ id: 'jd_500', denomination: 500, points: 65000, img: '/img/mall/jd_ecard_500.svg' },
+		];
+
+		const nameText = this.t('vx_mall_jd_ecard', '京东 E 卡');
+		const pointsUnit = this.t('vx_mall_points_unit', '点数');
+		const exchangeText = this.t('vx_mall_exchange', '兑换');
+		const soldOutText = this.t('vx_mall_sold_out', '已兑换完');
+
+		let html = '<div class="vx-mall-grid">';
+		for (const p of products) {
+			html += `
+			<div class="vx-mall-card" id="mall-card-${p.id}">
+				<div class="vx-mall-card-image">
+					<img src="${p.img}" alt="${nameText} ¥${p.denomination}" draggable="false">
+					<div class="vx-mall-sold-out-overlay" id="sold-out-${p.id}" style="display:none;">
+						<span class="vx-mall-sold-out-badge">${soldOutText}</span>
+					</div>
+				</div>
+				<div class="vx-mall-card-body">
+					<div class="vx-mall-card-name">${nameText}</div>
+					<div class="vx-mall-card-denom">¥${p.denomination}</div>
+					<div class="vx-mall-card-cost">${p.points.toLocaleString()} ${pointsUnit}</div>
+					<button class="vx-mall-exchange-btn" id="btn-${p.id}" onclick="VX_POINTS.exchangeMallItem('${p.id}')">${exchangeText}</button>
+				</div>
+			</div>`;
+		}
+		html += '</div>';
+		container.innerHTML = html;
+	},
+
+	exchangeMallItem(id) {
+		const btn = document.getElementById(`btn-${id}`);
+		const overlay = document.getElementById(`sold-out-${id}`);
+		const soldOutText = this.t('vx_mall_sold_out', '已兑换完');
+		if (btn) {
+			btn.disabled = true;
+			btn.textContent = soldOutText;
+		}
+		if (overlay) {
+			overlay.style.display = 'flex';
 		}
 	},
 

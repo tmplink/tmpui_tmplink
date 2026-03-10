@@ -1241,5 +1241,9 @@
     "nav_points_sold": "Sold Files",
     "nav_points_mall": "Points Mall",
     "nav_points_mall_coming": "Coming Soon...",
+    "vx_mall_jd_ecard": "JD E-Card",
+    "vx_mall_points_unit": "Points",
+    "vx_mall_exchange": "Redeem",
+    "vx_mall_sold_out": "Sold Out",
     "vx_no_sold_files": "No sold files"
 }

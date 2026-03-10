@@ -1241,5 +1241,9 @@
     "nav_points_sold": "販売されたファイル",
     "nav_points_mall": "ポイントモール",
     "nav_points_mall_coming": "近日公開...",
+    "vx_mall_jd_ecard": "JD Eカード",
+    "vx_mall_points_unit": "ポイント",
+    "vx_mall_exchange": "交換",
+    "vx_mall_sold_out": "在庫切れ",
     "vx_no_sold_files": "販売されたファイルはありません"
 }

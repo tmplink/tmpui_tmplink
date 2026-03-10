@@ -118,11 +118,7 @@
 
     <div class="vx-points-tab-content" id="vx-points-mall" style="display:none;">
         <div class="vx-shop-section">
-            <div class="vx-shop-section-title" data-tpl="vx_points_mall_tab">点数商城</div>
-            <div class="vx-points-coming-soon">
-                <div class="vx-points-coming-title" data-tpl="vx_coming_soon">即将到来</div>
-                <div class="vx-points-coming-desc" data-tpl="vx_points_mall_coming_desc">点数商城正在准备中，敬请期待。</div>
-            </div>
+            <div id="vx-mall-products"></div>
         </div>
     </div>
 </div>
@@ -581,6 +577,119 @@
 
     .vx-recharge-presets {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* === Points Mall === */
+.vx-mall-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 4px 0 20px;
+}
+
+.vx-mall-card {
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.vx-mall-card:hover {
+    box-shadow: var(--vx-shadow-md);
+}
+
+.vx-mall-card-image {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.vx-mall-card-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.vx-mall-sold-out-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.52);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vx-mall-sold-out-badge {
+    background: rgba(255, 255, 255, 0.95);
+    color: #e53935;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 8px 22px;
+    border-radius: 20px;
+    letter-spacing: 1.5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.vx-mall-card-body {
+    padding: 14px 16px 16px;
+}
+
+.vx-mall-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--vx-text-secondary);
+    margin-bottom: 2px;
+}
+
+.vx-mall-card-denom {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--vx-text);
+    line-height: 1.2;
+    margin-bottom: 4px;
+}
+
+.vx-mall-card-cost {
+    font-size: 13px;
+    color: var(--vx-text-muted);
+    margin-bottom: 12px;
+}
+
+.vx-mall-exchange-btn {
+    width: 100%;
+    padding: 9px 16px;
+    background: var(--vx-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--vx-radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.vx-mall-exchange-btn:hover:not(:disabled) {
+    filter: brightness(1.08);
+}
+
+.vx-mall-exchange-btn:disabled {
+    background: var(--vx-bg-secondary);
+    color: var(--vx-text-muted);
+    cursor: not-allowed;
+    border: 1px solid var(--vx-border);
+}
+
+@media (max-width: 900px) {
+    .vx-mall-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 580px) {
+    .vx-mall-grid {
+        grid-template-columns: 1fr;
     }
 }
 </style>

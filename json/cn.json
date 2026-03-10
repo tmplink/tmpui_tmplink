@@ -1223,5 +1223,9 @@
     "nav_points_sold": "出售文件",
     "nav_points_mall": "点数商城",
     "nav_points_mall_coming": "即将到来...",
+    "vx_mall_jd_ecard": "京东 E 卡",
+    "vx_mall_points_unit": "点数",
+    "vx_mall_exchange": "兑换",
+    "vx_mall_sold_out": "已兑换完",
     "vx_no_sold_files": "暂无售出的文件"
 }

@@ -1228,5 +1228,9 @@
     "nav_points_sold": "出售文件",
     "nav_points_mall": "點數商城",
     "nav_points_mall_coming": "即將到來...",
+    "vx_mall_jd_ecard": "京東 E 卡",
+    "vx_mall_points_unit": "點數",
+    "vx_mall_exchange": "兌換",
+    "vx_mall_sold_out": "已兌換完",
     "vx_no_sold_files": "暫無售出的文件"
 }
