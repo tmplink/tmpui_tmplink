@@ -14,7 +14,21 @@ applyTo: "tpl/vxui/**"
 
 ## 图标
 - 使用 Iconpark：`<iconpark-icon name="icon-name"></iconpark-icon>`
-- 常用图标：`cloud-arrow-down`（下载）、`folder-plus`（文件夹）、`trash`（删除）、`copy`（复制）、`share`（分享）
+- 选择或替换图标前，先到 `plugin/icon/lib.js` 查找仓库内实际可用的 icon 名称，不要凭空猜测 name
+- 常用图标参考：
+	- `cloud-arrow-up`（上传）
+	- `cloud-arrow-down`（下载）
+	- `folder-plus`（新建文件夹）
+	- `folder-open-e1ad2j7l`（文件夹/目录）
+	- `copy`（复制）
+	- `trash`（删除）
+	- `share-from-square`（分享/外链）
+	- `link`（链接/直链）
+	- `rotate`（刷新）
+	- `circle-check`（成功/确认）
+	- `circle-xmark`（关闭/取消）
+	- `circle-exclamation`（警告/提示）
+	- `bars`（菜单）
 
 ## 权限控制
 - `data-auth="logged-in"` — 仅登录用户可见

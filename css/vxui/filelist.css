@@ -1010,6 +1010,12 @@ body.vx-fl-has-sponsor .vx-content {
     font-size: 14px;
 }
 
+.vx-upload-setting-item .vx-input {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
 .vx-upload-setting-hint {
     font-size: 11px;
     color: var(--vx-text-muted);

@@ -29,6 +29,8 @@ var VX_UPLOADER = VX_UPLOADER || {
     serversLoading: false, // 服务器列表加载中
     serversLoaded: false, // 服务器列表已加载
     serversLoadCallbacks: [], // 等待服务器加载的回调队列
+    performanceSettingsLoaded: false,
+    performanceSettingsLoading: false,
     prepare_sha1: false,
     skip_upload: false,
 
@@ -50,6 +52,9 @@ var VX_UPLOADER = VX_UPLOADER || {
         
         // 加载本地设置
         this.loadSettings();
+
+        // 读取上传性能设置
+        this.loadPerformanceSettings();
         
         // 加载服务器列表
         this.loadServers();
@@ -97,6 +102,39 @@ var VX_UPLOADER = VX_UPLOADER || {
         // 秒传
         const quickUpload = localStorage.getItem('app_upload_quick');
         this.prepare_sha1 = quickUpload === '1';
+    },
+
+    /**
+     * 读取上传性能设置
+     */
+    loadPerformanceSettings(force) {
+        const token = this.getToken();
+        if (!token) return;
+        if (this.performanceSettingsLoading) return;
+        if (this.performanceSettingsLoaded && !force) return;
+
+        this.performanceSettingsLoading = true;
+
+        $.post(this.getUserApi(), {
+            action: 'pf_upload_get',
+            token: token
+        }, (rsp) => {
+            this.performanceSettingsLoading = false;
+
+            if (rsp.status !== 1 || !rsp.data) {
+                return;
+            }
+
+            this.slice_size = this.normalizeSliceSizeMb(rsp.data.upload_slice_size) * 1024 * 1024;
+            this.max_queue = this.normalizeConcurrentUploads(rsp.data.upload_slice_queue_max);
+            this.performanceSettingsLoaded = true;
+
+            this.updatePerformanceInputs();
+            this.updateAdvancedSettingsAvailability();
+            this.processQueue();
+        }, 'json').fail(() => {
+            this.performanceSettingsLoading = false;
+        });
     },
 
     /**
@@ -214,6 +252,9 @@ var VX_UPLOADER = VX_UPLOADER || {
 
         // 设置当前上传目录
         this.current_mrid = mrid || 0;
+
+        // 登录后再打开弹窗时补载一次性能配置
+        this.loadPerformanceSettings();
         
         // 更新模态框内容
         this.updateModalUI();
@@ -256,6 +297,10 @@ var VX_UPLOADER = VX_UPLOADER || {
         
         // 更新服务器选择
         this.updateServerSelect();
+
+        // 更新上传性能设置
+        this.updatePerformanceInputs();
+        this.updateAdvancedSettingsAvailability();
         
         // 更新私有空间显示
         this.updateStorageLabel();
@@ -278,10 +323,36 @@ var VX_UPLOADER = VX_UPLOADER || {
             return `<option value="${this.escapeHtml(url)}" ${selected ? 'selected' : ''}>${this.escapeHtml(label)}</option>`;
         }).join('');
         
-        // 非赞助者禁用服务器选择
-        if (typeof TL !== 'undefined' && !TL.isSponsor) {
-            serverSelect.disabled = true;
+        this.updateAdvancedSettingsAvailability();
+    },
+
+    /**
+     * 更新上传性能输入框
+     */
+    updatePerformanceInputs() {
+        const sliceInput = document.getElementById('vx-upload-slice-size');
+        if (sliceInput) {
+            sliceInput.value = String(this.getSliceSizeMb());
         }
+
+        const queueInput = document.getElementById('vx-upload-max-queue');
+        if (queueInput) {
+            queueInput.value = String(this.max_queue);
+        }
+    },
+
+    /**
+     * 更新高级上传设置可用性
+     */
+    updateAdvancedSettingsAvailability() {
+        const disabled = !this.isSponsorUser();
+        const serverSelect = document.getElementById('vx-upload-server');
+        const sliceInput = document.getElementById('vx-upload-slice-size');
+        const queueInput = document.getElementById('vx-upload-max-queue');
+
+        if (serverSelect) serverSelect.disabled = disabled;
+        if (sliceInput) sliceInput.disabled = disabled;
+        if (queueInput) queueInput.disabled = disabled;
     },
 
     /**
@@ -346,6 +417,80 @@ var VX_UPLOADER = VX_UPLOADER || {
     onServerChange(value) {
         this.upload_server = value;
         localStorage.setItem('app_upload_server', value);
+    },
+
+    /**
+     * 处理分片大小变更
+     */
+    onSliceSizeChange(value) {
+        const nextValue = this.normalizeSliceSizeMb(value);
+        const prevValue = this.getSliceSizeMb();
+
+        this.updatePerformanceInputs();
+
+        if (!this.isSponsorUser() || nextValue === prevValue) {
+            return;
+        }
+
+        this.savePerformanceSetting('upload_slice_size', nextValue, () => {
+            this.slice_size = nextValue * 1024 * 1024;
+            this.updatePerformanceInputs();
+            VXUI.toastSuccess(this.getLang('upload_settings_saved') || '上传设置已保存');
+        }, () => {
+            this.updatePerformanceInputs();
+        });
+    },
+
+    /**
+     * 处理同时上传文件数变更
+     */
+    onConcurrentChange(value) {
+        const nextValue = this.normalizeConcurrentUploads(value);
+        const prevValue = this.max_queue;
+
+        this.updatePerformanceInputs();
+
+        if (!this.isSponsorUser() || nextValue === prevValue) {
+            return;
+        }
+
+        this.savePerformanceSetting('upload_slice_queue_max', nextValue, () => {
+            this.max_queue = nextValue;
+            this.updatePerformanceInputs();
+            this.processQueue();
+            VXUI.toastSuccess(this.getLang('upload_settings_saved') || '上传设置已保存');
+        }, () => {
+            this.updatePerformanceInputs();
+        });
+    },
+
+    /**
+     * 保存上传性能设置
+     */
+    savePerformanceSetting(key, value, onSuccess, onError) {
+        const token = this.getToken();
+        if (!token || !this.isSponsorUser()) {
+            if (typeof onError === 'function') onError();
+            return;
+        }
+
+        $.post(this.getUserApi(), {
+            action: 'pf_upload_set',
+            token: token,
+            key: key,
+            val: value
+        }, (rsp) => {
+            if (rsp.status === 1) {
+                if (typeof onSuccess === 'function') onSuccess(rsp);
+                return;
+            }
+
+            if (typeof onError === 'function') onError(rsp);
+            VXUI.toastError(this.getLang('upload_settings_save_failed') || '上传设置保存失败');
+        }, 'json').fail(() => {
+            if (typeof onError === 'function') onError();
+            VXUI.toastError(this.getLang('upload_settings_save_failed') || '上传设置保存失败');
+        });
     },
 
     /**
@@ -491,7 +636,8 @@ var VX_UPLOADER = VX_UPLOADER || {
             uploaded: 0,
             speed: 0,
             error: null,
-            ukey: null
+            ukey: null,
+            slice_size: this.slice_size
         };
         
         this.upload_queue.push(task);
@@ -507,17 +653,12 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 处理队列
      */
     processQueue() {
-        // 检查是否可以开始新的上传
-        if (this.active_count >= this.max_queue) return;
-        if (this.upload_queue.length === 0) return;
-        
-        // 取出一个任务
-        const task = this.upload_queue.shift();
-        this.active_count++;
-        this.uploading[task.id] = task;
-        
-        // 开始上传
-        this.startUpload(task);
+        while (this.active_count < this.max_queue && this.upload_queue.length > 0) {
+            const task = this.upload_queue.shift();
+            this.active_count++;
+            this.uploading[task.id] = task;
+            this.startUpload(task);
+        }
     },
 
     /**
@@ -642,12 +783,12 @@ var VX_UPLOADER = VX_UPLOADER || {
         }
         
         const api = server + '/app/upload_slice';
-        const token = this.getToken();
-        const uptoken = CryptoJS.SHA1(this.getUid() + task.filename + task.file.size + this.slice_size).toString();
+        const sliceSize = task.slice_size || this.slice_size;
+        const uptoken = CryptoJS.SHA1(this.getUid() + task.filename + task.file.size + sliceSize).toString();
         
         // 初始化分片跟踪
         task.slices = {
-            total: Math.ceil(task.file.size / this.slice_size),
+            total: Math.ceil(task.file.size / sliceSize),
             uploaded: [],
             current: 0
         };
@@ -663,6 +804,7 @@ var VX_UPLOADER = VX_UPLOADER || {
         if (task.status === 'cancelled') return;
         
         const token = this.getToken();
+        const sliceSize = task.slice_size || this.slice_size;
         
         $.post(api, {
             token: token,
@@ -671,7 +813,7 @@ var VX_UPLOADER = VX_UPLOADER || {
             sha1: task.sha1 || 0,
             filename: task.filename,
             filesize: task.file.size,
-            slice_size: this.slice_size,
+            slice_size: sliceSize,
             utoken: task.utoken,
             mr_id: task.mrid,
             model: task.model
@@ -732,7 +874,8 @@ var VX_UPLOADER = VX_UPLOADER || {
         if (task.status === 'cancelled') return;
         
         const index = sliceInfo.next;
-        const blob = task.file.slice(index * this.slice_size, (index + 1) * this.slice_size);
+        const sliceSize = task.slice_size || this.slice_size;
+        const blob = task.file.slice(index * sliceSize, (index + 1) * sliceSize);
         
         const xhr = new XMLHttpRequest();
         const fd = new FormData();
@@ -745,7 +888,7 @@ var VX_UPLOADER = VX_UPLOADER || {
         fd.append('filename', task.filename);
         fd.append('index', index);
         fd.append('action', 'upload_slice');
-        fd.append('slice_size', this.slice_size);
+        fd.append('slice_size', sliceSize);
         
         // 上传进度
         let lastLoaded = 0;
@@ -754,7 +897,7 @@ var VX_UPLOADER = VX_UPLOADER || {
                 const sliceProgress = evt.loaded / evt.total;
                 const overallProgress = ((sliceInfo.total - sliceInfo.wait + sliceProgress) / sliceInfo.total);
                 task.progress = Math.floor(overallProgress * 100);
-                task.uploaded = (sliceInfo.total - sliceInfo.wait) * this.slice_size + evt.loaded;
+                task.uploaded = (sliceInfo.total - sliceInfo.wait) * sliceSize + evt.loaded;
                 
                 // 计算速度（传递增量而非累计值）
                 const delta = evt.loaded - lastLoaded;
@@ -1325,6 +1468,13 @@ var VX_UPLOADER = VX_UPLOADER || {
         return '/api_v2/upload';
     },
 
+    getUserApi() {
+        if (typeof TL !== 'undefined' && TL.api_user) {
+            return TL.api_user;
+        }
+        return '/api_v2/user';
+    },
+
     recaptchaDo(action, callback) {
         if (typeof TL !== 'undefined' && typeof TL.recaptcha_do === 'function') {
             TL.recaptcha_do(action, callback);
@@ -1337,6 +1487,30 @@ var VX_UPLOADER = VX_UPLOADER || {
         if (model === 3) return 2;
         const valid = [0, 1, 2, 99];
         return valid.includes(model) ? model : 0;
+    },
+
+    normalizeSliceSizeMb(value) {
+        const parsed = Number(value);
+        if (!Number.isFinite(parsed)) {
+            return this.getSliceSizeMb();
+        }
+        return Math.min(80, Math.max(1, Math.round(parsed)));
+    },
+
+    normalizeConcurrentUploads(value) {
+        const parsed = Number(value);
+        if (!Number.isFinite(parsed)) {
+            return this.max_queue || 10;
+        }
+        return Math.min(100, Math.max(1, Math.round(parsed)));
+    },
+
+    getSliceSizeMb() {
+        return Math.max(1, Math.round((this.slice_size || 0) / (1024 * 1024)) || 80);
+    },
+
+    isSponsorUser() {
+        return typeof TL !== 'undefined' && !!TL.isSponsor;
     },
 
     getValidityLabel(model) {

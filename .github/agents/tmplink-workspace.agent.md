@@ -29,6 +29,7 @@ VXUI 规则：
 - Toast 使用 VXUI.toastSuccess、VXUI.toastWarning、VXUI.toastError
 - 剪贴板使用 VXUI.copyToClipboard
 - 模板使用 data-tpl 标记翻译
+- 需要使用或替换 icon 时，先到 plugin/icon/lib.js 查找仓库内实际可用的 icon 名称，再写入 iconpark-icon 的 name
 - 样式类以 vx- 开头
 - 深色模式统一放在 css/dark.css
 

@@ -483,6 +483,12 @@
     font-size: 12px;
 }
 
+.vx-pref-item-last {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
 @media (max-width: 980px) {
     .vx-copy-style-grid {
         grid-template-columns: 1fr;
