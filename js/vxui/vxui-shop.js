@@ -58,6 +58,12 @@ window.VX_SHOP = {
     t(key, fallback) {
         return (typeof TL !== 'undefined' && TL.tpl && TL.tpl[key]) ? TL.tpl[key] : fallback;
     },
+
+    fmt(key, params, fallback) {
+        const text = String(this.t(key, fallback) || '');
+        if (!params) return text;
+        return text.replace(/\{(\w+)\}/g, (m, k) => (params[k] !== undefined ? String(params[k]) : m));
+    },
     
     /**
      * Check if Chinese language
@@ -1396,7 +1402,6 @@ window.VX_SHOP = {
         const minAmount = isCN ? 1 : 10;
         const maxAmount = 500;
         const currency = isCN ? '¥' : '$';
-        const unit = isCN ? '元' : 'USD';
 
         const modalTitle = document.getElementById('vx-modal-title');
         const modalBody = document.getElementById('vx-modal-body');
@@ -1411,12 +1416,14 @@ window.VX_SHOP = {
         const presetsHtml = presets.map(p => `
             <div class="vx-recharge-preset" onclick="VX_SHOP._selectRechargePreset(${p})">
                 ${currency}${p}
-                <span class="vx-recharge-preset-points">= ${p * rate} 点</span>
+                <span class="vx-recharge-preset-points">= ${p * rate} ${this.t('vx_points', '点数')}</span>
             </div>
         `).join('');
 
         modalBody.innerHTML = `
-            <p class="vx-modal-desc">${this.t('vx_recharge_rate', isCN ? '1 元 = 100 点。' : '1 USD = 600 点。')}</p>
+            <p class="vx-modal-desc">${isCN
+                ? this.t('vx_recharge_rate_cny', '1 元 = 100 点。')
+                : this.t('vx_recharge_rate_usd', '1 USD = 600 点。')}</p>
             <div class="vx-recharge-presets">${presetsHtml}</div>
             <div class="vx-recharge-custom">
                 <label class="vx-recharge-custom-label">${this.t('vx_custom_amount', '自定义金额')}</label>
@@ -1489,10 +1496,10 @@ window.VX_SHOP = {
         const min = this._rechargeMinAmount || 1;
         const max = this._rechargeMaxAmount || 500;
         if (val < min) {
-            preview.textContent = this.t('vx_amount_too_low', `最少 ${currency}${min}`);
+            preview.textContent = this.fmt('vx_amount_too_low', { currency, min }, `最少 ${currency}${min}`);
             preview.style.color = 'var(--vx-danger)';
         } else if (val > max) {
-            preview.textContent = this.t('vx_amount_too_high', `单次最多 ${currency}${max}`);
+            preview.textContent = this.fmt('vx_amount_too_high', { currency, max }, `单次最多 ${currency}${max}`);
             preview.style.color = 'var(--vx-danger)';
         } else {
             preview.textContent = `= ${points} ${this.t('vx_points', '点数')}`;
@@ -1512,16 +1519,15 @@ window.VX_SHOP = {
         const max = this._rechargeMaxAmount || 500;
         const currency = this._rechargeIsCN ? '¥' : '$';
         if (amount < min) {
-            VXUI.toastWarning(this.t('vx_amount_too_low', `最少充值 ${currency}${min}`));
+            VXUI.toastWarning(this.fmt('vx_amount_too_low_recharge', { currency, min }, `最少充值 ${currency}${min}`));
             input.focus();
             return;
         }
         if (amount > max) {
-            VXUI.toastWarning(this.t('vx_amount_too_high', `单次最多充值 ${currency}${max}`));
+            VXUI.toastWarning(this.fmt('vx_amount_too_high_recharge', { currency, max }, `单次最多充值 ${currency}${max}`));
             input.focus();
             return;
         }
-        const points = Math.floor(amount * (this._rechargeRate || 100));
         const payUrl = this._rechargeIsCN
             ? `https://pay.vezii.com/id4/pay_v2?price=${amount}&token=${token}&prepare_type=POINT&prepare_code=POINT_CUSTOM`
             : `https://s12.tmp.link/payment/paypal/checkout_v2?price=${amount}&token=${token}&prepare_type=POINT&prepare_code=POINT_CUSTOM`;
