@@ -132,6 +132,97 @@ body.file-page .file-page-root .align-self-center {
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
 }
 
+.mobile-error-shell {
+    background:
+        radial-gradient(circle at top center, rgba(79, 70, 229, 0.16), transparent 34%),
+        linear-gradient(180deg, #081633 0%, #071126 100%);
+}
+
+.mobile-error-shell .mobile-header {
+    justify-content: flex-start;
+}
+
+.mobile-error-content {
+    justify-content: flex-start;
+    align-items: stretch;
+    padding-top: clamp(44px, 12vh, 108px);
+    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+}
+
+.mobile-error-card {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 18px 10px 20px;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    text-align: center;
+}
+
+.mobile-error-icon {
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 22px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: #f8fafc;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mobile-error-icon-busy iconpark-icon {
+    animation: mobile-error-spin 1.4s linear infinite;
+}
+
+.mobile-error-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 12px;
+    text-shadow: 0 6px 22px rgba(0, 0, 0, 0.24);
+}
+
+.mobile-error-desc,
+.mobile-error-card .text-muted {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(226, 232, 240, 0.72) !important;
+    margin: 0;
+}
+
+.mobile-error-actions {
+    margin-top: 24px;
+}
+
+.mobile-error-actions .file-btn.primary {
+    min-width: 138px;
+    height: 48px;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 22px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.28);
+}
+
+@media (max-width: 390px) {
+    .mobile-error-card {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+@keyframes mobile-error-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 /* Loading state (before details loaded) */
 #file_loading_box {
     position: fixed;
@@ -822,6 +913,14 @@ body.dark-mode .messenger-card {
     border-radius: 18px;
     padding: 22px 18px;
     box-shadow: 0 22px 60px -30px rgba(0, 0, 0, 0.85);
+}
+
+body.dark-mode .mobile-error-card {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 18px 10px 20px !important;
+    box-shadow: none !important;
 }
 
 body.dark-mode .messenger-msg {
