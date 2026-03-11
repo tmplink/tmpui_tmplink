@@ -574,28 +574,49 @@
             </button>
         </div>
         <div class="vx-modal-body">
-            <!-- 当前设置 -->
             <div class="vx-upload-settings">
-                <div class="vx-upload-settings-header">
-                    <iconpark-icon name="circle-check" class="text-success"></iconpark-icon>
-                    <span data-tpl="upload_settings_current">当前设置</span>
-                </div>
                 <div class="vx-upload-settings-grid">
                     <div class="vx-upload-setting-item">
                         <label class="vx-label" data-tpl="upload_settings_validity">文件有效期</label>
-                        <select class="vx-select" id="vx-upload-model" onchange="VX_UPLOADER.onModelChange(this.value)">
-                            <option value="0" data-tpl="modal_settings_upload_model1">24 小时</option>
-                            <option value="1" selected data-tpl="modal_settings_upload_model2">3 天</option>
-                            <option value="2" data-tpl="modal_settings_upload_model3">7 天</option>
-                            <option value="99" data-tpl="modal_settings_upload_model99">永久保存</option>
-                        </select>
-                        <div class="vx-upload-setting-hint" data-tpl="modal_settings_upload_model2_des">将在有人下载时自动延长这个期限。</div>
+                        <div class="vx-upload-picker vx-upload-picker-desktop">
+                            <div class="vx-upload-segmented" id="vx-upload-model-tabs">
+                                <button type="button" class="vx-upload-segment" data-upload-model="0" onclick="VX_UPLOADER.onModelTabClick(this)">
+                                    <span data-tpl="modal_settings_upload_model1">24 小时</span>
+                                </button>
+                                <button type="button" class="vx-upload-segment" data-upload-model="1" onclick="VX_UPLOADER.onModelTabClick(this)">
+                                    <span data-tpl="modal_settings_upload_model2">3 天</span>
+                                </button>
+                                <button type="button" class="vx-upload-segment" data-upload-model="2" onclick="VX_UPLOADER.onModelTabClick(this)">
+                                    <span data-tpl="modal_settings_upload_model3">7 天</span>
+                                </button>
+                                <button type="button" class="vx-upload-segment" data-upload-model="99" onclick="VX_UPLOADER.onModelTabClick(this)">
+                                    <span data-tpl="modal_settings_upload_model99">永久保存</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="vx-upload-picker vx-upload-picker-mobile">
+                            <select class="vx-select" id="vx-upload-model" onchange="VX_UPLOADER.onModelChange(this.value)">
+                                <option value="0" data-tpl="modal_settings_upload_model1">24 小时</option>
+                                <option value="1" selected data-tpl="modal_settings_upload_model2">3 天</option>
+                                <option value="2" data-tpl="modal_settings_upload_model3">7 天</option>
+                                <option value="99" data-tpl="modal_settings_upload_model99">永久保存</option>
+                            </select>
+                        </div>
+                        <div class="vx-upload-setting-meta" id="vx-upload-model-99-meta"></div>
+                        <div class="vx-upload-setting-hint" id="vx-upload-model-hint" data-tpl="modal_settings_upload_model2_des">将在有人下载时自动延长这个期限。</div>
                     </div>
-                    <div class="vx-upload-setting-item">
+                    <div class="vx-upload-setting-item" id="vx-upload-server-setting">
                         <label class="vx-label" data-tpl="upload_settings_server">服务器</label>
-                        <select class="vx-select" id="vx-upload-server" onchange="VX_UPLOADER.onServerChange(this.value)">
-                            <!-- 服务器列表由JS填充 -->
-                        </select>
+                        <div class="vx-upload-picker vx-upload-picker-desktop">
+                            <div class="vx-upload-segmented vx-upload-segmented-server" id="vx-upload-server-tabs">
+                                <!-- 服务器列表由JS填充 -->
+                            </div>
+                        </div>
+                        <div class="vx-upload-picker vx-upload-picker-mobile">
+                            <select class="vx-select" id="vx-upload-server" onchange="VX_UPLOADER.onServerChange(this.value)">
+                                <!-- 服务器列表由JS填充 -->
+                            </select>
+                        </div>
                         <div class="vx-upload-setting-hint" data-tpl="model_title_upload_servers_des">赞助者专用功能</div>
                     </div>
                 </div>

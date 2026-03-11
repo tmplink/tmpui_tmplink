@@ -287,10 +287,10 @@ var VX_UPLOADER = VX_UPLOADER || {
      */
     updateModalUI() {
         // 更新有效期选择
-        const modelSelect = document.getElementById('vx-upload-model');
-        if (modelSelect) {
-            modelSelect.value = String(this.upload_model);
-        }
+        this.updateModelTabs();
+
+        // 更新服务器项显隐
+        this.updateServerVisibility();
         
         // 更新有效期描述
         this.updateModelDescription(this.upload_model);
@@ -310,20 +310,74 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 更新服务器下拉框
      */
     updateServerSelect() {
+        const serverTabs = document.getElementById('vx-upload-server-tabs');
         const serverSelect = document.getElementById('vx-upload-server');
-        if (!serverSelect || !this.servers.length) return;
+        if (!serverTabs && !serverSelect) return;
 
-        serverSelect.innerHTML = this.servers.map((s) => {
+        if (!this.servers.length) {
+            if (serverTabs) serverTabs.innerHTML = '';
+            if (serverSelect) serverSelect.innerHTML = '';
+            return;
+        }
+
+        const serverItems = this.servers.map((s) => {
             // 老代码使用 servers[].title 作为显示文本
             const url = (s && typeof s === 'object') ? s.url : String(s || '');
             const label = (s && typeof s === 'object')
                 ? (s.title || s.name || s.label || s.id || url)
                 : url;
-            const selected = url && url === this.upload_server;
-            return `<option value="${this.escapeHtml(url)}" ${selected ? 'selected' : ''}>${this.escapeHtml(label)}</option>`;
-        }).join('');
+            const badge = this.getServerBadge(label, url);
+            return {
+                url: url,
+                label: label,
+                badge: badge
+            };
+        });
+
+        if (serverTabs) {
+            serverTabs.innerHTML = serverItems.map((item) => {
+                return `<button type="button" class="vx-upload-segment" data-upload-server="${this.escapeHtml(item.url)}" onclick="VX_UPLOADER.onServerCardClick(this)"><span>${this.escapeHtml(item.label)}</span></button>`;
+            }).join('');
+        }
+
+        if (serverSelect) {
+            serverSelect.innerHTML = serverItems.map((item) => {
+                const selected = item.url === this.upload_server ? ' selected' : '';
+                return `<option value="${this.escapeHtml(item.url)}"${selected}>${this.escapeHtml(item.label)}</option>`;
+            }).join('');
+        }
+
+        this.syncServerTabState();
         
         this.updateAdvancedSettingsAvailability();
+    },
+
+    updateModelTabs() {
+        this.syncModelTabState();
+    },
+
+    syncModelTabState() {
+        const modelSelect = document.getElementById('vx-upload-model');
+        const modelTabs = document.querySelectorAll('#vx-upload-model-tabs [data-upload-model]');
+        modelTabs.forEach((item) => {
+            const model = item.getAttribute('data-upload-model');
+            item.classList.toggle('active', model === String(this.upload_model));
+        });
+        if (modelSelect) {
+            modelSelect.value = String(this.upload_model);
+        }
+    },
+
+    syncServerTabState() {
+        const serverSelect = document.getElementById('vx-upload-server');
+        const serverTabs = document.querySelectorAll('#vx-upload-server-tabs [data-upload-server]');
+        serverTabs.forEach((item) => {
+            const server = item.getAttribute('data-upload-server') || '';
+            item.classList.toggle('active', server === String(this.upload_server || ''));
+        });
+        if (serverSelect) {
+            serverSelect.value = String(this.upload_server || '');
+        }
     },
 
     /**
@@ -346,13 +400,27 @@ var VX_UPLOADER = VX_UPLOADER || {
      */
     updateAdvancedSettingsAvailability() {
         const disabled = !this.isSponsorUser();
-        const serverSelect = document.getElementById('vx-upload-server');
         const sliceInput = document.getElementById('vx-upload-slice-size');
         const queueInput = document.getElementById('vx-upload-max-queue');
+        const serverSelect = document.getElementById('vx-upload-server');
+        const serverCards = document.querySelectorAll('#vx-upload-server-tabs .vx-upload-segment');
 
+        serverCards.forEach((card) => {
+            card.disabled = disabled;
+            card.classList.toggle('is-disabled', disabled);
+        });
         if (serverSelect) serverSelect.disabled = disabled;
         if (sliceInput) sliceInput.disabled = disabled;
         if (queueInput) queueInput.disabled = disabled;
+
+        this.updateServerVisibility();
+    },
+
+    updateServerVisibility() {
+        const serverSetting = document.getElementById('vx-upload-server-setting');
+        if (!serverSetting) return;
+
+        serverSetting.style.display = this.isSponsorUser() ? '' : 'none';
     },
 
     /**
@@ -360,15 +428,23 @@ var VX_UPLOADER = VX_UPLOADER || {
      */
     updateStorageLabel() {
         const remaining = Math.max(this.storage - this.private_storage_used, 0);
-        const label = document.querySelector('#vx-upload-model option[value="99"]');
-        if (label) {
-            const baseText = this.getLang('modal_settings_upload_model99') || '永久保存';
-            const leftText = this.getLang('upload_settings_private_left') || '剩余可用空间';
-            label.textContent = `${baseText} (${leftText} ${this.formatSize(remaining)})`;
+        const meta = document.getElementById('vx-upload-model-99-meta');
+        const card = document.querySelector('#vx-upload-model-tabs [data-upload-model="99"]');
+        const option = document.querySelector('#vx-upload-model option[value="99"]');
+        if (meta) {
+            const leftText = this.getLang('upload_settings_private_left') || '剩余私有空间容量';
+            meta.textContent = `${leftText} ${this.formatSize(remaining)}`;
             
             // 空间不足时禁用
-            if (remaining <= 0) {
-                label.disabled = true;
+            if (card) {
+                const disabled = remaining <= 0;
+                card.disabled = disabled;
+                card.classList.toggle('is-disabled', disabled);
+            }
+            if (option) {
+                const baseText = this.getLang('modal_settings_upload_model99') || '永久保存';
+                option.textContent = `${baseText} (${this.formatSize(remaining)})`;
+                option.disabled = remaining <= 0;
             }
         }
     },
@@ -381,24 +457,30 @@ var VX_UPLOADER = VX_UPLOADER || {
         
         // 检查私有空间
         if (normalized === 99 && this.private_storage_used >= this.storage) {
-            VXUI.toastWarning('私有空间已用完');
-            const select = document.getElementById('vx-upload-model');
-            if (select) select.value = String(this.upload_model);
+            VXUI.toastWarning(this.getLang('upload_storage_empty') || '私有空间已用完');
+            this.syncModelTabState();
             return;
         }
         
         this.upload_model = normalized;
         localStorage.setItem('app_upload_model', normalized);
+        this.syncModelTabState();
         
         // 更新描述文本
         this.updateModelDescription(normalized);
+    },
+
+    onModelTabClick(element) {
+        if (!element || element.disabled) return;
+        const value = element.getAttribute('data-upload-model');
+        this.onModelChange(value);
     },
     
     /**
      * 更新有效期描述
      */
     updateModelDescription(model) {
-        const hint = document.querySelector('.vx-upload-setting-item:first-child .vx-upload-setting-hint');
+        const hint = document.getElementById('vx-upload-model-hint');
         if (!hint) return;
         
         const descriptions = {
@@ -417,6 +499,13 @@ var VX_UPLOADER = VX_UPLOADER || {
     onServerChange(value) {
         this.upload_server = value;
         localStorage.setItem('app_upload_server', value);
+        this.syncServerTabState();
+    },
+
+    onServerCardClick(element) {
+        if (!element || element.disabled) return;
+        const value = element.getAttribute('data-upload-server') || '';
+        this.onServerChange(value);
     },
 
     /**
@@ -616,7 +705,7 @@ var VX_UPLOADER = VX_UPLOADER || {
         // 检查私有空间
         if (this.upload_model === 99) {
             if (file.size > (this.storage - this.storage_used)) {
-                VXUI.toastError(`${file.name}: 私有空间不足`);
+                VXUI.toastError(`${file.name}: ${this.getLang('upload_storage_insufficient') || '私有空间容量不足'}`);
                 return;
             }
         }
@@ -1523,6 +1612,20 @@ var VX_UPLOADER = VX_UPLOADER || {
         return labels[model] || labels[0];
     },
 
+    getServerBadge(label, url) {
+        const source = String(label || url || '').trim();
+        if (!source) {
+            return 'SRV';
+        }
+
+        const compact = source.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        if (compact) {
+            return compact.slice(0, 4);
+        }
+
+        return 'SRV';
+    },
+
     getStatusText(status) {
         const texts = {
             pending: '等待中',
@@ -1543,7 +1646,7 @@ var VX_UPLOADER = VX_UPLOADER || {
             4: '文件超出大小限制',
             5: '超出每日上传限制',
             6: '没有上传权限',
-            7: '私有空间不足',
+            7: this.getLang('upload_storage_insufficient') || '私有空间容量不足',
             8: '无法分配存储空间',
             9: '无法获取节点信息',
             10: '文件名包含非法字符'
