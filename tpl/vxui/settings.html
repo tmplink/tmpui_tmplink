@@ -30,6 +30,43 @@
                 <span data-tpl="model_profile_title">偏好设置</span>
             </h3>
             <div class="vx-settings-card">
+                <div class="vx-pref-item">
+                    <div class="vx-pref-item-head">
+                        <iconpark-icon name="link"></iconpark-icon>
+                        <span class="vx-switch-label" data-tpl="vx_copy_style_label">复制风格</span>
+                    </div>
+                    <div class="vx-copy-style-grid" id="vx-pref-copy-style">
+                        <button type="button" class="vx-copy-style-card" data-copy-style="plain_link" onclick="VX_ACCOUNT.setPrefCopyStyle('plain_link')">
+                            <div class="vx-copy-style-card-head">
+                                <span class="vx-copy-style-card-title" data-tpl="vx_copy_style_plain_link">纯链接</span>
+                                <span class="vx-copy-style-card-badge">URL</span>
+                            </div>
+                            <div class="vx-copy-style-preview">
+                                <code>https://tmp.link/f/abc123</code>
+                            </div>
+                        </button>
+                        <button type="button" class="vx-copy-style-card" data-copy-style="with_title" onclick="VX_ACCOUNT.setPrefCopyStyle('with_title')">
+                            <div class="vx-copy-style-card-head">
+                                <span class="vx-copy-style-card-title" data-tpl="vx_copy_style_with_title">包含文件名和链接</span>
+                                <span class="vx-copy-style-card-badge">TXT</span>
+                            </div>
+                            <div class="vx-copy-style-preview vx-copy-style-preview-stack">
+                                <code>demo-file.zip</code>
+                                <code>https://tmp.link/f/abc123</code>
+                            </div>
+                        </button>
+                        <button type="button" class="vx-copy-style-card" data-copy-style="markdown" onclick="VX_ACCOUNT.setPrefCopyStyle('markdown')">
+                            <div class="vx-copy-style-card-head">
+                                <span class="vx-copy-style-card-title" data-tpl="vx_copy_style_markdown">Markdown 风格</span>
+                                <span class="vx-copy-style-card-badge">MD</span>
+                            </div>
+                            <div class="vx-copy-style-preview">
+                                <code>[demo-file.zip](https://tmp.link/f/abc123)</code>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="vx-text-muted vx-pref-help" data-tpl="vx_copy_style_desc">适用于单个文件和批量复制。</div>
+                </div>
                 <label class="vx-switch-item">
                     <div style="display:flex;align-items:center;">
                         <iconpark-icon name="copy" style="margin-right:8px;font-size:16px;color:var(--vx-text-secondary);"></iconpark-icon>

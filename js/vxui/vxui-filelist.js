@@ -89,6 +89,152 @@ var VX_FILELIST = VX_FILELIST || {
         return text.replace(/\{(\w+)\}/g, (m, k) => (params[k] !== undefined ? String(params[k]) : m));
     },
 
+    normalizeCopyStyle(style) {
+        switch (String(style || '').trim()) {
+            case 'with_title':
+            case '带有标题':
+            case '包含文件名和链接':
+                return 'with_title';
+            case 'markdown':
+            case 'markdown格式':
+                return 'markdown';
+            case 'plain_link':
+            case '纯链接':
+            default:
+                return 'plain_link';
+        }
+    },
+
+    getCopyStyle() {
+        if (typeof TL !== 'undefined' && typeof TL.profile_copy_style_get === 'function') {
+            return this.normalizeCopyStyle(TL.profile_copy_style_get());
+        }
+        return this.normalizeCopyStyle(localStorage.getItem('pref_copy_style') || 'plain_link');
+    },
+
+    escapeMarkdownLabel(label) {
+        return String(label || '')
+            .replace(/\\/g, '\\\\')
+            .replace(/\[/g, '\\[')
+            .replace(/\]/g, '\\]')
+            .replace(/\r?\n/g, ' ');
+    },
+
+    getCopyTitle(name, itemType, style) {
+        const title = String(name || '').trim();
+        const copyStyle = this.normalizeCopyStyle(style || this.getCopyStyle());
+        if (!title) return '';
+
+        if (copyStyle === 'with_title') {
+            if (itemType === 'folder') return `📁 ${title}`;
+            if (itemType === 'file') return `📄 ${title}`;
+        }
+
+        return title;
+    },
+
+    formatCopyText(name, url, style, itemType) {
+        const link = String(url || '').trim();
+        const title = this.getCopyTitle(name, itemType, style);
+        if (!link) return '';
+
+        switch (this.normalizeCopyStyle(style || this.getCopyStyle())) {
+            case 'with_title':
+                return title ? `${title}\n${link}` : link;
+            case 'markdown':
+                return title ? `[${this.escapeMarkdownLabel(title)}](${link})` : link;
+            case 'plain_link':
+            default:
+                return link;
+        }
+    },
+
+    getCopyTextSeparator(style) {
+        return this.normalizeCopyStyle(style || this.getCopyStyle()) === 'with_title' ? '\n\n' : '\n';
+    },
+
+    getSelectedItemsInDisplayOrder() {
+        const selected = Array.isArray(this.selectedItems) ? this.selectedItems.slice() : [];
+        if (selected.length <= 1) return selected;
+
+        const ordered = [];
+        const seen = {};
+        const nodes = document.querySelectorAll('.vx-list-row.selected, .photo-card.selected');
+
+        nodes.forEach((node) => {
+            if (!node || !node.dataset) return;
+
+            let type = '';
+            let id = '';
+
+            if (node.classList.contains('photo-card')) {
+                type = 'file';
+                id = node.dataset.ukey || '';
+            } else {
+                type = node.dataset.type || '';
+                if (type === 'folder') {
+                    id = node.dataset.mrid || '';
+                } else if (type === 'file') {
+                    id = node.dataset.ukey || '';
+                }
+            }
+
+            if (!type || !id) return;
+
+            const key = `${type}:${id}`;
+            if (seen[key]) return;
+
+            const match = selected.find((item) => item.type === type && String(item.id) === String(id));
+            if (match) {
+                ordered.push(match);
+                seen[key] = true;
+            }
+        });
+
+        selected.forEach((item) => {
+            const key = `${item.type}:${item.id}`;
+            if (!seen[key]) {
+                ordered.push(item);
+                seen[key] = true;
+            }
+        });
+
+        return ordered;
+    },
+
+    copyText(text) {
+        if (!text) return;
+
+        if (typeof TL !== 'undefined' && typeof TL.bulkCopy === 'function') {
+            TL.bulkCopy(null, text, false);
+            return;
+        }
+
+        if (typeof VXUI !== 'undefined' && VXUI.copyToClipboard) {
+            VXUI.copyToClipboard(text);
+            return;
+        }
+
+        navigator.clipboard.writeText(text).then(() => {
+            VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
+        }).catch(() => {
+            VXUI.toastError(this.t('vx_copy_failed', '复制失败'));
+        });
+    },
+
+    getFolderCopyName(mrid) {
+        if (!mrid || String(mrid) === String(this.mrid)) {
+            return (this.room && this.room.name) ? this.room.name : this.getRoomDisplayTitle();
+        }
+        const folder = (this.subRooms || []).find(item => String(item.mr_id) === String(mrid));
+        return folder ? folder.name : '';
+    },
+
+    getFileCopyName(ukey) {
+        const file = (this.fileList || []).find(item => String(item.ukey) === String(ukey));
+        return file ? (file.fname_ex || file.fname || '') : '';
+    },
+
     /**
      * 记录 UI 行为（event_ui）
      */
@@ -3981,20 +4127,8 @@ var VX_FILELIST = VX_FILELIST || {
             const targetMrid = mrid || this.mrid;
             url = this.buildFolderShareUrl(targetMrid);
         }
-        
-        if (typeof VXUI !== 'undefined' && VXUI.copyToClipboard) {
-            VXUI.copyToClipboard(url);
-            VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
-        } else if (typeof TL !== 'undefined' && typeof TL.bulkCopy === 'function') {
-            // 使用老版的复制方法
-            TL.bulkCopy(null, btoa(url), true);
-        } else {
-            navigator.clipboard.writeText(url).then(() => {
-                VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
-            }).catch(() => {
-                VXUI.toastError(this.t('vx_copy_failed', '复制失败'));
-            });
-        }
+
+        this.copyText(this.formatCopyText(this.getFolderCopyName(mrid), url, '', 'folder'));
     },
 
     /**
@@ -4008,18 +4142,7 @@ var VX_FILELIST = VX_FILELIST || {
         const safeKey = encodeURIComponent(String(ukey));
         const url = `https://${domain}/f/${safeKey}`;
 
-        if (typeof VXUI !== 'undefined' && VXUI.copyToClipboard) {
-            VXUI.copyToClipboard(url);
-            VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
-        } else if (typeof TL !== 'undefined' && typeof TL.bulkCopy === 'function') {
-            TL.bulkCopy(null, btoa(url), true);
-        } else {
-            navigator.clipboard.writeText(url).then(() => {
-                VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
-            }).catch(() => {
-                VXUI.toastError(this.t('vx_copy_failed', '复制失败'));
-            });
-        }
+        this.copyText(this.formatCopyText(this.getFileCopyName(ukey), url, '', 'file'));
     },
     
     /**
@@ -4260,38 +4383,30 @@ var VX_FILELIST = VX_FILELIST || {
 
         this.trackUI('vui_filelist[copy_selected_urls]');
 
-        const urls = [];
+        const entries = [];
         const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
+        const copyStyle = this.getCopyStyle();
+        const orderedItems = this.getSelectedItemsInDisplayOrder();
 
-        for (const item of this.selectedItems) {
+        for (const item of orderedItems) {
             let url = '';
+            let name = '';
             if (item.type === 'folder') {
                 url = this.buildFolderShareUrl(item.id);
+                name = this.getFolderCopyName(item.id);
             } else if (item.type === 'file') {
                 const safeKey = encodeURIComponent(String(item.id));
                 url = `https://${domain}/f/${safeKey}`;
+                name = this.getFileCopyName(item.id);
             }
             if (url) {
-                urls.push(url);
+                entries.push(this.formatCopyText(name, url, copyStyle, item.type));
             }
         }
 
-        if (urls.length === 0) return;
+        if (entries.length === 0) return;
 
-        const text = urls.join('\n');
-        
-        if (typeof VXUI !== 'undefined' && VXUI.copyToClipboard) {
-            VXUI.copyToClipboard(text);
-            VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
-        } else if (typeof TL !== 'undefined' && typeof TL.bulkCopy === 'function') {
-            TL.bulkCopy(null, btoa(text), true);
-        } else {
-            navigator.clipboard.writeText(text).then(() => {
-                VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
-            }).catch(() => {
-                VXUI.toastError(this.t('vx_copy_failed', '复制失败'));
-            });
-        }
+        this.copyText(entries.join(this.getCopyTextSeparator(copyStyle)));
         
         this.clearSelection();
     },
@@ -4312,7 +4427,8 @@ var VX_FILELIST = VX_FILELIST || {
         this.trackUI('vui_filelist[copy_selected_direct_urls]');
 
         const urls = [];
-        for (const item of this.selectedItems) {
+        const orderedItems = this.getSelectedItemsInDisplayOrder();
+        for (const item of orderedItems) {
             if (item.type === 'file') {
                 const file = (this.fileList || []).find(f => String(f.ukey) === String(item.id));
                 if (file) {
