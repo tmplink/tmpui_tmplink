@@ -32,6 +32,7 @@ VXUI 模板规范：
 - 事件绑定直接写在 HTML 属性中，例如 onclick="VX_FILELIST.method()"
 - VXUI 模板翻译标记使用 data-tpl="key"
 - 图标使用 Iconpark 组件
+- 需要选择或替换图标时，先到 plugin/icon/lib.js 查找仓库内实际可用的 icon 名称，再填写 iconpark-icon 的 name
 - 权限控制使用 data-auth 和 data-owner
 - VXUI 相关类名以 vx- 开头
 

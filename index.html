@@ -12,8 +12,37 @@
     <link rel="manifest" href="/app.webmanifest" />
     <link rel="icon" href="/img/ico/favicon.ico" type="image/x-icon" />
     <link rel="apple-touch-icon" href="/img/ico/logo-new.svg" />
+    <style>
+        html,
+        body,
+        #tmpui,
+        #tmpui_body {
+            background-color: #fff;
+        }
+
+        html.system-dark,
+        html.system-dark body,
+        html.system-dark #tmpui,
+        html.system-dark #tmpui_body {
+            background-color: #363434 !important;
+            color-scheme: dark;
+        }
+    </style>
     <script type="text/javascript">
         'use strict';
+
+        {
+            const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const initialBg = isDarkMode ? '#363434' : '#fff';
+            const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+
+            document.documentElement.classList.toggle('system-dark', isDarkMode);
+            document.documentElement.style.backgroundColor = initialBg;
+
+            if (themeColorMeta) {
+                themeColorMeta.setAttribute('content', initialBg);
+            }
+        }
 
         {
             // IP 地理位置检查
@@ -96,7 +125,7 @@
     <script type="text/javascript" src="./tmpui.js?v=58"></script>
     <script type="text/javascript">
         let config = {
-            "version": 1725,
+            "version": 1726,
             "siteroot": "/",
             "loadingIcon": "/img/ico/logo-new.svg",
             "loadingText": "TMP.LINK",
@@ -246,7 +275,6 @@
                     "/css/dark.css": { "type": "css", "reload": false },
                     "/css/sponsor.css": { "type": "css", "reload": false },
                     "/css/file.css": { "type": "css", "reload": false },
-                    "/css/auth.css": { "type": "css", "reload": false },
                     "/tpl/include/gtpl.html": { "type": "tpl", "reload": false }
                 }
             },
@@ -335,7 +363,7 @@
                     "body": {
                         "/css/file.css": { "type": "css", "reload": false },
                         "/tpl/503.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/503_mobile.html": { "type": "file" },
+                        "/tpl/503_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] },
                         "/js/init/init_503.js": { "type": "js" }
                     }
                 },
@@ -346,7 +374,7 @@
                     "body": {
                         "/css/file.css": { "type": "css", "reload": false },
                         "/tpl/404.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/404_mobile.html": { "type": "file" },
+                        "/tpl/404_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] },
                         "/js/init/init_404.js": { "type": "js" }
                     }
                 },
@@ -357,7 +385,7 @@
                     "body": {
                         "/css/file.css": { "type": "css", "reload": false },
                         "/tpl/403.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/403_mobile.html": { "type": "file" },
+                        "/tpl/403_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] },
                         "/js/init/init_403.js": { "type": "js" }
                     }
                 },
@@ -368,7 +396,7 @@
                     "body": {
                         "/css/file.css": { "type": "css", "reload": false },
                         "/tpl/504.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/504_mobile.html": { "type": "file" },
+                        "/tpl/504_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] },
                         "/js/init/init_504.js": { "type": "js" }
                     }
                 },
@@ -378,8 +406,8 @@
                     "body": {
                         "/js/init/init_file.js": { "type": "js" },
                         "/tpl/file.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/file_desktop.html": { "type": "file" },
-                        "/tpl/file_mobile.html": { "type": "file" }
+                        "/tpl/file_desktop.html": { "type": "file", "styles": ["/css/file.css"] },
+                        "/tpl/file_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] }
                     }
                 },
                 "/login": {
@@ -387,8 +415,8 @@
                     "preload": ["auth_init"],
                     "body": {
                         "/tpl/auth.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/auth_login.html": { "type": "file" },
-                        "/tpl/auth_login_mobile.html": { "type": "file" },
+                        "/tpl/auth_login.html": { "type": "file", "styles": ["/css/auth.css"] },
+                        "/tpl/auth_login_mobile.html": { "type": "file", "styles": ["/css/auth-mobile.css"] },
                         "/js/init/init_auth.js": { "type": "js" }
                     }
                 },
@@ -397,8 +425,8 @@
                     "preload": ["auth_init"],
                     "body": {
                         "/tpl/auth.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/auth_reg.html": { "type": "file" },
-                        "/tpl/auth_reg_mobile.html": { "type": "file" },
+                        "/tpl/auth_reg.html": { "type": "file", "styles": ["/css/auth.css"] },
+                        "/tpl/auth_reg_mobile.html": { "type": "file", "styles": ["/css/auth-mobile.css"] },
                         "/js/init/init_auth.js": { "type": "js" }
                     }
                 },
@@ -407,8 +435,8 @@
                     "preload": ["auth_init"],
                     "body": {
                         "/tpl/auth.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/auth_reset.html": { "type": "file" },
-                        "/tpl/auth_reset_mobile.html": { "type": "file" },
+                        "/tpl/auth_reset.html": { "type": "file", "styles": ["/css/auth.css"] },
+                        "/tpl/auth_reset_mobile.html": { "type": "file", "styles": ["/css/auth-mobile.css"] },
                         "/js/init/init_auth.js": { "type": "js" }
                     }
                 },
@@ -419,6 +447,10 @@
                         "/css/vxui/vxui.css": { "type": "css", "reload": false },
                         "/css/vxui/account.css": { "type": "css", "reload": false },
                         "/css/photo-album.css": { "type": "css", "reload": false },
+                        "/css/vxui/filelist.css": { "type": "css", "reload": false },
+                        "/css/vxui/filelist-mobile-fix.css": { "type": "css", "reload": false },
+                        "/css/vxui/direct.css": { "type": "css", "reload": false },
+                        "/css/vxui/direct-mobile-fix.css": { "type": "css", "reload": false },
                         "/js/vxui/vxui-core.js": { "type": "js" },
                         "/js/vxui/vxui-sort.js": { "type": "js" },
                         "/js/vxui/vxui-direct.js": { "type": "js" },

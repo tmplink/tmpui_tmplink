@@ -85,6 +85,7 @@ const VX_ACCOUNT = {
 
         // Load preferences + connect status (only if the section exists)
         this.loadPreferences();
+        this.loadUploadPerformanceSettings();
         this.loadGoogleStatus();
     },
     
@@ -775,6 +776,25 @@ const VX_ACCOUNT = {
             });
         }
     },
+
+    /**
+     * Load upload performance settings into settings page
+     */
+    loadUploadPerformanceSettings() {
+        if (typeof VX_UPLOADER === 'undefined') return;
+        if (typeof VX_UPLOADER.init === 'function') {
+            VX_UPLOADER.init();
+        }
+        if (typeof VX_UPLOADER.loadPerformanceSettings === 'function') {
+            VX_UPLOADER.loadPerformanceSettings();
+        }
+        if (typeof VX_UPLOADER.updatePerformanceInputs === 'function') {
+            VX_UPLOADER.updatePerformanceInputs();
+        }
+        if (typeof VX_UPLOADER.updateAdvancedSettingsAvailability === 'function') {
+            VX_UPLOADER.updateAdvancedSettingsAvailability();
+        }
+    },
     
     /**
      * Set bulk copy preference
@@ -1172,6 +1192,9 @@ const VX_ACCOUNT = {
         }
         if (document.getElementById('vx-pref-bulk-copy') || document.getElementById('vx-pref-confirm-delete') || document.getElementById('vx-pref-copy-style')) {
             this.loadPreferences();
+        }
+        if (document.getElementById('vx-upload-slice-size') || document.getElementById('vx-upload-max-queue')) {
+            this.loadUploadPerformanceSettings();
         }
         VXUI.toastInfo('已刷新');
     }

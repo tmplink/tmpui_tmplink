@@ -41,6 +41,21 @@ async function copyToClip(content) {
     }
 }
 
+function setPageShellClasses(classNames) {
+    const htmlRoot = document.documentElement;
+    const body = document.body;
+    const managedClasses = ['file-page', 'auth-page', 'auth-mobile'];
+    const nextClasses = Array.isArray(classNames) ? classNames.filter(Boolean) : [];
+
+    htmlRoot.classList.remove(...managedClasses);
+    body.classList.remove(...managedClasses);
+
+    if (nextClasses.length > 0) {
+        htmlRoot.classList.add(...nextClasses);
+        body.classList.add(...nextClasses);
+    }
+}
+
 /**
  * Adds dark mode styles to chart options with transparent background
  * @param {Object} options - Original chart options

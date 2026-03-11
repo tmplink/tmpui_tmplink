@@ -2090,17 +2090,17 @@ const VX_DIRECT = {
      */
     showHelp() {
         VXUI.confirm({
-            title: '什么是直链',
+            title: this.t('direct_what', '什么是直链'),
             message: `
-                <p>直链是可以直接访问文件的链接，支持多线程下载。</p>
-                <p style="margin-top: 12px;">使用场景：</p>
+                <p>${this.t('direct_help_intro', '直链是可以直接访问文件的链接，支持多线程下载。')}</p>
+                <p style="margin-top: 12px;">${this.t('direct_help_usage_title', '使用场景：')}</p>
                 <ul style="margin-left: 20px; margin-top: 8px;">
-                    <li>在网页中嵌入图片或视频</li>
-                    <li>使用下载工具多线程下载</li>
-                    <li>作为静态资源引用</li>
+                    <li>${this.t('direct_help_usage_embed', '在网页中嵌入图片或视频')}</li>
+                    <li>${this.t('direct_help_usage_download', '使用下载工具多线程下载')}</li>
+                    <li>${this.t('direct_help_usage_static', '作为静态资源引用')}</li>
                 </ul>
             `,
-            confirmText: '了解了',
+            confirmText: this.t('model_btn_ok', '确定'),
             cancelText: ''
         });
     },

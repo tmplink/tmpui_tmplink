@@ -968,28 +968,15 @@ body.vx-fl-has-sponsor .vx-content {
 }
 
 .vx-upload-settings {
-    background: var(--vx-bg-secondary);
-    border-radius: var(--vx-radius-md);
-    padding: 16px;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
     margin-bottom: 20px;
 }
 
-.vx-upload-settings-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    color: var(--vx-text);
-    margin-bottom: 16px;
-}
-
-.vx-upload-settings-header iconpark-icon {
-    font-size: 18px;
-}
-
 .vx-upload-settings-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 16px;
 }
 
@@ -997,6 +984,7 @@ body.vx-fl-has-sponsor .vx-content {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    min-width: 0;
 }
 
 .vx-upload-setting-item .vx-label {
@@ -1005,9 +993,72 @@ body.vx-fl-has-sponsor .vx-content {
     margin: 0;
 }
 
-.vx-upload-setting-item .vx-select {
+.vx-upload-setting-item .vx-input {
+    width: 100%;
     padding: 8px 12px;
     font-size: 14px;
+}
+
+.vx-upload-picker-mobile {
+    display: none;
+}
+
+.vx-upload-segmented {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid var(--vx-border);
+    border-radius: 18px;
+}
+
+.vx-upload-segmented-server {
+    gap: 8px;
+}
+
+.vx-upload-segment {
+    appearance: none;
+    width: 100%;
+    min-width: 0;
+    height: 56px;
+    border: 0;
+    background: transparent;
+    border-radius: 14px;
+    padding: 0 22px;
+    text-align: center;
+    color: var(--vx-text-secondary);
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, opacity 0.18s ease;
+}
+
+.vx-upload-segment:hover {
+    color: var(--vx-text);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.vx-upload-segment.active {
+    color: #fff;
+    background: linear-gradient(180deg, rgba(109, 140, 255, 0.95), rgba(126, 97, 255, 0.92));
+    box-shadow: 0 10px 28px rgba(94, 92, 230, 0.34);
+}
+
+.vx-upload-segment:disabled,
+.vx-upload-segment.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.42;
+    box-shadow: none;
+}
+
+.vx-upload-setting-meta {
+    min-height: 18px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--vx-primary);
 }
 
 .vx-upload-setting-hint {
@@ -1964,6 +2015,22 @@ body.dark .vx-preview-loading,
     
     .vx-upload-settings-grid {
         grid-template-columns: 1fr;
+    }
+
+    .vx-upload-picker-desktop {
+        display: none;
+    }
+
+    .vx-upload-picker-mobile {
+        display: block;
+    }
+
+    .vx-upload-picker-mobile .vx-select {
+        width: 100%;
+    }
+
+    .vx-upload-setting-meta {
+        display: none;
     }
     
     .vx-upload-dropzone-actions {

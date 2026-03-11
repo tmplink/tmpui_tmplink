@@ -307,6 +307,9 @@ class VXUICore {
         
         // 已加载的模板
         this.loadedTemplates = new Map();
+
+        // 已加载或加载中的样式
+        this.loadedStyles = new Map();
         
         // Toast 队列
         this.toastQueue = [];
@@ -350,6 +353,73 @@ class VXUICore {
 
         this._languageReadyPromise = Promise.resolve();
         return this._languageReadyPromise;
+    }
+
+    ensureStylesFromTemplate(html) {
+        const template = document.createElement('template');
+        template.innerHTML = String(html || '');
+
+        const styleLinks = Array.from(template.content.querySelectorAll('link[rel="stylesheet"][href]'));
+        const tasks = styleLinks.map((link) => {
+            const href = link.getAttribute('href');
+            link.remove();
+            return this.ensureStyleLoaded(href);
+        });
+
+        return Promise.all(tasks).then(() => template.innerHTML);
+    }
+
+    ensureStyleLoaded(href) {
+        const targetHref = String(href || '').trim();
+        if (!targetHref) return Promise.resolve();
+
+        if (this.loadedStyles.has(targetHref)) {
+            return this.loadedStyles.get(targetHref);
+        }
+
+        const existing = document.head.querySelector(`link[rel="stylesheet"][href="${targetHref}"]`);
+        if (existing) {
+            const existingPromise = new Promise((resolve) => {
+                const done = () => {
+                    existing.dataset.vxuiReady = '1';
+                    resolve();
+                };
+
+                if (existing.dataset.vxuiReady === '1' || (existing.sheet && !existing.disabled)) {
+                    done();
+                    return;
+                }
+
+                existing.addEventListener('load', done, { once: true });
+                existing.addEventListener('error', done, { once: true });
+                setTimeout(done, 1500);
+            });
+
+            this.loadedStyles.set(targetHref, existingPromise);
+            return existingPromise;
+        }
+
+        const promise = new Promise((resolve) => {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = targetHref;
+            link.dataset.vxuiStyle = '1';
+
+            const done = () => {
+                link.dataset.vxuiReady = '1';
+                resolve();
+            };
+
+            link.addEventListener('load', done, { once: true });
+            link.addEventListener('error', done, { once: true });
+            document.head.appendChild(link);
+
+            // 某些缓存命中场景不会稳定触发 load，这里给一个兜底。
+            setTimeout(done, 1500);
+        });
+
+        this.loadedStyles.set(targetHref, promise);
+        return promise;
     }
 
     /**
@@ -785,8 +855,10 @@ class VXUICore {
         if (typeof app !== 'undefined' && typeof app.getFile === 'function') {
             const cachedContent = app.getFile(templatePath);
             if (cachedContent) {
-                container.innerHTML = cachedContent;
-                if (callback) callback();
+                this.ensureStylesFromTemplate(cachedContent).then((output) => {
+                    container.innerHTML = output;
+                    if (callback) callback();
+                });
                 return;
             }
         }
@@ -796,17 +868,19 @@ class VXUICore {
             .then(response => response.text())
             .then(html => {
                 // 与旧版保持一致：注入前尽量先翻译，减少“先中文后闪”的观感
-                let output = html;
+                return this.ensureStylesFromTemplate(html).then((preparedHtml) => {
+                    let output = preparedHtml;
                 if (typeof app !== 'undefined' && app && typeof app.languageTranslateHtml === 'function') {
-                    output = app.languageTranslateHtml(html);
-                }
-                container.innerHTML = output;
+                        output = app.languageTranslateHtml(preparedHtml);
+                    }
+                    container.innerHTML = output;
 
-                // 旧版兼容：部分 VXUI 模块会依赖 TL.tpl_lang() 来刷新语言
-                if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
-                    TL.tpl_lang(container);
-                }
-                if (callback) callback();
+                    // 旧版兼容：部分 VXUI 模块会依赖 TL.tpl_lang() 来刷新语言
+                    if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
+                        TL.tpl_lang(container);
+                    }
+                    if (callback) callback();
+                });
             })
             .catch(error => {
                 console.error(`[VXUI] Failed to load template: ${templatePath}`, error);

@@ -1,5 +1,4 @@
 <!-- VXUI Settings Module Template - 账户设定 -->
-<link rel="stylesheet" href="/css/vxui/account.css">
 
 <!-- Header -->
 <header class="vx-header vx-header-account">
@@ -95,6 +94,32 @@
                     </div>
                     <div class="vx-text-muted" style="margin-top: 4px; font-size: var(--vx-text-xs); margin-left: 24px;" data-tpl="reset_sort_desc">清除所有浏览器侧记录的文件夹独立排序偏好。</div>
                 </div>
+            </div>
+        </div>
+
+        <div class="vx-settings-section">
+            <h3 class="vx-settings-title">
+                <iconpark-icon name="gauge-circle-bolt"></iconpark-icon>
+                <span data-tpl="model_title_upload_slice">效率设置</span>
+            </h3>
+            <div class="vx-settings-card">
+                <div class="vx-pref-item">
+                    <div class="vx-pref-item-head">
+                        <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
+                        <span class="vx-switch-label" data-tpl="model_title_upload_slice_size">分片大小（MB）</span>
+                    </div>
+                    <input class="vx-input" id="vx-upload-slice-size" type="number" min="1" max="80" step="1" onchange="VX_UPLOADER.onSliceSizeChange(this.value)">
+                    <div class="vx-text-muted vx-pref-help" data-tpl="upload_settings_slice_hint">仅影响新加入队列的上传任务。</div>
+                </div>
+                <div class="vx-pref-item vx-pref-item-last">
+                    <div class="vx-pref-item-head">
+                        <iconpark-icon name="layer-group"></iconpark-icon>
+                        <span class="vx-switch-label" data-tpl="model_title_upload_slice_task">同时上传的文件数量</span>
+                    </div>
+                    <input class="vx-input" id="vx-upload-max-queue" type="number" min="1" max="100" step="1" onchange="VX_UPLOADER.onConcurrentChange(this.value)">
+                    <div class="vx-text-muted vx-pref-help" data-tpl="upload_settings_queue_hint">提高并发可以加快批量上传，但会占用更多本地带宽。</div>
+                </div>
+                <div class="vx-text-muted vx-pref-help" data-tpl="model_title_upload_slice_des">赞助者可调整分片大小和同时上传文件数，设置会自动保存。</div>
             </div>
         </div>
 

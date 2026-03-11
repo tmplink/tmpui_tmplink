@@ -1,6 +1,5 @@
 app.ready(()=>{
-    document.documentElement.classList.add('file-page');
-    document.body.classList.add('file-page');
+    setPageShellClasses(['file-page']);
 
     if (typeof tmplink_api !== 'undefined') {
         window.TL = new tmplink_api();
@@ -11,7 +10,11 @@ app.ready(()=>{
     }
 
     if (typeof isMobileScreen === 'function' && isMobileScreen()) {
-        $('#tmpui_body').html(app.getFile('/tpl/404_mobile.html'));
+        app.getFilePrepared('/tpl/404_mobile.html').then((html) => {
+            $('#tmpui_body').html(html);
+            app.languageBuild();
+        });
+        return;
     }
     app.languageBuild();
 });
