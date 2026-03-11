@@ -1776,11 +1776,35 @@ var VX_FILELIST = VX_FILELIST || {
     },
 
     /**
+     * 对文件列表进行客户端排序（修正服务端字典序问题）
+     */
+    sortFileList() {
+        if (!this.fileList || this.fileList.length <= 1) return;
+        if (!this.sorter) return;
+
+        this.fileList = this.sorter.sortArray(this.fileList, {
+            0: (a) => parseInt(a.ctime || a.time || 0),
+            1: (a) => (a.fname_ex || a.fname || '').toLowerCase(),
+            2: (a) => parseInt(a.fsize || 0)
+        });
+
+        // 同步更新相册用的 photoList
+        if (this.photoList && this.photoList.length > 0) {
+            this.photoList = this.sorter.sortArray(this.photoList, {
+                0: (a) => parseInt(a.ctime || a.time || 0),
+                1: (a) => (a.fname_ex || a.fname || '').toLowerCase(),
+                2: (a) => parseInt(a.fsize || 0)
+            });
+        }
+    },
+
+    /**
      * 渲染列表视图
      */
     renderList() {
-        // 先对文件夹排序
+        // 先对文件夹和文件排序（自然排序，避免字典序混乱）
         this.sortSubRooms();
+        this.sortFileList();
 
         const listContainer = document.getElementById('vx-fl-list');
         const albumContainer = document.getElementById('vx-fl-album');
@@ -1852,8 +1876,9 @@ var VX_FILELIST = VX_FILELIST || {
      * 渲染相册视图
      */
     renderAlbum() {
-        // 先对文件夹排序
+        // 先对文件夹和文件排序（自然排序，避免字典序混乱）
         this.sortSubRooms();
+        this.sortFileList();
 
         const listContainer = document.getElementById('vx-fl-list');
         const albumContainer = document.getElementById('vx-fl-album');
