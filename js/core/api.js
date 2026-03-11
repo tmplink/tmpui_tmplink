@@ -400,6 +400,18 @@ class tmplink_api {
                     }
                 }
 
+                if (typeof rsp.data.pf_bulk_copy !== 'undefined') {
+                    localStorage.setItem('pref_bulk_copy', rsp.data.pf_bulk_copy === 'yes');
+                    localStorage.setItem('user_profile_bulk_copy', rsp.data.pf_bulk_copy);
+                }
+
+                if (typeof rsp.data.pf_confirm_delete !== 'undefined') {
+                    localStorage.setItem('pref_confirm_delete', rsp.data.pf_confirm_delete !== 'no');
+                    localStorage.setItem('user_profile_confirm_delete', rsp.data.pf_confirm_delete);
+                }
+
+                this.profile_copy_style_set(rsp.data.pf_copy_style_value || rsp.data.pf_copy_style || 'plain_link');
+
                 this.isSponsor = !!this.sponsor;
                 if (this.isSponsor && document.body) {
                     document.body.classList.add('sponsor-mode');
@@ -686,6 +698,73 @@ class tmplink_api {
         if (status === 'yes') return true;
         if (status === 'no') return false;
         return localStorage.getItem('pref_bulk_copy') === 'true';
+    }
+
+    normalize_copy_style_value(style) {
+        switch (String(style || '').trim()) {
+            case 'with_title':
+            case '带有标题':
+            case '包含文件名和链接':
+                return 'with_title';
+            case 'markdown':
+            case 'markdown格式':
+                return 'markdown';
+            case 'plain_link':
+            case '纯链接':
+            default:
+                return 'plain_link';
+        }
+    }
+
+    copy_style_value_to_label(style) {
+        switch (this.normalize_copy_style_value(style)) {
+            case 'with_title':
+                return '带有标题';
+            case 'markdown':
+                return 'markdown格式';
+            case 'plain_link':
+            default:
+                return '纯链接';
+        }
+    }
+
+    profile_copy_style_post(style, cb) {
+        const value = this.normalize_copy_style_value(style);
+        const label = this.copy_style_value_to_label(value);
+
+        this.profile_copy_style_set(value);
+
+        if (this.api_user && this.api_token) {
+            $.post(this.api_user, {
+                action: 'pf_set_copy_style',
+                token: this.api_token,
+                status: label
+            }, (rsp) => {
+                if (rsp && rsp.status === 1) {
+                    const nextValue = (rsp.data && (rsp.data.pf_copy_style_value || rsp.data.pf_copy_style)) || value;
+                    this.profile_copy_style_set(nextValue);
+                }
+                if (typeof cb === 'function') cb(rsp);
+            }, 'json').fail(() => {
+                if (typeof cb === 'function') cb({ status: 0, debug: 'network_error' });
+            });
+            return;
+        }
+
+        if (typeof cb === 'function') cb({ status: 1, data: { pf_copy_style_value: value } });
+    }
+
+    profile_copy_style_set(style) {
+        const value = this.normalize_copy_style_value(style);
+        localStorage.setItem('pref_copy_style', value);
+        localStorage.setItem('user_profile_copy_style', value);
+        localStorage.setItem('user_profile_copy_style_label', this.copy_style_value_to_label(value));
+    }
+
+    profile_copy_style_get() {
+        return this.normalize_copy_style_value(
+            localStorage.getItem('user_profile_copy_style') || localStorage.getItem('pref_copy_style') || 'plain_link'
+        );
     }
 
     profile_confirm_delete_post() {

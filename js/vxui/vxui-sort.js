@@ -161,6 +161,13 @@ class VxSort {
                 }
             }
 
+            // Natural sort: use localeCompare with numeric option for strings
+            if (typeof valA === 'string' && typeof valB === 'string') {
+                const cmp = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+                if (cmp !== 0) return type === 1 ? cmp : -cmp;
+                return 0;
+            }
+
             if (valA < valB) return type === 0 ? 1 : -1;
             if (valA > valB) return type === 0 ? -1 : 1;
             return 0;

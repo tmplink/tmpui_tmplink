@@ -758,13 +758,22 @@ const VX_ACCOUNT = {
         // Load from local storage or server
         const bulkCopy = localStorage.getItem('pref_bulk_copy') === 'true';
         const confirmDelete = localStorage.getItem('pref_confirm_delete') !== 'false'; // Default true
+        const copyStyle = (typeof TL !== 'undefined' && typeof TL.profile_copy_style_get === 'function')
+            ? TL.profile_copy_style_get()
+            : (localStorage.getItem('pref_copy_style') || 'plain_link');
 
         const bulkCopyEl = document.getElementById('vx-pref-bulk-copy');
         const confirmDeleteEl = document.getElementById('vx-pref-confirm-delete');
-        if (!bulkCopyEl || !confirmDeleteEl) return;
+        const copyStyleEl = document.getElementById('vx-pref-copy-style');
 
-        bulkCopyEl.checked = bulkCopy;
-        confirmDeleteEl.checked = confirmDelete;
+        if (bulkCopyEl) bulkCopyEl.checked = bulkCopy;
+        if (confirmDeleteEl) confirmDeleteEl.checked = confirmDelete;
+        if (copyStyleEl) {
+            copyStyleEl.setAttribute('data-value', copyStyle);
+            copyStyleEl.querySelectorAll('[data-copy-style]').forEach((item) => {
+                item.classList.toggle('active', item.getAttribute('data-copy-style') === copyStyle);
+            });
+        }
     },
     
     /**
@@ -779,6 +788,35 @@ const VX_ACCOUNT = {
         // Post to server if TL available
         if (typeof TL !== 'undefined' && TL.profile_bulk_copy_post) {
             TL.profile_bulk_copy_post();
+        }
+    },
+
+    /**
+     * Set copy style preference
+     */
+    setPrefCopyStyle() {
+        let value = arguments.length > 0 && arguments[0] ? arguments[0] : '';
+        const el = document.getElementById('vx-pref-copy-style');
+        if (!el) return;
+
+        if (!value) {
+            value = el.getAttribute('data-value') || 'plain_link';
+        }
+
+        el.setAttribute('data-value', value);
+        el.querySelectorAll('[data-copy-style]').forEach((item) => {
+            item.classList.toggle('active', item.getAttribute('data-copy-style') === value);
+        });
+
+        localStorage.setItem('pref_copy_style', value);
+
+        if (typeof TL !== 'undefined' && typeof TL.profile_copy_style_post === 'function') {
+            TL.profile_copy_style_post(value, (rsp) => {
+                if (!rsp || rsp.status !== 1) {
+                    VXUI.toastError(this.lang('vx_copy_style_save_failed', '复制风格保存失败'));
+                    this.loadPreferences();
+                }
+            });
         }
     },
     
@@ -1132,7 +1170,7 @@ const VX_ACCOUNT = {
         if (document.getElementById('vx-google-status')) {
             this.loadGoogleStatus();
         }
-        if (document.getElementById('vx-pref-bulk-copy') || document.getElementById('vx-pref-confirm-delete')) {
+        if (document.getElementById('vx-pref-bulk-copy') || document.getElementById('vx-pref-confirm-delete') || document.getElementById('vx-pref-copy-style')) {
             this.loadPreferences();
         }
         VXUI.toastInfo('已刷新');
