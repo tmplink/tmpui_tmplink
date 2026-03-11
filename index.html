@@ -246,7 +246,6 @@
                     "/css/dark.css": { "type": "css", "reload": false },
                     "/css/sponsor.css": { "type": "css", "reload": false },
                     "/css/file.css": { "type": "css", "reload": false },
-                    "/css/auth.css": { "type": "css", "reload": false },
                     "/tpl/include/gtpl.html": { "type": "tpl", "reload": false }
                 }
             },
@@ -335,7 +334,7 @@
                     "body": {
                         "/css/file.css": { "type": "css", "reload": false },
                         "/tpl/503.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/503_mobile.html": { "type": "file" },
+                        "/tpl/503_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] },
                         "/js/init/init_503.js": { "type": "js" }
                     }
                 },
@@ -346,7 +345,7 @@
                     "body": {
                         "/css/file.css": { "type": "css", "reload": false },
                         "/tpl/404.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/404_mobile.html": { "type": "file" },
+                        "/tpl/404_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] },
                         "/js/init/init_404.js": { "type": "js" }
                     }
                 },
@@ -357,7 +356,7 @@
                     "body": {
                         "/css/file.css": { "type": "css", "reload": false },
                         "/tpl/403.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/403_mobile.html": { "type": "file" },
+                        "/tpl/403_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] },
                         "/js/init/init_403.js": { "type": "js" }
                     }
                 },
@@ -368,7 +367,7 @@
                     "body": {
                         "/css/file.css": { "type": "css", "reload": false },
                         "/tpl/504.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/504_mobile.html": { "type": "file" },
+                        "/tpl/504_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] },
                         "/js/init/init_504.js": { "type": "js" }
                     }
                 },
@@ -378,8 +377,8 @@
                     "body": {
                         "/js/init/init_file.js": { "type": "js" },
                         "/tpl/file.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/file_desktop.html": { "type": "file" },
-                        "/tpl/file_mobile.html": { "type": "file" }
+                        "/tpl/file_desktop.html": { "type": "file", "styles": ["/css/file.css"] },
+                        "/tpl/file_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] }
                     }
                 },
                 "/login": {
@@ -387,8 +386,8 @@
                     "preload": ["auth_init"],
                     "body": {
                         "/tpl/auth.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/auth_login.html": { "type": "file" },
-                        "/tpl/auth_login_mobile.html": { "type": "file" },
+                        "/tpl/auth_login.html": { "type": "file", "styles": ["/css/auth.css"] },
+                        "/tpl/auth_login_mobile.html": { "type": "file", "styles": ["/css/auth-mobile.css"] },
                         "/js/init/init_auth.js": { "type": "js" }
                     }
                 },
@@ -397,8 +396,8 @@
                     "preload": ["auth_init"],
                     "body": {
                         "/tpl/auth.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/auth_reg.html": { "type": "file" },
-                        "/tpl/auth_reg_mobile.html": { "type": "file" },
+                        "/tpl/auth_reg.html": { "type": "file", "styles": ["/css/auth.css"] },
+                        "/tpl/auth_reg_mobile.html": { "type": "file", "styles": ["/css/auth-mobile.css"] },
                         "/js/init/init_auth.js": { "type": "js" }
                     }
                 },
@@ -407,8 +406,8 @@
                     "preload": ["auth_init"],
                     "body": {
                         "/tpl/auth.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/auth_reset.html": { "type": "file" },
-                        "/tpl/auth_reset_mobile.html": { "type": "file" },
+                        "/tpl/auth_reset.html": { "type": "file", "styles": ["/css/auth.css"] },
+                        "/tpl/auth_reset_mobile.html": { "type": "file", "styles": ["/css/auth-mobile.css"] },
                         "/js/init/init_auth.js": { "type": "js" }
                     }
                 },

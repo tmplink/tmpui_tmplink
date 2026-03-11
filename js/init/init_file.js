@@ -1,4 +1,6 @@
 app.ready(() => {
+    setPageShellClasses(['file-page']);
+
     // 文件页独立初始化 TL 对象 - 仅使用 tmplink_api (api.js)
     if (typeof window.TL === 'undefined') {
         if (typeof window.tmplink_api !== 'undefined') {
@@ -15,59 +17,59 @@ app.ready(() => {
         TL.stream.init(TL);
     }
 
-    if (isMobileScreen()) {
-        $('#file-view').html(app.getFile('/tpl/file_mobile.html'));
-    } else {
-        $('#file-view').html(app.getFile('/tpl/file_desktop.html'));
-    }
+    const templatePath = isMobileScreen() ? '/tpl/file_mobile.html' : '/tpl/file_desktop.html';
 
-    app.languageBuild();
-    $('title').html(app.languageData.title_file);
-    $('meta[name=description]').html(app.languageData.des_file);
+    app.getFilePrepared(templatePath).then((html) => {
+        $('#file-view').html(html);
 
-    TL.ready(() => {
-        // 显示语言选择器
-        $('#index_lang').fadeIn();
-        
-        if (typeof window.filePage !== 'undefined' && typeof window.filePage.loadFileDetails === 'function') {
-            window.filePage.loadFileDetails();
-        }
+        app.languageBuild();
+        $('title').html(app.languageData.title_file);
+        $('meta[name=description]').html(app.languageData.des_file);
 
-        // 绑定举报功能
-        if (typeof window.filePage !== 'undefined') {
-            // 使用纯 JS 模态框的举报函数
-            window.filePage.report = function() {
-                const reason = document.getElementById('report_model')?.value || '';
-                const ukey = document.getElementById('report_ukey')?.textContent || '';
-                
-                if (!ukey) {
-                    TL.alert(app.languageData.alert_error || 'Error', 'danger');
-                    return;
-                }
-                
-                TL.api({
-                    a: 'file_report',
-                    ukey: ukey,
-                    reason: reason
-                }, (res) => {
-                    if (res.code === 0) {
-                        TL.alert(app.languageData.modal_report_success || '举报成功', 'success');
-                        fileUI.closeModal('reportModal');
-                    } else {
-                        TL.alert(res.msg || app.languageData.alert_error || 'Error', 'danger');
-                    }
-                });
-            };
+        TL.ready(() => {
+            // 显示语言选择器
+            $('#index_lang').fadeIn();
             
-            // 兼容旧版 TL.report
-            TL.report = () => window.filePage.report();
-        }
-        
-        // 绑定模态框打开按钮
-        bindFileModals();
-        
-        // 添加用户信息卡片的鼠标悬停事件
-        initUserInfoCard();
+            if (typeof window.filePage !== 'undefined' && typeof window.filePage.loadFileDetails === 'function') {
+                window.filePage.loadFileDetails();
+            }
+
+            // 绑定举报功能
+            if (typeof window.filePage !== 'undefined') {
+                // 使用纯 JS 模态框的举报函数
+                window.filePage.report = function() {
+                    const reason = document.getElementById('report_model')?.value || '';
+                    const ukey = document.getElementById('report_ukey')?.textContent || '';
+                    
+                    if (!ukey) {
+                        TL.alert(app.languageData.alert_error || 'Error', 'danger');
+                        return;
+                    }
+                    
+                    TL.api({
+                        a: 'file_report',
+                        ukey: ukey,
+                        reason: reason
+                    }, (res) => {
+                        if (res.code === 0) {
+                            TL.alert(app.languageData.modal_report_success || '举报成功', 'success');
+                            fileUI.closeModal('reportModal');
+                        } else {
+                            TL.alert(res.msg || app.languageData.alert_error || 'Error', 'danger');
+                        }
+                    });
+                };
+                
+                // 兼容旧版 TL.report
+                TL.report = () => window.filePage.report();
+            }
+            
+            // 绑定模态框打开按钮
+            bindFileModals();
+            
+            // 添加用户信息卡片的鼠标悬停事件
+            initUserInfoCard();
+        });
     });
     
 });
