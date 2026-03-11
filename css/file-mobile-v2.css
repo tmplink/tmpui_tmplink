@@ -6,7 +6,7 @@
     --app-success: #22c55e;
     --app-border: #e2e8f0;
     --app-surface: #f8fafc;
-    --mobile-side-pad: 20px;
+    --mobile-side-pad: 14px;
 }
 
 /* 深色模式 - 自动检测系统偏好 */
@@ -50,15 +50,18 @@ body.file-page {
     background: var(--app-bg) !important;
     --file-bg: var(--app-bg);
     --file-card-bg: var(--app-bg);
+    min-height: 100dvh;
 }
 
 html.file-page {
     background: var(--app-bg) !important;
+    min-height: 100dvh;
 }
 
 body.file-page #tmpui,
 body.file-page #tmpui_body {
     background: var(--app-bg) !important;
+    min-height: 100dvh;
 }
 
 /* Override bootstrap container centering/padding on mobile file page */
@@ -67,6 +70,7 @@ body.file-page .file-page-root > .container {
     padding: 0 !important;
     margin: 0 !important;
     align-items: stretch !important;
+    min-height: 100dvh;
 }
 
 body.file-page .file-page-root .align-self-center {
@@ -74,7 +78,7 @@ body.file-page .file-page-root .align-self-center {
 }
 
 .mobile-download-shell {
-    height: 100%;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -116,8 +120,9 @@ body.file-page .file-page-root .align-self-center {
     padding: 16px var(--mobile-side-pad) 24px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     -webkit-overflow-scrolling: touch;
+    min-height: 0;
 }
 
 /* Centered layout for simple message pages */
@@ -162,6 +167,11 @@ body.file-page .file-page-root .align-self-center {
     align-items: center;
 }
 
+#file_download_area,
+#file_op {
+    width: 100%;
+}
+
 .file-icon-wrapper {
     width: 104px;
     height: 104px;
@@ -186,7 +196,7 @@ body.file-page .file-page-root .align-self-center {
     color: var(--app-text);
     margin-bottom: 12px;
     word-break: break-word;
-    padding: 0 10px;
+    padding: 0 4px;
     max-width: 100%;
 }
 
@@ -257,7 +267,7 @@ body.file-page .file-page-root .align-self-center {
 .action-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 16px 12px;
     width: 100%;
     margin-top: auto; /* Push to bottom of content area if space permits */
     margin-bottom: 16px;
@@ -320,10 +330,21 @@ body.file-page .file-page-root .align-self-center {
 /* Bottom Sheet / Footer */
 .mobile-footer {
     padding: 16px var(--mobile-side-pad) 32px; /* Extra bottom padding for home indicator */
+    padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
     background: transparent;
     border-top: none;
     flex-shrink: 0;
     z-index: 10;
+}
+
+@media (max-width: 390px) {
+    :root {
+        --mobile-side-pad: 12px;
+    }
+
+    .action-grid {
+        gap: 14px 10px;
+    }
 }
 
 #file_download_btn_fast {
@@ -448,6 +469,13 @@ body.file-page .file-page-root .align-self-center {
 .legal-text iconpark-icon {
     margin-right: 6px;
     color: #f97316;
+}
+
+@media (max-width: 675px) {
+    body.file-page #footer,
+    body.file-page #tpl_footer {
+        display: none !important;
+    }
 }
 
 /* Publisher Card - 赞助者/分享者卡片 */
