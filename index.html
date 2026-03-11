@@ -12,8 +12,37 @@
     <link rel="manifest" href="/app.webmanifest" />
     <link rel="icon" href="/img/ico/favicon.ico" type="image/x-icon" />
     <link rel="apple-touch-icon" href="/img/ico/logo-new.svg" />
+    <style>
+        html,
+        body,
+        #tmpui,
+        #tmpui_body {
+            background-color: #fff;
+        }
+
+        html.system-dark,
+        html.system-dark body,
+        html.system-dark #tmpui,
+        html.system-dark #tmpui_body {
+            background-color: #363434 !important;
+            color-scheme: dark;
+        }
+    </style>
     <script type="text/javascript">
         'use strict';
+
+        {
+            const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const initialBg = isDarkMode ? '#363434' : '#fff';
+            const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+
+            document.documentElement.classList.toggle('system-dark', isDarkMode);
+            document.documentElement.style.backgroundColor = initialBg;
+
+            if (themeColorMeta) {
+                themeColorMeta.setAttribute('content', initialBg);
+            }
+        }
 
         {
             // IP 地理位置检查
