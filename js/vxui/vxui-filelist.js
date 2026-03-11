@@ -67,6 +67,16 @@ var VX_FILELIST = VX_FILELIST || {
     // 文件同步状态检查器
     _syncCheckTimers: {},
 
+    // 文件过期清理定时器
+    _expireTimers: {},
+
+    // 上传增量更新合并标记
+    _uploadUpdatePending: false,
+
+    // IndexedDB 缓存
+    _cacheDbPromise: null,
+    _cacheChannel: null,
+
     /**
      * Get translation text safely (prefers TL.tpl, falls back to app.languageData).
      */
@@ -87,6 +97,489 @@ var VX_FILELIST = VX_FILELIST || {
         const text = String(this.t(key, fallback) || '');
         if (!params) return text;
         return text.replace(/\{(\w+)\}/g, (m, k) => (params[k] !== undefined ? String(params[k]) : m));
+    },
+
+    initCacheLayer() {
+        if (this._cacheChannel || typeof BroadcastChannel === 'undefined') return;
+        try {
+            this._cacheChannel = new BroadcastChannel('vx-filelist-cache');
+            this._cacheChannel.onmessage = (event) => {
+                this.handleCacheBroadcast(event && event.data ? event.data : null);
+            };
+        } catch (error) {
+            console.warn('[VX_FILELIST] BroadcastChannel unavailable:', error);
+        }
+    },
+
+    getCacheScope() {
+        const host = (typeof window !== 'undefined' && window.location) ? window.location.host : 'unknown';
+        const token = this.getToken() || '';
+        return `${host}::${token}`;
+    },
+
+    getCacheKey(mrid) {
+        const roomId = (mrid !== undefined && mrid !== null) ? mrid : this.mrid;
+        return `${this.getCacheScope()}::${roomId}`;
+    },
+
+    cloneCacheData(data, fallback) {
+        if (data === undefined || data === null) {
+            return fallback;
+        }
+        try {
+            return JSON.parse(JSON.stringify(data));
+        } catch (error) {
+            return fallback;
+        }
+    },
+
+    openCacheDb() {
+        if (typeof indexedDB === 'undefined') {
+            return Promise.resolve(null);
+        }
+
+        if (this._cacheDbPromise) {
+            return this._cacheDbPromise;
+        }
+
+        this._cacheDbPromise = new Promise((resolve) => {
+            let settled = false;
+            const req = indexedDB.open('tmplink_vxui_cache', 1);
+
+            req.onupgradeneeded = () => {
+                const db = req.result;
+                if (!db.objectStoreNames.contains('filelist_rooms')) {
+                    db.createObjectStore('filelist_rooms', { keyPath: 'key' });
+                }
+            };
+
+            req.onsuccess = () => {
+                settled = true;
+                resolve(req.result);
+            };
+
+            req.onerror = () => {
+                settled = true;
+                console.warn('[VX_FILELIST] IndexedDB open failed:', req.error);
+                resolve(null);
+            };
+
+            req.onblocked = () => {
+                if (settled) return;
+                console.warn('[VX_FILELIST] IndexedDB open blocked');
+                resolve(null);
+            };
+        });
+
+        return this._cacheDbPromise;
+    },
+
+    readCacheSnapshot(mrid) {
+        return this.openCacheDb().then((db) => new Promise((resolve) => {
+            if (!db) {
+                resolve(null);
+                return;
+            }
+
+            try {
+                const tx = db.transaction('filelist_rooms', 'readonly');
+                const store = tx.objectStore('filelist_rooms');
+                const req = store.get(this.getCacheKey(mrid));
+                req.onsuccess = () => resolve(req.result || null);
+                req.onerror = () => {
+                    console.warn('[VX_FILELIST] IndexedDB read failed:', req.error);
+                    resolve(null);
+                };
+            } catch (error) {
+                console.warn('[VX_FILELIST] IndexedDB read exception:', error);
+                resolve(null);
+            }
+        }));
+    },
+
+    writeCacheSnapshot(snapshot, options = {}) {
+        if (!snapshot) return Promise.resolve(false);
+        return this.openCacheDb().then((db) => new Promise((resolve) => {
+            if (!db) {
+                resolve(false);
+                return;
+            }
+
+            try {
+                const tx = db.transaction('filelist_rooms', 'readwrite');
+                const store = tx.objectStore('filelist_rooms');
+                store.put(snapshot);
+
+                tx.oncomplete = () => {
+                    if (options.broadcast !== false) {
+                        this.broadcastCacheUpdate('upsert', snapshot.mrid);
+                    }
+                    resolve(true);
+                };
+
+                tx.onerror = () => {
+                    console.warn('[VX_FILELIST] IndexedDB write failed:', tx.error);
+                    resolve(false);
+                };
+            } catch (error) {
+                console.warn('[VX_FILELIST] IndexedDB write exception:', error);
+                resolve(false);
+            }
+        }));
+    },
+
+    deleteCacheSnapshot(mrid, options = {}) {
+        return this.openCacheDb().then((db) => new Promise((resolve) => {
+            if (!db) {
+                resolve(false);
+                return;
+            }
+
+            try {
+                const tx = db.transaction('filelist_rooms', 'readwrite');
+                const store = tx.objectStore('filelist_rooms');
+                store.delete(this.getCacheKey(mrid));
+
+                tx.oncomplete = () => {
+                    if (options.broadcast !== false) {
+                        this.broadcastCacheUpdate('delete', mrid);
+                    }
+                    resolve(true);
+                };
+
+                tx.onerror = () => {
+                    console.warn('[VX_FILELIST] IndexedDB delete failed:', tx.error);
+                    resolve(false);
+                };
+            } catch (error) {
+                console.warn('[VX_FILELIST] IndexedDB delete exception:', error);
+                resolve(false);
+            }
+        }));
+    },
+
+    buildCacheSnapshot() {
+        const roomId = (this.mrid !== undefined && this.mrid !== null) ? String(this.mrid) : '0';
+        return {
+            key: this.getCacheKey(roomId),
+            scope: this.getCacheScope(),
+            mrid: roomId,
+            savedAt: Date.now(),
+            room: this.cloneCacheData(this.room, {}),
+            subRooms: this.cloneCacheData(this.subRooms, []),
+            fileList: this.cloneCacheData(this.fileList, []),
+            fullPath: (Array.isArray(this.fullPath) && String(this.fullPathMrid) === roomId)
+                ? this.cloneCacheData(this.fullPath, [])
+                : null,
+            directState: {
+                directDomain: this.directDomain,
+                directProtocol: this.directProtocol,
+                directDomainReady: this.directDomainReady,
+                directDirEnabled: this.directDirEnabled,
+                directDirKey: this.directDirKey
+            },
+            meta: {
+                isOwner: !!this.isOwner,
+                isDesktop: !!this.isDesktop,
+                startMrid: this.startMrid
+            }
+        };
+    },
+
+    persistCurrentSnapshot(options = {}) {
+        const hasContent = !!(this.room && Object.keys(this.room).length);
+        if (!hasContent && (!Array.isArray(this.fileList) || this.fileList.length === 0) && (!Array.isArray(this.subRooms) || this.subRooms.length === 0)) {
+            return Promise.resolve(false);
+        }
+        return this.writeCacheSnapshot(this.buildCacheSnapshot(), options);
+    },
+
+    adjustCachedFileList(fileList, savedAt) {
+        const source = Array.isArray(fileList) ? fileList : [];
+        const elapsedSeconds = Math.max(0, Math.floor((Date.now() - Number(savedAt || 0)) / 1000));
+        const nextList = [];
+        let removedExpired = false;
+
+        source.forEach((item) => {
+            const file = this.cloneCacheData(item, null);
+            if (!file) return;
+
+            const isPermanent = Number(file.model) === 99;
+            const lefttime = Number(file.lefttime) || 0;
+
+            if (!isPermanent && lefttime > 0) {
+                const nextLefttime = lefttime - elapsedSeconds;
+                if (nextLefttime <= 0) {
+                    removedExpired = true;
+                    return;
+                }
+                file.lefttime = nextLefttime;
+            }
+
+            nextList.push(file);
+        });
+
+        return {
+            fileList: nextList,
+            removedExpired
+        };
+    },
+
+    normalizeCacheSnapshot(snapshot) {
+        if (!snapshot || snapshot.scope !== this.getCacheScope()) return null;
+
+        const normalized = this.cloneCacheData(snapshot, null);
+        if (!normalized) return null;
+
+        const adjusted = this.adjustCachedFileList(normalized.fileList, normalized.savedAt);
+        normalized.fileList = adjusted.fileList;
+        normalized.savedAt = Date.now();
+        normalized._removedExpired = adjusted.removedExpired;
+
+        if (!Array.isArray(normalized.subRooms)) normalized.subRooms = [];
+        if (!normalized.room || typeof normalized.room !== 'object') normalized.room = {};
+        if (!normalized.meta || typeof normalized.meta !== 'object') normalized.meta = {};
+
+        return normalized;
+    },
+
+    applySnapshot(snapshot, options = {}) {
+        if (!snapshot) return false;
+
+        this.room = snapshot.room || {};
+        this.subRooms = Array.isArray(snapshot.subRooms) ? snapshot.subRooms : [];
+        this.fileList = Array.isArray(snapshot.fileList) ? snapshot.fileList : [];
+        this.photoList = this.fileList.filter(file => this.isImageFile(file.ftype));
+
+        this.isOwner = snapshot.meta && snapshot.meta.isOwner !== undefined
+            ? !!snapshot.meta.isOwner
+            : (this.room && this.room.owner === 1);
+        this.isDesktop = snapshot.meta && snapshot.meta.isDesktop !== undefined
+            ? !!snapshot.meta.isDesktop
+            : (this.room && this.room.top == 99);
+
+        if (snapshot.meta && snapshot.meta.startMrid !== undefined) {
+            this.startMrid = snapshot.meta.startMrid;
+        }
+
+        if (Array.isArray(snapshot.fullPath) && snapshot.fullPath.length > 0) {
+            this.fullPath = snapshot.fullPath;
+            this.fullPathMrid = String(this.mrid);
+        } else {
+            this.fullPath = null;
+            this.fullPathMrid = null;
+        }
+
+        if (snapshot.directState && typeof snapshot.directState === 'object') {
+            this.directDomain = snapshot.directState.directDomain || null;
+            this.directProtocol = snapshot.directState.directProtocol || 'http://';
+            this.directDomainReady = !!snapshot.directState.directDomainReady;
+            this.directDirEnabled = !!snapshot.directState.directDirEnabled;
+            this.directDirKey = snapshot.directState.directDirKey || null;
+        }
+
+        this.updateRoomUI();
+        this.updateBreadcrumb();
+        this.applyFolderPrivacyUI();
+        this.applyFolderPublishUI();
+        this.applyDirectSidebarUI();
+        this.hideLoading();
+        this.render();
+        this.updateItemCount();
+
+        if (options.trackView !== false) {
+            this.trackRoomView();
+        }
+
+        if (snapshot._removedExpired) {
+            this.persistCurrentSnapshot({ broadcast: false });
+        }
+
+        return true;
+    },
+
+    loadCachedRoomSnapshot(options = {}) {
+        return this.readCacheSnapshot(this.mrid).then((snapshot) => {
+            const normalized = this.normalizeCacheSnapshot(snapshot);
+            if (!normalized) return false;
+
+            this.applySnapshot(normalized, options);
+            return true;
+        }).catch((error) => {
+            console.warn('[VX_FILELIST] Failed to load cached snapshot:', error);
+            return false;
+        });
+    },
+
+    broadcastCacheUpdate(action, mrid) {
+        if (!this._cacheChannel) return;
+        try {
+            this._cacheChannel.postMessage({
+                type: 'vx-filelist-cache-update',
+                action: action,
+                mrid: String(mrid !== undefined && mrid !== null ? mrid : this.mrid),
+                scope: this.getCacheScope()
+            });
+        } catch (error) {
+            console.warn('[VX_FILELIST] Broadcast cache update failed:', error);
+        }
+    },
+
+    handleCacheBroadcast(payload) {
+        if (!payload || payload.type !== 'vx-filelist-cache-update') return;
+        if (payload.scope !== this.getCacheScope()) return;
+        if (String(payload.mrid) !== String(this.mrid)) return;
+        if (this.refreshing) return;
+
+        if (payload.action === 'delete') {
+            this.fileList = [];
+            this.photoList = [];
+            this.subRooms = [];
+            this.render();
+            this.updateItemCount();
+            return;
+        }
+
+        this.loadCachedRoomSnapshot({ trackView: false });
+    },
+
+    stopAllExpireTimers() {
+        Object.keys(this._expireTimers).forEach((ukey) => {
+            if (this._expireTimers[ukey]) {
+                clearTimeout(this._expireTimers[ukey]);
+                delete this._expireTimers[ukey];
+            }
+        });
+    },
+
+    rebuildExpireTimers() {
+        this.stopAllExpireTimers();
+        (this.fileList || []).forEach((file) => this.scheduleExpireCleanup(file));
+    },
+
+    scheduleExpireCleanup(file) {
+        if (!file || !file.ukey) return;
+        const isPermanent = Number(file.model) === 99;
+        const lefttime = Number(file.lefttime) || 0;
+        if (isPermanent || lefttime <= 0) return;
+
+        const delay = Math.min(lefttime * 1000, 2147483647);
+        this._expireTimers[file.ukey] = setTimeout(() => {
+            delete this._expireTimers[file.ukey];
+            this.removeFilesLocally([file.ukey], { persist: true, render: true, clearSelection: true });
+        }, delay);
+    },
+
+    removeFilesLocally(ukeys, options = {}) {
+        const target = new Set((Array.isArray(ukeys) ? ukeys : [ukeys]).map(item => String(item)));
+        if (target.size === 0) return false;
+
+        const nextFiles = (this.fileList || []).filter(file => !target.has(String(file.ukey)));
+        if (nextFiles.length === (this.fileList || []).length) return false;
+
+        this.fileList = nextFiles;
+        this.photoList = this.fileList.filter(file => this.isImageFile(file.ftype));
+
+        if (options.clearSelection !== false) {
+            this.selectedItems = (this.selectedItems || []).filter(item => !(item.type === 'file' && target.has(String(item.id))));
+            this.updateSelectionBar();
+        }
+
+        if (options.render !== false) {
+            this.render();
+            this.updateItemCount();
+        }
+
+        if (options.persist !== false) {
+            this.persistCurrentSnapshot();
+        }
+
+        return true;
+    },
+
+    removeFoldersLocally(mrids, options = {}) {
+        const target = new Set((Array.isArray(mrids) ? mrids : [mrids]).map(item => String(item)));
+        if (target.size === 0) return false;
+
+        const nextFolders = (this.subRooms || []).filter(folder => !target.has(String(folder.mr_id)));
+        if (nextFolders.length === (this.subRooms || []).length) return false;
+
+        this.subRooms = nextFolders;
+
+        if (options.clearSelection !== false) {
+            this.selectedItems = (this.selectedItems || []).filter(item => !(item.type === 'folder' && target.has(String(item.id))));
+            this.updateSelectionBar();
+        }
+
+        if (options.render !== false) {
+            this.render();
+            this.updateItemCount();
+        }
+
+        if (options.persist !== false) {
+            this.persistCurrentSnapshot();
+        }
+
+        return true;
+    },
+
+    updateFileLocally(ukey, updater, options = {}) {
+        const file = (this.fileList || []).find(item => String(item.ukey) === String(ukey));
+        if (!file) return false;
+
+        updater(file);
+        this.photoList = this.fileList.filter(item => this.isImageFile(item.ftype));
+
+        if (options.patchRow !== false) {
+            this._patchFileRow(ukey);
+        }
+
+        if (options.render) {
+            this.render();
+        }
+
+        if (options.persist !== false) {
+            this.persistCurrentSnapshot();
+        }
+
+        return true;
+    },
+
+    updateFolderLocally(mrid, updater, options = {}) {
+        const folder = (this.subRooms || []).find(item => String(item.mr_id) === String(mrid));
+        if (!folder) return false;
+
+        updater(folder);
+
+        if (options.render !== false) {
+            this.render();
+            this.updateItemCount();
+        }
+
+        if (options.persist !== false) {
+            this.persistCurrentSnapshot();
+        }
+
+        return true;
+    },
+
+    insertFolderLocally(folder, options = {}) {
+        if (!folder || folder.mr_id === undefined || folder.mr_id === null) return false;
+        const exists = (this.subRooms || []).some(item => String(item.mr_id) === String(folder.mr_id));
+        if (exists) return false;
+
+        this.subRooms = [folder].concat(this.subRooms || []);
+
+        if (options.render !== false) {
+            this.render();
+            this.updateItemCount();
+        }
+
+        if (options.persist !== false) {
+            this.persistCurrentSnapshot();
+        }
+
+        return true;
     },
 
     normalizeCopyStyle(style) {
@@ -276,6 +769,8 @@ var VX_FILELIST = VX_FILELIST || {
     init(params = {}) {
         console.log('[VX_FILELIST] Initializing...', params);
 
+        this.initCacheLayer();
+
         // 初始化排序管理器
         if (!this.sorter) {
             if (typeof VxSort !== 'undefined') {
@@ -294,10 +789,18 @@ var VX_FILELIST = VX_FILELIST || {
         // 防止事件监听器重复绑定
         this.unbindEvents();
         this.hideContextMenu();
+
+        const previousMrid = this.mrid;
         
         // 获取 mrid 参数（mrid=0 代表桌面，不能用 || 兜底）
         const hasMridParam = (params && Object.prototype.hasOwnProperty.call(params, 'mrid'));
         const targetMrid = hasMridParam ? params.mrid : (this.getUrlMrid() || 0);
+        const hasWarmState = String(previousMrid) === String(targetMrid)
+            && !!this.room
+            && typeof this.room === 'object'
+            && (Object.keys(this.room).length > 0
+                || (Array.isArray(this.subRooms) && this.subRooms.length > 0)
+                || (Array.isArray(this.fileList) && this.fileList.length > 0));
 
         // 获取 start 参数（非属主路径根），未传时默认当前目录
         const hasStartParam = (params && Object.prototype.hasOwnProperty.call(params, 'start'));
@@ -327,16 +830,21 @@ var VX_FILELIST = VX_FILELIST || {
         // 重置状态
         this.selectedItems = [];
         this.selectMode = false;
-        this.photoList = [];
         this.lightboxOpen = false;
 
-        // reset direct state
-        this.directDomain = null;
-        this.directProtocol = 'http://';
-        this.directDomainReady = false;
-        this.directDirEnabled = false;
-        this.directDirKey = null;
-        this.directLoading = false;
+        if (!hasWarmState) {
+            this.photoList = [];
+
+            // reset direct state
+            this.directDomain = null;
+            this.directProtocol = 'http://';
+            this.directDomainReady = false;
+            this.directDirEnabled = false;
+            this.directDirKey = null;
+            this.directLoading = false;
+        } else {
+            this.photoList = (this.fileList || []).filter(file => this.isImageFile(file.ftype));
+        }
 
         // reset folder privacy state
         this._privacyLoading = false;
@@ -344,23 +852,34 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 停止之前的同步检查
         this.stopAllSyncChecks();
+        this.stopAllExpireTimers();
         
         // 初始化上传模块（预加载服务器列表）
         if (typeof VX_UPLOADER !== 'undefined') {
             VX_UPLOADER.init();
         }
-        
-        // 显示加载状态
-        this.showLoading();
+
+        // 初始先隐藏骨架屏，是否显示由 loadRoom 根据是否需要远端请求决定。
+        this.hideLoading();
         
         // 更新侧边栏
         this.updateSidebar();
         
         // 应用视图模式
         this.applyViewMode();
+
+        if (hasWarmState) {
+            this.updateRoomUI();
+            this.updateBreadcrumb();
+            this.applyFolderPrivacyUI();
+            this.applyFolderPublishUI();
+            this.applyDirectSidebarUI();
+            this.render();
+            this.updateItemCount();
+        }
         
         // 加载文件夹数据
-        this.loadRoom();
+        this.loadRoom({ showLoading: !hasWarmState });
         
         // 绑定事件
         this.bindEvents();
@@ -612,6 +1131,9 @@ var VX_FILELIST = VX_FILELIST || {
 
         // 停止上传队列刷新定时器
         this.stopUploadQueueRefresh();
+
+        // 停止本地过期清理定时器
+        this.stopAllExpireTimers();
 
         // 隐藏移动端视图切换按钮
         this.setMobileViewToggleVisible(false);
@@ -1020,11 +1542,10 @@ var VX_FILELIST = VX_FILELIST || {
             }
         };
 
+        const shouldShowLoading = opts.showLoading !== false;
+
         if (opts.refreshing) {
             this.setRefreshing(true);
-        }
-        if (opts.showLoading !== false) {
-            this.showLoading();
         }
 
         // 获取 token（可能是登录用户的 token 或访客 token）
@@ -1043,76 +1564,83 @@ var VX_FILELIST = VX_FILELIST || {
         }
 
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
-        
-        $.post(apiUrl, {
-            action: 'details',
-            token: token,
-            mr_id: this.mrid
-        }, (rsp) => {
-            if (rsp.status === 0) {
-                this.hideLoading();
-                this.showFolderNotFound();
-                finalize();
-                return;
-            }
-            
-            if (rsp.status === 3) {
-                VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
-                setTimeout(() => {
-                    app.open('/login');
-                }, 300);
-                finalize();
-                return;
-            }
-            
-            // 保存文件夹信息
-            this.room = rsp.data;
-            this.isOwner = rsp.data.owner === 1;
-            this.isDesktop = (rsp.data.top == 99);
-            this.subRooms = rsp.data.sub_rooms || [];
 
-            if (this.isOwner) {
-                this.startMrid = 0;
+        const fetchRemote = () => {
+            if (shouldShowLoading) {
+                this.showLoading();
             }
-            
-            // 特殊处理桌面
-            if (this.mrid == 0 || this.mrid === '0') {
-                this.isDesktop = true;
-                // 桌面目录在老逻辑中用 top=99 表示，且 parent 固定为 0
-                if (!this.room || typeof this.room !== 'object') {
-                    this.room = {};
+
+            $.post(apiUrl, {
+                action: 'details',
+                token: token,
+                mr_id: this.mrid
+            }, (rsp) => {
+                if (rsp.status === 0) {
+                    this.hideLoading();
+                    this.showFolderNotFound();
+                    this.deleteCacheSnapshot(this.mrid, { broadcast: false });
+                    finalize();
+                    return;
                 }
-                this.room.mr_id = 0;
-                this.room.top = 99;
-                this.room.parent = 0;
-                this.room.name = (typeof app !== 'undefined' && app.languageData && app.languageData.navbar_meetingroom) 
-                    ? app.languageData.navbar_meetingroom : '桌面';
+
+                if (rsp.status === 3) {
+                    VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
+                    setTimeout(() => {
+                        app.open('/login');
+                    }, 300);
+                    finalize();
+                    return;
+                }
+
+                // 保存文件夹信息
+                this.room = rsp.data;
+                this.isOwner = rsp.data.owner === 1;
+                this.isDesktop = (rsp.data.top == 99);
+                this.subRooms = rsp.data.sub_rooms || [];
+
+                if (this.isOwner) {
+                    this.startMrid = 0;
+                }
+
+                // 特殊处理桌面
+                if (this.mrid == 0 || this.mrid === '0') {
+                    this.isDesktop = true;
+                    if (!this.room || typeof this.room !== 'object') {
+                        this.room = {};
+                    }
+                    this.room.mr_id = 0;
+                    this.room.top = 99;
+                    this.room.parent = 0;
+                    this.room.name = (typeof app !== 'undefined' && app.languageData && app.languageData.navbar_meetingroom)
+                        ? app.languageData.navbar_meetingroom : '桌面';
+                }
+
+                this.updateRoomUI();
+                this.loadFullPath();
+                this.applyFolderPrivacyUI();
+                this.applyFolderPublishUI();
+                this.loadDirectFolderState();
+                this.loadFileList(0, { forceRemote: true, onComplete: finalize, persist: true, trackView: true });
+            }, 'json').fail(() => {
+                this.hideLoading();
+                VXUI.toastError(this.t('vx_load_failed', '加载失败'));
+                finalize();
+            });
+        };
+
+        if (opts.forceRemote) {
+            fetchRemote();
+            return;
+        }
+
+        this.loadCachedRoomSnapshot().then((loaded) => {
+            if (loaded) {
+                finalize();
+                return;
             }
-            
-            // 更新 UI
-            this.updateRoomUI();
-
-            // 加载完整路径（用于面包屑）
-            this.loadFullPath();
-
-            // 记录目录/相册浏览
-            this.trackRoomView();
-
-            // 更新侧边栏：公开/私有切换（基于最新 room/isOwner/isDesktop）
-            this.applyFolderPrivacyUI();
-            this.applyFolderPublishUI();
-
-            // 加载直链状态（属主可用）
-            this.loadDirectFolderState();
-            
-            // 加载文件列表
-            this.loadFileList(0);
-            
-            finalize();
-        }, 'json').fail(() => {
-            this.hideLoading();
-            VXUI.toastError(this.t('vx_load_failed', '加载失败'));
-            finalize();
+            fetchRemote();
+        }).catch(() => {
+            fetchRemote();
         });
     },
 
@@ -1127,6 +1655,7 @@ var VX_FILELIST = VX_FILELIST || {
             this.fullPath = [{ id: '0', name: this.getDesktopTitle() }];
             this.fullPathMrid = String(currentMrid);
             this.updateBreadcrumb();
+            this.persistCurrentSnapshot({ broadcast: false });
             return;
         }
 
@@ -1179,6 +1708,7 @@ var VX_FILELIST = VX_FILELIST || {
                 this.fullPathMrid = null;
             }
             this.updateBreadcrumb();
+            this.persistCurrentSnapshot({ broadcast: false });
         }, 'json').fail(() => {
             if (reqId !== this._fullPathReqId) return;
             this.fullPath = null;
@@ -1422,6 +1952,7 @@ var VX_FILELIST = VX_FILELIST || {
             this.directDirEnabled = false;
             this.directDirKey = null;
             this.applyDirectSidebarUI();
+            this.persistCurrentSnapshot({ broadcast: false });
             return;
         }
 
@@ -1448,6 +1979,7 @@ var VX_FILELIST = VX_FILELIST || {
                 this.directDirEnabled = false;
                 this.directDirKey = null;
                 this.applyDirectSidebarUI();
+                this.persistCurrentSnapshot({ broadcast: false });
                 return;
             }
 
@@ -1469,6 +2001,7 @@ var VX_FILELIST = VX_FILELIST || {
 
             // 直链状态变化会影响文件操作按钮
             this.render();
+            this.persistCurrentSnapshot({ broadcast: false });
         } catch (e) {
             console.error('[VX_FILELIST] loadDirectFolderState error:', e);
             this.directDomain = null;
@@ -1476,6 +2009,7 @@ var VX_FILELIST = VX_FILELIST || {
             this.directDirEnabled = false;
             this.directDirKey = null;
             this.applyDirectSidebarUI();
+            this.persistCurrentSnapshot({ broadcast: false });
         } finally {
             this.directLoading = false;
         }
@@ -1731,22 +2265,18 @@ var VX_FILELIST = VX_FILELIST || {
     /**
      * 加载文件列表
      */
-    loadFileList(page) {
+    loadFileList(page, options = {}) {
+        const opts = options || {};
         if (page === 0) {
             this.pageNumber = 0;
-            this.fileList = [];
-            this.photoList = [];
+            if (opts.forceRemote) {
+                this.fileList = [];
+                this.photoList = [];
+            }
         } else {
             this.pageNumber++;
         }
-        
-        const token = this.getToken();
-        if (!token) {
-            this.hideLoading();
-            this.render();
-            return;
-        }
-        
+
         // 优先使用当前内存中的状态，如果未初始化（page=0且可能是首次），则从 storage 读取
         if (page === 0) {
             // Load sort state for this room
@@ -1756,6 +2286,30 @@ var VX_FILELIST = VX_FILELIST || {
                 this.sorter.load(this.mrid, defaultBy, defaultType);
                 setTimeout(() => this.updateSortIcons(), 0);
             }
+        }
+
+        if (!opts.forceRemote) {
+            this.hideLoading();
+            this.photoList = this.fileList.filter(file => this.isImageFile(file.ftype));
+            this.render();
+            this.updateItemCount();
+            if (opts.trackView) {
+                this.trackRoomView();
+            }
+            if (typeof opts.onComplete === 'function') {
+                opts.onComplete();
+            }
+            return;
+        }
+
+        const token = this.getToken();
+        if (!token) {
+            this.hideLoading();
+            this.render();
+            if (typeof opts.onComplete === 'function') {
+                opts.onComplete();
+            }
+            return;
         }
 
         const sortBy = this.sorter ? this.sorter.currentBy : 0;
@@ -1774,12 +2328,15 @@ var VX_FILELIST = VX_FILELIST || {
             this.hideLoading();
             
             if (rsp.status === 1 && rsp.data && rsp.data.length > 0) {
-                this.fileList = this.fileList.concat(rsp.data);
+                this.fileList = page === 0 ? rsp.data.slice() : this.fileList.concat(rsp.data);
                 
                 // 提取图片文件用于相册模式
                 this.photoList = this.fileList.filter(file => 
                     this.isImageFile(file.ftype)
                 );
+            } else if (page === 0) {
+                this.fileList = [];
+                this.photoList = [];
             }
             
             // 渲染
@@ -1787,10 +2344,25 @@ var VX_FILELIST = VX_FILELIST || {
             
             // 更新项目数量
             this.updateItemCount();
+
+            if (opts.trackView) {
+                this.trackRoomView();
+            }
+
+            if (page === 0 && opts.persist !== false) {
+                this.persistCurrentSnapshot();
+            }
+
+            if (typeof opts.onComplete === 'function') {
+                opts.onComplete();
+            }
             
         }, 'json').fail(() => {
             this.hideLoading();
             this.render();
+            if (typeof opts.onComplete === 'function') {
+                opts.onComplete();
+            }
         });
     },
     
@@ -1905,6 +2477,7 @@ var VX_FILELIST = VX_FILELIST || {
         } else {
             this.renderAlbum();
         }
+        this.rebuildExpireTimers();
     },
     
     /**
@@ -2735,6 +3308,8 @@ var VX_FILELIST = VX_FILELIST || {
         if (file) {
             file.sync = 0;
         }
+
+        this.persistCurrentSnapshot({ broadcast: false });
         
         // 更新列表视图 UI
         const okEl = document.querySelector(`.vx-file-ok[data-ukey="${ukey}"]`);
@@ -3067,7 +3642,7 @@ var VX_FILELIST = VX_FILELIST || {
      */
     refresh() {
         if (this.refreshing) return;
-        this.loadRoom({ refreshing: true, showLoading: true });
+        this.loadRoom({ refreshing: true, showLoading: true, forceRemote: true });
     },
     
     /**
@@ -3157,6 +3732,9 @@ var VX_FILELIST = VX_FILELIST || {
             
             // 更新项目数量
             this.updateItemCount();
+
+            // 回写缓存，供其它标签页和再次访问直接命中
+            this.persistCurrentSnapshot();
             
         }, 'json');
     },
@@ -4012,8 +4590,8 @@ var VX_FILELIST = VX_FILELIST || {
         const token = this.getToken();
 
         this._deleteFileWithFallback(ukey, token).then((ok) => {
-            this.refresh();
             if (ok) {
+                this.removeFilesLocally([ukey], { persist: true, render: true, clearSelection: true });
                 VXUI.toastSuccess(this.t('vx_delete_success', '删除成功'));
             } else {
                 VXUI.toastError(this.t('vx_delete_failed_retry', '删除失败，请重试'));
@@ -4092,7 +4670,7 @@ var VX_FILELIST = VX_FILELIST || {
             token: token,
             mr_id: mrid
         }, () => {
-            this.refresh();
+            this.removeFoldersLocally([mrid], { persist: true, render: true, clearSelection: true });
             VXUI.toastSuccess(this.t('vx_delete_success', '删除成功'));
         });
     },
@@ -4880,9 +5458,19 @@ var VX_FILELIST = VX_FILELIST || {
         }, (rsp) => {
             this.closeMoveModal();
             if (rsp && rsp.status === 1) {
+                const movedFileIds = this.selectedItems.filter(item => item.type === 'file').map(item => item.id);
+                const movedFolderIds = this.selectedItems.filter(item => item.type === 'folder').map(item => item.id);
+                if (movedFileIds.length > 0) {
+                    this.removeFilesLocally(movedFileIds, { persist: false, render: false, clearSelection: false });
+                }
+                if (movedFolderIds.length > 0) {
+                    this.removeFoldersLocally(movedFolderIds, { persist: false, render: false, clearSelection: false });
+                }
+                this.render();
+                this.updateItemCount();
+                this.persistCurrentSnapshot();
                 VXUI.toastSuccess(this.t('vx_move_success', '移动成功'));
                 this.clearSelection();
-                this.refresh();
             } else {
                 const errorMsg = (rsp && rsp.message) ? rsp.message : this.t('vx_move_failed_retry', '移动失败，请重试');
                 VXUI.toastError(errorMsg);
@@ -4926,8 +5514,29 @@ var VX_FILELIST = VX_FILELIST || {
             const okCount = results.filter(Boolean).length;
             const total = results.length;
 
+            const removedFileIds = [];
+            const removedFolderIds = [];
+            results.forEach((ok, index) => {
+                if (!ok) return;
+                const item = this.selectedItems[index];
+                if (!item) return;
+                if (item.type === 'folder') removedFolderIds.push(item.id);
+                if (item.type === 'file') removedFileIds.push(item.id);
+            });
+
+            if (removedFileIds.length > 0) {
+                this.removeFilesLocally(removedFileIds, { persist: false, render: false, clearSelection: false });
+            }
+            if (removedFolderIds.length > 0) {
+                this.removeFoldersLocally(removedFolderIds, { persist: false, render: false, clearSelection: false });
+            }
+
             this.clearSelection();
-            this.refresh();
+            this.render();
+            this.updateItemCount();
+            if (okCount > 0) {
+                this.persistCurrentSnapshot();
+            }
 
             if (okCount === total) {
                 VXUI.toastSuccess(this.t('vx_delete_success', '删除成功'));
@@ -5640,13 +6249,10 @@ var VX_FILELIST = VX_FILELIST || {
         }, (rsp) => {
             if (rsp && rsp.status === 1) {
                 VXUI.toastSuccess(this.t('vx_update_success', '修改成功'));
-                // 原地更新本地数据和 DOM，无需整页刷新
-                const fileToUpdate = (this.fileList || []).find(f => String(f.ukey) === String(ukey));
-                if (fileToUpdate) {
+                this.updateFileLocally(ukey, (fileToUpdate) => {
                     fileToUpdate.model = model;
                     fileToUpdate.lefttime = modelDuration[model] || 0;
-                }
-                this._patchFileRow(ukey);
+                }, { patchRow: true, persist: true });
                 return;
             }
             // 处理不同的错误状态
@@ -6016,7 +6622,23 @@ var VX_FILELIST = VX_FILELIST || {
         }, (rsp) => {
             if (rsp.status === 1) {
                 this.closeCreateModal();
-                this.refresh();
+                const createdId = rsp && rsp.data && (rsp.data.mr_id || rsp.data.id);
+                if (createdId !== undefined && createdId !== null && String(createdId) !== '') {
+                    this.insertFolderLocally({
+                        mr_id: createdId,
+                        name: name,
+                        ctime: Math.floor(Date.now() / 1000),
+                        parent: mr_id,
+                        top: top,
+                        model: model === 1 ? 'private' : 'public',
+                        publish: 'no',
+                        type: 'owner',
+                        fav: 0,
+                        file_count: 0
+                    });
+                } else {
+                    this.refresh();
+                }
                 VXUI.toastSuccess(this.t('vx_create_success', '创建成功'));
             } else {
                 VXUI.toastError(this.t('vx_create_failed', '创建失败'));
@@ -6139,6 +6761,7 @@ var VX_FILELIST = VX_FILELIST || {
     
     confirmRename() {
         if (!this._renameTarget) return;
+        const renameTarget = this._renameTarget;
         
         const name = document.getElementById('vx-fl-rename-input')?.value?.trim();
         if (!name) {
@@ -6149,32 +6772,43 @@ var VX_FILELIST = VX_FILELIST || {
         const token = this.getToken();
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
         
-        if (this._renameTarget.type === 'folder') {
+        if (renameTarget.type === 'folder') {
             $.post(apiUrl, {
                 action: 'rename',
                 token: token,
                 name: name,
-                mr_id: this._renameTarget.id
+                mr_id: renameTarget.id
             }, () => {
                 this.closeRenameModal();
-                this.refresh();
+                this.updateFolderLocally(renameTarget.id, (folder) => {
+                    folder.name = name;
+                });
                 VXUI.toastSuccess(this.t('vx_rename_success', '重命名成功'));
             });
         } else {
-            if (typeof TL !== 'undefined' && TL.file_rename) {
-                const req = TL.file_rename(this._renameTarget.id, name);
-                if (req && typeof req.done === 'function') {
-                    req.done(() => {
-                        this.closeRenameModal();
-                        this.refresh();
-                        VXUI.toastSuccess(this.t('vx_rename_success', '重命名成功'));
-                    }).fail(() => {
-                        VXUI.toastError(this.t('vx_rename_fail', '重命名失败'));
-                    });
-                } else {
+            const fileApiUrl = (typeof TL !== 'undefined' && TL.api_file)
+                ? TL.api_file
+                : ((typeof TL !== 'undefined' && TL.api_url) ? (TL.api_url + '/file') : '/api_v2/file');
+
+            $.post(fileApiUrl, {
+                action: 'rename',
+                token: token,
+                name: name,
+                ukey: renameTarget.id
+            }, (rsp) => {
+                if (rsp && rsp.status === 1) {
                     this.closeRenameModal();
+                    this.updateFileLocally(renameTarget.id, (file) => {
+                        file.fname = name;
+                        file.fname_ex = name;
+                    }, { patchRow: false, render: true, persist: true });
+                    VXUI.toastSuccess(this.t('vx_rename_success', '重命名成功'));
+                } else {
+                    VXUI.toastError(this.t('vx_rename_fail', '重命名失败'));
                 }
-            }
+            }, 'json').fail(() => {
+                VXUI.toastError(this.t('vx_rename_fail', '重命名失败'));
+            });
         }
     },
     
