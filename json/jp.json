@@ -510,6 +510,8 @@
     "vx_item_unit": "件",
     "vx_folder_unit": "個のフォルダ",
     "vx_file_unit": "個のファイル",
+    "vx_folder_id": "フォルダー ID",
+    "vx_cache_saved_at": "キャッシュ保存時刻",
     "vx_selected_prefix": "選択",
     "vx_empty_folder_title": "空のフォルダー",
     "vx_view_list": "リスト表示",

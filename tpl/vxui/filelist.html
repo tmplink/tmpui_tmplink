@@ -38,6 +38,13 @@
                         <span class="vx-sidebar-stat-val" id="vx-fl-total-size">0 B</span>
                     </div>
                 </div>
+                <div class="vx-sidebar-stat-item">
+                    <iconpark-icon name="rotate" id="vx-fl-cache-icon"></iconpark-icon>
+                    <div class="vx-sidebar-stat-text">
+                        <span class="vx-sidebar-stat-val" id="vx-fl-cache-saved-at">--</span>
+                        <button type="button" class="vx-sidebar-stat-action" id="vx-fl-sidebar-refresh" onclick="VX_FILELIST.refresh()" data-tpl="album_refresh">刷新</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -157,10 +164,6 @@
             <iconpark-icon name="share-from-square"></iconpark-icon>
             <span data-tpl="model_copy">分享</span>
         </button>
-        <button class="vx-btn vx-btn-ghost vx-btn-outline" id="vx-fl-refresh-btn" onclick="VX_FILELIST.refresh()" title="." i18n="album_refresh" i18n-only="title">
-            <iconpark-icon name="rotate" data-role="refresh-icon"></iconpark-icon>
-            <span data-role="refresh-text" data-tpl="album_refresh">刷新</span>
-        </button>
         <button class="vx-btn vx-btn-ghost vx-text-danger" id="vx-fl-report-btn" onclick="VX_FILELIST.openFolderReportModal()" title="." i18n="file_btn_report" i18n-only="title" style="display:none;">
             <iconpark-icon name="circle-exclamation"></iconpark-icon>
             <span class="vx-hide-mobile" data-tpl="file_btn_report">举报</span>
@@ -271,6 +274,15 @@
             <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
             <span data-tpl="nav_upload">上传文件</span>
         </button>
+    </div>
+
+    <!-- Mobile Cache Bar (inline, mobile only) -->
+    <div class="vx-mobile-cache-bar" id="vx-mobile-cache-bar">
+        <div class="vx-mobile-cache-info">
+            <iconpark-icon name="rotate" id="vx-mobile-cache-icon"></iconpark-icon>
+            <span id="vx-mobile-cache-saved-at">--</span>
+        </div>
+        <button type="button" class="vx-mobile-cache-refresh" id="vx-mobile-cache-refresh" onclick="VX_FILELIST.refresh()" data-tpl="album_refresh">刷新</button>
     </div>
 </div>
 

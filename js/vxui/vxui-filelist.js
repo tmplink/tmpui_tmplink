@@ -76,6 +76,7 @@ var VX_FILELIST = VX_FILELIST || {
     // IndexedDB 缓存
     _cacheDbPromise: null,
     _cacheChannel: null,
+    _cacheSavedAt: null,
 
     /**
      * Get translation text safely (prefers TL.tpl, falls back to app.languageData).
@@ -131,6 +132,12 @@ var VX_FILELIST = VX_FILELIST || {
         } catch (error) {
             return fallback;
         }
+    },
+
+    formatCacheSavedAt(value) {
+        const savedAt = Number(value || 0);
+        if (!savedAt) return '--';
+        return new Date(savedAt).toLocaleString();
     },
 
     openCacheDb() {
@@ -211,6 +218,10 @@ var VX_FILELIST = VX_FILELIST || {
                 store.put(snapshot);
 
                 tx.oncomplete = () => {
+                    if (String(snapshot.mrid) === String(this.mrid)) {
+                        this._cacheSavedAt = Number(snapshot.savedAt || 0) || null;
+                        this.updateSidebarCacheInfo();
+                    }
                     if (options.broadcast !== false) {
                         this.broadcastCacheUpdate('upsert', snapshot.mrid);
                     }
@@ -400,6 +411,19 @@ var VX_FILELIST = VX_FILELIST || {
 
     loadCachedRoomSnapshot(options = {}) {
         return this.readCacheSnapshot(this.mrid).then((snapshot) => {
+            if (snapshot) {
+                const savedAt = Number(snapshot.savedAt || 0);
+                this._cacheSavedAt = savedAt || null;
+                this.updateSidebarCacheInfo();
+                console.log('[VX_FILELIST] IndexedDB cache hit:', {
+                    savedAt: savedAt || null,
+                    savedAtText: savedAt ? new Date(savedAt).toLocaleString() : null,
+                    mrid: String(this.mrid)
+                });
+            } else {
+                this._cacheSavedAt = null;
+                this.updateSidebarCacheInfo();
+            }
             const normalized = this.normalizeCacheSnapshot(snapshot);
             if (!normalized) return false;
 
@@ -809,6 +833,10 @@ var VX_FILELIST = VX_FILELIST || {
         this.startMrid = (targetStart !== undefined && targetStart !== null && String(targetStart) !== '')
             ? targetStart
             : targetMrid;
+
+        if (String(previousMrid) !== String(targetMrid)) {
+            this._cacheSavedAt = null;
+        }
         
         // 检查登录状态：访问桌面(mrid=0)需要登录，访问子文件夹允许未登录（公开文件夹）
         const isDesktopAccess = String(targetMrid) === '0' || targetMrid === 0;
@@ -920,6 +948,9 @@ var VX_FILELIST = VX_FILELIST || {
             sidebarTitle.textContent = title;
         }
 
+        this.updateSidebarCacheInfo();
+        this.setRefreshing(this.refreshing);
+
         // 同步直链侧边栏区域（模板每次都会被重建）
         this.applyDirectSidebarUI();
 
@@ -940,6 +971,29 @@ var VX_FILELIST = VX_FILELIST || {
 
         // 显示移动端文件夹名称栏
         this.setMobileFolderBarVisible(true);
+    },
+
+    updateSidebarCacheInfo() {
+        const cacheIconEl = document.getElementById('vx-fl-cache-icon');
+        const cacheSavedAtEl = document.getElementById('vx-fl-cache-saved-at');
+        const mobileCacheIconEl = document.getElementById('vx-mobile-cache-icon');
+        const mobileCacheSavedAtEl = document.getElementById('vx-mobile-cache-saved-at');
+        const hasCache = !!this._cacheSavedAt;
+        const iconName = this.refreshing ? 'rotate' : (hasCache ? 'clock' : 'rotate');
+
+        [cacheIconEl, mobileCacheIconEl].forEach((el) => {
+            if (!el) return;
+            el.setAttribute('name', iconName);
+            if (this.refreshing) {
+                el.setAttribute('spin', '');
+            } else {
+                el.removeAttribute('spin');
+            }
+        });
+
+        const timeText = this.formatCacheSavedAt(this._cacheSavedAt);
+        if (cacheSavedAtEl) cacheSavedAtEl.textContent = timeText;
+        if (mobileCacheSavedAtEl) mobileCacheSavedAtEl.textContent = timeText;
     },
 
     applyFolderPrivacyUI() {
@@ -1721,22 +1775,22 @@ var VX_FILELIST = VX_FILELIST || {
      * 设置刷新按钮状态
      */
     setRefreshing(on) {
-        const btn = document.getElementById('vx-fl-refresh-btn');
-        const text = btn ? btn.querySelector('[data-role="refresh-text"]') : null;
-
         this.refreshing = !!on;
 
-        if (!btn) return;
+        this.updateSidebarCacheInfo();
 
-        if (this.refreshing) {
-            btn.disabled = true;
-            btn.dataset.refreshing = '1';
-            if (text) text.textContent = this.t('vx_refreshing', '刷新中');
-        } else {
-            btn.disabled = false;
-            delete btn.dataset.refreshing;
-            if (text) text.textContent = this.t('album_refresh', '刷新');
-        }
+        [document.getElementById('vx-fl-sidebar-refresh'), document.getElementById('vx-mobile-cache-refresh')].forEach((btn) => {
+            if (!btn) return;
+            if (this.refreshing) {
+                btn.disabled = true;
+                btn.dataset.refreshing = '1';
+                btn.textContent = this.t('vx_refreshing', '刷新中');
+            } else {
+                btn.disabled = false;
+                delete btn.dataset.refreshing;
+                btn.textContent = this.t('album_refresh', '刷新');
+            }
+        });
     },
     
     /**

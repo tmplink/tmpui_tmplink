@@ -74,6 +74,27 @@
     font-size: 12px;
 }
 
+.vx-sidebar-stat-action {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+    font-size: 12px;
+    color: var(--vx-accent, #c9a227);
+    cursor: pointer;
+}
+
+.vx-sidebar-stat-action:hover {
+    opacity: 0.88;
+}
+
+.vx-sidebar-stat-action:disabled {
+    color: var(--vx-text-secondary);
+    cursor: default;
+    opacity: 0.8;
+}
+
 /* ==================== Toggle Button Groups ==================== */
 .vx-view-toggle,
 .vx-action-toggle,

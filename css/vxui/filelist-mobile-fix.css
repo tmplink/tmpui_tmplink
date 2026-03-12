@@ -4,12 +4,66 @@
  * Solves horizontal scrolling issues by providing a dedicated mobile layout
  */
 
+/* Mobile cache bar — hidden on desktop */
+.vx-mobile-cache-bar {
+    display: none;
+}
+
 @media (max-width: 768px) {
+    /* Cache info strip at the bottom of the content area (inline flow) */
+    .vx-mobile-cache-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 16px;
+        border-top: 1px solid var(--vx-border);
+        font-size: 12px;
+        gap: 12px;
+    }
+
+    .vx-mobile-cache-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--vx-text-secondary);
+        min-width: 0;
+    }
+
+    .vx-mobile-cache-info iconpark-icon {
+        font-size: 14px;
+        flex-shrink: 0;
+        color: var(--vx-text-muted, #888);
+    }
+
+    .vx-mobile-cache-info span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .vx-mobile-cache-refresh {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        padding: 4px 0;
+        font: inherit;
+        font-size: 12px;
+        color: var(--vx-accent, #c9a227);
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .vx-mobile-cache-refresh:disabled {
+        color: var(--vx-text-secondary);
+        cursor: default;
+    }
+
     /* 1. Global Reset for this view */
     .vx-content-list {
         overflow-x: hidden !important;
         width: 100vw !important;
         box-sizing: border-box;
+        padding-bottom: var(--vx-mobile-bar-height, 64px) !important;
     }
 
     /* 2. Hide Desktop Header */

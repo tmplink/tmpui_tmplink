@@ -522,6 +522,8 @@
     "vx_item_unit": "items",
     "vx_folder_unit": "folders",
     "vx_file_unit": "files",
+    "vx_folder_id": "Folder ID",
+    "vx_cache_saved_at": "Cached at",
     "vx_selected_prefix": "Selected",
     "vx_empty_folder_title": "Empty folder",
     "vx_view_list": "List view",
