@@ -140,6 +140,21 @@ var VX_FILELIST = VX_FILELIST || {
         return new Date(savedAt).toLocaleString();
     },
 
+    formatCacheSavedAtFull(value) {
+        const savedAt = Number(value || 0);
+        if (!savedAt) return '--';
+
+        const date = new Date(savedAt);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    },
+
     openCacheDb() {
         if (typeof indexedDB === 'undefined') {
             return Promise.resolve(null);
@@ -793,6 +808,10 @@ var VX_FILELIST = VX_FILELIST || {
     init(params = {}) {
         console.log('[VX_FILELIST] Initializing...', params);
 
+        if (document.body) {
+            document.body.classList.remove('vx-fl-initializing');
+        }
+
         this.initCacheLayer();
 
         // 初始化排序管理器
@@ -963,6 +982,10 @@ var VX_FILELIST = VX_FILELIST || {
         // 更新相册视图控制显示
         this.updateAlbumViewControls();
 
+        if (document.body) {
+            document.body.classList.add('vx-fl-active');
+        }
+
         // 显示移动端视图切换按钮
         this.setMobileViewToggleVisible(true);
 
@@ -992,8 +1015,11 @@ var VX_FILELIST = VX_FILELIST || {
         });
 
         const timeText = this.formatCacheSavedAt(this._cacheSavedAt);
+        const mobileTimeText = this._cacheSavedAt
+            ? this.fmt('vx_cache_fetched_at', { time: this.formatCacheSavedAtFull(this._cacheSavedAt) }, 'Data fetched at {time}')
+            : '--';
         if (cacheSavedAtEl) cacheSavedAtEl.textContent = timeText;
-        if (mobileCacheSavedAtEl) mobileCacheSavedAtEl.textContent = timeText;
+        if (mobileCacheSavedAtEl) mobileCacheSavedAtEl.textContent = mobileTimeText;
     },
 
     applyFolderPrivacyUI() {
@@ -1163,10 +1189,14 @@ var VX_FILELIST = VX_FILELIST || {
         if (albumBtn) albumBtn.classList.toggle('active', this.viewMode === 'album');
 
         // 移动端视图切换按钮状态
-        const mobileListBtn = document.getElementById('vx-mobile-view-list');
-        const mobileAlbumBtn = document.getElementById('vx-mobile-view-album');
-        if (mobileListBtn) mobileListBtn.classList.toggle('active', this.viewMode === 'list');
-        if (mobileAlbumBtn) mobileAlbumBtn.classList.toggle('active', this.viewMode === 'album');
+        ['vx-mobile-view-list', 'vx-fl-mob-view-list'].forEach((id) => {
+            const button = document.getElementById(id);
+            if (button) button.classList.toggle('active', this.viewMode === 'list');
+        });
+        ['vx-mobile-view-album', 'vx-fl-mob-view-album'].forEach((id) => {
+            const button = document.getElementById(id);
+            if (button) button.classList.toggle('active', this.viewMode === 'album');
+        });
         
         // 更新网格大小按钮状态
         const normalBtn = document.getElementById('view-normal');
@@ -1182,6 +1212,10 @@ var VX_FILELIST = VX_FILELIST || {
         this.unbindEvents();
         this.hideContextMenu();
         this.closeLightbox();
+
+        if (document.body) {
+            document.body.classList.remove('vx-fl-active');
+        }
 
         // 停止上传队列刷新定时器
         this.stopUploadQueueRefresh();
@@ -1239,33 +1273,38 @@ var VX_FILELIST = VX_FILELIST || {
      * 移动端顶部视图切换按钮显示/隐藏
      */
     setMobileViewToggleVisible(show) {
-        const toggle = document.getElementById('vx-mobile-view-toggle');
-        if (!toggle) return;
-        toggle.style.display = show ? 'flex' : 'none';
+        ['vx-mobile-view-toggle', 'vx-fl-mob-view-toggle'].forEach((id) => {
+            const toggle = document.getElementById(id);
+            if (!toggle) return;
+            toggle.style.display = show ? 'flex' : 'none';
+        });
     },
 
     /**
      * 移动端顶部操作按钮显示/隐藏
      */
     setMobileActionToggleVisible(show) {
-        const toggle = document.getElementById('vx-mobile-action-toggle');
-        if (toggle) {
+        ['vx-mobile-action-toggle', 'vx-fl-mob-action-toggle'].forEach((id) => {
+            const toggle = document.getElementById(id);
+            if (!toggle) return;
             toggle.style.display = show ? 'flex' : 'none';
-        }
+        });
     },
 
     /**
      * 移动端文件夹名称栏显示/隐藏
      */
     setMobileFolderBarVisible(show) {
-        const bar = document.getElementById('vx-fl-mobile-folder-bar');
-        if (!bar) return;
-        if (typeof window !== 'undefined' && window.matchMedia) {
-            const isMobile = window.matchMedia('(max-width: 768px)').matches;
-            bar.style.display = (show && isMobile) ? 'flex' : 'none';
-            return;
-        }
-        bar.style.display = show ? 'flex' : 'none';
+        ['vx-fl-mobile-folder-bar', 'vx-fl-mob-folder-bar'].forEach((id) => {
+            const bar = document.getElementById(id);
+            if (!bar) return;
+            if (typeof window !== 'undefined' && window.matchMedia) {
+                const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                bar.style.display = (show && isMobile) ? 'flex' : 'none';
+                return;
+            }
+            bar.style.display = show ? 'flex' : 'none';
+        });
     },
     
     /**
@@ -1818,7 +1857,7 @@ var VX_FILELIST = VX_FILELIST || {
         
         // 显示/隐藏返回按钮
         const backBtn = document.getElementById('vx-fl-back-btn');
-        const mobileBackBtn = document.getElementById('vx-mobile-back');
+        const mobileBackBtns = [document.getElementById('vx-mobile-back'), document.getElementById('vx-fl-mob-back')];
         
         const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());
         // 不在桌面时显示返回按钮，但未登录且父文件夹是桌面时隐藏
@@ -1832,9 +1871,9 @@ var VX_FILELIST = VX_FILELIST || {
         }
         
         // 移动端 header: 显示后退按钮（菜单按钮始终显示）
-        if (mobileBackBtn) {
-            mobileBackBtn.style.display = showBack ? '' : 'none';
-        }
+        mobileBackBtns.forEach((button) => {
+            if (button) button.style.display = showBack ? '' : 'none';
+        });
         
         // 更新移动端顶部标题（保持为产品名）
         const mobileTitle = document.getElementById('vx-mobile-title');
@@ -1876,33 +1915,25 @@ var VX_FILELIST = VX_FILELIST || {
             reportBtn.style.display = showReport ? '' : 'none';
         }
 
-        const mobileReportBtn = document.getElementById('vx-mobile-report-btn');
-        if (mobileReportBtn) {
-            const mr_id = (this.room && this.room.mr_id !== undefined && this.room.mr_id !== null) ? this.room.mr_id : this.mrid;
-            const top = (this.room && this.room.top !== undefined && this.room.top !== null) ? this.room.top : 0;
-            // 举报按钮的显示逻辑
-            const showReport = !this.isOwner && !this.isDesktop && mr_id && String(mr_id) !== '0' && Number(top) !== 99;
-            mobileReportBtn.style.display = showReport ? '' : 'none';
+        const mr_id = (this.room && this.room.mr_id !== undefined && this.room.mr_id !== null) ? this.room.mr_id : this.mrid;
+        const top = (this.room && this.room.top !== undefined && this.room.top !== null) ? this.room.top : 0;
+        const showReport = !this.isOwner && !this.isDesktop && mr_id && String(mr_id) !== '0' && Number(top) !== 99;
 
-            // 如果显示举报按钮（即非拥有者模式），则强制隐藏操作按钮容器，避免产生不必要的间距
-            // 如果是拥有者模式（不显示举报），则操作按钮容器会因内部有按钮被显示而正常展示（前提是 setMobileActionToggleVisible(true)）
-            // 注意：setMobileActionToggleVisible 默认是 true (在 updateSidebar 中设置)，但它只控制容器的 display。
-            // 真正的按钮显隐由前面的 querySelectorAll('[data-owner="true"]') 处理。
-            // 这里我们需要额外处理容器的显隐，以解决空容器导致的布局问题。
-            const actionToggle = document.getElementById('vx-mobile-action-toggle');
-            if (actionToggle) {
-                // 如果显示举报按钮，说明是非拥有者，操作按钮组必定为空，直接隐藏容器
-                if (showReport) {
-                    actionToggle.style.display = 'none';
-                } else {
-                     // 否则恢复显示（这里假设默认是需要显示的，具体的显示权交给 setMobileActionToggleVisible）
-                    // 但这也可能覆盖 setMobileActionToggleVisible 的逻辑。
-                    // 更好的做法是：检查 actionToggle 内部是否有可见的按钮。
-                     const hasVisibleBtn = Array.from(actionToggle.children).some(child => child.style.display !== 'none');
-                     actionToggle.style.display = hasVisibleBtn ? 'flex' : 'none';
-                }
+        ['vx-mobile-report-btn', 'vx-fl-mob-report-btn'].forEach((id) => {
+            const button = document.getElementById(id);
+            if (button) button.style.display = showReport ? '' : 'none';
+        });
+
+        ['vx-mobile-action-toggle', 'vx-fl-mob-action-toggle'].forEach((id) => {
+            const actionToggle = document.getElementById(id);
+            if (!actionToggle) return;
+            if (showReport) {
+                actionToggle.style.display = 'none';
+                return;
             }
-        }
+            const hasVisibleBtn = Array.from(actionToggle.querySelectorAll('[data-owner="true"]')).some((child) => child.style.display !== 'none');
+            actionToggle.style.display = hasVisibleBtn ? 'flex' : 'none';
+        });
 
         // 非属主模式下显示赞助者信息卡片
         this.applySponsorInfoUI();
@@ -2209,7 +2240,7 @@ var VX_FILELIST = VX_FILELIST || {
      */
     updateBreadcrumb() {
         const container = document.getElementById('vx-fl-breadcrumb');
-        const mobileContainer = document.getElementById('vx-fl-mobile-breadcrumb');
+        const mobileContainer = document.getElementById('vx-fl-mob-breadcrumb') || document.getElementById('vx-fl-mobile-breadcrumb');
         if (!container) return;
 
         const isLoggedIn = (typeof TL !== 'undefined' && TL.isLogin && TL.isLogin());

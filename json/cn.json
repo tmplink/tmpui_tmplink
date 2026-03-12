@@ -181,6 +181,8 @@
     "search_plh": "请在此输入要搜索的内容",
     "nav_qq": "加入QQ群",
     "nav_upload": "上传文件",
+    "vx_upload_short": "上传",
+    "vx_cache_fetched_at": "数据获取于 {time}",
     "nav_more": "更多",
     "nav_more_efficiency": "效率设定",
     "nav_more_cli": "命令行上传",

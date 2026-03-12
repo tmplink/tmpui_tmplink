@@ -7,6 +7,37 @@
 (function() {
     'use strict';
 
+    // 首屏默认进入 filelist 时，提前隐藏通用移动头部，避免旧样式闪现。
+    function shouldPrimeFilelistMobileHeader() {
+        try {
+            const params = {};
+            const searchParams = new URLSearchParams(window.location.search);
+
+            const tmpuiPage = searchParams.get('tmpui_page');
+            if (tmpuiPage) {
+                const pageParams = new URLSearchParams(tmpuiPage.split('?')[1] || '');
+                pageParams.forEach((value, key) => {
+                    params[key] = value;
+                });
+            }
+
+            searchParams.forEach((value, key) => {
+                if (key !== 'tmpui_page') {
+                    params[key] = value;
+                }
+            });
+
+            const moduleName = params.module || 'filelist';
+            return moduleName === 'filelist' || moduleName === 'photo';
+        } catch (error) {
+            return true;
+        }
+    }
+
+    if (document.body && shouldPrimeFilelistMobileHeader()) {
+        document.body.classList.add('vx-fl-initializing');
+    }
+
     // 初始化 api.js 并设置为全局 TL
     function initTmplink() {
         if (typeof tmplink_api !== 'undefined') {

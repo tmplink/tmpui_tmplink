@@ -798,6 +798,16 @@ class VXUICore {
         // 重置模块侧边栏区域（模块仅写入 dynamic 区）
         this.clearSidebarDynamic();
 
+        // filelist 拥有独立移动端头部，需在模板加载前立即隐藏通用头部以避免闪现
+        if (document.body) {
+            if (moduleName === 'filelist') {
+                document.body.classList.add('vx-fl-active');
+            } else {
+                document.body.classList.remove('vx-fl-active');
+                document.body.classList.remove('vx-fl-initializing');
+            }
+        }
+
         // i18n: ensure language is ready BEFORE template injection
         this.ensureLanguageReady().finally(() => {
             // 加载模块模板
