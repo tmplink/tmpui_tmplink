@@ -42,44 +42,14 @@
     }
 
     .vx-direct-mob-tab {
-        appearance: none;
-        border: 1px solid rgba(148, 163, 184, 0.2);
-        background: var(--vx-surface);
-        color: var(--vx-text-secondary);
-        border-radius: 12px;
-        width: 40px;
-        height: 40px;
         flex: 0 0 auto;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0;
-    }
-
-    .vx-direct-mob-tab iconpark-icon {
-        font-size: 18px;
-        color: currentColor;
-        line-height: 1;
     }
 
     .vx-direct-mob-tab.active {
         border-color: transparent;
         color: var(--vx-text-inverse);
         background: linear-gradient(135deg, var(--vx-primary) 0%, #4f8dfd 100%);
-        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.28);
-    }
-
-    html.vx-dark body.vx-direct-active .vx-direct-mob-tab {
-        border-color: #334155;
-        background: #1e293b;
-        color: #94a3b8;
-    }
-
-    html.vx-dark body.vx-direct-active .vx-direct-mob-tab.active {
-        border-color: rgba(59, 130, 246, 0.42);
-        background: rgba(37, 99, 235, 0.22);
-        color: #dbeafe;
+        box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28);
     }
 
     /* Keep Direct module selection bar consistent with FileList styles */
