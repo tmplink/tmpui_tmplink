@@ -1,6 +1,26 @@
 <!-- VXUI Notes Module Template -->
 
-<!-- Header -->
+<!-- Mobile Header -->
+<div class="vx-mob-topbar vx-notes-mob-header" id="vx-notes-mob-header">
+    <div class="vx-mob-topbar-inner vx-notes-mob-toolbar">
+        <div class="vx-mob-topbar-left">
+        <button type="button" class="vx-mob-topbar-btn vx-notes-mob-icon-btn vx-notes-mob-menu-btn"
+            onclick="VXUI.toggleSidebar()" i18n="vx_menu" i18n-only="title">
+            <iconpark-icon name="bars"></iconpark-icon>
+        </button>
+        </div>
+        <span class="vx-mob-topbar-title vx-notes-mob-title" data-tpl="nav_notes">密记</span>
+        <div class="vx-mob-topbar-right vx-notes-mob-actions">
+            <button type="button" class="vx-mob-topbar-btn is-primary vx-notes-mob-icon-btn vx-notes-mob-new-btn"
+                data-auth="logged-in"
+                onclick="VX_NOTES.createNote()" i18n="notes_new" i18n-only="title">
+                <iconpark-icon name="circle-plus"></iconpark-icon>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Desktop Header -->
 <header class="vx-header">
     <div class="vx-header-left">
         <button class="vx-btn-icon" onclick="VXUI.toggleSidebar()">

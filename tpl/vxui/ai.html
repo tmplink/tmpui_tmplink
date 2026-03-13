@@ -1,6 +1,28 @@
 <!-- VXUI AI Module Template -->
 
-<!-- Header -->
+<!-- Mobile Header -->
+<div class="vx-mob-topbar vx-ai-mob-header" id="vx-ai-mob-header">
+    <div class="vx-mob-topbar-inner vx-ai-mob-toolbar">
+        <div class="vx-mob-topbar-left">
+        <button type="button" class="vx-mob-topbar-btn vx-ai-mob-icon-btn vx-ai-mob-menu-btn"
+            onclick="VXUI.toggleSidebar()" i18n="vx_menu" i18n-only="title">
+            <iconpark-icon name="bars"></iconpark-icon>
+        </button>
+        </div>
+        <div class="vx-mob-topbar-title vx-ai-mob-title">
+            <iconpark-icon name="user-robot"></iconpark-icon>
+            <span data-tpl="nav_ai">助手</span>
+        </div>
+        <div class="vx-mob-topbar-right vx-ai-mob-actions">
+            <button type="button" class="vx-mob-topbar-btn is-primary vx-ai-mob-icon-btn vx-ai-mob-new-btn"
+                onclick="VX_AI.newConversation()" i18n="ai_new_conversation" i18n-only="title">
+                <iconpark-icon name="circle-plus"></iconpark-icon>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Desktop Header -->
 <header class="vx-header">
     <div class="vx-header-left">
         <button class="vx-btn-icon" onclick="VXUI.toggleSidebar()">

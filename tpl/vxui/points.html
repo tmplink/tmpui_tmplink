@@ -22,6 +22,25 @@
     </div>
 </template>
 
+<div class="vx-mob-topbar vx-points-mob-header" id="vx-points-mob-header">
+    <div class="vx-mob-topbar-inner">
+        <div class="vx-mob-topbar-left">
+            <button type="button" class="vx-mob-topbar-btn" onclick="VXUI.toggleSidebar()" title="." i18n="vx_menu" i18n-only="title">
+                <iconpark-icon name="bars"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-mob-topbar-title">
+            <iconpark-icon name="funds"></iconpark-icon>
+            <span data-tpl="vx_points_tab">点数</span>
+        </div>
+        <div class="vx-mob-topbar-right">
+            <button type="button" class="vx-mob-topbar-btn" onclick="VX_POINTS.refresh()" title="." i18n="vx_refresh" i18n-only="title">
+                <iconpark-icon name="rotate"></iconpark-icon>
+            </button>
+        </div>
+    </div>
+</div>
+
 <header class="vx-header vx-header-points">
     <div class="vx-header-left">
         <button class="vx-btn-icon vx-portrait-sidebar-btn" onclick="VXUI.toggleSidebar()" data-title-tpl="vx_menu" title="菜单">

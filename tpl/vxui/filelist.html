@@ -118,18 +118,18 @@
 </template>
 
 <!-- Mobile Header -->
-<div class="vx-fl-mob-header" id="vx-fl-mob-header">
-    <div class="vx-fl-mob-toolbar">
-        <div class="vx-fl-mob-nav">
-            <button type="button" class="vx-fl-mob-icon-btn vx-fl-mob-menu-btn" id="vx-fl-mob-menu" onclick="VXUI.toggleSidebar()" title="." i18n="vx_menu" i18n-only="title">
+<div class="vx-mob-topbar vx-fl-mob-header" id="vx-fl-mob-header">
+    <div class="vx-mob-topbar-inner vx-fl-mob-toolbar">
+        <div class="vx-mob-topbar-left vx-fl-mob-nav">
+            <button type="button" class="vx-mob-topbar-btn vx-fl-mob-icon-btn vx-fl-mob-menu-btn" id="vx-fl-mob-menu" onclick="VXUI.toggleSidebar()" title="." i18n="vx_menu" i18n-only="title">
                 <iconpark-icon name="bars"></iconpark-icon>
             </button>
-            <button type="button" class="vx-fl-mob-icon-btn vx-fl-mob-back-btn" id="vx-fl-mob-back" onclick="VX_FILELIST.goToParent()" style="display: none;" title="." i18n="vx_back" i18n-only="title">
+            <button type="button" class="vx-mob-topbar-btn vx-fl-mob-icon-btn vx-fl-mob-back-btn" id="vx-fl-mob-back" onclick="VX_FILELIST.goToParent()" style="display: none;" title="." i18n="vx_back" i18n-only="title">
                 <iconpark-icon name="arrow-circle-left"></iconpark-icon>
             </button>
         </div>
 
-        <div class="vx-fl-mob-actions">
+        <div class="vx-mob-topbar-right vx-fl-mob-actions">
             <div class="vx-fl-mob-view-switch" id="vx-fl-mob-view-toggle">
                 <button type="button" class="vx-fl-mob-switch-btn active" id="vx-fl-mob-view-list" onclick="VX_FILELIST.setViewMode('list')" title="." i18n="vx_view_list" i18n-only="title">
                     <iconpark-icon name="list"></iconpark-icon>
@@ -139,15 +139,15 @@
                 </button>
             </div>
 
-            <button type="button" class="vx-fl-mob-icon-btn vx-fl-mob-report-btn" id="vx-fl-mob-report-btn" onclick="VX_FILELIST.openFolderReportModal()" title="." i18n="file_btn_report" i18n-only="title" style="display: none;">
+            <button type="button" class="vx-mob-topbar-btn is-danger vx-fl-mob-icon-btn vx-fl-mob-report-btn" id="vx-fl-mob-report-btn" onclick="VX_FILELIST.openFolderReportModal()" title="." i18n="file_btn_report" i18n-only="title" style="display: none;">
                 <iconpark-icon name="circle-exclamation"></iconpark-icon>
             </button>
 
             <div class="vx-fl-mob-owner-actions" id="vx-fl-mob-action-toggle">
-                <button type="button" class="vx-fl-mob-icon-btn" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.showCreateModal()" title="." i18n="model_title_folder_title" i18n-only="title">
+                <button type="button" class="vx-mob-topbar-btn vx-fl-mob-icon-btn" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.showCreateModal()" title="." i18n="model_title_folder_title" i18n-only="title">
                     <iconpark-icon name="folder-plus"></iconpark-icon>
                 </button>
-                <button type="button" class="vx-fl-mob-upload-btn" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.upload()" title="." i18n="nav_upload" i18n-only="title">
+                <button type="button" class="vx-mob-topbar-btn is-primary vx-fl-mob-upload-btn" data-auth="logged-in" data-owner="true" onclick="VX_FILELIST.upload()" title="." i18n="nav_upload" i18n-only="title">
                     <iconpark-icon name="cloud-arrow-up"></iconpark-icon>
                     <span data-tpl="vx_upload_short">上传</span>
                 </button>

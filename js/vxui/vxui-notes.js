@@ -136,6 +136,8 @@ const VX_NOTES = {
      * 实际初始化逻辑
      */
     _doInit(params = {}) {
+        document.body.classList.add('vx-notes-active');
+
         // 检查登录状态
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
             VXUI.toastWarning((app && app.languageData && app.languageData.vx_need_login) || '请先登录');
@@ -165,6 +167,7 @@ const VX_NOTES = {
      */
     destroy() {
         console.log('[VX_NOTES] Destroying...');
+        document.body.classList.remove('vx-notes-active');
         this.unbindEvents();
         this._pendingOpenId = 0;
     },

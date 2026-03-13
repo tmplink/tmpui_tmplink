@@ -27,12 +27,14 @@
 </template>
 
 <!-- Mobile Direct Header -->
-<div class="vx-direct-mob-header" id="vx-direct-mob-header">
-    <div class="vx-direct-mob-top">
-        <button type="button" class="vx-direct-mob-icon-btn" onclick="VXUI.toggleSidebar()" title="." i18n="vx_menu" i18n-only="title">
+<div class="vx-mob-topbar vx-direct-mob-header" id="vx-direct-mob-header">
+    <div class="vx-mob-topbar-inner vx-direct-mob-top">
+        <div class="vx-mob-topbar-left">
+        <button type="button" class="vx-mob-topbar-btn vx-direct-mob-icon-btn" onclick="VXUI.toggleSidebar()" title="." i18n="vx_menu" i18n-only="title">
             <iconpark-icon name="bars"></iconpark-icon>
         </button>
-        <div class="vx-direct-mob-tabs" id="vx-direct-mob-tabs">
+        </div>
+        <div class="vx-mob-topbar-right vx-direct-mob-tabs" id="vx-direct-mob-tabs">
         <button type="button" class="vx-direct-mob-tab" id="vx-direct-mob-nav-dashboard" onclick="VX_DIRECT.showTab('dashboard')" title="." i18n="direct_nav_dashboard" i18n-only="title">
             <iconpark-icon name="gauge-circle-bolt"></iconpark-icon>
         </button>
