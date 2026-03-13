@@ -1,6 +1,48 @@
 <!-- VXUI Notes Module Template -->
 
-<!-- Header -->
+<!-- Mobile Header -->
+<div class="vx-mob-topbar vx-notes-mob-header" id="vx-notes-mob-header">
+    <div class="vx-mob-topbar-inner vx-notes-mob-toolbar">
+        <div class="vx-mob-topbar-left">
+            <button type="button" class="vx-mob-topbar-btn vx-notes-mob-icon-btn vx-notes-mob-menu-btn"
+                id="vx-notes-mob-menu-btn"
+                onclick="VXUI.toggleSidebar()" i18n="vx_menu" i18n-only="title">
+                <iconpark-icon name="bars"></iconpark-icon>
+            </button>
+            <button type="button" class="vx-mob-topbar-btn vx-notes-mob-icon-btn vx-notes-mob-back-btn"
+                id="vx-notes-mob-back-btn"
+                onclick="VX_NOTES.handleMobileBack()" i18n="vx_back" i18n-only="title"
+                style="display: none;">
+                <iconpark-icon name="arrow-circle-left"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-mob-topbar-title vx-notes-mob-title">
+            <iconpark-icon name="memo-pad"></iconpark-icon>
+            <span data-tpl="nav_notes">密记</span>
+        </div>
+        <div class="vx-mob-topbar-right vx-notes-mob-actions">
+            <button type="button" class="vx-mob-topbar-btn vx-notes-mob-icon-btn"
+                id="vx-notes-mob-refresh-btn"
+                onclick="VX_NOTES.refresh()" i18n="vx_refresh" i18n-only="title">
+                <iconpark-icon name="rotate"></iconpark-icon>
+            </button>
+            <button type="button" class="vx-mob-topbar-btn is-primary vx-notes-mob-icon-btn vx-notes-mob-new-btn"
+                id="vx-notes-mob-new-btn"
+                data-auth="logged-in"
+                onclick="VX_NOTES.createNote()" i18n="notes_new" i18n-only="title">
+                <iconpark-icon name="circle-plus"></iconpark-icon>
+            </button>
+            <button type="button" class="vx-mob-topbar-btn is-primary vx-notes-mob-icon-btn vx-notes-mob-save-btn"
+                id="vx-notes-mob-save-btn"
+                onclick="VX_NOTES.saveCurrentNote({ keepOpen: true })" i18n="user_save" i18n-only="title"
+                style="display: none;">
+                <iconpark-icon name="circle-check"></iconpark-icon>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Desktop Header -->
 <header class="vx-header">
     <div class="vx-header-left">
         <button class="vx-btn-icon" onclick="VXUI.toggleSidebar()">
@@ -19,16 +61,19 @@
 
 <!-- Content -->
 <div class="vx-content vx-p-0">
-    <div class="vx-notes-layout">
+    <div class="vx-notes-layout" id="vx-notes-layout" data-mobile-view="locked">
         <!-- Notes List Sidebar -->
         <div class="vx-notes-sidebar vx-hidden" id="vx-notes-sidebar">
-            <!-- Search -->
-            <div class="vx-notes-search">
-                <div class="vx-search vx-w-full">
-                    <iconpark-icon name="search" class="vx-search-icon"></iconpark-icon>
-                    <input type="text" class="vx-search-input" 
-                        placeholder="搜索密记..." 
-                        onkeyup="VX_NOTES.search(this.value)">
+            <div class="vx-notes-sidebar-head">
+                <!-- Search -->
+                <div class="vx-notes-search">
+                    <div class="vx-search vx-w-full">
+                        <iconpark-icon name="search" class="vx-search-icon"></iconpark-icon>
+                        <input type="text" class="vx-search-input"
+                            data-tpl-placeholder="notes_search_placeholder"
+                            placeholder="搜索密记..."
+                            onkeyup="VX_NOTES.search(this.value)">
+                    </div>
                 </div>
             </div>
             
@@ -50,13 +95,14 @@
                 <div class="vx-empty-icon" style="width: 60px; height: 60px;">
                     <iconpark-icon name="memo-pad" style="font-size: 30px;"></iconpark-icon>
                 </div>
-                <h3 class="vx-empty-title vx-text-lg">暂无密记</h3>
-                <p class="vx-empty-text">点击上方按钮创建第一条密记</p>
+                <h3 class="vx-empty-title vx-text-lg" data-tpl="notes_empty_title">暂无密记</h3>
+                <p class="vx-empty-text" data-tpl="notes_empty_text">点击上方按钮创建第一条密记</p>
             </div>
             
             <!-- Stats -->
             <div class="vx-notes-stats">
-                <span id="vx-notes-count">0</span> 条密记
+                <span id="vx-notes-count-footer">0</span>
+                <span data-tpl="nav_notes">密记</span>
             </div>
         </div>
         
@@ -115,8 +161,8 @@
                     <div class="vx-empty-icon">
                         <iconpark-icon name="memo-pad"></iconpark-icon>
                     </div>
-                    <h3 class="vx-empty-title">选择或创建密记</h3>
-                    <p class="vx-empty-text">从左侧列表选择一条密记，或创建新的密记</p>
+                    <h3 class="vx-empty-title" data-tpl="notes_placeholder_title">选择或创建密记</h3>
+                    <p class="vx-empty-text" data-tpl="notes_placeholder_text">从左侧列表选择一条密记，或创建新的密记</p>
                     <button class="vx-btn vx-btn-primary" onclick="VX_NOTES.createNote()">
                         <iconpark-icon name="circle-plus"></iconpark-icon>
                         <span data-tpl="notes_new">新建密记</span>
@@ -163,26 +209,35 @@
     flex-direction: column;
     background: var(--vx-surface);
     flex-shrink: 0;
+    min-width: 0;
+}
+
+.vx-notes-sidebar-head {
+    padding: 16px;
+    border-bottom: 1px solid var(--vx-border);
+    background: linear-gradient(180deg, var(--vx-surface), var(--vx-bg));
 }
 
 .vx-notes-search {
-    padding: 16px;
-    border-bottom: 1px solid var(--vx-border);
+    padding: 0;
 }
 
 .vx-notes-list {
     flex: 1;
     overflow-y: auto;
-    padding: 8px;
+    padding: 12px;
 }
 
 .vx-notes-item {
     position: relative;
-    padding: 12px 16px;
-    border-radius: var(--vx-radius);
+    padding: 14px 16px;
+    border-radius: 18px;
     cursor: pointer;
     transition: var(--vx-transition-fast);
-    margin-bottom: 4px;
+    margin-bottom: 8px;
+    border: 1px solid transparent;
+    background: var(--vx-surface);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
 }
 
 .vx-notes-item:hover {
@@ -190,7 +245,9 @@
 }
 
 .vx-notes-item.active {
-    background: var(--vx-primary-light);
+    background: linear-gradient(135deg, var(--vx-primary-light), var(--vx-surface));
+    border-color: rgba(37, 99, 235, 0.16);
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.12);
 }
 
 .vx-notes-item-header {
@@ -259,6 +316,10 @@
     font-size: var(--vx-text-xs);
     color: var(--vx-text-muted);
     text-align: center;
+}
+
+.vx-notes-mob-title {
+    align-items: center;
 }
 
 /* Editor Area */
@@ -427,29 +488,72 @@
 /* Responsive */
 @media (max-width: 768px) {
     .vx-notes-layout {
-        flex-direction: column;
         height: calc(100vh - 56px - var(--vx-mobile-bar-height));
     }
-    
+
     .vx-notes-sidebar {
         width: 100%;
-        height: 50%;
+        height: 100%;
         border-right: none;
-        border-bottom: 1px solid var(--vx-border);
+        border-bottom: none;
     }
-    
+
     .vx-notes-main {
-        height: 50%;
+        height: 100%;
+        min-height: 0;
     }
-    
+
+    #vx-notes-layout[data-mobile-view="locked"] .vx-notes-sidebar {
+        display: none !important;
+    }
+
+    #vx-notes-layout[data-mobile-view="locked"] .vx-notes-main {
+        display: flex;
+    }
+
+    #vx-notes-layout[data-mobile-view="list"] .vx-notes-sidebar {
+        display: flex;
+    }
+
+    #vx-notes-layout[data-mobile-view="list"] .vx-notes-main {
+        display: none;
+    }
+
+    #vx-notes-layout[data-mobile-view="editor"] .vx-notes-sidebar {
+        display: none !important;
+    }
+
+    #vx-notes-layout[data-mobile-view="editor"] .vx-notes-main {
+        display: flex;
+    }
+
+    .vx-notes-sidebar-head {
+        padding: 14px;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        backdrop-filter: blur(20px);
+    }
+
     .vx-notes-editor-header {
-        padding: 12px 16px;
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 16px 16px 12px;
+        gap: 10px;
     }
-    
+
+    .vx-notes-editor-actions {
+        display: none;
+    }
+
     .vx-notes-title-input {
         font-size: var(--vx-text-lg);
     }
-    
+
+    .vx-notes-editor-body {
+        padding: 0 0 16px;
+    }
+
     .vx-notes-content-editor {
         padding: 16px;
     }
@@ -461,6 +565,25 @@
     .vx-notes-key-inner {
         margin: 0;
     }
+
+    .vx-notes-placeholder {
+        padding: 24px;
+    }
+
+    .vx-notes-stats {
+        display: none;
+    }
+}
+
+@media (max-width: 420px) {
+    .vx-notes-mob-header .vx-mob-topbar-inner {
+        gap: 8px;
+    }
+
+    .vx-notes-mob-header .vx-mob-topbar-title {
+        gap: 6px;
+    }
+
 }
 
 /*

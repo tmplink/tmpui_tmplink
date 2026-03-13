@@ -1,5 +1,24 @@
 <!-- VXUI Profile Module Template - 个人资料 -->
 
+<div class="vx-mob-topbar vx-profile-mob-header" id="vx-profile-mob-header">
+    <div class="vx-mob-topbar-inner">
+        <div class="vx-mob-topbar-left">
+            <button type="button" class="vx-mob-topbar-btn" onclick="VXUI.toggleSidebar()" title="." i18n="vx_menu" i18n-only="title">
+                <iconpark-icon name="bars"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-mob-topbar-title">
+            <iconpark-icon name="user"></iconpark-icon>
+            <span data-tpl="navbar_my">我的账户</span>
+        </div>
+        <div class="vx-mob-topbar-right">
+            <button type="button" class="vx-mob-topbar-btn" onclick="VX_ACCOUNT.refresh()" title="." i18n="vx_refresh" i18n-only="title">
+                <iconpark-icon name="rotate"></iconpark-icon>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Header -->
 <header class="vx-header vx-header-account">
     <div class="vx-header-left">

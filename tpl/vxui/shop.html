@@ -20,6 +20,25 @@
     </div>
 </template>
 
+<div class="vx-mob-topbar vx-shop-mob-header" id="vx-shop-mob-header">
+    <div class="vx-mob-topbar-inner">
+        <div class="vx-mob-topbar-left">
+            <button type="button" class="vx-mob-topbar-btn" onclick="VXUI.toggleSidebar()" title="." i18n="vx_menu" i18n-only="title">
+                <iconpark-icon name="bars"></iconpark-icon>
+            </button>
+        </div>
+        <div class="vx-mob-topbar-title">
+            <iconpark-icon name="bag-shopping"></iconpark-icon>
+            <span data-tpl="navbar_buy">商店</span>
+        </div>
+        <div class="vx-mob-topbar-right">
+            <button type="button" class="vx-mob-topbar-btn" onclick="VX_SHOP.refresh()" title="." i18n="vx_refresh" i18n-only="title">
+                <iconpark-icon name="rotate"></iconpark-icon>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Header -->
 <header class="vx-header vx-header-shop">
     <div class="vx-header-left">

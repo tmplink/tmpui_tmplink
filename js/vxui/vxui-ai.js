@@ -58,7 +58,8 @@ const VX_AI = {
      */
     init(params = {}) {
         console.log('[VX_AI] Initializing...', params);
-        
+        document.body.classList.add('vx-ai-active');
+
         // 检查登录状态
         if (typeof TL !== 'undefined' && !TL.isLogin()) {
             VXUI.toastWarning(this.lang('status_need_login', '请先登录'));
@@ -97,6 +98,7 @@ const VX_AI = {
      */
     destroy() {
         console.log('[VX_AI] Destroying...');
+        document.body.classList.remove('vx-ai-active');
         this.unbindEvents();
     },
     

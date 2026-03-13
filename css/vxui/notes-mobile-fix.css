@@ -1,0 +1,45 @@
+@charset "UTF-8";
+/**
+ * VXUI Notes Module Mobile Fix
+ * Notes-specific overrides for unified mobile topbar
+ */
+
+.vx-notes-mob-header {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    body.vx-notes-active .vx-mobile-header {
+        display: none !important;
+    }
+
+    body.vx-notes-active .vx-notes-mob-header {
+        display: flex;
+    }
+
+    body.vx-notes-active .vx-notes-mob-header .vx-mob-topbar-inner {
+        gap: 10px;
+    }
+
+    body.vx-notes-active .vx-notes-mob-header .vx-mob-topbar-left,
+    body.vx-notes-active .vx-notes-mob-header .vx-mob-topbar-right {
+        gap: 6px;
+    }
+
+    body.vx-notes-active .vx-notes-mob-header .vx-mob-topbar-title {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 420px) {
+    body.vx-notes-active .vx-notes-mob-header {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    body.vx-notes-active .vx-notes-mob-header .vx-mob-topbar-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+    }
+}

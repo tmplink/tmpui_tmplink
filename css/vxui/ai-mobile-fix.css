@@ -1,0 +1,19 @@
+@charset "UTF-8";
+/**
+ * VXUI AI Module Mobile Fix
+ * AI-specific overrides for unified mobile topbar
+ */
+
+.vx-ai-mob-header {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    body.vx-ai-active .vx-mobile-header {
+        display: none !important;
+    }
+
+    body.vx-ai-active .vx-ai-mob-header {
+        display: flex;
+    }
+}
