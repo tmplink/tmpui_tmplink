@@ -624,6 +624,10 @@ window.VX_POINTS = {
 			}
 			listBody.innerHTML = html;
 
+			if (typeof app !== 'undefined' && typeof app.linkRebind === 'function') {
+				app.linkRebind();
+			}
+
 			paginationEl.innerHTML = `
 				<div class="vx-point-pagination">
 					${page > 0 ? `<button class="vx-btn vx-btn-secondary" onclick="VX_POINTS.loadSellingFiles(${page - 1})">${this.t('vx_prev_page', '上一页')}</button>` : ''}

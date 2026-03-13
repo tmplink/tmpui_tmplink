@@ -30,30 +30,46 @@
 <div class="vx-mob-topbar vx-direct-mob-header" id="vx-direct-mob-header">
     <div class="vx-mob-topbar-inner vx-direct-mob-top">
         <div class="vx-mob-topbar-left">
-        <button type="button" class="vx-mob-topbar-btn" onclick="VXUI.toggleSidebar()" title="." i18n="vx_menu" i18n-only="title">
-            <iconpark-icon name="bars"></iconpark-icon>
-        </button>
+            <button type="button" class="vx-mob-topbar-btn" onclick="VXUI.toggleSidebar()" title="." i18n="vx_menu" i18n-only="title">
+                <iconpark-icon name="bars"></iconpark-icon>
+            </button>
         </div>
         <span class="vx-mob-topbar-title">
             <iconpark-icon name="link"></iconpark-icon>
             <span data-tpl="nav_direct">直链</span>
         </span>
         <div class="vx-mob-topbar-right">
-        <button type="button" class="vx-mob-topbar-btn" id="vx-direct-mob-nav-dashboard" onclick="VX_DIRECT.showTab('dashboard')" title="." i18n="direct_nav_dashboard" i18n-only="title">
-            <iconpark-icon name="gauge-circle-bolt"></iconpark-icon>
-        </button>
-        <button type="button" class="vx-mob-topbar-btn" id="vx-direct-mob-nav-files" onclick="VX_DIRECT.showTab('files')" title="." i18n="file" i18n-only="title">
-            <iconpark-icon name="file"></iconpark-icon>
-        </button>
-        <button type="button" class="vx-mob-topbar-btn" id="vx-direct-mob-nav-folders" onclick="VX_DIRECT.showTab('folders')" title="." i18n="folder" i18n-only="title">
-            <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
-        </button>
-        <button type="button" class="vx-mob-topbar-btn" id="vx-direct-mob-nav-domain" onclick="VX_DIRECT.showTab('domain')" title="." i18n="direct_nav_domain" i18n-only="title">
-            <iconpark-icon name="globe"></iconpark-icon>
-        </button>
-        <button type="button" class="vx-mob-topbar-btn" id="vx-direct-mob-nav-api" onclick="VX_DIRECT.showTab('api')" title="API">
-            <iconpark-icon name="key"></iconpark-icon>
-        </button>
+            <div class="vx-direct-tab-menu-anchor vx-direct-tab-menu-anchor-mobile" data-menu-source="mobile">
+                <button type="button" class="vx-mob-topbar-btn vx-direct-tab-trigger vx-direct-tab-trigger-mobile" id="vx-direct-mob-tab-trigger" onclick="event.stopPropagation(); VX_DIRECT.toggleTabMenu('mobile')" title="直链子页面" aria-haspopup="true" aria-expanded="false">
+                    <iconpark-icon name="gauge-circle-bolt" data-direct-current-icon></iconpark-icon>
+                    <span class="vx-direct-tab-trigger-label" data-direct-current-label>仪表盘</span>
+                </button>
+                <div class="vx-direct-tab-menu vx-direct-tab-menu-mobile" id="vx-direct-mob-tab-menu" data-menu-source="mobile">
+                    <button type="button" class="vx-direct-tab-option" data-tab="dashboard" onclick="event.stopPropagation(); VX_DIRECT.selectTabFromMenu('dashboard')">
+                        <iconpark-icon name="gauge-circle-bolt"></iconpark-icon>
+                        <span class="vx-direct-tab-option-main" data-tpl="direct_nav_dashboard">仪表盘</span>
+                    </button>
+                    <button type="button" class="vx-direct-tab-option" data-tab="files" onclick="event.stopPropagation(); VX_DIRECT.selectTabFromMenu('files')">
+                        <iconpark-icon name="file"></iconpark-icon>
+                        <span class="vx-direct-tab-option-main" data-tpl="file">文件</span>
+                    </button>
+                    <button type="button" class="vx-direct-tab-option" data-tab="folders" onclick="event.stopPropagation(); VX_DIRECT.selectTabFromMenu('folders')">
+                        <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+                        <span class="vx-direct-tab-option-main" data-tpl="folder">文件夹</span>
+                    </button>
+                    <button type="button" class="vx-direct-tab-option" data-tab="domain" onclick="event.stopPropagation(); VX_DIRECT.selectTabFromMenu('domain')">
+                        <iconpark-icon name="globe"></iconpark-icon>
+                        <span class="vx-direct-tab-option-main" data-tpl="direct_nav_domain">域名设置</span>
+                    </button>
+                    <button type="button" class="vx-direct-tab-option" data-tab="api" onclick="event.stopPropagation(); VX_DIRECT.selectTabFromMenu('api')">
+                        <iconpark-icon name="key"></iconpark-icon>
+                        <span class="vx-direct-tab-option-main">API</span>
+                    </button>
+                </div>
+            </div>
+            <button type="button" class="vx-mob-topbar-btn" onclick="VX_DIRECT.refresh()" title="." i18n="vx_refresh" i18n-only="title">
+                <iconpark-icon name="rotate"></iconpark-icon>
+            </button>
         </div>
     </div>
 </div>
@@ -67,6 +83,7 @@
         <h1 class="vx-page-title">
             <iconpark-icon name="link"></iconpark-icon>
             <span data-tpl="nav_direct">直链</span>
+            <span id="vx-direct-header-subtitle"></span>
         </h1>
     </div>
 
@@ -82,6 +99,37 @@
                 <option value="1" data-tpl="sort_asc">升序</option>
             </select>
         </div>
+        <div class="vx-direct-tab-menu-anchor vx-direct-tab-menu-anchor-desktop" data-menu-source="desktop">
+            <button type="button" class="vx-btn vx-btn-ghost vx-direct-tab-trigger vx-direct-tab-trigger-desktop" id="vx-direct-header-tab-trigger" onclick="event.stopPropagation(); VX_DIRECT.toggleTabMenu('desktop')" aria-haspopup="true" aria-expanded="false">
+                <iconpark-icon name="gauge-circle-bolt" data-direct-current-icon></iconpark-icon>
+                <span class="vx-direct-tab-trigger-label" data-direct-current-label>仪表盘</span>
+            </button>
+            <div class="vx-direct-tab-menu vx-direct-tab-menu-desktop" id="vx-direct-header-tab-menu" data-menu-source="desktop">
+                <button type="button" class="vx-direct-tab-option" data-tab="dashboard" onclick="event.stopPropagation(); VX_DIRECT.selectTabFromMenu('dashboard')">
+                    <iconpark-icon name="gauge-circle-bolt"></iconpark-icon>
+                    <span class="vx-direct-tab-option-main" data-tpl="direct_nav_dashboard">仪表盘</span>
+                </button>
+                <button type="button" class="vx-direct-tab-option" data-tab="files" onclick="event.stopPropagation(); VX_DIRECT.selectTabFromMenu('files')">
+                    <iconpark-icon name="file"></iconpark-icon>
+                    <span class="vx-direct-tab-option-main" data-tpl="file">文件</span>
+                </button>
+                <button type="button" class="vx-direct-tab-option" data-tab="folders" onclick="event.stopPropagation(); VX_DIRECT.selectTabFromMenu('folders')">
+                    <iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon>
+                    <span class="vx-direct-tab-option-main" data-tpl="folder">文件夹</span>
+                </button>
+                <button type="button" class="vx-direct-tab-option" data-tab="domain" onclick="event.stopPropagation(); VX_DIRECT.selectTabFromMenu('domain')">
+                    <iconpark-icon name="globe"></iconpark-icon>
+                    <span class="vx-direct-tab-option-main" data-tpl="direct_nav_domain">域名设置</span>
+                </button>
+                <button type="button" class="vx-direct-tab-option" data-tab="api" onclick="event.stopPropagation(); VX_DIRECT.selectTabFromMenu('api')">
+                    <iconpark-icon name="key"></iconpark-icon>
+                    <span class="vx-direct-tab-option-main">API</span>
+                </button>
+            </div>
+        </div>
+        <button class="vx-btn-icon" onclick="VX_DIRECT.refresh()" data-title-tpl="vx_refresh" title="刷新">
+            <iconpark-icon name="rotate"></iconpark-icon>
+        </button>
         <button class="vx-btn vx-btn-ghost" onclick="VX_DIRECT.showHelp()" title="帮助">
             <iconpark-icon name="circle-info"></iconpark-icon>
             <span data-tpl="direct_what">什么是直链</span>

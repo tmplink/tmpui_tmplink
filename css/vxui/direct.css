@@ -1,5 +1,121 @@
 /* Direct Module Styles */
 
+.vx-header-minimal .vx-page-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.vx-header-minimal .vx-page-title iconpark-icon {
+    font-size: 22px;
+    color: var(--vx-primary);
+}
+
+#vx-direct-header-subtitle {
+    color: var(--vx-text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.vx-direct-tab-menu-anchor {
+    position: relative;
+}
+
+.vx-direct-tab-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vx-direct-tab-trigger iconpark-icon {
+    flex-shrink: 0;
+}
+
+.vx-direct-tab-trigger-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vx-direct-tab-trigger-desktop {
+    min-width: 132px;
+    justify-content: space-between;
+}
+
+.vx-direct-tab-trigger-mobile {
+    width: auto;
+    max-width: 140px;
+    padding: 0 14px;
+    border-radius: 16px;
+    gap: 6px;
+    color: var(--vx-text);
+}
+
+.vx-direct-tab-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    display: none;
+    width: 240px;
+    padding: 8px;
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: 18px;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.16);
+    z-index: calc(var(--vx-z-sticky) + 3);
+}
+
+.vx-direct-tab-menu.is-open {
+    display: block;
+}
+
+.vx-direct-tab-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: var(--vx-text);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: var(--vx-transition-fast);
+}
+
+.vx-direct-tab-option iconpark-icon {
+    font-size: 18px;
+    color: var(--vx-text-secondary);
+    flex-shrink: 0;
+}
+
+.vx-direct-tab-option-main {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vx-direct-tab-option:hover {
+    background: var(--vx-surface-hover);
+}
+
+.vx-direct-tab-option.active {
+    background: rgba(var(--vx-primary-rgb), 0.1);
+    color: var(--vx-primary);
+}
+
+.vx-direct-tab-option.active iconpark-icon {
+    color: var(--vx-primary);
+}
+
 /* API Documentation Styles */
 .vx-api-detail summary.vx-api-summary {
     cursor: pointer;

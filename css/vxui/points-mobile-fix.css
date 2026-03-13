@@ -96,6 +96,50 @@
         border-right: 0;
     }
 
+    body.vx-points-active .vx-points-tab-selling .vx-list-col-actions {
+        width: 92px;
+    }
+
+    body.vx-points-active .vx-points-tab-selling .vx-list-row {
+        align-items: flex-start !important;
+        gap: 10px;
+    }
+
+    body.vx-points-active .vx-points-tab-selling .vx-list-name {
+        align-items: flex-start !important;
+    }
+
+    body.vx-points-active .vx-points-tab-selling .vx-list-filename {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 4px 8px !important;
+        white-space: normal !important;
+    }
+
+    body.vx-points-active .vx-points-tab-selling .vx-list-filename a {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+    }
+
+    body.vx-points-active .vx-points-tab-selling .vx-list-actions {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        margin-left: auto !important;
+        flex-shrink: 0 !important;
+    }
+
+    body.vx-points-active .vx-points-tab-selling .vx-list-actions .vx-list-action-btn {
+        display: inline-flex !important;
+    }
+
+    body.vx-points-active .vx-points-tab-selling .vx-selling-stats-inline {
+        max-width: 100%;
+        white-space: nowrap;
+        font-size: 12px;
+    }
+
     body.vx-points-active .vx-points-tab-selling #vx-points-selling-pagination {
         padding: 12px;
     }

@@ -9,6 +9,9 @@
 const VX_DIRECT = {
     // ==================== State ====================
     activeTab: 'dashboard',
+    _tabMenuSource: null,
+    _onDocumentClick: null,
+    _onDocumentKeydown: null,
 
     // details
     isInit: false,
@@ -65,6 +68,10 @@ const VX_DIRECT = {
     allow_ext: ['mp4', 'm4v', 'webm', 'mov', 'ogg', 'mp3'],
 
     // ==================== Analytics ====================
+    t(key, fallback) {
+        return (typeof TL !== 'undefined' && TL.tpl && TL.tpl[key]) ? TL.tpl[key] : fallback;
+    },
+
     trackUI(title) {
         try {
             if (!title) return;
@@ -186,6 +193,7 @@ const VX_DIRECT = {
     destroy() {
         console.log('[VX_DIRECT] Destroying...');
         document.body.classList.remove('vx-direct-active');
+        this.closeTabMenu();
         this.unbindEvents();
         this.stopReadyTimer();
 
@@ -201,6 +209,7 @@ const VX_DIRECT = {
 
     resetState() {
         this.activeTab = 'dashboard';
+        this._tabMenuSource = null;
 
         this.isInit = false;
         this.domain = 0;
@@ -259,6 +268,92 @@ const VX_DIRECT = {
 
         this.updateTabUI();
         this.applyGateUI();
+    },
+
+    getTabMeta(tab) {
+        if (tab === 'files') {
+            return {
+                icon: 'file',
+                label: this.t('file', '文件')
+            };
+        }
+        if (tab === 'folders') {
+            return {
+                icon: 'folder-open-e1ad2j7l',
+                label: this.t('folder', '文件夹')
+            };
+        }
+        if (tab === 'domain') {
+            return {
+                icon: 'globe',
+                label: this.t('direct_nav_domain', '域名设置')
+            };
+        }
+        if (tab === 'api') {
+            return {
+                icon: 'key',
+                label: 'API'
+            };
+        }
+        return {
+            icon: 'gauge-circle-bolt',
+            label: this.t('direct_nav_dashboard', '仪表盘')
+        };
+    },
+
+    toggleTabMenu(source) {
+        const nextSource = this._tabMenuSource === source ? null : source;
+        this.setTabMenuState(nextSource);
+    },
+
+    closeTabMenu() {
+        this.setTabMenuState(null);
+    },
+
+    setTabMenuState(source) {
+        this._tabMenuSource = source || null;
+        document.querySelectorAll('.vx-direct-tab-menu-anchor').forEach(anchor => {
+            const isOpen = !!source && anchor.getAttribute('data-menu-source') === source;
+            anchor.classList.toggle('is-open', isOpen);
+        });
+        document.querySelectorAll('.vx-direct-tab-menu').forEach(menu => {
+            const isOpen = !!source && menu.getAttribute('data-menu-source') === source;
+            menu.classList.toggle('is-open', isOpen);
+        });
+        document.querySelectorAll('#vx-direct-mob-tab-trigger, #vx-direct-header-tab-trigger').forEach(btn => {
+            const anchor = btn.closest('.vx-direct-tab-menu-anchor');
+            const isOpen = !!source && anchor && anchor.getAttribute('data-menu-source') === source;
+            btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+    },
+
+    selectTabFromMenu(tab) {
+        this.showTab(tab);
+        this.closeTabMenu();
+    },
+
+    syncTabMenuUI() {
+        const meta = this.getTabMeta(this.activeTab);
+
+        document.querySelectorAll('[data-direct-current-label]').forEach(el => {
+            el.textContent = meta.label;
+        });
+        document.querySelectorAll('[data-direct-current-icon]').forEach(el => {
+            el.setAttribute('name', meta.icon);
+        });
+        document.querySelectorAll('#vx-direct-mob-tab-trigger, #vx-direct-header-tab-trigger').forEach(btn => {
+            btn.setAttribute('title', meta.label);
+        });
+        document.querySelectorAll('.vx-direct-tab-option').forEach(option => {
+            const isActive = option.getAttribute('data-tab') === this.activeTab;
+            option.classList.toggle('active', isActive);
+            option.setAttribute('aria-current', isActive ? 'page' : 'false');
+        });
+
+        const subtitleEl = document.getElementById('vx-direct-header-subtitle');
+        if (subtitleEl) {
+            subtitleEl.textContent = this.activeTab === 'dashboard' ? '' : ' - ' + meta.label;
+        }
     },
 
     showTab(tab) {
@@ -347,11 +442,6 @@ const VX_DIRECT = {
         setActive('vx-direct-nav-folders', this.activeTab === 'folders');
         setActive('vx-direct-nav-api', this.activeTab === 'api');
         setActive('vx-direct-nav-domain', this.activeTab === 'domain');
-        setActive('vx-direct-mob-nav-dashboard', this.activeTab === 'dashboard');
-        setActive('vx-direct-mob-nav-files', this.activeTab === 'files');
-        setActive('vx-direct-mob-nav-folders', this.activeTab === 'folders');
-        setActive('vx-direct-mob-nav-api', this.activeTab === 'api');
-        setActive('vx-direct-mob-nav-domain', this.activeTab === 'domain');
 
         const showPanel = (panelId, show) => {
             const el = document.getElementById(panelId);
@@ -380,6 +470,8 @@ const VX_DIRECT = {
 
         // keep init_vx_direct.js compatibility: hasMore/loadMore based on current tab
         this.hasMore = (this.activeTab === 'files') ? this.hasMore : false;
+
+        this.syncTabMenuUI();
     },
 
     applyGateUI() {
@@ -390,18 +482,13 @@ const VX_DIRECT = {
         const navFiles = document.getElementById('vx-direct-nav-files');
         const navFolders = document.getElementById('vx-direct-nav-folders');
         const navApi = document.getElementById('vx-direct-nav-api');
-        const mobNavDashboard = document.getElementById('vx-direct-mob-nav-dashboard');
-        const mobNavFiles = document.getElementById('vx-direct-mob-nav-files');
-        const mobNavFolders = document.getElementById('vx-direct-mob-nav-folders');
-        const mobNavApi = document.getElementById('vx-direct-mob-nav-api');
         if (navDashboard) navDashboard.style.display = configured ? '' : 'none';
         if (navFiles) navFiles.style.display = configured ? '' : 'none';
         if (navFolders) navFolders.style.display = configured ? '' : 'none';
         if (navApi) navApi.style.display = configured ? '' : 'none';
-        if (mobNavDashboard) mobNavDashboard.style.display = configured ? '' : 'none';
-        if (mobNavFiles) mobNavFiles.style.display = configured ? '' : 'none';
-        if (mobNavFolders) mobNavFolders.style.display = configured ? '' : 'none';
-        if (mobNavApi) mobNavApi.style.display = configured ? '' : 'none';
+        document.querySelectorAll('.vx-direct-tab-option[data-tab="dashboard"], .vx-direct-tab-option[data-tab="files"], .vx-direct-tab-option[data-tab="folders"], .vx-direct-tab-option[data-tab="api"]').forEach(option => {
+            option.style.display = configured ? '' : 'none';
+        });
 
         // Top right action buttons
         const topBrand = document.getElementById('vx-direct-top-brand');
@@ -424,10 +511,30 @@ const VX_DIRECT = {
         const brandCard = document.getElementById('vx-direct-brand-card');
         if (trafficBlock) trafficBlock.style.display = configured ? '' : 'none';
         if (brandCard) brandCard.style.display = configured ? '' : 'none';
+
+        this.syncTabMenuUI();
     },
 
     // ==================== Events ====================
     bindEvents() {
+        if (!this._onDocumentClick) {
+            this._onDocumentClick = (event) => {
+                if (!event.target.closest('.vx-direct-tab-menu-anchor')) {
+                    this.closeTabMenu();
+                }
+            };
+            document.addEventListener('click', this._onDocumentClick);
+        }
+
+        if (!this._onDocumentKeydown) {
+            this._onDocumentKeydown = (event) => {
+                if (event.key === 'Escape') {
+                    this.closeTabMenu();
+                }
+            };
+            document.addEventListener('keydown', this._onDocumentKeydown);
+        }
+
         this._scrollHandler = (typeof VXUI !== 'undefined' && typeof VXUI.throttle === 'function')
             ? VXUI.throttle(() => this.onScroll(), 200)
             : () => this.onScroll();
@@ -437,6 +544,16 @@ const VX_DIRECT = {
     },
 
     unbindEvents() {
+        if (this._onDocumentClick) {
+            document.removeEventListener('click', this._onDocumentClick);
+            this._onDocumentClick = null;
+        }
+
+        if (this._onDocumentKeydown) {
+            document.removeEventListener('keydown', this._onDocumentKeydown);
+            this._onDocumentKeydown = null;
+        }
+
         if (this._scrollHandler) {
             (document.getElementById('vx-direct-content') || document.querySelector('.vx-content'))?.removeEventListener('scroll', this._scrollHandler);
             document.getElementById('vx-direct-files-list-body')?.removeEventListener('scroll', this._scrollHandler);
