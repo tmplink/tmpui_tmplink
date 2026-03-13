@@ -34,6 +34,30 @@
             <span data-tpl="vx_points_tab">点数</span>
         </div>
         <div class="vx-mob-topbar-right">
+            <div class="vx-points-tab-menu-anchor vx-points-tab-menu-anchor-mobile" data-menu-source="mobile">
+                <button type="button" class="vx-mob-topbar-btn vx-points-tab-trigger vx-points-tab-trigger-mobile" id="vx-points-mob-tab-trigger" onclick="event.stopPropagation(); VX_POINTS.toggleTabMenu('mobile')" title="点数子页面" aria-haspopup="true" aria-expanded="false">
+                    <iconpark-icon name="chart-line" data-points-current-icon></iconpark-icon>
+                    <span class="vx-points-tab-trigger-label" data-points-current-label>概要</span>
+                </button>
+                <div class="vx-points-tab-menu vx-points-tab-menu-mobile" id="vx-points-mob-tab-menu" data-menu-source="mobile">
+                    <button type="button" class="vx-points-tab-option" data-tab="summary" onclick="event.stopPropagation(); VX_POINTS.selectTabFromMenu('summary')">
+                        <iconpark-icon name="chart-line"></iconpark-icon>
+                        <span class="vx-points-tab-option-main" data-tpl="nav_points_overview">概要</span>
+                    </button>
+                    <button type="button" class="vx-points-tab-option" data-tab="selling" onclick="event.stopPropagation(); VX_POINTS.selectTabFromMenu('selling')">
+                        <iconpark-icon name="list-check"></iconpark-icon>
+                        <span class="vx-points-tab-option-main" data-tpl="nav_points_sold">出售文件</span>
+                    </button>
+                    <button type="button" class="vx-points-tab-option" data-tab="mall" onclick="event.stopPropagation(); VX_POINTS.selectTabFromMenu('mall')">
+                        <iconpark-icon name="bag-shopping"></iconpark-icon>
+                        <span class="vx-points-tab-option-main" data-tpl="nav_points_mall">点数商城</span>
+                    </button>
+                    <button type="button" class="vx-points-tab-option" data-tab="orders" onclick="event.stopPropagation(); VX_POINTS.selectTabFromMenu('orders')">
+                        <iconpark-icon name="list-check"></iconpark-icon>
+                        <span class="vx-points-tab-option-main" data-tpl="vx_mall_my_orders">兑换记录</span>
+                    </button>
+                </div>
+            </div>
             <button type="button" class="vx-mob-topbar-btn" onclick="VX_POINTS.refresh()" title="." i18n="vx_refresh" i18n-only="title">
                 <iconpark-icon name="rotate"></iconpark-icon>
             </button>
@@ -54,6 +78,30 @@
     </div>
 
     <div class="vx-header-right">
+        <div class="vx-points-tab-menu-anchor vx-points-tab-menu-anchor-desktop" data-menu-source="desktop">
+            <button type="button" class="vx-btn vx-btn-ghost vx-points-tab-trigger vx-points-tab-trigger-desktop" id="vx-points-header-tab-trigger" onclick="event.stopPropagation(); VX_POINTS.toggleTabMenu('desktop')" aria-haspopup="true" aria-expanded="false">
+                <iconpark-icon name="chart-line" data-points-current-icon></iconpark-icon>
+                <span class="vx-points-tab-trigger-label" data-points-current-label>概要</span>
+            </button>
+            <div class="vx-points-tab-menu vx-points-tab-menu-desktop" id="vx-points-header-tab-menu" data-menu-source="desktop">
+                <button type="button" class="vx-points-tab-option" data-tab="summary" onclick="event.stopPropagation(); VX_POINTS.selectTabFromMenu('summary')">
+                    <iconpark-icon name="chart-line"></iconpark-icon>
+                    <span class="vx-points-tab-option-main" data-tpl="nav_points_overview">概要</span>
+                </button>
+                <button type="button" class="vx-points-tab-option" data-tab="selling" onclick="event.stopPropagation(); VX_POINTS.selectTabFromMenu('selling')">
+                    <iconpark-icon name="list-check"></iconpark-icon>
+                    <span class="vx-points-tab-option-main" data-tpl="nav_points_sold">出售文件</span>
+                </button>
+                <button type="button" class="vx-points-tab-option" data-tab="mall" onclick="event.stopPropagation(); VX_POINTS.selectTabFromMenu('mall')">
+                    <iconpark-icon name="bag-shopping"></iconpark-icon>
+                    <span class="vx-points-tab-option-main" data-tpl="nav_points_mall">点数商城</span>
+                </button>
+                <button type="button" class="vx-points-tab-option" data-tab="orders" onclick="event.stopPropagation(); VX_POINTS.selectTabFromMenu('orders')">
+                    <iconpark-icon name="list-check"></iconpark-icon>
+                    <span class="vx-points-tab-option-main" data-tpl="vx_mall_my_orders">兑换记录</span>
+                </button>
+            </div>
+        </div>
         <button class="vx-btn-icon" onclick="VX_POINTS.refresh()" data-title-tpl="vx_refresh" title="刷新">
             <iconpark-icon name="rotate"></iconpark-icon>
         </button>
@@ -233,6 +281,102 @@
 
 .vx-header-points .vx-page-title iconpark-icon {
     font-size: 22px;
+    color: var(--vx-primary);
+}
+
+.vx-points-tab-menu-anchor {
+    position: relative;
+}
+
+.vx-points-tab-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vx-points-tab-trigger iconpark-icon {
+    flex-shrink: 0;
+}
+
+.vx-points-tab-trigger-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vx-points-tab-trigger-desktop {
+    min-width: 126px;
+    justify-content: space-between;
+}
+
+.vx-points-tab-trigger-mobile {
+    width: auto;
+    max-width: 136px;
+    padding: 0 14px;
+    border-radius: 16px;
+    gap: 6px;
+    color: var(--vx-text);
+}
+
+.vx-points-tab-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    display: none;
+    width: 240px;
+    padding: 8px;
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: 18px;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.16);
+    z-index: calc(var(--vx-z-sticky) + 3);
+}
+
+.vx-points-tab-menu.is-open {
+    display: block;
+}
+
+.vx-points-tab-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: var(--vx-text);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: var(--vx-transition-fast);
+}
+
+.vx-points-tab-option iconpark-icon {
+    font-size: 18px;
+    color: var(--vx-text-secondary);
+    flex-shrink: 0;
+}
+
+.vx-points-tab-option-main {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vx-points-tab-option:hover {
+    background: var(--vx-surface-hover);
+}
+
+.vx-points-tab-option.active {
+    background: rgba(var(--vx-primary-rgb), 0.1);
+    color: var(--vx-primary);
+}
+
+.vx-points-tab-option.active iconpark-icon {
     color: var(--vx-primary);
 }
 
@@ -581,29 +725,6 @@
 .vx-points-coming-desc {
     font-size: 14px;
     color: var(--vx-text-secondary);
-}
-
-@media (max-width: 768px) {
-    .vx-points-content {
-        padding: 0;
-    }
-
-    .vx-points-summary-shell {
-        padding: 0;
-        gap: 12px;
-    }
-
-    .vx-points-balance-value {
-        font-size: 36px;
-    }
-
-    .vx-points-actions-panel {
-        grid-template-columns: 1fr;
-    }
-
-    .vx-recharge-presets {
-        grid-template-columns: repeat(2, 1fr);
-    }
 }
 
 /* === Points Mall === */

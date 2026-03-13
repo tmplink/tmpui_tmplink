@@ -1,6 +1,9 @@
 window.VX_POINTS = {
 	currentTab: 'summary',
 	_originalFooter: null,
+	_tabMenuSource: null,
+	_onDocumentClick: null,
+	_onDocumentKeydown: null,
 
 	t(key, fallback) {
 		return (typeof TL !== 'undefined' && TL.tpl && TL.tpl[key]) ? TL.tpl[key] : fallback;
@@ -44,6 +47,10 @@ window.VX_POINTS = {
 	},
 
 	init(params = {}) {
+		document.body.classList.add('vx-points-active');
+		this.bindEvents();
+		this.closeTabMenu();
+
 		if (typeof TL !== 'undefined' && !TL.isLogin()) {
 			VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
 			setTimeout(() => {
@@ -67,6 +74,117 @@ window.VX_POINTS = {
 
 		// Fetch balance
 		this.fetchBalance();
+	},
+
+	destroy() {
+		document.body.classList.remove('vx-points-active');
+		this.closeTabMenu();
+		this.unbindEvents();
+	},
+
+	bindEvents() {
+		if (!this._onDocumentClick) {
+			this._onDocumentClick = (event) => {
+				if (!event.target.closest('.vx-points-tab-menu-anchor')) {
+					this.closeTabMenu();
+				}
+			};
+			document.addEventListener('click', this._onDocumentClick);
+		}
+
+		if (!this._onDocumentKeydown) {
+			this._onDocumentKeydown = (event) => {
+				if (event.key === 'Escape') {
+					this.closeTabMenu();
+				}
+			};
+			document.addEventListener('keydown', this._onDocumentKeydown);
+		}
+	},
+
+	unbindEvents() {
+		if (this._onDocumentClick) {
+			document.removeEventListener('click', this._onDocumentClick);
+			this._onDocumentClick = null;
+		}
+
+		if (this._onDocumentKeydown) {
+			document.removeEventListener('keydown', this._onDocumentKeydown);
+			this._onDocumentKeydown = null;
+		}
+	},
+
+	getTabMeta(tab) {
+		if (tab === 'selling') {
+			return {
+				icon: 'list-check',
+				label: this.t('nav_points_sold', '出售文件')
+			};
+		}
+		if (tab === 'mall') {
+			return {
+				icon: 'bag-shopping',
+				label: this.t('nav_points_mall', '点数商城')
+			};
+		}
+		if (tab === 'orders') {
+			return {
+				icon: 'list-check',
+				label: this.t('vx_mall_my_orders', '兑换记录')
+			};
+		}
+		return {
+			icon: 'chart-line',
+			label: this.t('nav_points_overview', '概要')
+		};
+	},
+
+	toggleTabMenu(source) {
+		const nextSource = this._tabMenuSource === source ? null : source;
+		this.setTabMenuState(nextSource);
+	},
+
+	closeTabMenu() {
+		this.setTabMenuState(null);
+	},
+
+	setTabMenuState(source) {
+		this._tabMenuSource = source || null;
+		document.querySelectorAll('.vx-points-tab-menu-anchor').forEach(anchor => {
+			const isOpen = !!source && anchor.getAttribute('data-menu-source') === source;
+			anchor.classList.toggle('is-open', isOpen);
+		});
+		document.querySelectorAll('.vx-points-tab-menu').forEach(menu => {
+			const isOpen = !!source && menu.getAttribute('data-menu-source') === source;
+			menu.classList.toggle('is-open', isOpen);
+		});
+		document.querySelectorAll('#vx-points-mob-tab-trigger, #vx-points-header-tab-trigger').forEach(btn => {
+			const isOpen = !!source && btn.closest('.vx-points-tab-menu-anchor') && btn.closest('.vx-points-tab-menu-anchor').getAttribute('data-menu-source') === source;
+			btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+		});
+	},
+
+	selectTabFromMenu(tab) {
+		this.showTab(tab);
+		this.closeTabMenu();
+	},
+
+	syncTabMenuUI() {
+		const meta = this.getTabMeta(this.currentTab);
+		document.querySelectorAll('[data-points-current-label]').forEach(el => {
+			el.textContent = meta.label;
+		});
+		document.querySelectorAll('[data-points-current-icon]').forEach(el => {
+			el.setAttribute('name', meta.icon);
+		});
+		document.querySelectorAll('#vx-points-mob-tab-trigger, #vx-points-header-tab-trigger').forEach(btn => {
+			btn.setAttribute('title', meta.label);
+		});
+		document.querySelectorAll('.vx-points-tab-option').forEach(option => {
+			const isActive = option.getAttribute('data-tab') === this.currentTab;
+			option.classList.toggle('active', isActive);
+			option.setAttribute('aria-current', isActive ? 'page' : 'false');
+		});
 	},
 
 	async fetchBalance() {
@@ -115,14 +233,10 @@ window.VX_POINTS = {
 
 		const subtitleEl = document.getElementById('vx-points-header-subtitle');
 		if (subtitleEl) {
-			if (tab === 'selling') {
-				subtitleEl.textContent = ' - ' + this.t('nav_points_sold', '出售文件');
-			} else if (tab === 'mall') {
-				subtitleEl.textContent = ' - ' + this.t('nav_points_mall', '点数商城');
-			} else if (tab === 'orders') {
-				subtitleEl.textContent = ' - ' + this.t('vx_mall_my_orders', '兑换记录');
-			} else {
+			if (tab === 'summary') {
 				subtitleEl.textContent = '';
+			} else {
+				subtitleEl.textContent = ' - ' + this.getTabMeta(tab).label;
 			}
 		}
 
@@ -140,6 +254,9 @@ window.VX_POINTS = {
 		if (pointsContentEl) {
 			pointsContentEl.classList.toggle('vx-points-content-selling', tab === 'selling');
 		}
+
+		this.syncTabMenuUI();
+		this.closeTabMenu();
 
 		if (tab === 'summary') {
 			this.loadPointLog(0);
@@ -175,16 +292,14 @@ window.VX_POINTS = {
 	refreshDynamicText() {
 		const subtitleEl = document.getElementById('vx-points-header-subtitle');
 		if (subtitleEl) {
-			if (this.currentTab === 'selling') {
-				subtitleEl.textContent = ' - ' + this.t('nav_points_sold', '出售文件');
-			} else if (this.currentTab === 'mall') {
-				subtitleEl.textContent = ' - ' + this.t('nav_points_mall', '点数商城');
-			} else if (this.currentTab === 'orders') {
-				subtitleEl.textContent = ' - ' + this.t('vx_mall_my_orders', '兑换记录');
-			} else {
+			if (this.currentTab === 'summary') {
 				subtitleEl.textContent = '';
+			} else {
+				subtitleEl.textContent = ' - ' + this.getTabMeta(this.currentTab).label;
 			}
 		}
+
+		this.syncTabMenuUI();
 
 		if (this.currentTab === 'selling') {
 			this.loadSellingFiles(0);
@@ -1124,5 +1239,6 @@ window.VX_POINTS = {
 
 VXUI.registerModule('points', {
 	template: '/tpl/vxui/points.html',
-	init: (params) => VX_POINTS.init(params)
+	init: (params) => VX_POINTS.init(params),
+	destroy: () => VX_POINTS.destroy()
 });
