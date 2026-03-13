@@ -108,6 +108,57 @@ const VX_NOTES = {
         const safeTitle = title || '未命名';
         this.trackUI(`vui_notes[${safeTitle}]`);
     },
+
+    t(key, fallback) {
+        try {
+            return (app && app.languageData && app.languageData[key]) || fallback || '';
+        } catch (_) {
+            return fallback || '';
+        }
+    },
+
+    setMobileView(mode) {
+        const layout = document.getElementById('vx-notes-layout');
+        if (layout) {
+            layout.setAttribute('data-mobile-view', mode || 'locked');
+        }
+    },
+
+    syncMobileHeader() {
+        const menuBtn = document.getElementById('vx-notes-mob-menu-btn');
+        const backBtn = document.getElementById('vx-notes-mob-back-btn');
+        const refreshBtn = document.getElementById('vx-notes-mob-refresh-btn');
+        const newBtn = document.getElementById('vx-notes-mob-new-btn');
+        const saveBtn = document.getElementById('vx-notes-mob-save-btn');
+
+        let mode = 'locked';
+
+        if (this.key) {
+            if (this.isEditorOpen) {
+                mode = 'editor';
+            } else {
+                mode = 'list';
+            }
+        }
+
+        this.setMobileView(mode);
+
+        if (menuBtn) {
+            menuBtn.style.display = mode === 'editor' ? 'none' : 'inline-flex';
+        }
+        if (backBtn) {
+            backBtn.style.display = mode === 'editor' ? 'inline-flex' : 'none';
+        }
+        if (refreshBtn) {
+            refreshBtn.style.display = mode === 'locked' ? 'none' : 'inline-flex';
+        }
+        if (newBtn) {
+            newBtn.style.display = mode === 'list' ? 'inline-flex' : 'none';
+        }
+        if (saveBtn) {
+            saveBtn.style.display = mode === 'editor' ? 'inline-flex' : 'none';
+        }
+    },
     
     /**
      * 初始化模块
@@ -188,6 +239,7 @@ const VX_NOTES = {
         this._storedKeyLocal = null;
         this._storedKeySession = null;
         this._keyRetryDone = false;
+        this.syncMobileHeader();
     },
     
     /**
@@ -249,6 +301,7 @@ const VX_NOTES = {
 
         // 同步侧边栏“操作”区域
         this.updateSidebar();
+        this.syncMobileHeader();
     },
     
     /**
@@ -432,10 +485,12 @@ const VX_NOTES = {
                         <div class="vx-empty-icon">
                             <iconpark-icon name="search"></iconpark-icon>
                         </div>
-                        <h3 class="vx-empty-title">未找到匹配的密记</h3>
-                        <p class="vx-empty-text">尝试其他关键词</p>
+                        <h3 class="vx-empty-title">${this.t('notes_search_empty_title', '未找到匹配的密记')}</h3>
+                        <p class="vx-empty-text">${this.t('notes_search_empty_text', '尝试其他关键词')}</p>
                     </div>
                 `;
+                this.updateStats();
+                this.syncMobileHeader();
             } else {
                 this.showEmpty();
             }
@@ -458,6 +513,7 @@ const VX_NOTES = {
         
         // 更新统计
         this.updateStats();
+        this.syncMobileHeader();
     },
     
     /**
@@ -550,17 +606,20 @@ const VX_NOTES = {
         document.getElementById('vx-notes-editor')?.classList.add('vx-hidden');
         this.isEditorOpen = false;
         this.clearAutoSave();
+        this.syncMobileHeader();
     },
 
     showEditor() {
         document.getElementById('vx-notes-editor')?.classList.remove('vx-hidden');
         document.getElementById('vx-notes-placeholder')?.classList.add('vx-hidden');
+        this.syncMobileHeader();
     },
 
     hideEditor() {
         document.getElementById('vx-notes-editor')?.classList.add('vx-hidden');
         this.isEditorOpen = false;
         this.clearAutoSave();
+        this.syncMobileHeader();
     },
     
     /**
@@ -776,6 +835,7 @@ const VX_NOTES = {
         document.getElementById('vx-notes-content')?.classList.add('vx-hidden');
         document.getElementById('vx-notes-empty')?.classList.add('vx-hidden');
         this.hideLoading();
+        this.syncMobileHeader();
     },
 
     renderKeyFail() {
@@ -792,6 +852,7 @@ const VX_NOTES = {
         document.getElementById('vx-notes-content')?.classList.add('vx-hidden');
         document.getElementById('vx-notes-empty')?.classList.add('vx-hidden');
         this.hideLoading();
+        this.syncMobileHeader();
     },
 
     renderKeyOk() {
@@ -806,6 +867,8 @@ const VX_NOTES = {
         if (!this.isEditorOpen) {
             this.showPlaceholder();
         }
+
+        this.syncMobileHeader();
     },
 
     waitForCryptoReady(timeoutMs = 3000) {
@@ -1085,6 +1148,7 @@ const VX_NOTES = {
         // show inline editor
         this.showEditor();
         this.isEditorOpen = true;
+        this.syncMobileHeader();
     },
 
     closeEditor() {
@@ -1092,6 +1156,16 @@ const VX_NOTES = {
         this.currentId = 0;
         this.updateListSelection();
         this.showPlaceholder();
+    },
+
+    handleMobileBack() {
+        if (this.isEditorOpen) {
+            if (this.hasUnsavedChanges()) {
+                this.saveCurrentNote({ silent: true, keepOpen: false });
+                return;
+            }
+            this.closeEditor();
+        }
     },
 
     scheduleAutoSave() {
@@ -1274,7 +1348,9 @@ const VX_NOTES = {
         
         // 添加到列表开头
         this.notesList.unshift(newNote);
-        this.render();
+        this.renderListOnly();
+        this.updateStats();
+        this.syncMobileHeader();
     },
 
     /**
@@ -1332,10 +1408,12 @@ const VX_NOTES = {
                         <div class="vx-empty-icon">
                             <iconpark-icon name="search"></iconpark-icon>
                         </div>
-                        <h3 class="vx-empty-title">未找到匹配的密记</h3>
-                        <p class="vx-empty-text">尝试其他关键词</p>
+                        <h3 class="vx-empty-title">${this.t('notes_search_empty_title', '未找到匹配的密记')}</h3>
+                        <p class="vx-empty-text">${this.t('notes_search_empty_text', '尝试其他关键词')}</p>
                     </div>
                 `;
+                this.updateStats();
+                this.syncMobileHeader();
             } else {
                 container.innerHTML = '';
                 this.showEmpty();
@@ -1350,6 +1428,7 @@ const VX_NOTES = {
         
         container.innerHTML = html;
         this.updateStats();
+        this.syncMobileHeader();
     },
     
     /**
@@ -1440,18 +1519,19 @@ const VX_NOTES = {
         if (empty) empty.classList.remove('vx-hidden');
 
         this.showPlaceholder();
+        this.syncMobileHeader();
     },
     
     /**
      * 更新统计
      */
     updateStats() {
-        const countEl = document.getElementById('vx-notes-count');
-        if (countEl) {
-            countEl.textContent = this.notesList.length;
-        }
+        const count = this.notesList.length;
+        const countFooterEl = document.getElementById('vx-notes-count-footer');
+        if (countFooterEl) countFooterEl.textContent = count;
         // selection refresh
         this.updateListSelection();
+        this.syncMobileHeader();
     }
 };
 
