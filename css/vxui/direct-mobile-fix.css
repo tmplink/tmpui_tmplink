@@ -16,19 +16,6 @@
 
     body.vx-direct-active .vx-direct-mob-header {
         display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 12px;
-        position: sticky;
-        top: 0;
-        z-index: calc(var(--vx-z-sticky) + 1);
-        padding: 18px 16px;
-        background:
-            radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 42%),
-            linear-gradient(180deg, rgba(148, 163, 184, 0.06) 0%, rgba(148, 163, 184, 0) 100%),
-            var(--vx-header-bg);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
     }
 
     .vx-direct-mob-top {
@@ -40,21 +27,7 @@
     }
 
     .vx-direct-mob-icon-btn {
-        appearance: none;
-        width: 44px;
-        height: 44px;
-        border-radius: 16px;
-        border: 1px solid rgba(148, 163, 184, 0.22);
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)), var(--vx-surface);
-        color: var(--vx-text-secondary);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-    }
-
-    .vx-direct-mob-icon-btn iconpark-icon {
-        font-size: 20px;
+        color: var(--vx-text);
     }
 
     .vx-direct-mob-tabs {

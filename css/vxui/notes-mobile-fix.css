@@ -1,7 +1,7 @@
 @charset "UTF-8";
 /**
  * VXUI Notes Module Mobile Fix
- * Provides a dedicated mobile header with glassmorphism style
+ * Notes-specific overrides for unified mobile topbar
  */
 
 .vx-notes-mob-header {
@@ -15,87 +15,5 @@
 
     body.vx-notes-active .vx-notes-mob-header {
         display: flex;
-        position: sticky;
-        top: 0;
-        z-index: calc(var(--vx-z-sticky) + 1);
-        padding: 18px 16px;
-        background:
-            radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 42%),
-            linear-gradient(180deg, rgba(148, 163, 184, 0.06) 0%, rgba(148, 163, 184, 0) 100%),
-            var(--vx-header-bg);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
     }
-
-    .vx-notes-mob-toolbar {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        gap: 12px;
-    }
-
-    .vx-notes-mob-title {
-        flex: 1;
-        min-width: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--vx-text);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .vx-notes-mob-actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-shrink: 0;
-    }
-
-    .vx-notes-mob-icon-btn {
-        appearance: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 44px;
-        height: 44px;
-        border-radius: 16px;
-        border: 1px solid rgba(148, 163, 184, 0.22);
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)), var(--vx-surface);
-        color: var(--vx-text-secondary);
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-        cursor: pointer;
-        flex-shrink: 0;
-        transition: var(--vx-transition-fast);
-    }
-
-    .vx-notes-mob-icon-btn iconpark-icon {
-        font-size: 20px;
-    }
-
-    .vx-notes-mob-menu-btn {
-        color: var(--vx-text);
-    }
-
-    .vx-notes-mob-new-btn {
-        background: linear-gradient(135deg, var(--vx-primary) 0%, #4f8dfd 100%);
-        color: var(--vx-text-inverse);
-        border-color: transparent;
-        box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28);
-    }
-}
-
-@media (max-width: 420px) {
-    .vx-notes-mob-icon-btn {
-        width: 42px;
-        height: 42px;
-        border-radius: 15px;
-    }
-}
-
-html.vx-dark body.vx-notes-active .vx-notes-mob-header {
-    background:
-        radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 42%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%),
-        var(--vx-header-bg);
 }

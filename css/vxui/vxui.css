@@ -2373,6 +2373,32 @@ html.vx-dark .vx-mobile-bar {
     }
 }
 
+html.vx-dark body.vx-has-mob-topbar .vx-mob-topbar {
+    background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 42%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%),
+        var(--vx-header-bg);
+}
+
+html.vx-dark .vx-mob-topbar-btn {
+    border-color: #334155;
+    background: #1e293b;
+    color: #94a3b8;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+html.vx-dark .vx-mob-topbar-btn.is-primary {
+    border-color: rgba(59, 130, 246, 0.42);
+    background: rgba(37, 99, 235, 0.22);
+    color: #dbeafe;
+}
+
+html.vx-dark .vx-mob-topbar-btn.is-danger {
+    border-color: rgba(239, 68, 68, 0.32);
+    background: rgba(239, 68, 68, 0.16);
+    color: #fecaca;
+}
+
 html.vx-dark .vx-mobile-btn {
     color: #94a3b8;
 }
