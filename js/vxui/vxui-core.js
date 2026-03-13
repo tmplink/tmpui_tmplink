@@ -800,6 +800,7 @@ class VXUICore {
 
         // filelist 拥有独立移动端头部，需在模板加载前立即隐藏通用头部以避免闪现
         if (document.body) {
+            document.body.classList.remove('vx-has-mob-topbar');
             if (moduleName === 'filelist') {
                 document.body.classList.add('vx-fl-active');
             } else {
@@ -867,6 +868,7 @@ class VXUICore {
             if (cachedContent) {
                 this.ensureStylesFromTemplate(cachedContent).then((output) => {
                     container.innerHTML = output;
+                    this.syncModuleMobileTopbar(container);
                     if (callback) callback();
                 });
                 return;
@@ -889,6 +891,7 @@ class VXUICore {
                     if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
                         TL.tpl_lang(container);
                     }
+                    this.syncModuleMobileTopbar(container);
                     if (callback) callback();
                 });
             })
@@ -896,6 +899,15 @@ class VXUICore {
                 console.error(`[VXUI] Failed to load template: ${templatePath}`, error);
                 this.toastError('加载模块失败');
             });
+    }
+
+    syncModuleMobileTopbar(container) {
+        const root = container || document;
+        const hasTopbar = !!root.querySelector('.vx-mob-topbar');
+        if (document.body) {
+            document.body.classList.toggle('vx-has-mob-topbar', hasTopbar);
+        }
+        this.applyAuthVisibility();
     }
     
     /**

@@ -2297,10 +2297,14 @@ body.vx-modal-body-open {
     }
     
     .vx-mobile-header {
+        display: flex;
+    }
+
+    body.vx-has-mob-topbar .vx-mobile-header {
         display: none;
     }
 
-    .vx-mob-topbar {
+    body.vx-has-mob-topbar .vx-mob-topbar {
         display: flex;
         position: sticky;
         top: 0;
@@ -2314,7 +2318,7 @@ body.vx-modal-body-open {
         -webkit-backdrop-filter: blur(18px);
     }
 
-    .vx-mob-topbar + .vx-header {
+    body.vx-has-mob-topbar .vx-mob-topbar + .vx-header {
         display: none;
     }
     
