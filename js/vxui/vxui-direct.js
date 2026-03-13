@@ -97,6 +97,8 @@ const VX_DIRECT = {
     init(params = {}) {
         console.log('[VX_DIRECT] Initializing...', params);
 
+        document.body.classList.add('vx-direct-active');
+
         // 初始化排序管理器
         if (typeof VxSort !== 'undefined') {
             if (!this.fileSorter) {
@@ -183,6 +185,7 @@ const VX_DIRECT = {
 
     destroy() {
         console.log('[VX_DIRECT] Destroying...');
+        document.body.classList.remove('vx-direct-active');
         this.unbindEvents();
         this.stopReadyTimer();
 
@@ -344,6 +347,11 @@ const VX_DIRECT = {
         setActive('vx-direct-nav-folders', this.activeTab === 'folders');
         setActive('vx-direct-nav-api', this.activeTab === 'api');
         setActive('vx-direct-nav-domain', this.activeTab === 'domain');
+        setActive('vx-direct-mob-nav-dashboard', this.activeTab === 'dashboard');
+        setActive('vx-direct-mob-nav-files', this.activeTab === 'files');
+        setActive('vx-direct-mob-nav-folders', this.activeTab === 'folders');
+        setActive('vx-direct-mob-nav-api', this.activeTab === 'api');
+        setActive('vx-direct-mob-nav-domain', this.activeTab === 'domain');
 
         const showPanel = (panelId, show) => {
             const el = document.getElementById(panelId);
@@ -382,10 +390,18 @@ const VX_DIRECT = {
         const navFiles = document.getElementById('vx-direct-nav-files');
         const navFolders = document.getElementById('vx-direct-nav-folders');
         const navApi = document.getElementById('vx-direct-nav-api');
+        const mobNavDashboard = document.getElementById('vx-direct-mob-nav-dashboard');
+        const mobNavFiles = document.getElementById('vx-direct-mob-nav-files');
+        const mobNavFolders = document.getElementById('vx-direct-mob-nav-folders');
+        const mobNavApi = document.getElementById('vx-direct-mob-nav-api');
         if (navDashboard) navDashboard.style.display = configured ? '' : 'none';
         if (navFiles) navFiles.style.display = configured ? '' : 'none';
         if (navFolders) navFolders.style.display = configured ? '' : 'none';
         if (navApi) navApi.style.display = configured ? '' : 'none';
+        if (mobNavDashboard) mobNavDashboard.style.display = configured ? '' : 'none';
+        if (mobNavFiles) mobNavFiles.style.display = configured ? '' : 'none';
+        if (mobNavFolders) mobNavFolders.style.display = configured ? '' : 'none';
+        if (mobNavApi) mobNavApi.style.display = configured ? '' : 'none';
 
         // Top right action buttons
         const topBrand = document.getElementById('vx-direct-top-brand');

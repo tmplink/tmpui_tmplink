@@ -152,6 +152,77 @@
         flex-shrink: 0;
     }
 
+    /* Filelist-specific mobile bottom bar redesign */
+    body.vx-fl-active .vx-mobile-bar {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 0;
+        border-top: 1px solid var(--vx-border);
+        border-radius: 0;
+        padding: 8px 10px;
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+        background: var(--vx-surface);
+        box-shadow: 0 -8px 20px rgba(15, 23, 42, 0.08);
+        animation: none;
+    }
+
+    body.vx-fl-active .vx-mobile-btn {
+        position: relative;
+        flex: 1 1 0;
+        min-width: 0;
+        gap: 4px;
+        padding: 8px 6px;
+        border-radius: 12px;
+        color: var(--vx-text-secondary);
+        transition: color 180ms ease, background-color 180ms ease;
+    }
+
+    body.vx-fl-active .vx-mobile-btn iconpark-icon {
+        font-size: 22px;
+        color: currentColor;
+    }
+
+    body.vx-fl-active .vx-mobile-btn span {
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+    }
+
+    body.vx-fl-active .vx-mobile-btn.active {
+        color: var(--vx-primary);
+        background: var(--vx-primary-light);
+        box-shadow: none;
+        transform: none;
+    }
+
+    body.vx-fl-active .vx-mobile-btn.active::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 2px;
+        width: 18px;
+        height: 3px;
+        border-radius: 999px;
+        transform: translateX(-50%);
+        background: var(--vx-primary);
+    }
+
+    body.vx-fl-active .vx-selection-bar {
+        bottom: calc(var(--vx-mobile-bar-height, 64px) + env(safe-area-inset-bottom) + 10px);
+    }
+
+    @keyframes vx-fl-mobile-bar-rise {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     /* Cache info strip at the bottom of the content area (inline flow) */
     .vx-mobile-cache-bar {
         display: flex;
@@ -383,6 +454,24 @@
 }
 
 @media (max-width: 420px) {
+    body.vx-fl-active .vx-mobile-bar {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 0;
+        padding: 7px 8px;
+        padding-bottom: max(7px, env(safe-area-inset-bottom));
+    }
+
+    body.vx-fl-active .vx-mobile-btn {
+        border-radius: 10px;
+        padding: 7px 4px;
+    }
+
+    body.vx-fl-active .vx-mobile-btn span {
+        font-size: 12px;
+    }
+
     .vx-fl-mob-toolbar,
     .vx-fl-mob-nav,
     .vx-fl-mob-actions,
@@ -403,4 +492,19 @@
         border-radius: 15px;
     }
 
+}
+
+html.vx-dark body.vx-fl-active .vx-mobile-bar {
+    background: #1e293b;
+    border-top-color: #334155;
+    box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.32);
+}
+
+html.vx-dark body.vx-fl-active .vx-mobile-btn {
+    color: #94a3b8;
+}
+
+html.vx-dark body.vx-fl-active .vx-mobile-btn.active {
+    color: #dbeafe;
+    background: rgba(37, 99, 235, 0.22);
 }
