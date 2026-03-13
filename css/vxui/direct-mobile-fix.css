@@ -26,29 +26,11 @@
         width: 100%;
     }
 
-    .vx-direct-mob-icon-btn {
-        color: var(--vx-text);
-    }
-
-    .vx-direct-mob-tabs {
-        flex: 1;
-        min-width: 0;
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        overflow-x: auto;
-        padding: 1px 0;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .vx-direct-mob-tab {
-        flex: 0 0 auto;
-    }
-
-    .vx-direct-mob-tab.active {
-        border-color: transparent;
-        color: var(--vx-text-inverse);
+    /* Active tab button highlight */
+    .vx-direct-mob-header .vx-mob-topbar-btn.active {
         background: linear-gradient(135deg, var(--vx-primary) 0%, #4f8dfd 100%);
+        color: var(--vx-text-inverse);
+        border-color: transparent;
         box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28);
     }
 
