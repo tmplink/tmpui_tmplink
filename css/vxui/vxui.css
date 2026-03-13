@@ -974,6 +974,7 @@ html.vx-dark .vx-lang-option:hover {
 
 /* Unified Mobile Topbar Component */
 .vx-mob-topbar {
+    padding: 14px 16px;
     display: none;
 }
 
@@ -2309,7 +2310,6 @@ body.vx-modal-body-open {
         position: sticky;
         top: 0;
         z-index: calc(var(--vx-z-sticky) + 1);
-        padding: 18px 16px;
         background:
             radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 42%),
             linear-gradient(180deg, rgba(148, 163, 184, 0.06) 0%, rgba(148, 163, 184, 0) 100%),
@@ -2366,6 +2366,10 @@ html.vx-dark .vx-mobile-bar {
 }
 
 @media (max-width: 420px) {
+    .vx-mob-topbar {
+        padding: 14px 12px;
+    }
+
     .vx-mob-topbar-btn {
         width: 42px;
         height: 42px;

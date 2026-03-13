@@ -32,11 +32,6 @@
 }
 
 @media (max-width: 420px) {
-    body.vx-notes-active .vx-notes-mob-header {
-        padding-left: 12px;
-        padding-right: 12px;
-    }
-
     body.vx-notes-active .vx-notes-mob-header .vx-mob-topbar-btn {
         width: 42px;
         height: 42px;

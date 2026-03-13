@@ -60,11 +60,6 @@
 }
 
 @media (max-width: 420px) {
-    body.vx-direct-active .vx-direct-mob-header {
-        padding-left: 12px;
-        padding-right: 12px;
-    }
-
     body.vx-direct-active .vx-direct-mob-header .vx-mob-topbar-inner {
         gap: 8px;
     }

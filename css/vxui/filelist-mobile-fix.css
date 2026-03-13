@@ -23,15 +23,6 @@
 
     .vx-fl-mob-header {
         display: flex;
-        position: sticky;
-        top: 0;
-        z-index: calc(var(--vx-z-sticky) + 1);
-        padding: 14px 16px;
-        background:
-            radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 42%),
-            linear-gradient(180deg, rgba(148, 163, 184, 0.06) 0%, rgba(148, 163, 184, 0) 100%),
-            var(--vx-header-bg);
-        backdrop-filter: blur(18px);
     }
 
     .vx-fl-mob-folder-bar {
