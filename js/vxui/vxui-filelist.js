@@ -77,6 +77,8 @@ var VX_FILELIST = VX_FILELIST || {
     _cacheDbPromise: null,
     _cacheChannel: null,
     _cacheSavedAt: null,
+    _staleCacheThresholdMs: 60 * 60 * 1000,
+    _cacheRepaintMinGapMs: 1000,
 
     /**
      * Get translation text safely (prefers TL.tpl, falls back to app.languageData).
@@ -1658,8 +1660,9 @@ var VX_FILELIST = VX_FILELIST || {
 
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
 
-        const fetchRemote = () => {
-            if (shouldShowLoading) {
+        const fetchRemote = (remoteOptions = {}) => {
+            const remoteOpts = remoteOptions || {};
+            if (shouldShowLoading && !remoteOpts.silent) {
                 this.showLoading();
             }
 
@@ -1713,10 +1716,19 @@ var VX_FILELIST = VX_FILELIST || {
                 this.applyFolderPrivacyUI();
                 this.applyFolderPublishUI();
                 this.loadDirectFolderState();
-                this.loadFileList(0, { forceRemote: true, onComplete: finalize, persist: true, trackView: true });
+                this.loadFileList(0, {
+                    forceRemote: true,
+                    onComplete: finalize,
+                    persist: true,
+                    trackView: remoteOpts.trackView !== false,
+                    preserveCurrent: !!remoteOpts.preserveCurrent,
+                    minRenderAt: remoteOpts.minRenderAt
+                });
             }, 'json').fail(() => {
                 this.hideLoading();
-                VXUI.toastError(this.t('vx_load_failed', '加载失败'));
+                if (!remoteOpts.silentError) {
+                    VXUI.toastError(this.t('vx_load_failed', '加载失败'));
+                }
                 finalize();
             });
         };
@@ -1728,6 +1740,29 @@ var VX_FILELIST = VX_FILELIST || {
 
         this.loadCachedRoomSnapshot().then((loaded) => {
             if (loaded) {
+                const cacheSavedAt = Number(this._cacheSavedAt || 0);
+                const cacheAge = cacheSavedAt ? (Date.now() - cacheSavedAt) : 0;
+                const shouldRefreshInBackground = cacheSavedAt
+                    && cacheAge >= this._staleCacheThresholdMs;
+
+                if (shouldRefreshInBackground) {
+                    const minRenderAt = Date.now() + this._cacheRepaintMinGapMs;
+                    console.log('[VX_FILELIST] Stale cache hit, refreshing in background:', {
+                        mrid: String(this.mrid),
+                        cacheSavedAt: cacheSavedAt,
+                        cacheAgeMs: cacheAge,
+                        thresholdMs: this._staleCacheThresholdMs,
+                        minRepaintGapMs: this._cacheRepaintMinGapMs,
+                        minRenderAt: minRenderAt
+                    });
+                    fetchRemote({
+                        trackView: false,
+                        preserveCurrent: true,
+                        silent: true,
+                        silentError: true,
+                        minRenderAt: minRenderAt
+                    });
+                }
                 finalize();
                 return;
             }
@@ -2354,7 +2389,7 @@ var VX_FILELIST = VX_FILELIST || {
         const opts = options || {};
         if (page === 0) {
             this.pageNumber = 0;
-            if (opts.forceRemote) {
+            if (opts.forceRemote && !opts.preserveCurrent) {
                 this.fileList = [];
                 this.photoList = [];
             }
@@ -2402,6 +2437,22 @@ var VX_FILELIST = VX_FILELIST || {
 
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
         
+        const applyRemoteRender = (renderFn) => {
+            const minRenderAt = Number(opts.minRenderAt || 0);
+            const waitMs = Math.max(0, minRenderAt - Date.now());
+            if (waitMs > 0) {
+                console.log('[VX_FILELIST] Delayed repaint scheduled:', {
+                    mrid: String(this.mrid),
+                    waitMs: waitMs,
+                    minRenderAt: minRenderAt,
+                    now: Date.now()
+                });
+                setTimeout(renderFn, waitMs);
+                return;
+            }
+            renderFn();
+        };
+
         $.post(apiUrl, {
             action: 'file_list_page',
             mr_id: this.mrid,
@@ -2410,44 +2461,48 @@ var VX_FILELIST = VX_FILELIST || {
             sort_type: sortType,
             token: token
         }, (rsp) => {
-            this.hideLoading();
-            
-            if (rsp.status === 1 && rsp.data && rsp.data.length > 0) {
-                this.fileList = page === 0 ? rsp.data.slice() : this.fileList.concat(rsp.data);
-                
-                // 提取图片文件用于相册模式
-                this.photoList = this.fileList.filter(file => 
-                    this.isImageFile(file.ftype)
-                );
-            } else if (page === 0) {
-                this.fileList = [];
-                this.photoList = [];
-            }
-            
-            // 渲染
-            this.render();
-            
-            // 更新项目数量
-            this.updateItemCount();
+            applyRemoteRender(() => {
+                this.hideLoading();
 
-            if (opts.trackView) {
-                this.trackRoomView();
-            }
+                if (rsp.status === 1 && rsp.data && rsp.data.length > 0) {
+                    this.fileList = page === 0 ? rsp.data.slice() : this.fileList.concat(rsp.data);
 
-            if (page === 0 && opts.persist !== false) {
-                this.persistCurrentSnapshot();
-            }
+                    // 提取图片文件用于相册模式
+                    this.photoList = this.fileList.filter(file =>
+                        this.isImageFile(file.ftype)
+                    );
+                } else if (page === 0) {
+                    this.fileList = [];
+                    this.photoList = [];
+                }
 
-            if (typeof opts.onComplete === 'function') {
-                opts.onComplete();
-            }
+                // 渲染
+                this.render();
+
+                // 更新项目数量
+                this.updateItemCount();
+
+                if (opts.trackView) {
+                    this.trackRoomView();
+                }
+
+                if (page === 0 && opts.persist !== false) {
+                    this.persistCurrentSnapshot();
+                }
+
+                if (typeof opts.onComplete === 'function') {
+                    opts.onComplete();
+                }
+            });
             
         }, 'json').fail(() => {
-            this.hideLoading();
-            this.render();
-            if (typeof opts.onComplete === 'function') {
-                opts.onComplete();
-            }
+            applyRemoteRender(() => {
+                this.hideLoading();
+                this.render();
+                if (typeof opts.onComplete === 'function') {
+                    opts.onComplete();
+                }
+            });
         });
     },
     
