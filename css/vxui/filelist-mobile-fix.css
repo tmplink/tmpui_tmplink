@@ -23,15 +23,6 @@
 
     .vx-fl-mob-header {
         display: flex;
-        position: sticky;
-        top: 0;
-        z-index: calc(var(--vx-z-sticky) + 1);
-        padding: 14px 16px;
-        background:
-            radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 42%),
-            linear-gradient(180deg, rgba(148, 163, 184, 0.06) 0%, rgba(148, 163, 184, 0) 100%),
-            var(--vx-header-bg);
-        backdrop-filter: blur(18px);
     }
 
     .vx-fl-mob-folder-bar {
@@ -51,7 +42,7 @@
     .vx-fl-mob-owner-actions {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
     }
 
     .vx-fl-mob-actions {
@@ -68,10 +59,7 @@
     .vx-fl-mob-switch-btn,
     .vx-fl-mob-upload-btn {
         appearance: none;
-        border: 1px solid rgba(148, 163, 184, 0.22);
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)), var(--vx-surface);
         color: var(--vx-text-secondary);
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
     }
 
     .vx-fl-mob-icon-btn,
@@ -484,6 +472,11 @@
     .vx-fl-mob-upload-btn {
         width: 42px;
         height: 42px;
+    }
+
+    .vx-fl-mob-icon-btn,
+    .vx-fl-mob-switch-btn {
+        border-radius: 15px;
     }
 
     .vx-fl-mob-upload-btn {

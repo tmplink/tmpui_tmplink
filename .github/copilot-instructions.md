@@ -83,6 +83,15 @@ plugin/                 # 第三方库
 - 移动端修复放入 `*-mobile-fix.css`
 - 深色模式通过 `css/dark.css` 控制
 
+### VXUI 移动端顶栏统一约束
+- VXUI 页面（如 filelist/direct/ai/notes/shop/points/account）移动端顶栏必须优先复用 `css/vxui/vxui.css` 中的共享类：`.vx-mob-topbar`、`.vx-mob-topbar-inner`、`.vx-mob-topbar-left/.vx-mob-topbar-right`、`.vx-mob-topbar-title`、`.vx-mob-topbar-btn`。
+- 非必要禁止在模块 `*-mobile-fix.css` 中覆盖顶栏基线尺寸（padding、按钮宽高、按钮圆角、标题字号、icon 尺寸、left/right/inner gap）。
+- 顶栏基线尺寸：
+  - 默认：topbar padding `14px 16px`；button `44x44`；button radius `16px`；title `16px`；title gap `8px`。
+  - `max-width: 420px`：topbar padding `14px 12px`；button `42x42`；button radius `15px`。
+- 允许的模块级覆盖仅限业务必要差异（例如文案最大宽度、特定业务按钮显隐、业务菜单定位），不应改变统一视觉节奏。
+- 若页面容器高度依赖顶栏高度（例如 AI 聊天容器），修改顶栏相关样式后必须同步校正容器高度计算，避免内容溢出或留白。
+
 ### 模板
 - VXUI 模板放入 `tpl/vxui/`
 - 使用 Iconpark 图标：`<iconpark-icon name="xxx"></iconpark-icon>`

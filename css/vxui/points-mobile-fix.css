@@ -175,11 +175,6 @@
 }
 
 @media (max-width: 420px) {
-    body.vx-points-active .vx-points-mob-header {
-        padding-left: 12px;
-        padding-right: 12px;
-    }
-
     body.vx-points-active .vx-points-mob-header .vx-mob-topbar-inner {
         gap: 8px;
     }

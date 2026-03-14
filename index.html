@@ -45,6 +45,32 @@
         }
 
         {
+            const root = document.documentElement;
+            const activeClass = 'tmp-scrollbars-visible';
+            const hideDelay = 3000;
+            const scrollKeys = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown', 'Home', 'End', ' ', 'Spacebar']);
+            let hideTimer = null;
+
+            const showScrollbars = () => {
+                root.classList.add(activeClass);
+                window.clearTimeout(hideTimer);
+                hideTimer = window.setTimeout(() => {
+                    root.classList.remove(activeClass);
+                }, hideDelay);
+            };
+
+            document.addEventListener('scroll', showScrollbars, true);
+            window.addEventListener('wheel', showScrollbars, { passive: true });
+            window.addEventListener('touchmove', showScrollbars, { passive: true });
+            window.addEventListener('resize', showScrollbars, { passive: true });
+            window.addEventListener('keydown', event => {
+                if (scrollKeys.has(event.key)) {
+                    showScrollbars();
+                }
+            });
+        }
+
+        {
             // IP 地理位置检查
             const { hostname, pathname, search, hash } = window.location;
             if (!hostname.includes('ttttt.link') && 
@@ -125,7 +151,7 @@
     <script type="text/javascript" src="./tmpui.js?v=58"></script>
     <script type="text/javascript">
         let config = {
-            "version": 1728,
+            "version": 1729,
             "siteroot": "/",
             "loadingIcon": "/img/ico/logo-new.svg",
             "loadingText": "TMP.LINK",

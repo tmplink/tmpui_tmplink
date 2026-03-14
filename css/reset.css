@@ -11459,6 +11459,8 @@ a.text-dark:hover, a.text-dark:focus {
 html {
   font-size: 16px;
   height: 100%;
+  overflow-y: auto;
+  scrollbar-gutter: auto;
 }
 
 body {
@@ -11471,8 +11473,15 @@ body {
   -webkit-font-feature-settings: "liga" 0;
   font-feature-settings: "liga" 0;
   height: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
   position: relative;
+}
+
+@supports (overflow: overlay) {
+  html,
+  body {
+    overflow-y: overlay;
+  }
 }
 
 @media print {
@@ -11481,18 +11490,64 @@ body {
   }
 }
 
+:root {
+  --tmp-scrollbar-size: 8px;
+  --tmp-scrollbar-thumb: rgba(173, 181, 189, .88);
+  --tmp-scrollbar-thumb-hover: rgba(108, 117, 125, .95);
+}
+
+html.system-dark {
+  --tmp-scrollbar-thumb: rgba(255, 255, 255, .34);
+  --tmp-scrollbar-thumb-hover: rgba(255, 255, 255, .52);
+}
+
+html,
+body,
+body * {
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
+}
+
+html.tmp-scrollbars-visible,
+html.tmp-scrollbars-visible body,
+html.tmp-scrollbars-visible body * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tmp-scrollbar-thumb) transparent;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
 body *::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-  transition: .3s background;
+  width: var(--tmp-scrollbar-size);
+  height: var(--tmp-scrollbar-size);
+  background: transparent;
 }
 
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+body *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
 body *::-webkit-scrollbar-thumb {
-  background: #ced4da;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
 }
 
-body *:hover::-webkit-scrollbar-thumb {
-  background: #adb5bd;
+html.tmp-scrollbars-visible::-webkit-scrollbar-thumb,
+html.tmp-scrollbars-visible body::-webkit-scrollbar-thumb,
+html.tmp-scrollbars-visible body *::-webkit-scrollbar-thumb {
+  background: var(--tmp-scrollbar-thumb);
+}
+
+html.tmp-scrollbars-visible::-webkit-scrollbar-thumb:hover,
+html.tmp-scrollbars-visible body::-webkit-scrollbar-thumb:hover,
+html.tmp-scrollbars-visible body *::-webkit-scrollbar-thumb:hover {
+  background: var(--tmp-scrollbar-thumb-hover);
 }
 
 .lead {

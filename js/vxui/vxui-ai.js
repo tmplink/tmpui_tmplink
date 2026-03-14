@@ -302,6 +302,10 @@ const VX_AI = {
             const input = document.getElementById('vx-ai-input');
             input?.addEventListener('keydown', this._keydownHandler);
             input?.addEventListener('input', this._inputHandler);
+            // 移动端使用简短 placeholder（不含桌面快捷键提示）
+            if (input && typeof VXUI !== 'undefined' && VXUI.isMobile()) {
+                input.placeholder = this.lang('ai_input_placeholder', '输入您的消息...');
+            }
             this.autoResizeTextarea(input);
             this.updateCharCount();
             this.updateSendButton();
