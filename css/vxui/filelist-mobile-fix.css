@@ -42,7 +42,7 @@
     .vx-fl-mob-owner-actions {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
     }
 
     .vx-fl-mob-actions {
@@ -59,10 +59,7 @@
     .vx-fl-mob-switch-btn,
     .vx-fl-mob-upload-btn {
         appearance: none;
-        border: 1px solid rgba(148, 163, 184, 0.22);
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)), var(--vx-surface);
         color: var(--vx-text-secondary);
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
     }
 
     .vx-fl-mob-icon-btn,
@@ -475,6 +472,11 @@
     .vx-fl-mob-upload-btn {
         width: 42px;
         height: 42px;
+    }
+
+    .vx-fl-mob-icon-btn,
+    .vx-fl-mob-switch-btn {
+        border-radius: 15px;
     }
 
     .vx-fl-mob-upload-btn {

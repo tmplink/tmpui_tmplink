@@ -29,28 +29,9 @@
         overflow: hidden;
     }
 
-    body.vx-ai-active .vx-ai-mob-header {
-        padding: 12px 12px 10px;
-    }
-
-    body.vx-ai-active .vx-ai-mob-toolbar {
-        gap: 10px;
-    }
-
-    body.vx-ai-active .vx-ai-mob-title {
-        font-size: 15px;
-        gap: 6px;
-    }
-
-    body.vx-ai-active .vx-ai-mob-icon-btn {
-        width: 42px;
-        height: 42px;
-        border-radius: 14px;
-    }
-
     body.vx-ai-active .vx-ai-container {
-        height: calc(100vh - 66px - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom));
-        height: calc(100dvh - 66px - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom));
+        height: calc(100vh - 72px - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom));
+        height: calc(100dvh - 72px - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom));
         min-height: 0;
         background:
             radial-gradient(circle at 50% -12%, rgba(59, 130, 246, 0.12), transparent 36%),
@@ -204,23 +185,9 @@
 }
 
 @media (max-width: 420px) {
-    body.vx-ai-active .vx-ai-mob-header {
-        padding: 10px 10px 8px;
-    }
-
-    body.vx-ai-active .vx-ai-mob-title {
-        font-size: 14px;
-    }
-
-    body.vx-ai-active .vx-ai-mob-icon-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 13px;
-    }
-
     body.vx-ai-active .vx-ai-container {
-        height: calc(100vh - 60px - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom));
-        height: calc(100dvh - 60px - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom));
+        height: calc(100vh - 70px - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom));
+        height: calc(100dvh - 70px - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom));
     }
 
     body.vx-ai-active .vx-ai-messages {

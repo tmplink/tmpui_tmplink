@@ -60,15 +60,6 @@
 }
 
 @media (max-width: 420px) {
-    body.vx-direct-active .vx-direct-mob-header .vx-mob-topbar-inner {
-        gap: 8px;
-    }
-
-    body.vx-direct-active .vx-direct-mob-header .vx-mob-topbar-title {
-        gap: 6px;
-        font-size: 15px;
-    }
-
     body.vx-direct-active .vx-direct-mob-header .vx-mob-topbar-title span {
         max-width: 72px;
     }

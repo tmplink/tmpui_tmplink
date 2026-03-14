@@ -17,24 +17,7 @@
         display: flex;
     }
 
-    body.vx-notes-active .vx-notes-mob-header .vx-mob-topbar-inner {
-        gap: 10px;
-    }
-
-    body.vx-notes-active .vx-notes-mob-header .vx-mob-topbar-left,
-    body.vx-notes-active .vx-notes-mob-header .vx-mob-topbar-right {
-        gap: 6px;
-    }
-
     body.vx-notes-active .vx-notes-mob-header .vx-mob-topbar-title {
         min-width: 0;
-    }
-}
-
-@media (max-width: 420px) {
-    body.vx-notes-active .vx-notes-mob-header .vx-mob-topbar-btn {
-        width: 42px;
-        height: 42px;
-        border-radius: 14px;
     }
 }
