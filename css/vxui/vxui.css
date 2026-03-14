@@ -2048,13 +2048,18 @@ body.vx-modal-body-open {
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--vx-surface);
-    border-top: 1px solid var(--vx-border);
+    background:
+        radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.14), transparent 42%),
+        linear-gradient(0deg, rgba(148, 163, 184, 0.06) 0%, rgba(148, 163, 184, 0) 100%),
+        var(--vx-header-bg);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-top: 1px solid rgba(148, 163, 184, 0.22);
     border-radius: 0;
     padding: 8px 10px;
     padding-bottom: max(8px, env(safe-area-inset-bottom));
     z-index: var(--vx-z-fixed);
-    box-shadow: 0 -8px 20px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 -10px 28px rgba(15, 23, 42, 0.10);
 }
 
 .vx-mobile-bar {
@@ -2360,9 +2365,12 @@ body.vx-modal-body-open {
 }
 
 html.vx-dark .vx-mobile-bar {
-    background: #1e293b;
+    background:
+        radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.14), transparent 42%),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%),
+        var(--vx-header-bg);
     border-top-color: #334155;
-    box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.32);
+    box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.36);
 }
 
 @media (max-width: 420px) {
