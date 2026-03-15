@@ -136,25 +136,28 @@ var VX_FILELIST = VX_FILELIST || {
         }
     },
 
-    formatCacheSavedAt(value) {
-        const savedAt = Number(value || 0);
+    formatTimeAgo(timestamp) {
+        const savedAt = Number(timestamp || 0);
         if (!savedAt) return '--';
-        return new Date(savedAt).toLocaleString();
+        const diff = Math.floor((Date.now() - savedAt) / 1000);
+        if (diff < 60) {
+            return this.t('vx_cache_ago_fresh', '正在使用最新数据');
+        }
+        if (diff < 3600) {
+            return this.fmt('vx_cache_ago_min', { n: Math.floor(diff / 60) }, '{n}分钟前');
+        }
+        if (diff < 86400) {
+            return this.fmt('vx_cache_ago_hour', { n: Math.floor(diff / 3600) }, '{n}小时前');
+        }
+        return this.fmt('vx_cache_ago_day', { n: Math.floor(diff / 86400) }, '{n}天前');
+    },
+
+    formatCacheSavedAt(value) {
+        return this.formatTimeAgo(value);
     },
 
     formatCacheSavedAtFull(value) {
-        const savedAt = Number(value || 0);
-        if (!savedAt) return '--';
-
-        const date = new Date(savedAt);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const seconds = String(date.getSeconds()).padStart(2, '0');
-
-        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        return this.formatTimeAgo(value);
     },
 
     openCacheDb() {
@@ -1016,12 +1019,33 @@ var VX_FILELIST = VX_FILELIST || {
             }
         });
 
-        const timeText = this.formatCacheSavedAt(this._cacheSavedAt);
-        const mobileTimeText = this._cacheSavedAt
-            ? this.fmt('vx_cache_fetched_at', { time: this.formatCacheSavedAtFull(this._cacheSavedAt) }, 'Data fetched at {time}')
+        const agoText = this._cacheSavedAt ? this.formatTimeAgo(this._cacheSavedAt) : '--';
+        const fullText = this._cacheSavedAt
+            ? this.fmt('vx_cache_fetched_at', { time: agoText }, 'Data loaded {time}')
             : '--';
-        if (cacheSavedAtEl) cacheSavedAtEl.textContent = timeText;
-        if (mobileCacheSavedAtEl) mobileCacheSavedAtEl.textContent = mobileTimeText;
+        if (cacheSavedAtEl) cacheSavedAtEl.textContent = fullText;
+        if (mobileCacheSavedAtEl) mobileCacheSavedAtEl.textContent = fullText;
+
+        if (this._cacheSavedAt) {
+            this.startCacheAgoTimer();
+        } else {
+            this.stopCacheAgoTimer();
+        }
+    },
+
+    startCacheAgoTimer() {
+        // 重启计时器，确保以当前时刻为起点每分钟刷新一次
+        this.stopCacheAgoTimer();
+        this._cacheAgoTimer = setInterval(() => {
+            this.updateSidebarCacheInfo();
+        }, 60000);
+    },
+
+    stopCacheAgoTimer() {
+        if (this._cacheAgoTimer) {
+            clearInterval(this._cacheAgoTimer);
+            this._cacheAgoTimer = null;
+        }
     },
 
     applyFolderPrivacyUI() {
@@ -1221,6 +1245,9 @@ var VX_FILELIST = VX_FILELIST || {
 
         // 停止上传队列刷新定时器
         this.stopUploadQueueRefresh();
+
+        // 停止缓存时间刷新定时器
+        this.stopCacheAgoTimer();
 
         // 停止本地过期清理定时器
         this.stopAllExpireTimers();
