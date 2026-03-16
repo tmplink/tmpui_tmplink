@@ -77,3 +77,98 @@
 html.vx-dark body.vx-direct-active .vx-direct-tab-menu-mobile {
     box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
 }
+
+/* ── Dashboard Summary Card Mobile Layout ── */
+@media (max-width: 768px) {
+    /* 主行改为垂直居中堆叠 */
+    body.vx-direct-active .vx-direct-summary-row {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0;
+    }
+
+    /* 头像下方留出间距 */
+    body.vx-direct-active .vx-direct-summary-row > .vx-avatar {
+        margin-bottom: 10px;
+    }
+
+    /* 信息区撑满全宽 */
+    body.vx-direct-active .vx-direct-summary-row > .vx-flex-1 {
+        width: 100%;
+    }
+
+    /* 域名文字居中 */
+    body.vx-direct-active .vx-direct-summary-domain {
+        justify-content: center;
+        font-size: 17px;
+    }
+
+    /* 统计数据改为 3 列网格，每格独立背景小块 */
+    body.vx-direct-active .vx-direct-summary-stats {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-top: 12px;
+    }
+
+    body.vx-direct-active .vx-direct-summary-stats > span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 7px 4px;
+        background: var(--vx-bg-secondary);
+        border-radius: 10px;
+        font-size: 12px;
+        overflow: hidden;
+        white-space: nowrap;
+        line-height: 1.4;
+    }
+
+    body.vx-direct-active .vx-direct-summary-stats > span iconpark-icon {
+        font-size: 13px;
+        flex-shrink: 0;
+    }
+
+    /* 状态文字居中 */
+    body.vx-direct-active #vx-direct-ready,
+    body.vx-direct-active #vx-direct-progress {
+        text-align: center;
+    }
+
+    /* 操作按钮撑满一行，等宽分布 */
+    body.vx-direct-active #vx-direct-top-actions {
+        width: 100%;
+        justify-content: stretch !important;
+        gap: 6px !important;
+        margin-top: 14px;
+    }
+
+    body.vx-direct-active #vx-direct-top-actions .vx-btn {
+        flex: 1 1 0;
+        min-width: 0;
+        justify-content: center;
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+
+    /* 通知文字居中 */
+    body.vx-direct-active #vx-direct-notice-cname,
+    body.vx-direct-active #vx-direct-notice-quota {
+        text-align: center;
+    }
+}
+
+@media (max-width: 360px) {
+    /* 极小屏：按钮缩小字号，防止溢出 */
+    body.vx-direct-active #vx-direct-top-actions .vx-btn {
+        font-size: 12px;
+        gap: 4px;
+    }
+
+    body.vx-direct-active .vx-direct-summary-stats > span {
+        font-size: 11px;
+        padding: 6px 3px;
+    }
+}
