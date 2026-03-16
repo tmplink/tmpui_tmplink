@@ -1119,10 +1119,6 @@ window.VX_POINTS = {
 	openPointRecharge() {
 		this.trackUI('vui_points[point_recharge]');
 		const isCN = this.isCN();
-		const rate = isCN ? 100 : 600;
-		const minAmount = isCN ? 1 : 10;
-		const maxAmount = 500;
-		const currency = isCN ? '¥' : '$';
 
 		const modalTitle = document.getElementById('vx-points-modal-title');
 		const modalBody = document.getElementById('vx-points-modal-body');
@@ -1131,33 +1127,24 @@ window.VX_POINTS = {
 
 		modalTitle.innerHTML = `<iconpark-icon name="paper-money-two"></iconpark-icon> ${this.t('vx_recharge_title', '点数充值')}`;
 
-		const presets = isCN ? [10, 30, 60, 100] : [10, 20, 50, 100];
-		const presetsHtml = presets.map(p => `
-			<div class="vx-recharge-preset" onclick="VX_POINTS._selectRechargePreset(${p})">
-				${currency}${p}
-				<span class="vx-recharge-preset-points">= ${p * rate} ${this.t('vx_points', '点数')}</span>
-			</div>
-		`).join('');
-
-		modalBody.innerHTML = `
-			<p class="vx-modal-desc">${isCN
-				? this.t('vx_recharge_rate_cny', '1 元 = 100 点。')
-				: this.t('vx_recharge_rate_usd', '1 USD = 600 点。')}</p>
-			<div class="vx-recharge-presets">${presetsHtml}</div>
-			<div class="vx-recharge-custom">
-				<label class="vx-recharge-custom-label">${this.t('vx_custom_amount', '自定义金额')}</label>
-				<div class="vx-recharge-input-row">
-					<span class="vx-recharge-currency">${currency}</span>
-					<input type="number" id="vx-recharge-amount" class="vx-input" min="${minAmount}" max="${maxAmount}" step="1" value="${presets[0]}" placeholder="${currency}${minAmount} - ${currency}${maxAmount}" style="flex:1;" oninput="VX_POINTS._updateRechargePreview()">
-				</div>
-				<div id="vx-recharge-preview" class="vx-recharge-preview">= ${presets[0] * rate} ${this.t('vx_points', '点数')}</div>
-			</div>
-		`;
-
 		this._rechargeIsCN = isCN;
-		this._rechargeRate = rate;
-		this._rechargeMinAmount = minAmount;
-		this._rechargeMaxAmount = maxAmount;
+		this._rechargePayMethod = isCN ? 'cny' : 'paypal';
+
+		const payMethodHtml = isCN ? `
+			<div class="vx-recharge-pay-methods">
+				<button class="vx-recharge-pay-method vx-recharge-pay-method-active" data-method="cny" onclick="VX_POINTS._switchRechargePayMethod('cny')">
+					<iconpark-icon name="alipay"></iconpark-icon>
+					${this.t('vx_recharge_pay_cny', '支付宝')}
+				</button>
+				<button class="vx-recharge-pay-method" data-method="paypal" onclick="VX_POINTS._switchRechargePayMethod('paypal')">
+					<iconpark-icon name="paypal"></iconpark-icon>
+					PayPal
+				</button>
+			</div>
+		` : '';
+
+		modalBody.innerHTML = payMethodHtml + `<div id="vx-recharge-amount-section"></div>`;
+		this._renderRechargeAmountSection();
 
 		this._originalFooter = modalFooter.innerHTML;
 		modalFooter.innerHTML = `
@@ -1174,6 +1161,52 @@ window.VX_POINTS = {
 		this.showModal();
 	},
 
+	_switchRechargePayMethod(method) {
+		this._rechargePayMethod = method;
+		document.querySelectorAll('.vx-recharge-pay-method').forEach(el => {
+			el.classList.toggle('vx-recharge-pay-method-active', el.dataset.method === method);
+		});
+		this._renderRechargeAmountSection();
+	},
+
+	_renderRechargeAmountSection() {
+		const section = document.getElementById('vx-recharge-amount-section');
+		if (!section) return;
+		const usePaypal = this._rechargePayMethod === 'paypal';
+		const rate = usePaypal ? 600 : 100;
+		const minAmount = usePaypal ? 5 : 1;
+		const maxAmount = 500;
+		const currency = usePaypal ? '$' : '¥';
+		const presets = usePaypal ? [5, 20, 50, 100] : [10, 30, 60, 100];
+
+		const presetsHtml = presets.map(p => `
+			<div class="vx-recharge-preset" data-preset-amount="${p}" onclick="VX_POINTS._selectRechargePreset(${p})">
+				${currency}${p}
+				<span class="vx-recharge-preset-points">= ${p * rate} ${this.t('vx_points', '点数')}</span>
+			</div>
+		`).join('');
+
+		const rateDesc = usePaypal
+			? this.t('vx_recharge_rate_usd', '1 USD = 600 点。')
+			: this.t('vx_recharge_rate_cny', '1 元 = 100 点。');
+
+		section.innerHTML = `
+			<p class="vx-modal-desc">${rateDesc}</p>
+			<div class="vx-recharge-presets">${presetsHtml}</div>
+			<div class="vx-recharge-custom">
+				<label class="vx-recharge-custom-label">${this.t('vx_custom_amount', '自定义金额')}</label>
+				<div class="vx-recharge-input-row">
+					<span class="vx-recharge-currency">${currency}</span>
+					<input type="number" id="vx-recharge-amount" class="vx-input" min="${minAmount}" max="${maxAmount}" step="1" value="${presets[0]}" placeholder="${currency}${minAmount} - ${currency}${maxAmount}" style="flex:1;" oninput="VX_POINTS._updateRechargePreview()">
+				</div>
+				<div id="vx-recharge-preview" class="vx-recharge-preview">= ${presets[0] * rate} ${this.t('vx_points', '点数')}</div>
+			</div>
+		`;
+		this._rechargeRate = rate;
+		this._rechargeMinAmount = minAmount;
+		this._rechargeMaxAmount = maxAmount;
+	},
+
 	_selectRechargePreset(amount) {
 		const input = document.getElementById('vx-recharge-amount');
 		if (input) {
@@ -1181,10 +1214,7 @@ window.VX_POINTS = {
 			this._updateRechargePreview();
 		}
 		document.querySelectorAll('.vx-recharge-preset').forEach(el => {
-			el.classList.toggle('vx-recharge-preset-active',
-				parseInt(el.textContent, 10) === amount || el.textContent.trim().startsWith(
-					(this._rechargeIsCN ? '¥' : '$') + amount
-				));
+			el.classList.toggle('vx-recharge-preset-active', parseInt(el.dataset.presetAmount) === amount);
 		});
 	},
 
@@ -1194,7 +1224,7 @@ window.VX_POINTS = {
 		if (!input || !preview) return;
 		const val = parseFloat(input.value) || 0;
 		const points = Math.floor(val * (this._rechargeRate || 100));
-		const currency = this._rechargeIsCN ? '¥' : '$';
+		const currency = (this._rechargePayMethod === 'paypal') ? '$' : '¥';
 		const min = this._rechargeMinAmount || 1;
 		const max = this._rechargeMaxAmount || 500;
 		if (val < min) {
@@ -1216,7 +1246,7 @@ window.VX_POINTS = {
 		const amount = parseFloat(input.value) || 0;
 		const min = this._rechargeMinAmount || 1;
 		const max = this._rechargeMaxAmount || 500;
-		const currency = this._rechargeIsCN ? '¥' : '$';
+		const currency = (this._rechargePayMethod === 'paypal') ? '$' : '¥';
 		if (amount < min) {
 			VXUI.toastWarning(this.fmt('vx_amount_too_low_recharge', { currency, min }, `最少充值 ${currency}${min}`));
 			input.focus();
@@ -1227,9 +1257,10 @@ window.VX_POINTS = {
 			input.focus();
 			return;
 		}
-		const payUrl = this._rechargeIsCN
-			? `https://pay.vezii.com/id4/pay_v2?price=${amount}&token=${token}&prepare_type=POINT&prepare_code=POINT_CUSTOM`
-			: `https://s12.tmp.link/payment/paypal/checkout_v2?price=${amount}&token=${token}&prepare_type=POINT&prepare_code=POINT_CUSTOM`;
+		const usePaypal = this._rechargePayMethod === 'paypal';
+		const payUrl = usePaypal
+			? `https://s12.tmp.link/payment/paypal/checkout_v2?price=${amount}&token=${token}&prepare_type=POINT&prepare_code=POINT_CUSTOM`
+			: `https://pay.vezii.com/id4/pay_v2?price=${amount}&token=${token}&prepare_type=POINT&prepare_code=POINT_CUSTOM`;
 		window.open(payUrl, '_blank');
 	},
 
