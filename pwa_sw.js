@@ -87,7 +87,10 @@ self.addEventListener('fetch', (event) => {
   const path = url.pathname;
 
   // 1. 导航请求（Navigation）：如 index.html
-  // 策略：Stale-While-Revalidate (SWR) + ETag
+  // 策略：Network First + 离线 fallback
+  // 每次等待服务器返回最新 index.html，确保页面与静态资源版本始终一致。
+  // 网络失败时 fallback 到缓存，仍无缓存则返回离线页面。
+  // JS/CSS 仍走 Cache First，整体加载速度不受影响。
   if (event.request.mode === 'navigate') {
     event.respondWith(
       (async () => {
@@ -95,7 +98,7 @@ self.addEventListener('fetch', (event) => {
           // 针对 index.html (根路径) 去除 query 参数，确保共用同一个缓存 key
           const isIndex = path === '/' || path.toLowerCase().endsWith('/index.html');
           let cacheKeyRequest = event.request;
-          
+
           if (isIndex) {
             const cleanUrl = new URL(event.request.url);
             cleanUrl.search = '';
@@ -103,38 +106,27 @@ self.addEventListener('fetch', (event) => {
           }
 
           const cachedResponse = await caches.match(cacheKeyRequest);
-          
-          // 后台网络请求：检查 ETag，有更新则下载并写入缓存
-          // SWR 策略：如果有缓存，直接返回缓存，并在后台发起更新请求
-          
-          // 关键修复：传递 clone 给后台任务。
-          // 因为 cachedResponse 会被下面的 return 语句返回给浏览器并被消耗（Body stream used）。
-          // 如果 fetchAndCache 内部试图 clone 一个已经被消耗的 response，就会报错。
+          // 传递 clone 给 fetchAndCache 用于 ETag/版本比较，保留原始引用作 fallback
           const cachedResponseForUpdate = cachedResponse ? cachedResponse.clone() : null;
 
-          const networkFetchPromise = fetchAndCache(event.request, cachedResponseForUpdate, true, cacheKeyRequest);
-
-          if (cachedResponse) {
-             // 有缓存，直接返回缓存，后台静默更新
-             // 捕获可能的错误以防止未处理的 Promise 拒绝
-             networkFetchPromise.catch(err => console.error("Background fetch failed", err));
-             return cachedResponse;
-          }
-
-          // 无缓存，必须等待网络
           try {
-            const response = await networkFetchPromise;
+            // Network First：等待网络，fetchAndCache 同时完成缓存写入与版本变更检测
+            const response = await fetchAndCache(event.request, cachedResponseForUpdate, true, cacheKeyRequest);
             return response;
           } catch (error) {
-            // 网络失败且无缓存 -> 离线页面
+            // 网络失败：fallback 到缓存
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            // 无缓存且无网络 -> 离线页面
             return new Response(getOfflineHTML(), {
-               headers: { 'Content-Type': 'text/html' }
+              headers: { 'Content-Type': 'text/html' }
             });
           }
         } catch (error) {
-             return new Response(getOfflineHTML(), {
-                headers: { 'Content-Type': 'text/html' }
-             });
+          return new Response(getOfflineHTML(), {
+            headers: { 'Content-Type': 'text/html' }
+          });
         }
       })()
     );
@@ -264,9 +256,26 @@ const fetchAndCache = async (request, cachedResponse = null, isNavigation = fals
     const cache = await caches.open(CACHE_NAME);
     await cache.put(cacheKeyRequest || request, responseToCache);
 
-    // 如果是导航请求且之前有缓存（说明是一次更新），通知页面
+    // 如果是导航请求且之前有缓存（说明是一次更新），清除静态资源缓存并通知页面刷新
     if (isNavigation && cachedResponse) {
-      console.log('检测到新版本，发送通知');
+      console.log('[SW] 检测到新版本，清除静态资源缓存并通知刷新');
+      // 清除已缓存的 JS/CSS/JSON 文件，确保刷新后能获取最新版本
+      // （防止版本号未同步导致旧缓存持续被 Cache First 策略命中）
+      try {
+        const staticCache = await caches.open(CACHE_NAME);
+        const keys = await staticCache.keys();
+        await Promise.all(
+          keys
+            .filter(req => {
+              const p = new URL(req.url).pathname.toLowerCase();
+              return p.endsWith('.js') || p.endsWith('.css') || p.endsWith('.json');
+            })
+            .map(req => staticCache.delete(req))
+        );
+        console.log('[SW] 静态资源缓存已清除');
+      } catch (e) {
+        console.error('[SW] 清除静态资源缓存失败', e);
+      }
       notifyClientsOfUpdate();
     }
 

@@ -43,6 +43,16 @@ i18n 规则：
 - 如果为了理解历史行为需要阅读旧模块，可以阅读并提炼逻辑
 - 如果需要实现或修复新功能，应优先落到 VXUI 体系
 
+测试规范（遵守 TEST.md）：
+- 项目内置基于 Playwright 的三层回归测试：i18n 键对齐（`npm run test:i18n`）、API 可用性（`npm run test:api`）、UI 截图回归（`npm run test:ui`）。
+- **开发前**：确保 `npm run test` 全部通过，用 `npm run baseline` 建立基线。
+- **开发中**：随时运行相关测试，例如只改了 filelist 模块时跑 `npm run test:desktop`。
+- **提交前**：运行 `npm run test` 全量检查。
+- **接受预期变更**：确认变更符合预期后，先用 `npm run baseline` 更新本地基线，再提交代码。
+- **AI / CI 无交互场景**：使用 `npm run test:auto`（自动静默复用已保存凭据）。
+- 测试失败时，查看 `test-results/` 目录中的 diff 截图定位问题，不要跳过失败的测试直接提交。
+- 完整说明参见 TEST.md。
+
 工作方式：
 1. 先判断任务属于 VXUI 开发、i18n 同步、旧版逻辑参考，或它们的组合。
 2. 简单任务直接处理。

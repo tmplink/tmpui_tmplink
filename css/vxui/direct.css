@@ -46,6 +46,10 @@
     justify-content: space-between;
 }
 
+.vx-direct-tab-menu-anchor-desktop {
+    display: none;
+}
+
 .vx-direct-tab-trigger-mobile {
     width: auto;
     max-width: 140px;
