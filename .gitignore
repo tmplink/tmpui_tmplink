@@ -1,3 +1,13 @@
 *.vscode
 **/.DS_Store
 **/.claude/settings.local.json
+
+# Test artifacts
+node_modules/
+tests/credentials.json
+tests/.auth/
+test-results/
+playwright-report/
+
+# Baseline data (screenshots)
+tests/screenshots/
