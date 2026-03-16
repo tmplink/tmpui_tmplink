@@ -62,6 +62,11 @@ for (const pageConfig of pages) {
     // 等待异步渲染和动画完成
     await page.waitForTimeout(800);
 
+    // 直链页面约束："仪表盘"顶栏触发器仅允许移动端出现
+    if (pageConfig.name.startsWith('direct-') && projectName.includes('desktop')) {
+      await expect(page.locator('#vx-direct-header-tab-trigger')).toBeHidden();
+    }
+
     // 展开内部滚动容器，确保 fullPage 截图可捕获全部内容
     await page.evaluate(() => {
       const targets = [
