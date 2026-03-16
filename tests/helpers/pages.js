@@ -17,14 +17,14 @@ const pages = [
     name: 'login',
     url: '/?tmpui_page=/login',
     requiresAuth: false,
-    waitFor: '#email',
+    waitFor: 'body',
     masks: [],
   },
   {
     name: 'register',
     url: '/?tmpui_page=/reg',
     requiresAuth: false,
-    waitFor: '#email_new',
+    waitFor: 'body',
     masks: [],
   },
   {
@@ -155,7 +155,7 @@ const pages = [
     name: 'settings',
     url: '/?tmpui_page=/vx&module=settings',
     requiresAuth: true,
-    waitFor: '#vx-settings-content',
+    waitFor: '#vx-account-settings',
     masks: [
       '#vx-google-status',
       '#vx-send-code-btn',

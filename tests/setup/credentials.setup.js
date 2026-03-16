@@ -1,6 +1,6 @@
 /**
  * credentials.setup.js — Playwright globalSetup
- * 交互式询问用户凭据，或复用已保存的凭据
+ * 优先使用环境变量，其次自动复用已保存的凭据，均无则交互式输入
  */
 'use strict';
 
@@ -28,33 +28,14 @@ module.exports = async function globalSetup(config) {
     return;
   }
 
-  // 2. 检查已保存的凭据文件
+  // 2. 检查已保存的凭据文件，有则直接使用，无需交互确认
   const saved = loadCredentials();
   if (saved) {
-    // 自动模式（CI / TEST_AUTO=1）或非交互环境 — 直接使用
-    const isAuto = process.env.TEST_AUTO === '1' || process.env.CI === 'true' || !process.stdin.isTTY;
-    if (isAuto) {
-      process.env.TEST_USERNAME = saved.username;
-      process.env.TEST_PASSWORD = saved.password;
-      process.env.TEST_NOTES_KEY = saved.notesKey;
-      console.log(`✓ 从 credentials.json 加载凭据（用户: ${saved.username}）`);
-      return;
-    }
-    // 交互环境询问是否复用
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-    try {
-      console.log(`\n检测到已保存的凭据（用户: ${saved.username}）`);
-      const reuse = await ask(rl, '是否使用已保存的凭据? [Y/n] ');
-      if (!reuse || reuse.toLowerCase() === 'y' || reuse === '') {
-        process.env.TEST_USERNAME = saved.username;
-        process.env.TEST_PASSWORD = saved.password;
-        process.env.TEST_NOTES_KEY = saved.notesKey;
-        console.log('✓ 使用已保存的凭据\n');
-        return;
-      }
-    } finally {
-      rl.close();
-    }
+    process.env.TEST_USERNAME = saved.username;
+    process.env.TEST_PASSWORD = saved.password;
+    process.env.TEST_NOTES_KEY = saved.notesKey;
+    console.log(`✓ 从 credentials.json 加载凭据（用户: ${saved.username}）`);
+    return;
   }
 
   // 3. 非交互环境且无凭据 — 允许 i18n 等不需要认证的测试继续

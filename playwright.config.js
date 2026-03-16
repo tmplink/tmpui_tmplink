@@ -4,10 +4,10 @@ const path = require('path');
 
 module.exports = defineConfig({
   testDir: './tests/specs',
-  fullyParallel: false,
+  fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 0,
-  workers: 1,
+  workers: 4,
   reporter: [['html', { open: 'never' }], ['list']],
 
   globalSetup: path.resolve(__dirname, 'tests/setup/credentials.setup.js'),
@@ -28,7 +28,7 @@ module.exports = defineConfig({
   },
 
   webServer: {
-    command: 'npx serve . --listen 3939 --no-clipboard --single',
+    command: 'npx serve . --listen 3939 --no-clipboard',
     port: 3939,
     reuseExistingServer: true,
     timeout: 10000,

@@ -49,7 +49,7 @@ for (const pageConfig of pages) {
     try {
       await page.waitForSelector(pageConfig.waitFor, {
         state: 'attached',
-        timeout: 15000,
+        timeout: 5000,
       });
     } catch {
       // waitFor 选择器可能在某些 project/视口下不完全匹配（如移动端布局差异）
@@ -60,7 +60,23 @@ for (const pageConfig of pages) {
     }
 
     // 等待异步渲染和动画完成
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(800);
+
+    // 展开内部滚动容器，确保 fullPage 截图可捕获全部内容
+    await page.evaluate(() => {
+      const targets = [
+        document.getElementById('vx-module-container'),
+        document.querySelector('#vx-module-container > .vx-content'),
+        document.querySelector('#vx-module-container > .vx-content-list'),
+      ];
+      for (const el of targets) {
+        if (!el) continue;
+        el.style.overflow = 'visible';
+        el.style.height = 'auto';
+        el.style.maxHeight = 'none';
+        el.style.minHeight = '0';
+      }
+    });
 
     // 深色模式验证
     if (isDark) {
