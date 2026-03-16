@@ -593,6 +593,44 @@
     color: var(--vx-text-secondary);
 }
 
+.vx-recharge-pay-methods {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.vx-recharge-pay-method {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background: var(--vx-bg-secondary);
+    border: 2px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--vx-text-secondary);
+    transition: all 0.2s ease;
+}
+
+.vx-recharge-pay-method iconpark-icon {
+    font-size: 18px;
+}
+
+.vx-recharge-pay-method:hover {
+    border-color: var(--vx-primary);
+    color: var(--vx-primary);
+}
+
+.vx-recharge-pay-method-active {
+    border-color: var(--vx-primary);
+    background: rgba(var(--vx-primary-rgb), 0.08);
+    color: var(--vx-primary);
+}
+
 .vx-recharge-presets {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

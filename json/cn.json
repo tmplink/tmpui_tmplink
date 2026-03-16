@@ -1261,6 +1261,7 @@
     "vx_transfer_success": "转账成功",
     "vx_recharge_title": "点数充值",
     "vx_points": "点数",
+    "vx_recharge_pay_cny": "支付宝",
     "vx_recharge_rate_cny": "1 元 = 100 点。",
     "vx_recharge_rate_usd": "1 USD = 600 点。",
     "vx_custom_amount": "自定义金额",

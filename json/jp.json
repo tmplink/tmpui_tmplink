@@ -1277,6 +1277,7 @@
     "vx_transfer_success": "振替が完了しました",
     "vx_recharge_title": "ポイントチャージ",
     "vx_points": "ポイント",
+    "vx_recharge_pay_cny": "Alipay",
     "vx_recharge_rate_cny": "1 元 = 100 ポイント。",
     "vx_recharge_rate_usd": "1 USD = 600 ポイント。",
     "vx_custom_amount": "金額を指定",

@@ -1020,8 +1020,9 @@ var VX_FILELIST = VX_FILELIST || {
         });
 
         const agoText = this._cacheSavedAt ? this.formatTimeAgo(this._cacheSavedAt) : '--';
+        const diff = this._cacheSavedAt ? Math.floor((Date.now() - Number(this._cacheSavedAt)) / 1000) : -1;
         const fullText = this._cacheSavedAt
-            ? this.fmt('vx_cache_fetched_at', { time: agoText }, 'Data loaded {time}')
+            ? (diff < 60 ? agoText : this.fmt('vx_cache_fetched_at', { time: agoText }, 'Data loaded {time}'))
             : '--';
         if (cacheSavedAtEl) cacheSavedAtEl.textContent = fullText;
         if (mobileCacheSavedAtEl) mobileCacheSavedAtEl.textContent = fullText;

@@ -1279,6 +1279,7 @@
     "vx_transfer_success": "Transfer successful",
     "vx_recharge_title": "Recharge points",
     "vx_points": "points",
+    "vx_recharge_pay_cny": "Alipay",
     "vx_recharge_rate_cny": "CNY 1 = 100 points.",
     "vx_recharge_rate_usd": "USD 1 = 600 points.",
     "vx_custom_amount": "Custom amount",
