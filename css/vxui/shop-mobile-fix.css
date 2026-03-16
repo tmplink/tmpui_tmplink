@@ -1,0 +1,17 @@
+@charset "UTF-8";
+/**
+ * VXUI Shop Module Mobile Fix
+ * 修复移动端商店页面：取消垂直居中、补齐内容边距
+ */
+
+@media (max-width: 768px) {
+    /* 取消垂直居中，避免卡片列表下方出现大面积空白 */
+    .vx-shop-section-centered {
+        justify-content: flex-start;
+    }
+
+    /* 补齐商店内容区域的左右边距（account-content 在移动端强制 padding:0） */
+    .vx-content.vx-shop-content {
+        padding: 12px;
+    }
+}
