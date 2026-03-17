@@ -200,6 +200,10 @@ const fetchAndCache = async (request, cachedResponse = null, isNavigation = fals
       }
 
       finalRequest = new Request(request, { headers });
+  } else if (!isNavigation) {
+      // SW 缓存未命中（通常发生在版本更新清空缓存之后），强制绕过浏览器 HTTP 缓存。
+      // 直接向服务器请求最新版本，防止浏览器原生 HTTP 缓存仍然返回旧版静态资源。
+      finalRequest = new Request(request, { cache: 'reload' });
   }
 
   try {
