@@ -7,7 +7,7 @@ module.exports = defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 0,
-  workers: 4,
+  workers: process.env.CI ? 4 : 4,
   reporter: [['html', { open: 'never' }], ['list']],
 
   globalSetup: path.resolve(__dirname, 'tests/setup/credentials.setup.js'),

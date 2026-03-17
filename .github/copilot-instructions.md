@@ -123,10 +123,11 @@ plugin/                 # 第三方库
 
 项目内置基于 Playwright 的三层回归测试，开发过程中必须遵守以下流程：
 
+- **凭据检查（助手必读）**：在开始任何跑测试的流程之前，AI 助手**必须自行检查**是否已存在 `tests/credentials.json` 或凭据缓存，以防进入交互模式被卡死；若缺少该文件，需提示用户或者使用静默模式命令。
 - **开发前**：确保 `npm run test` 全部通过，用 `npm run baseline` 建立干净基线。
 - **开发中**：随时运行相关模块的测试，例如只改了 filelist 模块时跑 `npm run test:desktop`。
 - **提交前**：运行 `npm run test` 全量检查。
-- **接受预期变更**：确认变更符合预期后，先用 `npm run baseline` 更新本地基线，再提交代码。
+- **预期变更与 UI 失败处理**：如果单纯因为正常的页面排版微调、文案更新导致 `toHaveScreenshot` 像素对比报错断言失败。请直接运行 `npm run baseline:ui` 或 `npm run baseline`，**切勿为了迎合旧缓存而去刻意改对或改错原网页代码**。
 - **AI / CI 无交互场景**：使用 `npm run test:auto`（自动静默复用已保存凭据）。
 - 测试失败时，查看 `test-results/` 目录中的 diff 截图定位问题，不要跳过失败的测试直接提交。
 
