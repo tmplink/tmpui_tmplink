@@ -154,6 +154,23 @@
             </div>
         </div>
     </div>
+
+    <div class="vx-fl-mob-search-row" id="vx-fl-mob-search-row">
+        <div class="vx-fl-mob-search-input-wrap">
+            <iconpark-icon name="search" class="vx-fl-mob-search-icon"></iconpark-icon>
+            <input type="search"
+                   id="vx-fl-mob-search-input"
+                   class="vx-fl-mob-search-input"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                   placeholder="搜索全部文件..." data-tpl="vx_gs_placeholder"
+                   onkeydown="if(event.key==='Enter'){event.preventDefault();VX_FILELIST.submitMobileSearch();}"
+                   onsearch="VX_FILELIST.submitMobileSearch()">
+        </div>
+        <button type="button" class="vx-fl-mob-search-submit" onclick="VX_FILELIST.submitMobileSearch()" title="." i18n="vx_global_search" i18n-only="title">
+            <iconpark-icon name="search"></iconpark-icon>
+            <span data-tpl="vx_global_search">全局搜索</span>
+        </button>
+    </div>
 </div>
 
 <div class="vx-mobile-folder-bar vx-fl-mob-folder-bar" id="vx-fl-mob-folder-bar">
@@ -177,6 +194,10 @@
     </div>
     
     <div class="vx-header-right">
+        <!-- 全局搜索按钮 -->
+        <button class="vx-btn-icon" id="vx-fl-search-btn" onclick="VX_FILELIST.openGlobalSearch()" title="." i18n="vx_global_search" i18n-only="title">
+            <iconpark-icon name="search"></iconpark-icon>
+        </button>
         <!-- 视图切换按钮组 -->
         <div class="vx-btn-group vx-view-toggle">
             <button class="vx-btn-icon active" id="vx-fl-view-list" onclick="VX_FILELIST.setViewMode('list')" title="." i18n="vx_view_list" i18n-only="title">
@@ -569,6 +590,27 @@
             <button class="vx-btn vx-btn-secondary" onclick="VX_FILELIST.closeReportModal()" data-tpl="model_btn_cancel">取消</button>
             <button class="vx-btn vx-btn-primary" id="vx-fl-report-submit" onclick="VX_FILELIST.reportFolder()" data-tpl="modal_report_submit">提交</button>
         </div>
+    </div>
+</div>
+
+<!-- Global Search Overlay -->
+<div class="vx-gs-overlay" id="vx-gs-overlay" style="display: none;">
+    <div class="vx-gs-panel">
+        <div class="vx-gs-header">
+            <div class="vx-gs-input-wrap">
+                <iconpark-icon name="search" class="vx-gs-input-icon"></iconpark-icon>
+                <input type="search" id="vx-gs-input" class="vx-gs-input"
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                       placeholder="搜索全部文件..." data-tpl="vx_gs_placeholder"
+                       oninput="VX_FILELIST.onGlobalSearchInput(this.value)"
+                       onkeydown="if(event.key==='Escape'){VX_FILELIST.closeGlobalSearch();}"
+                       onsearch="VX_FILELIST.onGlobalSearchInput(this.value)">
+            </div>
+            <button type="button" class="vx-gs-cancel-btn" onclick="VX_FILELIST.closeGlobalSearch()">
+                <span data-tpl="vx_gs_cancel">取消</span>
+            </button>
+        </div>
+        <div id="vx-gs-body" class="vx-gs-body"></div>
     </div>
 </div>
 

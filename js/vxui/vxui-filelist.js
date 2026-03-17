@@ -64,6 +64,12 @@ var VX_FILELIST = VX_FILELIST || {
     // Non-owner start root
     startMrid: null,
 
+    // 全局搜索状态
+    _gsOpen: false,
+    _gsDebounceTimer: null,
+    _gsCurrentKeyword: '',
+    _gsRemoteReqId: 0,
+
     // 文件同步状态检查器
     _syncCheckTimers: {},
 
@@ -741,22 +747,24 @@ var VX_FILELIST = VX_FILELIST || {
 
     copyText(text) {
         if (!text) return;
+        VXUI.copyToClipboard(text);
+    },
 
-        if (typeof TL !== 'undefined' && typeof TL.bulkCopy === 'function') {
-            TL.bulkCopy(null, text, false);
-            return;
-        }
-
-        if (typeof VXUI !== 'undefined' && VXUI.copyToClipboard) {
-            VXUI.copyToClipboard(text);
-            return;
-        }
-
-        navigator.clipboard.writeText(text).then(() => {
-            VXUI.toastSuccess(this.t('vx_link_copied', '链接已复制'));
-        }).catch(() => {
-            VXUI.toastError(this.t('vx_copy_failed', '复制失败'));
-        });
+    /**
+     * 按钮点击反馈：临时替换为 ok 图标，2 秒后恢复
+     * @param {HTMLElement} [btn]
+     */
+    flashButtonOk(btn) {
+        if (!btn) return;
+        const icon = btn.querySelector('iconpark-icon');
+        if (!icon) return;
+        const orig = icon.getAttribute('name');
+        icon.setAttribute('name', 'circle-check');
+        btn.classList.add('vx-btn-ok-flash');
+        setTimeout(() => {
+            icon.setAttribute('name', orig);
+            btn.classList.remove('vx-btn-ok-flash');
+        }, 2000);
     },
 
     getFolderCopyName(mrid) {
@@ -815,6 +823,8 @@ var VX_FILELIST = VX_FILELIST || {
 
         if (document.body) {
             document.body.classList.remove('vx-fl-initializing');
+            // 清理可能遗留在 body 的旧的全局搜索弹窗，防止 SPA 同模块跳转时多开导致死锁
+            document.querySelectorAll('body > .vx-gs-overlay').forEach(el => el.remove());
         }
 
         this.initCacheLayer();
@@ -1242,6 +1252,10 @@ var VX_FILELIST = VX_FILELIST || {
 
         if (document.body) {
             document.body.classList.remove('vx-fl-active');
+            document.body.classList.remove('vx-gs-no-scroll');
+            // 清理可能脱离了 SPA 容器而遗留在 body 上的全局搜索弹窗，防止多开或污染
+            const orphanedOverlays = document.querySelectorAll('body > .vx-gs-overlay');
+            orphanedOverlays.forEach(el => el.remove());
         }
 
         // 停止上传队列刷新定时器
@@ -3056,7 +3070,7 @@ var VX_FILELIST = VX_FILELIST || {
         if (canShare) {
             const shareUrl = this.buildFolderShareUrl(folder.mr_id);
             actionsHtml += `
-                <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.shareFolder('${folder.mr_id}', '${this.escapeHtml(shareUrl)}')" title="分享">
+                <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.shareFolder('${folder.mr_id}', '${this.escapeHtml(shareUrl)}', this)" title="分享">
                     <iconpark-icon name="share-from-square"></iconpark-icon>
                 </button>
             `;
@@ -3238,7 +3252,7 @@ var VX_FILELIST = VX_FILELIST || {
                 <button class="vx-list-action-btn" data-role="download-btn" data-ukey="${file.ukey}" onclick="event.stopPropagation(); VX_FILELIST.downloadFile('${file.ukey}')" title="下载">
                     <iconpark-icon name="cloud-arrow-down"></iconpark-icon>
                 </button>
-                <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.shareFile('${file.ukey}')" title="${this.t('on_select_share', '复制分享链接')}">
+                <button class="vx-list-action-btn" onclick="event.stopPropagation(); VX_FILELIST.shareFile('${file.ukey}', this)" title="${this.t('on_select_share', '复制分享链接')}">
                     <iconpark-icon name="share-from-square"></iconpark-icon>
                 </button>
                 ${(this.isOwner && this.directDomainReady && this.directDirEnabled && this.directDirKey) ? `
@@ -4862,7 +4876,7 @@ var VX_FILELIST = VX_FILELIST || {
      * @param {string} mrid - 文件夹ID（可选，默认分享当前文件夹）
      * @param {string} url - 分享链接（可选）
      */
-    shareFolder(mrid, url) {
+    shareFolder(mrid, url, btn) {
         this.trackUI('vui_filelist[share_folder]');
         // 如果没有传入 url，构建当前文件夹的链接
         if (!url) {
@@ -4874,20 +4888,23 @@ var VX_FILELIST = VX_FILELIST || {
             url = this.buildFolderShareUrl(targetMrid);
         }
 
+        this.flashButtonOk(btn);
         this.copyText(this.formatCopyText(this.getFolderCopyName(mrid), url, '', 'folder'));
     },
 
     /**
      * 分享文件（复制链接）
      * @param {string} ukey - 文件 UKEY
+     * @param {HTMLElement} [btn] - 触发按钮，用于点击反馈
      */
-    shareFile(ukey) {
+    shareFile(ukey, btn) {
         if (!ukey) return;
         this.trackUI('vui_filelist[share_file]');
         const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
         const safeKey = encodeURIComponent(String(ukey));
         const url = `https://${domain}/f/${safeKey}`;
 
+        this.flashButtonOk(btn);
         this.copyText(this.formatCopyText(this.getFileCopyName(ukey), url, '', 'file'));
     },
     
@@ -6980,6 +6997,367 @@ var VX_FILELIST = VX_FILELIST || {
         }
     },
     
+    // ==================== 全局搜索 ====================
+
+    openGlobalSearch(initialKeyword) {
+        const overlay = document.getElementById('vx-gs-overlay');
+        if (!overlay) return;
+        const keyword = typeof initialKeyword === 'string' ? initialKeyword.trim() : '';
+        // 移到 document.body 直接子级，确保 position:fixed 相对于 viewport 而非 SPA 容器
+        if (overlay.parentElement !== document.body) {
+            document.body.appendChild(overlay);
+        }
+        this._gsOpen = true;
+        overlay.style.display = '';
+        overlay.classList.remove('vx-gs-closing'); // 若在淡出期间重新打开，立即恢复可交互
+        document.body.classList.add('vx-gs-no-scroll');
+        
+        // 强制重绘以确保 transition 生效，避免 requestAnimationFrame 卡顿导致死锁
+        void overlay.offsetHeight;
+        
+        overlay.classList.add('vx-gs-visible');
+        const input = document.getElementById('vx-gs-input');
+        if (input) {
+            input.value = keyword;
+            this.onGlobalSearchInput(keyword);
+            input.focus();
+        }
+        
+        this.trackUI('vui_filelist[global_search_open]');
+    },
+
+    submitMobileSearch() {
+        const input = document.getElementById('vx-fl-mob-search-input');
+        const keyword = input ? String(input.value || '') : '';
+        this.openGlobalSearch(keyword);
+        this.trackUI('vui_filelist[mobile_search_submit]');
+    },
+
+    closeGlobalSearch() {
+        const overlay = document.getElementById('vx-gs-overlay');
+        if (!overlay) return;
+        this._gsOpen = false;
+        this._gsRemoteReqId++;           // 取消所有在途搜索请求的回调，防止关闭后仍更新 DOM
+        overlay.classList.remove('vx-gs-visible');
+        overlay.classList.add('vx-gs-closing'); // 淡出期间禁止点击，防止重复触发
+        document.body.classList.remove('vx-gs-no-scroll');
+        setTimeout(() => {
+            if (!this._gsOpen) {
+                overlay.style.display = 'none';
+                overlay.classList.remove('vx-gs-closing');
+            }
+        }, 200);
+        const input = document.getElementById('vx-gs-input');
+        if (input) input.value = '';
+        this._gsCurrentKeyword = '';
+        clearTimeout(this._gsDebounceTimer);
+    },
+
+    onGlobalSearchInput(keyword) {
+        clearTimeout(this._gsDebounceTimer);
+        this._gsCurrentKeyword = keyword;
+        const body = document.getElementById('vx-gs-body');
+        if (!body) return;
+
+        const trimmed = (keyword || '').trim();
+        if (trimmed.length === 0) {
+            body.innerHTML = '';
+            return;
+        }
+        if (trimmed.length < 2) {
+            body.innerHTML = `<div class="vx-gs-hint">${this.escapeHtml(this.t('vx_gs_hint_short', '请输入至少 2 个字符'))}</div>`;
+            return;
+        }
+
+        body.innerHTML = `<div class="vx-gs-loading"><div class="vx-gs-spinner"></div><span>${this.escapeHtml(this.t('vx_gs_loading', '搜索中...'))}</span></div>`;
+
+        this._gsDebounceTimer = setTimeout(() => {
+            this.doGlobalSearch(trimmed);
+        }, 300);
+    },
+
+    doGlobalSearch(keyword) {
+        if (!keyword || keyword.length < 2) return;
+        const reqId = ++this._gsRemoteReqId;
+
+        this.searchLocalCache(keyword).then(({ results: localResults, folderMap, segmentsMap }) => {
+            if (reqId !== this._gsRemoteReqId) return;
+            this.renderGlobalSearchResults(localResults, keyword, true, reqId);
+
+            this.searchRemote(keyword).then((remoteResults) => {
+                if (reqId !== this._gsRemoteReqId) return;
+                // 先用本地缓存的 folderMap/segmentsMap 填充已知路径
+                (remoteResults || []).forEach(r => {
+                    if (r.mrid != null) {
+                        if (!r.folder_name) r.folder_name = folderMap.get(String(r.mrid)) || '';
+                        if (!r.folder_segments) r.folder_segments = segmentsMap.get(String(r.mrid)) || null;
+                    }
+                });
+                // 对仍未知路径的 mrid，通过目录树补全
+                this.enrichRemoteResultsWithPaths(remoteResults || [], folderMap, segmentsMap).then((enriched) => {
+                    if (reqId !== this._gsRemoteReqId) return;
+                    const seen = new Set(enriched.map(r => r.ukey));
+                    const merged = [
+                        ...enriched,
+                        ...(localResults || []).filter(r => !seen.has(r.ukey))
+                    ];
+                    this.renderGlobalSearchResults(merged, keyword, false, reqId);
+                });
+            }).catch(() => {
+                if (reqId !== this._gsRemoteReqId) return;
+                this.renderGlobalSearchResults(localResults, keyword, false, reqId);
+            });
+        }).catch(() => {
+            if (reqId !== this._gsRemoteReqId) return;
+            this.searchRemote(keyword).then((remoteResults) => {
+                if (reqId !== this._gsRemoteReqId) return;
+                this.enrichRemoteResultsWithPaths(remoteResults || [], new Map(), new Map()).then((enriched) => {
+                    if (reqId !== this._gsRemoteReqId) return;
+                    this.renderGlobalSearchResults(enriched, keyword, false, reqId);
+                });
+            }).catch(() => {
+                if (reqId !== this._gsRemoteReqId) return;
+                this.renderGlobalSearchResults([], keyword, false, reqId);
+            });
+        });
+    },
+
+    searchLocalCache(keyword) {
+        return this.openCacheDb().then((db) => new Promise((resolve) => {
+            if (!db) { resolve({ results: [], folderMap: new Map(), segmentsMap: new Map() }); return; }
+            try {
+                const tx = db.transaction('filelist_rooms', 'readonly');
+                const store = tx.objectStore('filelist_rooms');
+                const req = store.getAll();
+                req.onsuccess = () => {
+                    const all = req.result || [];
+                    const scope = this.getCacheScope();
+                    const kw = keyword.toLowerCase();
+                    const desktopName = this.t('navbar_meetingroom', '桌面');
+                    const results = [];
+                    const folderMap = new Map();
+                    const segmentsMap = new Map();
+                    for (const snapshot of all) {
+                        if (snapshot.scope !== scope) continue;
+                        const mrid = snapshot.mrid;
+                        const mridStr = String(mrid);
+                        // 优先用 fullPath 提取带 id 的路径分段（可点击面包屑）
+                        let segments, folderPath;
+                        if (Array.isArray(snapshot.fullPath) && snapshot.fullPath.length > 0) {
+                            segments = snapshot.fullPath.map(s => ({ id: String(s.id || ''), name: String(s.name || '') }));
+                            folderPath = segments.map(s => s.name).filter(Boolean).join(' / ');
+                        } else {
+                            const roomName = (snapshot.room && snapshot.room.name) ? String(snapshot.room.name) : '';
+                            if (mridStr === '0') {
+                                segments = [{ id: '0', name: desktopName }];
+                                folderPath = desktopName;
+                            } else if (roomName) {
+                                segments = [{ id: '0', name: desktopName }, { id: mridStr, name: roomName }];
+                                folderPath = desktopName + ' / ' + roomName;
+                            } else {
+                                segments = null;
+                                folderPath = '';
+                            }
+                        }
+                        folderMap.set(mridStr, folderPath);
+                        if (segments) segmentsMap.set(mridStr, segments);
+                        for (const file of (snapshot.fileList || [])) {
+                            const fname = String(file.fname || '').toLowerCase();
+                            if (fname.includes(kw)) {
+                                results.push({
+                                    ukey: file.ukey,
+                                    fname: file.fname,
+                                    fsize_formated: file.fsize_formated || '',
+                                    ftype: file.ftype || '',
+                                    ctime: file.ctime || '',
+                                    for_sale: file.for_sale,
+                                    price: file.price,
+                                    mrid: mrid,
+                                    folder_name: folderPath,
+                                    folder_segments: segments,
+                                    source: 'local'
+                                });
+                            }
+                        }
+                    }
+                    resolve({ results, folderMap, segmentsMap });
+                };
+                req.onerror = () => resolve({ results: [], folderMap: new Map(), segmentsMap: new Map() });
+            } catch (e) { resolve({ results: [], folderMap: new Map(), segmentsMap: new Map() }); }
+        }));
+    },
+
+    searchRemote(keyword) {
+        const token = this.getToken();
+        const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
+        const postData = { action: 'search', search: keyword };
+        if (token) postData.token = token;
+        return new Promise((resolve, reject) => {
+            $.post(apiUrl, postData, (rsp) => {
+                if (rsp && rsp.status === 1 && Array.isArray(rsp.data)) {
+                    const results = rsp.data.map(file => ({
+                        ukey: file.ukey,
+                        fname: file.fname,
+                        fsize_formated: file.fsize_formated || '',
+                        ftype: file.ftype || '',
+                        ctime: file.ctime || file.cctime || '',
+                        for_sale: file.for_sale,
+                        price: file.price,
+                        purchased: file.purchased,
+                        mrid: file.mrid || null,
+                        folder_name: null,
+                        source: 'remote'
+                    }));
+                    resolve(results);
+                } else {
+                    resolve([]);
+                }
+            }, 'json').fail(() => reject(new Error('remote search failed')));
+        });
+    },
+
+    enrichRemoteResultsWithPaths(results, folderMap, segmentsMap = new Map()) {
+        if (!results || results.length === 0) return Promise.resolve(results);
+        // 收集本地 folderMap 里没有路径的 mrid
+        const unknownMrids = [...new Set(
+            results
+                .filter(r => r.mrid != null && String(r.mrid) !== '' && String(r.mrid) !== '0' && !folderMap.has(String(r.mrid)) && !r.folder_name)
+                .map(r => String(r.mrid))
+        )];
+        if (unknownMrids.length === 0) return Promise.resolve(results);
+
+        const resolvePaths = () => {
+            const desktopName = this.t('navbar_meetingroom', '桌面');
+            unknownMrids.forEach(mrid => {
+                // 用 _moveDirTree 直接向上遍历构造路径及分段
+                const segments = [];
+                let currentId = mrid;
+                while (currentId != 0) {
+                    const folder = this._moveDirTree.find(f => String(f.id) === String(currentId));
+                    if (!folder) break;
+                    segments.unshift({ id: String(folder.id), name: folder.name });
+                    currentId = folder.parent;
+                }
+                segments.unshift({ id: '0', name: desktopName });
+                const pathStr = segments.map(s => s.name).join(' / ');
+                folderMap.set(mrid, pathStr);
+                segmentsMap.set(mrid, segments);
+            });
+            results.forEach(r => {
+                if (r.mrid != null) {
+                    if (!r.folder_name) r.folder_name = folderMap.get(String(r.mrid)) || '';
+                    if (!r.folder_segments) r.folder_segments = segmentsMap.get(String(r.mrid)) || null;
+                }
+            });
+            return results;
+        };
+
+        // _moveDirTree 已加载则直接用，否则先拉取完整目录树
+        if (this._moveDirTree && this._moveDirTree.length > 0) {
+            return Promise.resolve(resolvePaths());
+        }
+        const token = this.getToken();
+        if (!token) return Promise.resolve(results);
+        const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
+        return new Promise(resolve => {
+            $.post(apiUrl, { action: 'get_dir_tree', token }, rsp => {
+                if (rsp && rsp.status === 1 && Array.isArray(rsp.data)) {
+                    this._moveDirTree = rsp.data;
+                }
+                resolve(resolvePaths());
+            }, 'json').fail(() => resolve(results));
+        });
+    },
+
+    buildGsFolderLabel(file) {
+        if (file.folder_segments && file.folder_segments.length > 0) {
+            // 取路径中最末一级文件夹的 id 作为整体点击目标
+            const lastSeg = file.folder_segments[file.folder_segments.length - 1];
+            const segs = file.folder_segments.map((seg, i) => {
+                const isLast = i === file.folder_segments.length - 1;
+                return `<button type="button" class="vx-gs-bc-seg${isLast ? ' is-last' : ''}" onclick="event.preventDefault();event.stopPropagation();VX_FILELIST.gsNavigateToFolder('${this.escapeHtml(String(seg.id))}')" title="${this.escapeHtml(seg.name)}">${this.escapeHtml(seg.name)}</button>${isLast ? '' : '<span class="vx-gs-bc-sep">/</span>'}`;
+            }).join('');
+            // 外层 div 阻止冒泡（防止点中按钮间缝隙触发父层 <a>），整体点击定向到末级文件夹
+            return `<div class="vx-gs-result-path vx-gs-result-path-nav" onclick="event.preventDefault();event.stopPropagation();VX_FILELIST.gsNavigateToFolder('${this.escapeHtml(String(lastSeg.id))}')" title="${this.escapeHtml(this.t('vx_gs_goto_folder', '进入此文件夹'))}"><iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon><span class="vx-gs-breadcrumb">${segs}</span></div>`;
+        }
+        if (file.folder_name) {
+            const mrid = (file.mrid != null && String(file.mrid) !== '') ? String(file.mrid) : null;
+            if (mrid !== null) {
+                // 有 mrid 但无路径分段（远程搜索结果）：整行可点击，导航到对应文件夹
+                return `<div class="vx-gs-result-path vx-gs-result-path-nav" onclick="event.preventDefault();event.stopPropagation();VX_FILELIST.gsNavigateToFolder('${this.escapeHtml(mrid)}')" title="${this.escapeHtml(this.t('vx_gs_goto_folder', '进入此文件夹'))}"><iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon><span>${this.escapeHtml(file.folder_name)}</span></div>`;
+            }
+            return `<div class="vx-gs-result-path"><iconpark-icon name="folder-open-e1ad2j7l"></iconpark-icon><span>${this.escapeHtml(file.folder_name)}</span></div>`;
+        }
+        return '';
+    },
+
+    gsNavigateToFolder(mrid) {
+        this.closeGlobalSearch();
+        this.openFolder(mrid);
+    },
+
+    renderGlobalSearchResults(results, keyword, isLoading, reqId) {
+        if (reqId !== this._gsRemoteReqId) return;
+        const body = document.getElementById('vx-gs-body');
+        if (!body) return;
+
+        if (!results || results.length === 0) {
+            if (isLoading) return;
+            body.innerHTML = `
+                <div class="vx-gs-empty">
+                    <iconpark-icon name="search"></iconpark-icon>
+                    <div class="vx-gs-empty-title">${this.escapeHtml(this.t('vx_gs_no_result', '未找到匹配文件'))}</div>
+                    <div class="vx-gs-empty-hint">${this.escapeHtml(this.t('vx_gs_no_result_hint', '换一个关键词试试'))}</div>
+                </div>`;
+            return;
+        }
+
+        const kw = keyword.toLowerCase();
+        const items = results.map(file => {
+            const iconInfo = this.getFileIcon(file.ftype);
+            const folderLabel = this.buildGsFolderLabel(file);
+            const sizeLabel = file.fsize_formated
+                ? `<div class="vx-gs-result-size" style="position: relative; z-index: 2; pointer-events: none;">${this.escapeHtml(file.fsize_formated)}</div>`
+                : '';
+
+            const fname = file.fname || '';
+            const idx = fname.toLowerCase().indexOf(kw);
+            let fnameHtml;
+            if (idx >= 0) {
+                fnameHtml = this.escapeHtml(fname.slice(0, idx))
+                    + `<mark>${this.escapeHtml(fname.slice(idx, idx + kw.length))}</mark>`
+                    + this.escapeHtml(fname.slice(idx + kw.length));
+            } else {
+                fnameHtml = this.escapeHtml(fname);
+            }
+
+            return `<div class="vx-gs-result-item" style="position: relative;">
+                <a href="/file?ukey=${encodeURIComponent(file.ukey)}" tmpui-app="true" target="_blank" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 1; border-radius: inherit;"></a>
+                <div class="vx-list-icon vx-gs-result-icon ${iconInfo.class}" style="position: relative; z-index: 2; pointer-events: none;">
+                    <iconpark-icon name="${iconInfo.icon}"></iconpark-icon>
+                </div>
+                <div class="vx-gs-result-info" style="position: relative; z-index: 2; pointer-events: none;">
+                    <div class="vx-gs-result-name">${fnameHtml}</div>
+                    <div style="pointer-events: auto; width: max-content; max-width: 100%;">
+                        ${folderLabel}
+                    </div>
+                </div>
+                ${sizeLabel}
+            </div>`;
+        }).join('');
+
+        body.innerHTML = `
+            <div class="vx-gs-results-header">
+                <span>${results.length} ${this.escapeHtml(this.t('vx_gs_result_count_unit', '个结果'))}</span>
+                ${isLoading ? `<span class="vx-gs-searching"><span class="vx-gs-spinner"></span>${this.escapeHtml(this.t('vx_gs_loading', '搜索中...'))}</span>` : ''}
+            </div>
+            <div class="vx-gs-results">${items}</div>`;
+
+        if (typeof app !== 'undefined' && typeof app.linkRebind === 'function') {
+            app.linkRebind();
+        }
+    },
+
     // ==================== 工具函数 ====================
     
     formatSize(bytes) {

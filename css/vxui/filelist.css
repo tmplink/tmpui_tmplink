@@ -382,6 +382,14 @@ body.vx-fl-has-sponsor .vx-content {
     animation: vx-download-blink 1s ease-in-out infinite;
 }
 
+.vx-list-action-btn.vx-btn-ok-flash {
+    color: #22c55e;
+}
+
+.vx-list-action-btn.vx-btn-ok-flash iconpark-icon {
+    transition: color 0.2s ease;
+}
+
 .vx-list-action-btn.is-downloading iconpark-icon {
     animation: none;
 }
@@ -641,6 +649,417 @@ body.vx-fl-has-sponsor .vx-content {
 .vx-empty-text {
     color: var(--vx-text-secondary);
     margin-bottom: 20px;
+}
+
+/* ==================== Global Search Overlay ==================== */
+
+body.vx-gs-no-scroll {
+    overflow: hidden;
+}
+
+.vx-gs-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: var(--vx-bg, #f8fafc);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    /* 不在此处设 pointer-events:none —— 由 display:none 控制不可见状态，
+       避免 RAF 延迟导致短暂无法点击取消按钮的竞态 */
+}
+
+.vx-gs-overlay.vx-gs-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 淡出过渡期间禁止点击（避免重复触发），由 JS 控制 */
+.vx-gs-overlay.vx-gs-closing {
+    pointer-events: none;
+}
+
+.vx-gs-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.vx-gs-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--vx-border-color);
+    flex-shrink: 0;
+}
+
+.vx-gs-input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius);
+    padding: 0 12px;
+    height: 40px;
+    min-width: 0;
+}
+
+.vx-gs-input-icon {
+    font-size: 16px;
+    color: var(--vx-text-muted);
+    flex-shrink: 0;
+}
+
+.vx-gs-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: var(--vx-text-sm);
+    color: var(--vx-text-primary);
+}
+
+.vx-gs-input::placeholder {
+    color: var(--vx-text-muted);
+}
+
+.vx-gs-cancel-btn {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--vx-text-sm);
+    color: var(--vx-primary-color);
+    padding: 6px 10px;
+    border-radius: var(--vx-radius-sm);
+    white-space: nowrap;
+}
+
+.vx-gs-cancel-btn:hover {
+    background: var(--vx-bg-hover);
+}
+
+.vx-gs-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.vx-gs-hint {
+    padding: 32px 0;
+    text-align: center;
+    font-size: var(--vx-text-sm);
+    color: var(--vx-text-muted);
+}
+
+.vx-gs-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 48px 0;
+    color: var(--vx-text-muted);
+    font-size: var(--vx-text-sm);
+}
+
+.vx-gs-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 64px 0;
+    gap: 8px;
+    color: var(--vx-text-muted);
+}
+
+.vx-gs-empty iconpark-icon {
+    font-size: 40px;
+    opacity: 0.25;
+    margin-bottom: 4px;
+}
+
+.vx-gs-empty-title {
+    font-size: var(--vx-text-sm);
+    font-weight: 500;
+    color: var(--vx-text-secondary);
+}
+
+.vx-gs-empty-hint {
+    font-size: var(--vx-text-xs);
+    color: var(--vx-text-muted);
+}
+
+.vx-gs-results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 4px 4px;
+    font-size: var(--vx-text-xs);
+    color: var(--vx-text-muted);
+}
+
+.vx-gs-searching {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: var(--vx-text-xs);
+    color: var(--vx-text-muted);
+}
+
+.vx-gs-spinner {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    border: 2px solid var(--vx-border-color);
+    border-top-color: var(--vx-primary-color);
+    border-radius: 50%;
+    animation: vx-spin 0.7s linear infinite;
+    flex-shrink: 0;
+}
+
+.vx-gs-result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 6px;
+    cursor: pointer;
+    border-radius: var(--vx-radius);
+    transition: background 0.12s;
+    text-decoration: none;
+    color: inherit;
+}
+
+.vx-gs-result-item:hover {
+    background: var(--vx-bg-hover);
+    text-decoration: none;
+    color: inherit;
+}
+
+.vx-gs-result-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--vx-radius-sm);
+    font-size: 18px;
+}
+
+.vx-gs-result-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.vx-gs-result-name {
+    font-size: var(--vx-text-sm);
+    color: var(--vx-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vx-gs-result-name mark {
+    background: transparent;
+    color: var(--vx-primary-color);
+    font-weight: 600;
+}
+
+.vx-gs-result-path {
+    font-size: var(--vx-text-xs);
+    color: var(--vx-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /* 阻止内边距溢出，留出视觉回弹空间 */
+    border-radius: 6px;
+    padding: 1px 3px;
+    margin-left: -3px;
+}
+
+/* 可交互路径：显示 pointer 并在 hover/active 时提示可点 */
+.vx-gs-result-path-nav {
+    cursor: pointer;
+    transition: color 0.12s, background 0.12s;
+}
+
+.vx-gs-result-path-nav:hover {
+    color: var(--vx-primary);
+    background: var(--vx-primary-light, rgba(37, 99, 235, 0.07));
+}
+
+.vx-gs-result-path-nav:active {
+    background: rgba(37, 99, 235, 0.14);
+}
+
+.vx-gs-result-path iconpark-icon {
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+.vx-gs-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.vx-gs-bc-seg {
+    background: none;
+    border: none;
+    padding: 2px 0;
+    margin: 0;
+    color: var(--vx-text-muted);
+    font-size: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: inherit;
+    /* 确保单独点击段落不会被父层误触 */
+    position: relative;
+    z-index: 1;
+}
+
+.vx-gs-bc-seg:hover {
+    color: var(--vx-primary);
+    text-decoration: underline;
+}
+
+/* 末级段落（目标文件夹）高亮显示，提示这是导航目的地 */
+.vx-gs-bc-seg.is-last {
+    color: var(--vx-text-secondary);
+    font-weight: 500;
+}
+
+.vx-gs-bc-seg.is-last:hover {
+    color: var(--vx-primary);
+}
+
+.vx-gs-bc-sep {
+    color: var(--vx-text-muted);
+    opacity: 0.5;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.vx-gs-result-size {
+    font-size: var(--vx-text-xs);
+    color: var(--vx-text-muted);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* ==================== Global Search — Mobile ==================== */
+@media (max-width: 768px) {
+    .vx-gs-panel {
+        /* 铺满全屏，减小水平内边距 */
+        max-width: 100%;
+        padding: 0 12px;
+    }
+
+    .vx-gs-header {
+        /* 顶部留给刘海/状态栏 */
+        padding: 10px 0;
+        padding-top: max(10px, env(safe-area-inset-top));
+        gap: 8px;
+    }
+
+    .vx-gs-input-wrap {
+        /* 触控高度 ≥ 44px；圆角更贴近移动风格 */
+        height: 44px;
+        border-radius: 14px;
+        padding: 0 14px;
+        gap: 8px;
+    }
+
+    .vx-gs-input {
+        /* 至少 16px 防止 iOS 触发页面放大 */
+        font-size: 16px;
+    }
+
+    .vx-gs-cancel-btn {
+        /* 增大触控面积 */
+        height: 44px;
+        padding: 0 14px;
+        font-size: 15px;
+        font-weight: 500;
+        border-radius: 14px;
+        border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+
+    .vx-gs-body {
+        /* 底部留出安全区域，避免 Home 条遮挡 */
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+
+    .vx-gs-result-item {
+        /* 增大触控行高，行间隔更宽松 */
+        padding: 12px 8px;
+        gap: 14px;
+        border-radius: 12px;
+    }
+
+    .vx-gs-result-icon {
+        /* 稍大图标更易识别 */
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+    }
+
+    .vx-gs-result-name {
+        /* 移动端适当放大阅读字号 */
+        font-size: 15px;
+    }
+
+    .vx-gs-result-path {
+        font-size: 12px;
+        margin-top: 3px;
+    }
+
+    .vx-gs-bc-seg {
+        /* 移动端宽度更充裕，增大可触控的最小高度 */
+        max-width: 200px;
+        min-height: 28px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .vx-gs-result-path-nav {
+        /* 增大移动端触控面积 */
+        min-height: 32px;
+        padding: 4px 6px;
+        margin-left: -6px;
+        border-radius: 8px;
+    }
+
+    /* 移动端隐藏文件大小（信息量低，且易在窄屏中挤压布局） */
+    .vx-gs-result-size {
+        display: none;
+    }
+
+    .vx-gs-empty {
+        padding: 48px 0;
+    }
+
+    .vx-gs-loading {
+        padding: 36px 0;
+    }
 }
 
 /* ==================== Move Folder Modal ==================== */
