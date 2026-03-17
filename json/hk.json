@@ -408,6 +408,7 @@
     "direct_intro_7": "要使用直接連結功能，您的賬號需要滿足兩個條件。",
     "direct_intro_9": "綁定好您的域名之後，您就可以在 “倉庫” 或者 “桌面” 中，為已上傳的檔案創建直接連結了。",
     "notify_bulk_copy_start": "已開始連續複製",
+    "notify_bulk_copy_count": "已連續複製 {n} 條",
     "notify_bulk_copy_finish": "連續複製結束",
     "direct_sponsor_freee_quota_msg_1": "領取成功。",
     "direct_sponsor_freee_quota_msg_2": "這是讚助者的專享權益，您目前還不是讚助者。請成為贊助者後再來",
@@ -1323,5 +1324,14 @@
     "vx_mall_copy_failed": "複製失敗請手動複製",
     "vx_mall_item_sold_out": "該商品已售罄",
     "vx_mall_insufficient_points": "點數不足",
-    "vx_no_sold_files": "暫無售出的文件"
+    "vx_no_sold_files": "暫無售出的文件",
+    "vx_global_search": "全域搜尋",
+    "vx_gs_placeholder": "搜尋所有文件...",
+    "vx_gs_cancel": "取消",
+    "vx_gs_loading": "搜尋中...",
+    "vx_gs_no_result": "未找到相符的文件",
+    "vx_gs_no_result_hint": "換一個關鍵字試試",
+    "vx_gs_hint_short": "請輸入至少 2 個字符",
+    "vx_gs_result_count_unit": "個結果",
+    "vx_gs_goto_folder": "進入此文件夾"
 }

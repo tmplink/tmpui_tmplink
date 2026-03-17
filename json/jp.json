@@ -414,6 +414,7 @@
     "direct_intro_7": "ダイレクトリンク機能を利用するには、アカウントが2つの条件を満たす必要があります。",
     "direct_intro_9": "ドメイン名をバインドした後、「ファイル」または「フォルダー」にアップロードされたファイルへのダイレクトリンクを作成できます。",
     "notify_bulk_copy_start": "連続コピーを開始しました",
+    "notify_bulk_copy_count": "{n} 件をコピーしました",
     "notify_bulk_copy_finish": "連続コピーが完了しました",
     "direct_sponsor_freee_quota_msg_1": "正常に受け取りました.",
     "direct_sponsor_freee_quota_msg_2": "これはスポンサー限定の特典です。あなたは現在スポンサーではありません。スポンサーになってから戻ってきてください",
@@ -1323,5 +1324,14 @@
     "vx_mall_copy_failed": "コピー失敗、手動でコピーしてください",
     "vx_mall_item_sold_out": "この商品は売り切れです",
     "vx_mall_insufficient_points": "ポイントが不足しています",
-    "vx_no_sold_files": "販売されたファイルはありません"
+    "vx_no_sold_files": "販売されたファイルはありません",
+    "vx_global_search": "グローバル検索",
+    "vx_gs_placeholder": "すべてのファイルを検索...",
+    "vx_gs_cancel": "キャンセル",
+    "vx_gs_loading": "検索中...",
+    "vx_gs_no_result": "一致するファイルが見つかりません",
+    "vx_gs_no_result_hint": "別のキーワードで試してください",
+    "vx_gs_hint_short": "2文字以上入力してください",
+    "vx_gs_result_count_unit": "件の結果",
+    "vx_gs_goto_folder": "このフォルダを開く"
 }

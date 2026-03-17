@@ -1021,6 +1021,7 @@
     "copied": "已复制",
     "player_not_installed": "{player} 未安装，已复制播放地址",
     "notify_bulk_copy_start": "已开始连续复制",
+    "notify_bulk_copy_count": "已连续复制 {n} 条",
     "notify_bulk_copy_finish": "连续复制结束",
     "upload_or_drag": "拖动文件到此位置，或者选择文件上传，或者按下 Ctrl + V 粘贴文件。",
     "upload_files": "上传文件",
@@ -1323,5 +1324,14 @@
     "vx_mall_copy_failed": "复制失败请手动复制",
     "vx_mall_item_sold_out": "该商品已售罄",
     "vx_mall_insufficient_points": "点数不足",
-    "vx_no_sold_files": "暂无售出的文件"
+    "vx_no_sold_files": "暂无售出的文件",
+    "vx_global_search": "全局搜索",
+    "vx_gs_placeholder": "搜索全部文件...",
+    "vx_gs_cancel": "取消",
+    "vx_gs_loading": "搜索中...",
+    "vx_gs_no_result": "未找到匹配文件",
+    "vx_gs_no_result_hint": "换一个关键词试试",
+    "vx_gs_hint_short": "请输入至少 2 个字符",
+    "vx_gs_result_count_unit": "个结果",
+    "vx_gs_goto_folder": "进入此文件夹"
 }

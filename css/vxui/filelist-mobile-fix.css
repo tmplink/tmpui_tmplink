@@ -23,6 +23,8 @@
 
     .vx-fl-mob-header {
         display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
 
     .vx-fl-mob-folder-bar {
@@ -35,6 +37,70 @@
         justify-content: space-between;
         gap: 12px;
         width: 100%;
+    }
+
+    .vx-fl-mob-search-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .vx-fl-mob-search-input-wrap {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .vx-fl-mob-search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        color: var(--vx-text-muted);
+        pointer-events: none;
+    }
+
+    .vx-fl-mob-search-input {
+        width: 100%;
+        height: 44px;
+        padding: 0 12px 0 38px;
+        border-radius: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)), var(--vx-surface);
+        color: var(--vx-text);
+        font-size: 14px;
+        outline: none;
+        transition: var(--vx-transition-fast);
+    }
+
+    .vx-fl-mob-search-input:focus {
+        border-color: rgba(37, 99, 235, 0.36);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .vx-fl-mob-search-submit {
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 44px;
+        padding: 0 12px;
+        border-radius: 16px;
+        border: 1px solid transparent;
+        background: linear-gradient(135deg, var(--vx-primary) 0%, #4f8dfd 100%);
+        color: var(--vx-text-inverse);
+        box-shadow: 0 14px 28px rgba(37, 99, 235, 0.24);
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .vx-fl-mob-search-submit iconpark-icon {
+        font-size: 18px;
     }
 
     .vx-fl-mob-nav,
@@ -138,6 +204,23 @@
         box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28);
         white-space: nowrap;
         flex-shrink: 0;
+    }
+
+    @media (max-width: 420px) {
+        .vx-fl-mob-search-input {
+            height: 42px;
+            border-radius: 15px;
+        }
+
+        .vx-fl-mob-search-submit {
+            height: 42px;
+            border-radius: 15px;
+            padding: 0 10px;
+        }
+
+        .vx-fl-mob-search-submit span {
+            display: none;
+        }
     }
 
     /* Filelist-specific mobile bottom bar redesign */

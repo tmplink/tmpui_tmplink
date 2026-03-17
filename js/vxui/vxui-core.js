@@ -316,6 +316,11 @@ class VXUICore {
         
         // 当前打开的模态框
         this.openModals = [];
+
+        // 连续复制状态
+        this._bulkCopyTmp = '';
+        this._bulkCopyTimer = 0;
+        this._bulkCopyCount = 0;
         
         // 绑定方法
         this.init = this.init.bind(this);
@@ -1217,36 +1222,55 @@ class VXUICore {
     
     /**
      * 显示 Toast
+     * @param {string} message
+     * @param {'info'|'success'|'error'|'warning'} type
+     * @param {number} duration
+     * @param {string} [toastId] - 提供时复用已存在的同 id toast（更新文案+重置计时）
      */
-    toast(message, type = 'info', duration = 3000) {
+    toast(message, type = 'info', duration = 3000, toastId) {
         const container = document.getElementById('vx-toast-container');
         if (!container) return;
-        
-        const toast = document.createElement('div');
-        toast.className = `vx-toast vx-toast-${type}`;
-        
+
         const icons = {
             success: 'circle-check',
             error: 'circle-xmark',
             warning: 'circle-exclamation',
             info: 'circle-exclamation'
         };
-        
-        toast.innerHTML = `
+        const html = `
             <iconpark-icon name="${icons[type] || 'info-circle'}" class="vx-toast-icon"></iconpark-icon>
             <span class="vx-toast-message">${message}</span>
         `;
-        
+
+        // 尝试复用已存在的同 id toast
+        if (toastId) {
+            const existing = container.querySelector(`[data-toast-id="${toastId}"]`);
+            if (existing) {
+                existing.innerHTML = html;
+                // 重置自动移除计时器
+                if (existing._toastTimer) clearTimeout(existing._toastTimer);
+                existing._toastTimer = setTimeout(() => {
+                    existing.classList.remove('vx-toast-show');
+                    setTimeout(() => existing.remove(), 300);
+                }, duration);
+                return;
+            }
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `vx-toast vx-toast-${type}`;
+        if (toastId) toast.dataset.toastId = toastId;
+        toast.innerHTML = html;
         container.appendChild(toast);
-        
+
         // 触发动画
         requestAnimationFrame(() => {
             toast.classList.add('vx-toast-show');
         });
-        
+
         // 自动移除
         if (duration > 0) {
-            setTimeout(() => {
+            toast._toastTimer = setTimeout(() => {
                 toast.classList.remove('vx-toast-show');
                 setTimeout(() => toast.remove(), 300);
             }, duration);
@@ -1615,24 +1639,60 @@ class VXUICore {
     }
     
     /**
-     * 复制到剪贴板
+     * 获取 i18n 文案，带中文兜底
+     * @private
+     */
+    _lt(key, fallback) {
+        return (typeof app !== 'undefined' && app && app.languageData && app.languageData[key])
+            ? app.languageData[key]
+            : fallback;
+    }
+
+    /**
+     * 复制到剪贴板（支持连续复制模式）
      */
     copyToClipboard(text) {
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(text).then(() => {
-                this.toastSuccess('已复制到剪贴板');
-            }).catch(() => {
-                this.fallbackCopy(text);
-            });
+        const isBulk = (
+            (typeof TL !== 'undefined' && typeof TL.profile_bulk_copy_get === 'function' && TL.profile_bulk_copy_get()) ||
+            localStorage.getItem('pref_bulk_copy') === 'true'
+        );
+
+        const doCopy = (str) => {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                return navigator.clipboard.writeText(str).catch(() => this._fallbackWrite(str));
+            }
+            this._fallbackWrite(str);
+            return Promise.resolve();
+        };
+
+        if (isBulk) {
+            if (this._bulkCopyTimer) {
+                clearTimeout(this._bulkCopyTimer);
+                this._bulkCopyTimer = 0;
+            }
+            this._bulkCopyTmp += text + '\n';
+            this._bulkCopyCount += 1;
+            doCopy(this._bulkCopyTmp);
+            const countTpl = this._lt('notify_bulk_copy_count', '已连续复制 {n} 条');
+            this.toast(countTpl.replace('{n}', this._bulkCopyCount), 'success', 11000, 'bulk-copy-count');
+            this._bulkCopyTimer = setTimeout(() => {
+                this._bulkCopyTimer = 0;
+                this._bulkCopyTmp = '';
+                this._bulkCopyCount = 0;
+                this.toastSuccess(this._lt('notify_bulk_copy_finish', '连续复制结束'));
+            }, 10000);
         } else {
-            this.fallbackCopy(text);
+            doCopy(text).then(() => {
+                this.toastSuccess(this._lt('copied', '已复制到剪贴板'));
+            });
         }
     }
-    
+
     /**
-     * 降级复制方法
+     * 降级写剪贴板（不含 toast）
+     * @private
      */
-    fallbackCopy(text) {
+    _fallbackWrite(text) {
         const textarea = document.createElement('textarea');
         textarea.value = text;
         textarea.style.position = 'fixed';
@@ -1641,11 +1701,16 @@ class VXUICore {
         textarea.select();
         try {
             document.execCommand('copy');
-            this.toastSuccess('已复制到剪贴板');
         } catch (err) {
-            this.toastError('复制失败');
+            this.toastError(this._lt('vx_copy_failed', '复制失败'));
         }
         document.body.removeChild(textarea);
+    }
+
+    /** @deprecated 保留兼容，内部已不用 */
+    fallbackCopy(text) {
+        this._fallbackWrite(text);
+        this.toastSuccess(this._lt('copied', '已复制到剪贴板'));
     }
     
     /**

@@ -41,6 +41,9 @@ test.describe('API 可用性检查', () => {
       if (endpoint.requiresToken) {
         formData.token = apiToken;
       }
+      if (endpoint.extraBody) {
+        Object.assign(formData, endpoint.extraBody);
+      }
 
       const response = await request.post(API_BASE + endpoint.path, {
         form: formData,

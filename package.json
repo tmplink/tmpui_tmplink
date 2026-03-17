@@ -8,6 +8,7 @@
     "test:i18n": "npx playwright test --project=i18n",
     "test:api": "npx playwright test --project=api",
     "test:ui": "npx playwright test --project=desktop-light --project=mobile-light --project=desktop-dark --project=mobile-dark",
+    "test:share-copy": "cross-env TEST_AUTO=1 npx playwright test --project=share-copy-desktop --project=share-copy-mobile",
     "test:desktop": "npx playwright test --project=desktop-light --project=desktop-dark",
     "test:mobile": "npx playwright test --project=mobile-light --project=mobile-dark",
     "test:dark": "npx playwright test --project=desktop-dark --project=mobile-dark",

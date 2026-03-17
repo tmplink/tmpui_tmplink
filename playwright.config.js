@@ -55,6 +55,50 @@ module.exports = defineConfig({
       dependencies: ['auth-setup'],
     },
 
+    // --- Global Search functional tests (desktop + mobile) ---
+    {
+      name: 'global-search-desktop',
+      testMatch: /global-search\.spec\.js/,
+      use: {
+        viewport: { width: 1440, height: 900 },
+        storageState: 'tests/.auth/state.json',
+      },
+      dependencies: ['auth-setup'],
+    },
+    {
+      name: 'global-search-mobile',
+      testMatch: /global-search\.spec\.js/,
+      use: {
+        viewport: { width: 375, height: 812 },
+        isMobile: true,
+        hasTouch: true,
+        storageState: 'tests/.auth/state.json',
+      },
+      dependencies: ['auth-setup'],
+    },
+
+    // --- Share Copy functional tests (desktop + mobile) ---
+    {
+      name: 'share-copy-desktop',
+      testMatch: /share-copy\.spec\.js/,
+      use: {
+        viewport: { width: 1440, height: 900 },
+        storageState: 'tests/.auth/state.json',
+      },
+      dependencies: ['auth-setup'],
+    },
+    {
+      name: 'share-copy-mobile',
+      testMatch: /share-copy\.spec\.js/,
+      use: {
+        viewport: { width: 375, height: 812 },
+        isMobile: true,
+        hasTouch: true,
+        storageState: 'tests/.auth/state.json',
+      },
+      dependencies: ['auth-setup'],
+    },
+
     // --- Desktop Light (13" MacBook Air: 1440×900) ---
     {
       name: 'desktop-light',

@@ -417,6 +417,7 @@
     "direct_intro_7": "To use the direct link feature, your account needs to meet two conditions.",
     "direct_intro_9": "After binding your domain name, you can create direct links for uploaded files in \"Files\" or \"Folder\".",
     "notify_bulk_copy_start": "Continuous copying has started",
+    "notify_bulk_copy_count": "{n} links copied",
     "notify_bulk_copy_finish": "End of continuous copying",
     "direct_sponsor_freee_quota_msg_1": "Successfully.",
     "direct_sponsor_freee_quota_msg_2": "This is the exclusive benefit of sponsors, you are not currently a sponsor. Please come back after becoming a sponsor",
@@ -1323,5 +1324,14 @@
     "vx_mall_copy_failed": "Copy failed, please copy manually",
     "vx_mall_item_sold_out": "This item is sold out",
     "vx_mall_insufficient_points": "Insufficient points",
-    "vx_no_sold_files": "No sold files"
+    "vx_no_sold_files": "No sold files",
+    "vx_global_search": "Global Search",
+    "vx_gs_placeholder": "Search all files...",
+    "vx_gs_cancel": "Cancel",
+    "vx_gs_loading": "Searching...",
+    "vx_gs_no_result": "No matching files found",
+    "vx_gs_no_result_hint": "Try a different keyword",
+    "vx_gs_hint_short": "Enter at least 2 characters",
+    "vx_gs_result_count_unit": "results",
+    "vx_gs_goto_folder": "Go to this folder"
 }

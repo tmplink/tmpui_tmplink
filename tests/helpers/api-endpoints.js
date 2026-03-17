@@ -95,6 +95,18 @@ const endpoints = [
       }
     },
   },
+  {
+    name: 'Global File Search',
+    path: '/api_v2/meetingroom',
+    action: 'search',
+    requiresToken: true,
+    // search 为必填项，空字符串时服务端返回 status=1 且 data=[]
+    extraBody: { search: '' },
+    validate: (rsp) => {
+      if (rsp.status !== 1) throw new Error(`Expected status=1, got ${rsp.status}`);
+      if (!Array.isArray(rsp.data)) throw new Error('Expected data to be an array');
+    },
+  },
 ];
 
 module.exports = { endpoints };
