@@ -40,7 +40,8 @@ for (const pageConfig of pages) {
     // 导航到页面。某些页面有长连接，直接使用 networkidle 可能导致超时。
     await page.goto(pageConfig.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
     try {
-      await page.waitForLoadState('networkidle', { timeout: 5000 });
+      // 缩短 networkidle 超时时间，避免无尽轮询拖慢速度，提升整体测试速度
+      await page.waitForLoadState('networkidle', { timeout: 2500 });
     } catch {
       // 网络持续活动是预期场景，继续执行后续断言。
     }

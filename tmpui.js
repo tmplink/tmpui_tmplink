@@ -1,8 +1,8 @@
 /**
  * tmpUI.js
- * version: 58
+ * version: 59
  * Github : https://github.com/tmplink/tmpUI
- * Date :2026-01-31
+ * Date :2026-03-17
  */
 
 class tmpUI {
