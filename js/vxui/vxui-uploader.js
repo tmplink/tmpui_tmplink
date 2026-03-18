@@ -140,21 +140,28 @@ var VX_UPLOADER = VX_UPLOADER || {
     /**
      * 加载服务器列表
      */
-    loadServers() {
+    loadServers(force = false) {
+        if (force) {
+            this.serversLoaded = false;
+            this.serversLoading = false;
+        }
+
         const token = this.getToken();
         if (!token) {
             this.serversLoaded = true;
             this.serversLoading = false;
+            this.updateServerSelect();
             return;
         }
-        
-        // 如果已经加载完成，不重复加载
+
+        // 如果已经加载完成，并且不是强制刷新，不重复加载
         if (this.serversLoaded) return;
         
         // 如果正在加载中，不重复发起请求
         if (this.serversLoading) return;
         
         this.serversLoading = true;
+        this.updateServerSelect(); // 立即显示加载进度图标
 
         const api = this.getUploadApi();
         
@@ -165,22 +172,31 @@ var VX_UPLOADER = VX_UPLOADER || {
                 captcha: captcha
             }, (rsp) => {
                 this.serversLoading = false;
-                this.serversLoaded = true;
                 
-                if (rsp.status === 1 && rsp.data && rsp.data.servers) {
-                    this.servers = rsp.data.servers;
-                    
-                    // 验证存储的服务器是否有效
-                    if (this.upload_server) {
-                        const valid = this.servers.some(s => s.url === this.upload_server);
-                        if (!valid && this.servers.length > 0) {
+                if (rsp.status === 1) {
+                    this.serversLoaded = true;
+                    if (rsp.data && rsp.data.servers) {
+                        this.servers = rsp.data.servers;
+                        
+                        // 验证存储的服务器是否有效
+                        if (this.upload_server) {
+                            const valid = this.servers.some(s => s.url === this.upload_server);
+                            if (!valid && this.servers.length > 0) {
+                                this.upload_server = this.servers[0].url;
+                            }
+                        } else if (this.servers.length > 0) {
                             this.upload_server = this.servers[0].url;
                         }
-                    } else if (this.servers.length > 0) {
-                        this.upload_server = this.servers[0].url;
+                        
+                        // 更新下拉框
+                        this.updateServerSelect();
                     }
-                    
-                    // 更新下拉框
+                } else {
+                    this.serversLoaded = false;
+                }
+                
+                // 更新下拉框消除加载状态（如果未成功拉取）
+                if (rsp.status !== 1 || !rsp.data || !rsp.data.servers) {
                     this.updateServerSelect();
                 }
                 
@@ -188,7 +204,8 @@ var VX_UPLOADER = VX_UPLOADER || {
                 this.executeServersLoadCallbacks();
             }, 'json').fail(() => {
                 this.serversLoading = false;
-                this.serversLoaded = true;
+                this.serversLoaded = false; // 失败后允许再次请求
+                this.updateServerSelect(); // 消除加载状态
                 // 执行等待中的回调
                 this.executeServersLoadCallbacks();
             });
@@ -226,6 +243,11 @@ var VX_UPLOADER = VX_UPLOADER || {
                 console.error('[VX_UPLOADER] Server load callback error:', e);
             }
         });
+        
+        // 服务器加载完成后，重试处理可能的积压队列
+        if (this.serversLoaded) {
+            this.processQueue();
+        }
     },
 
     /**
@@ -246,6 +268,15 @@ var VX_UPLOADER = VX_UPLOADER || {
     openModal(mrid) {
         console.log('[VX_UPLOADER] openModal called, mrid:', mrid);
         
+        if (!this.getToken()) {
+            if (typeof VXUI !== 'undefined') {
+                VXUI.toastWarning(this.getLang('vx_need_login') || '请先登录');
+            } else {
+                alert(this.getLang('vx_need_login') || '请先登录');
+            }
+            return;
+        }
+
         if (!this.initialized) {
             this.init();
         }
@@ -255,6 +286,11 @@ var VX_UPLOADER = VX_UPLOADER || {
 
         // 登录后再打开弹窗时补载一次性能配置
         this.loadPerformanceSettings();
+        
+        // 如果没有服务器数据或者还未加载完成，重新触发获取
+        if (!this.serversLoaded || this.servers.length === 0) {
+            this.loadServers(true);
+        }
         
         // 更新模态框内容
         this.updateModalUI();
@@ -266,6 +302,13 @@ var VX_UPLOADER = VX_UPLOADER || {
         if (modal) {
             modal.classList.add('vx-modal-open');
             document.body.classList.add('vx-modal-body-open');
+            // Allow browser to render then update the sliding backgrounds
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    this.updateSegmentBackground('vx-upload-model-tabs');
+                    this.updateSegmentBackground('vx-upload-server-tabs');
+                });
+            });
         } else {
             console.error('[VX_UPLOADER] Modal element not found: vx-upload-modal');
         }
@@ -314,9 +357,18 @@ var VX_UPLOADER = VX_UPLOADER || {
         const serverSelect = document.getElementById('vx-upload-server');
         if (!serverTabs && !serverSelect) return;
 
-        if (!this.servers.length) {
-            if (serverTabs) serverTabs.innerHTML = '';
-            if (serverSelect) serverSelect.innerHTML = '';
+        // 如果正处于加载中且未加载完成，则显示加载状态
+        if (this.serversLoading && !this.serversLoaded) {
+            const loadingText = this.getLang('loading') || '加载中...';
+            if (serverTabs) serverTabs.innerHTML = `<div class="vx-loading-icon" style="padding: 4px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: var(--vx-text-secondary);"><iconpark-icon name="spinner" style="animation: vxSpin 1s linear infinite;"></iconpark-icon> <span>${loadingText}</span></div>`;
+            if (serverSelect) serverSelect.innerHTML = `<option disabled selected>${loadingText}</option>`;
+            return;
+        }
+
+        if (!this.servers || !this.servers.length) {
+            const noDataText = this.getLang('no_data') || '暂无可用的服务器';
+            if (serverTabs) serverTabs.innerHTML = `<div style="padding: 4px; color: var(--vx-text-secondary); font-size: 0.9em;">${noDataText}</div>`;
+            if (serverSelect) serverSelect.innerHTML = `<option disabled selected>${noDataText}</option>`;
             return;
         }
 
@@ -335,9 +387,24 @@ var VX_UPLOADER = VX_UPLOADER || {
         });
 
         if (serverTabs) {
-            serverTabs.innerHTML = serverItems.map((item) => {
-                return `<button type="button" class="vx-upload-segment" data-upload-server="${this.escapeHtml(item.url)}" onclick="VX_UPLOADER.onServerCardClick(this)"><span>${this.escapeHtml(item.label)}</span></button>`;
+            serverTabs.innerHTML = serverItems.map((item, index) => {
+                const pingId = `vx-server-ping-${index}`;
+                return `<button type="button" class="vx-upload-segment" data-upload-server="${this.escapeHtml(item.url)}" onclick="VX_UPLOADER.onServerCardClick(this)">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 100%;">
+                        <span>${this.escapeHtml(item.label)}</span>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 11px; font-weight: 500; height: 12px; line-height: 1;">
+                            <span id="${pingId}-dot" style="display: none; width: 6px; height: 6px; border-radius: 50%;"></span>
+                            <span id="${pingId}">测速中...</span>
+                        </div>
+                    </div>
+                </button>`;
             }).join('');
+            
+            setTimeout(() => {
+                serverItems.forEach((item, index) => {
+                    this.pingServer(item.url, `vx-server-ping-${index}`);
+                });
+            }, 50);
         }
 
         if (serverSelect) {
@@ -366,17 +433,60 @@ var VX_UPLOADER = VX_UPLOADER || {
         if (modelSelect) {
             modelSelect.value = String(this.upload_model);
         }
+        this.updateSegmentBackground('vx-upload-model-tabs');
     },
 
     syncServerTabState() {
         const serverSelect = document.getElementById('vx-upload-server');
         const serverTabs = document.querySelectorAll('#vx-upload-server-tabs [data-upload-server]');
+        let activeFound = false;
         serverTabs.forEach((item) => {
             const server = item.getAttribute('data-upload-server') || '';
-            item.classList.toggle('active', server === String(this.upload_server || ''));
+            const isActive = server === String(this.upload_server || '');
+            item.classList.toggle('active', isActive);
+            if (isActive) activeFound = true;
         });
+        
+        // If current server not found in tabs, maybe active the first one visually or do nothing
         if (serverSelect) {
             serverSelect.value = String(this.upload_server || '');
+        }
+        this.updateSegmentBackground('vx-upload-server-tabs');
+    },
+
+    /**
+     * 更新滑动背景动画
+     */
+    updateSegmentBackground(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        let bg = container.querySelector('.vx-upload-segment-bg');
+        if (!bg) {
+            bg = document.createElement('div');
+            bg.className = 'vx-upload-segment-bg';
+            // prepend to make sure it's under the buttons if z-index is identical, though we use z-index: -1 and 1
+            container.insertBefore(bg, container.firstChild);
+        }
+        
+        const activeItem = container.querySelector('.vx-upload-segment.active');
+        if (activeItem) {
+            // Need to wait for rendering to get offset if container was hidden
+            requestAnimationFrame(() => {
+                if (activeItem.offsetWidth === 0) {
+                    // if still hidden, maybe don't animate or try again later?
+                    // just hide bg for now
+                    bg.style.opacity = '0';
+                    return;
+                }
+                bg.style.width = activeItem.offsetWidth + 'px';
+                // Find offsetLeft considering parent padding
+                // element.offsetLeft is relative to the nearest positioned ancestor (the container here)
+                bg.style.transform = `translateX(${activeItem.offsetLeft}px)`;
+                bg.style.opacity = '1';
+            });
+        } else {
+            bg.style.opacity = '0';
         }
     },
 
@@ -586,6 +696,10 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 选择文件
      */
     selectFiles() {
+        if (!this.getToken()) {
+            VXUI.toastWarning(this.getLang('vx_need_login') || '请先登录');
+            return;
+        }
         const input = document.getElementById('vx-upload-file-input');
         if (input) {
             input.click();
@@ -596,6 +710,10 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 选择文件夹
      */
     selectFolder() {
+        if (!this.getToken()) {
+            VXUI.toastWarning(this.getLang('vx_need_login') || '请先登录');
+            return;
+        }
         const input = document.getElementById('vx-upload-folder-input');
         if (input) {
             input.click();
@@ -694,6 +812,11 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 添加文件到队列
      */
     addToQueue(item) {
+        if (!this.getToken()) {
+            VXUI.toastWarning(this.getLang('vx_need_login') || '请先登录');
+            return;
+        }
+
         const file = item.file;
         
         // 检查文件大小
@@ -742,6 +865,14 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 处理队列
      */
     processQueue() {
+        // 如果服务器列表尚未就绪，且当前处于登录状态，则暂停处理队列，等待加载完成后重试
+        if ((this.serversLoading || !this.serversLoaded) && this.getToken() !== null) {
+            if (!this.serversLoading) {
+                this.loadServers();
+            }
+            return;
+        }
+
         while (this.active_count < this.max_queue && this.upload_queue.length > 0) {
             const task = this.upload_queue.shift();
             this.active_count++;
@@ -1610,6 +1741,56 @@ var VX_UPLOADER = VX_UPLOADER || {
             99: '永久'
         };
         return labels[model] || labels[0];
+    },
+
+    /**
+     * 服务器测速 (基于 HTTP 发送无缓存的探测请求计算延迟)
+     */
+    pingServer(url, elementId) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        
+        // 测速URL追加时间戳避免缓存
+        let targetUrl = url;
+        if (!targetUrl.includes('?')) {
+            targetUrl += '?_ping=' + Date.now();
+        } else {
+            targetUrl += '&_ping=' + Date.now();
+        }
+
+        const start = performance.now();
+        
+        fetch(targetUrl, { 
+            method: 'GET', 
+            mode: 'no-cors',
+            cache: 'no-store'
+        })
+        .then(() => {
+            const elNode = document.getElementById(elementId);
+            const dotNode = document.getElementById(elementId + '-dot');
+            if (!elNode) return;
+            const time = Math.round(performance.now() - start);
+            elNode.textContent = time + ' ms';
+            if (dotNode) dotNode.style.display = 'inline-block';
+            if (time < 150) {
+                if (dotNode) dotNode.style.backgroundColor = 'var(--vx-success, #10b981)';
+            } else if (time < 300) {
+                if (dotNode) dotNode.style.backgroundColor = 'var(--vx-warning, #f59e0b)';
+            } else {
+                if (dotNode) dotNode.style.backgroundColor = 'var(--vx-danger, #ef4444)';
+            }
+        })
+        .catch(() => {
+            const elNode = document.getElementById(elementId);
+            const dotNode = document.getElementById(elementId + '-dot');
+            if (elNode) {
+                elNode.textContent = '超时';
+                if (dotNode) {
+                    dotNode.style.display = 'inline-block';
+                    dotNode.style.backgroundColor = 'var(--vx-danger, #ef4444)';
+                }
+            }
+        });
     },
 
     getServerBadge(label, url) {
