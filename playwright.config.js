@@ -55,6 +55,17 @@ module.exports = defineConfig({
       dependencies: ['auth-setup'],
     },
 
+    // --- Uploader checks (desktop) ---
+    {
+      name: 'uploader-desktop',
+      testMatch: /uploader\.spec\.js/,
+      use: {
+        viewport: { width: 1440, height: 900 },
+        storageState: 'tests/.auth/state.json',
+      },
+      dependencies: ['auth-setup'],
+    },
+
     // --- Global Search functional tests (desktop + mobile) ---
     {
       name: 'global-search-desktop',
