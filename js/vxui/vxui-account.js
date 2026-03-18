@@ -938,9 +938,10 @@ const VX_ACCOUNT = {
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
         
         $.post(apiUrl, {
-            action: 'password_change',
+            action: 'passwordreset',
             token: token,
-            password: newPass
+            password: newPass,
+            rpassword: confirmPass
         }, (data) => {
             if (data.status == 1) {
                 VXUI.toastSuccess('密码修改成功');
