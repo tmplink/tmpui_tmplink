@@ -596,12 +596,21 @@ const VX_ACCOUNT = {
             VXUI.toastWarning(this.lang('direct_brand_name_empty', '请填写完整信息'));
             return;
         }
+
+        const btn = document.querySelector('button[onclick="VX_ACCOUNT.saveProfile()"]');
+        let originalBtnHtml = '';
+        if (btn) {
+            if (btn.disabled) return;
+            originalBtnHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<iconpark-icon name="loader" class="fa-spin"></iconpark-icon>`;
+        }
         
         this.trackUI('vui_account[save_profile]');
         const apiUrl = (typeof TL !== 'undefined' && TL.api_user) ? TL.api_user : '/api_v2/user';
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
         
-        VXUI.toastInfo('保存中...');
+        // VXUI.toastInfo('保存中...');
         
         $.post(apiUrl, {
             'action': 'pf_userinfo_set',
@@ -622,6 +631,11 @@ const VX_ACCOUNT = {
             }
         }, 'json').fail(() => {
             VXUI.toastError('网络错误');
+        }).always(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHtml;
+            }
         });
     },
 
@@ -933,6 +947,15 @@ const VX_ACCOUNT = {
             return;
         }
         
+        const btn = document.querySelector('button[onclick="VX_ACCOUNT.changePassword()"]');
+        let originalBtnHtml = '';
+        if (btn) {
+            if (btn.disabled) return;
+            originalBtnHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<iconpark-icon name="loader" class="fa-spin"></iconpark-icon>`;
+        }
+        
         this.trackUI('vui_account[change_password]');
         const apiUrl = (typeof TL !== 'undefined' && TL.api_user) ? TL.api_user : '/api_v2/user';
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
@@ -952,6 +975,11 @@ const VX_ACCOUNT = {
             }
         }, 'json').fail(() => {
             VXUI.toastError('网络错误');
+        }).always(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHtml;
+            }
         });
     },
     
@@ -968,7 +996,7 @@ const VX_ACCOUNT = {
         
         const btn = document.getElementById('vx-send-code-btn');
         btn.disabled = true;
-        btn.textContent = '发送中...';
+        btn.innerHTML = `<iconpark-icon name="loader" class="fa-spin"></iconpark-icon>`;
         
         // Use TL's cc_send if available
         if (typeof TL !== 'undefined' && TL.cc_send) {
@@ -1031,6 +1059,15 @@ const VX_ACCOUNT = {
             return;
         }
         
+        const btn = document.querySelector('button[onclick="VX_ACCOUNT.changeEmail()"]');
+        let originalBtnHtml = '';
+        if (btn) {
+            if (btn.disabled) return;
+            originalBtnHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<iconpark-icon name="loader" class="fa-spin"></iconpark-icon>`;
+        }
+        
         this.trackUI('vui_account[change_email]');
         const apiUrl = (typeof TL !== 'undefined' && TL.api_user) ? TL.api_user : '/api_v2/user';
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
@@ -1050,6 +1087,11 @@ const VX_ACCOUNT = {
             }
         }, 'json').fail(() => {
             VXUI.toastError('网络错误');
+        }).always(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHtml;
+            }
         });
     },
     
@@ -1165,10 +1207,12 @@ const VX_ACCOUNT = {
         const disconnectBtn = document.getElementById('vx-google-disconnect');
         if (!disconnectBtn) return;
         
+        let originalBtnHtml = disconnectBtn.innerHTML;
+        disconnectBtn.disabled = true;
+        disconnectBtn.innerHTML = `<iconpark-icon name="loader" class="fa-spin"></iconpark-icon>`;
+        
         const apiUrl = (typeof TL !== 'undefined' && TL.api_user) ? TL.api_user : '/api_v2/user';
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
-        
-        disconnectBtn.disabled = true;
         
         $.post(apiUrl, {
             action: 'oauth_google_disconnect',
@@ -1178,6 +1222,7 @@ const VX_ACCOUNT = {
             this.loadGoogleStatus();
         }, 'json').always(() => {
             disconnectBtn.disabled = false;
+            disconnectBtn.innerHTML = originalBtnHtml;
         });
     },
     
