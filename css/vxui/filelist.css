@@ -2486,7 +2486,7 @@ body.dark .vx-preview-loading,
     }
 
     .vx-upload-setting-meta {
-        display: none;
+        /* display: none; Managed by JS */
     }
     
     .vx-upload-dropzone-actions {
