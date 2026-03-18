@@ -387,9 +387,24 @@ var VX_UPLOADER = VX_UPLOADER || {
         });
 
         if (serverTabs) {
-            serverTabs.innerHTML = serverItems.map((item) => {
-                return `<button type="button" class="vx-upload-segment" data-upload-server="${this.escapeHtml(item.url)}" onclick="VX_UPLOADER.onServerCardClick(this)"><span>${this.escapeHtml(item.label)}</span></button>`;
+            serverTabs.innerHTML = serverItems.map((item, index) => {
+                const pingId = `vx-server-ping-${index}`;
+                return `<button type="button" class="vx-upload-segment" data-upload-server="${this.escapeHtml(item.url)}" onclick="VX_UPLOADER.onServerCardClick(this)">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 100%;">
+                        <span>${this.escapeHtml(item.label)}</span>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 11px; font-weight: 500; height: 12px; line-height: 1;">
+                            <span id="${pingId}-dot" style="display: none; width: 6px; height: 6px; border-radius: 50%;"></span>
+                            <span id="${pingId}">测速中...</span>
+                        </div>
+                    </div>
+                </button>`;
             }).join('');
+            
+            setTimeout(() => {
+                serverItems.forEach((item, index) => {
+                    this.pingServer(item.url, `vx-server-ping-${index}`);
+                });
+            }, 50);
         }
 
         if (serverSelect) {
@@ -1726,6 +1741,56 @@ var VX_UPLOADER = VX_UPLOADER || {
             99: '永久'
         };
         return labels[model] || labels[0];
+    },
+
+    /**
+     * 服务器测速 (基于 HTTP 发送无缓存的探测请求计算延迟)
+     */
+    pingServer(url, elementId) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        
+        // 测速URL追加时间戳避免缓存
+        let targetUrl = url;
+        if (!targetUrl.includes('?')) {
+            targetUrl += '?_ping=' + Date.now();
+        } else {
+            targetUrl += '&_ping=' + Date.now();
+        }
+
+        const start = performance.now();
+        
+        fetch(targetUrl, { 
+            method: 'GET', 
+            mode: 'no-cors',
+            cache: 'no-store'
+        })
+        .then(() => {
+            const elNode = document.getElementById(elementId);
+            const dotNode = document.getElementById(elementId + '-dot');
+            if (!elNode) return;
+            const time = Math.round(performance.now() - start);
+            elNode.textContent = time + ' ms';
+            if (dotNode) dotNode.style.display = 'inline-block';
+            if (time < 150) {
+                if (dotNode) dotNode.style.backgroundColor = 'var(--vx-success, #10b981)';
+            } else if (time < 300) {
+                if (dotNode) dotNode.style.backgroundColor = 'var(--vx-warning, #f59e0b)';
+            } else {
+                if (dotNode) dotNode.style.backgroundColor = 'var(--vx-danger, #ef4444)';
+            }
+        })
+        .catch(() => {
+            const elNode = document.getElementById(elementId);
+            const dotNode = document.getElementById(elementId + '-dot');
+            if (elNode) {
+                elNode.textContent = '超时';
+                if (dotNode) {
+                    dotNode.style.display = 'inline-block';
+                    dotNode.style.backgroundColor = 'var(--vx-danger, #ef4444)';
+                }
+            }
+        });
     },
 
     getServerBadge(label, url) {
