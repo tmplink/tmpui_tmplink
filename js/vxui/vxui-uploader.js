@@ -140,21 +140,28 @@ var VX_UPLOADER = VX_UPLOADER || {
     /**
      * 加载服务器列表
      */
-    loadServers() {
+    loadServers(force = false) {
+        if (force) {
+            this.serversLoaded = false;
+            this.serversLoading = false;
+        }
+
         const token = this.getToken();
         if (!token) {
             this.serversLoaded = true;
             this.serversLoading = false;
+            this.updateServerSelect();
             return;
         }
-        
-        // 如果已经加载完成，不重复加载
+
+        // 如果已经加载完成，并且不是强制刷新，不重复加载
         if (this.serversLoaded) return;
         
         // 如果正在加载中，不重复发起请求
         if (this.serversLoading) return;
         
         this.serversLoading = true;
+        this.updateServerSelect(); // 立即显示加载进度图标
 
         const api = this.getUploadApi();
         
@@ -165,22 +172,31 @@ var VX_UPLOADER = VX_UPLOADER || {
                 captcha: captcha
             }, (rsp) => {
                 this.serversLoading = false;
-                this.serversLoaded = true;
                 
-                if (rsp.status === 1 && rsp.data && rsp.data.servers) {
-                    this.servers = rsp.data.servers;
-                    
-                    // 验证存储的服务器是否有效
-                    if (this.upload_server) {
-                        const valid = this.servers.some(s => s.url === this.upload_server);
-                        if (!valid && this.servers.length > 0) {
+                if (rsp.status === 1) {
+                    this.serversLoaded = true;
+                    if (rsp.data && rsp.data.servers) {
+                        this.servers = rsp.data.servers;
+                        
+                        // 验证存储的服务器是否有效
+                        if (this.upload_server) {
+                            const valid = this.servers.some(s => s.url === this.upload_server);
+                            if (!valid && this.servers.length > 0) {
+                                this.upload_server = this.servers[0].url;
+                            }
+                        } else if (this.servers.length > 0) {
                             this.upload_server = this.servers[0].url;
                         }
-                    } else if (this.servers.length > 0) {
-                        this.upload_server = this.servers[0].url;
+                        
+                        // 更新下拉框
+                        this.updateServerSelect();
                     }
-                    
-                    // 更新下拉框
+                } else {
+                    this.serversLoaded = false;
+                }
+                
+                // 更新下拉框消除加载状态（如果未成功拉取）
+                if (rsp.status !== 1 || !rsp.data || !rsp.data.servers) {
                     this.updateServerSelect();
                 }
                 
@@ -188,7 +204,8 @@ var VX_UPLOADER = VX_UPLOADER || {
                 this.executeServersLoadCallbacks();
             }, 'json').fail(() => {
                 this.serversLoading = false;
-                this.serversLoaded = true;
+                this.serversLoaded = false; // 失败后允许再次请求
+                this.updateServerSelect(); // 消除加载状态
                 // 执行等待中的回调
                 this.executeServersLoadCallbacks();
             });
@@ -226,6 +243,11 @@ var VX_UPLOADER = VX_UPLOADER || {
                 console.error('[VX_UPLOADER] Server load callback error:', e);
             }
         });
+        
+        // 服务器加载完成后，重试处理可能的积压队列
+        if (this.serversLoaded) {
+            this.processQueue();
+        }
     },
 
     /**
@@ -246,6 +268,15 @@ var VX_UPLOADER = VX_UPLOADER || {
     openModal(mrid) {
         console.log('[VX_UPLOADER] openModal called, mrid:', mrid);
         
+        if (!this.getToken()) {
+            if (typeof VXUI !== 'undefined') {
+                VXUI.toastWarning(this.getLang('vx_need_login') || '请先登录');
+            } else {
+                alert(this.getLang('vx_need_login') || '请先登录');
+            }
+            return;
+        }
+
         if (!this.initialized) {
             this.init();
         }
@@ -255,6 +286,11 @@ var VX_UPLOADER = VX_UPLOADER || {
 
         // 登录后再打开弹窗时补载一次性能配置
         this.loadPerformanceSettings();
+        
+        // 如果没有服务器数据或者还未加载完成，重新触发获取
+        if (!this.serversLoaded || this.servers.length === 0) {
+            this.loadServers(true);
+        }
         
         // 更新模态框内容
         this.updateModalUI();
@@ -314,9 +350,18 @@ var VX_UPLOADER = VX_UPLOADER || {
         const serverSelect = document.getElementById('vx-upload-server');
         if (!serverTabs && !serverSelect) return;
 
-        if (!this.servers.length) {
-            if (serverTabs) serverTabs.innerHTML = '';
-            if (serverSelect) serverSelect.innerHTML = '';
+        // 如果正处于加载中且未加载完成，则显示加载状态
+        if (this.serversLoading && !this.serversLoaded) {
+            const loadingText = this.getLang('loading') || '加载中...';
+            if (serverTabs) serverTabs.innerHTML = `<div class="vx-loading-icon" style="padding: 4px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: var(--vx-text-secondary);"><iconpark-icon name="spinner" style="animation: vxSpin 1s linear infinite;"></iconpark-icon> <span>${loadingText}</span></div>`;
+            if (serverSelect) serverSelect.innerHTML = `<option disabled selected>${loadingText}</option>`;
+            return;
+        }
+
+        if (!this.servers || !this.servers.length) {
+            const noDataText = this.getLang('no_data') || '暂无可用的服务器';
+            if (serverTabs) serverTabs.innerHTML = `<div style="padding: 4px; color: var(--vx-text-secondary); font-size: 0.9em;">${noDataText}</div>`;
+            if (serverSelect) serverSelect.innerHTML = `<option disabled selected>${noDataText}</option>`;
             return;
         }
 
@@ -586,6 +631,10 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 选择文件
      */
     selectFiles() {
+        if (!this.getToken()) {
+            VXUI.toastWarning(this.getLang('vx_need_login') || '请先登录');
+            return;
+        }
         const input = document.getElementById('vx-upload-file-input');
         if (input) {
             input.click();
@@ -596,6 +645,10 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 选择文件夹
      */
     selectFolder() {
+        if (!this.getToken()) {
+            VXUI.toastWarning(this.getLang('vx_need_login') || '请先登录');
+            return;
+        }
         const input = document.getElementById('vx-upload-folder-input');
         if (input) {
             input.click();
@@ -694,6 +747,11 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 添加文件到队列
      */
     addToQueue(item) {
+        if (!this.getToken()) {
+            VXUI.toastWarning(this.getLang('vx_need_login') || '请先登录');
+            return;
+        }
+
         const file = item.file;
         
         // 检查文件大小
@@ -742,6 +800,14 @@ var VX_UPLOADER = VX_UPLOADER || {
      * 处理队列
      */
     processQueue() {
+        // 如果服务器列表尚未就绪，且当前处于登录状态，则暂停处理队列，等待加载完成后重试
+        if ((this.serversLoading || !this.serversLoaded) && this.getToken() !== null) {
+            if (!this.serversLoading) {
+                this.loadServers();
+            }
+            return;
+        }
+
         while (this.active_count < this.max_queue && this.upload_queue.length > 0) {
             const task = this.upload_queue.shift();
             this.active_count++;
