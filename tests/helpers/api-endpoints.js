@@ -107,6 +107,18 @@ const endpoints = [
       if (!Array.isArray(rsp.data)) throw new Error('Expected data to be an array');
     },
   },
+  {
+    name: 'Password Reset Attempt',
+    path: '/api_v2/user',
+    action: 'passwordreset',
+    requiresToken: true,
+    // Provide bad data so we don't actually change the password
+    extraBody: { password: 'short', rpassword: 'mismatch' },
+    validate: (rsp) => {
+      // 0 or 5 is valid error for bad request which proves the API endpoint exists
+      if (rsp.status !== 0 && rsp.status !== 5) throw new Error(`Expected status to be 0 or 5 (failure), got ${rsp.status}`);
+    },
+  },
 ];
 
 module.exports = { endpoints };

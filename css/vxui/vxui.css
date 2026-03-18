@@ -1412,6 +1412,10 @@ html.vx-dark .vx-lang-option:hover {
     outline: none;
 }
 
+.vx-btn:active:not(:disabled) {
+    transform: scale(0.96);
+}
+
 .vx-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -1500,6 +1504,10 @@ html.vx-dark .vx-lang-option:hover {
 .vx-btn-icon:hover {
     background: var(--vx-surface-hover);
     color: var(--vx-text);
+}
+
+.vx-btn-icon:active:not(:disabled) {
+    transform: scale(0.92);
 }
 
 .vx-btn-icon iconpark-icon {

@@ -476,6 +476,9 @@
     color: #dbeafe;
     white-space: pre-wrap;
     word-break: break-word;
+    background: transparent;
+    border: none;
+    padding: 0;
 }
 
 .vx-pref-help {
