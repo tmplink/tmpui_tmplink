@@ -1452,10 +1452,26 @@ body.vx-gs-no-scroll {
     padding: 8px;
     border: 1px solid var(--vx-border);
     border-radius: 18px;
+    position: relative;
+    z-index: 1;
 }
 
 .vx-upload-segmented-server {
     gap: 8px;
+}
+
+.vx-upload-segment-bg {
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 0;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(109, 140, 255, 0.95), rgba(126, 97, 255, 0.92));
+    box-shadow: 0 10px 28px rgba(94, 92, 230, 0.34);
+    z-index: -1;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.2s ease;
+    pointer-events: none;
+    opacity: 0;
 }
 
 .vx-upload-segment {
@@ -1473,7 +1489,8 @@ body.vx-gs-no-scroll {
     font-size: 15px;
     font-weight: 700;
     line-height: 1;
-    transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, opacity 0.18s ease;
+    transition: color 0.2s ease, background 0.2s ease, opacity 0.18s ease;
+    outline: none !important;
 }
 
 .vx-upload-segment:hover {
@@ -1483,8 +1500,7 @@ body.vx-gs-no-scroll {
 
 .vx-upload-segment.active {
     color: #fff;
-    background: linear-gradient(180deg, rgba(109, 140, 255, 0.95), rgba(126, 97, 255, 0.92));
-    box-shadow: 0 10px 28px rgba(94, 92, 230, 0.34);
+    background: transparent;
 }
 
 .vx-upload-segment:disabled,

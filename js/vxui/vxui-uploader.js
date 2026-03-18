@@ -302,6 +302,13 @@ var VX_UPLOADER = VX_UPLOADER || {
         if (modal) {
             modal.classList.add('vx-modal-open');
             document.body.classList.add('vx-modal-body-open');
+            // Allow browser to render then update the sliding backgrounds
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    this.updateSegmentBackground('vx-upload-model-tabs');
+                    this.updateSegmentBackground('vx-upload-server-tabs');
+                });
+            });
         } else {
             console.error('[VX_UPLOADER] Modal element not found: vx-upload-modal');
         }
@@ -411,17 +418,60 @@ var VX_UPLOADER = VX_UPLOADER || {
         if (modelSelect) {
             modelSelect.value = String(this.upload_model);
         }
+        this.updateSegmentBackground('vx-upload-model-tabs');
     },
 
     syncServerTabState() {
         const serverSelect = document.getElementById('vx-upload-server');
         const serverTabs = document.querySelectorAll('#vx-upload-server-tabs [data-upload-server]');
+        let activeFound = false;
         serverTabs.forEach((item) => {
             const server = item.getAttribute('data-upload-server') || '';
-            item.classList.toggle('active', server === String(this.upload_server || ''));
+            const isActive = server === String(this.upload_server || '');
+            item.classList.toggle('active', isActive);
+            if (isActive) activeFound = true;
         });
+        
+        // If current server not found in tabs, maybe active the first one visually or do nothing
         if (serverSelect) {
             serverSelect.value = String(this.upload_server || '');
+        }
+        this.updateSegmentBackground('vx-upload-server-tabs');
+    },
+
+    /**
+     * 更新滑动背景动画
+     */
+    updateSegmentBackground(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        let bg = container.querySelector('.vx-upload-segment-bg');
+        if (!bg) {
+            bg = document.createElement('div');
+            bg.className = 'vx-upload-segment-bg';
+            // prepend to make sure it's under the buttons if z-index is identical, though we use z-index: -1 and 1
+            container.insertBefore(bg, container.firstChild);
+        }
+        
+        const activeItem = container.querySelector('.vx-upload-segment.active');
+        if (activeItem) {
+            // Need to wait for rendering to get offset if container was hidden
+            requestAnimationFrame(() => {
+                if (activeItem.offsetWidth === 0) {
+                    // if still hidden, maybe don't animate or try again later?
+                    // just hide bg for now
+                    bg.style.opacity = '0';
+                    return;
+                }
+                bg.style.width = activeItem.offsetWidth + 'px';
+                // Find offsetLeft considering parent padding
+                // element.offsetLeft is relative to the nearest positioned ancestor (the container here)
+                bg.style.transform = `translateX(${activeItem.offsetLeft}px)`;
+                bg.style.opacity = '1';
+            });
+        } else {
+            bg.style.opacity = '0';
         }
     },
 
