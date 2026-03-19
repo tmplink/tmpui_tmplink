@@ -104,10 +104,15 @@
         // 注册 Service Worker (支持 PWA)
         if ('serviceWorker' in navigator) {
             // 尽早监听消息，防止漏掉 SW 的更新通知
+            // 防抖标志：避免短时间内收到多条通知（多 tab / 并发检测）导致反复 reload
+            let _swUpdatePending = false;
             navigator.serviceWorker.addEventListener('message', event => {
                 if (event.data?.type === 'UPDATE_AVAILABLE') {
+                    if (_swUpdatePending) return;
+                    _swUpdatePending = true;
                     console.log('New version detected, reloading...');
-                    window.location.reload();
+                    // 延迟 500ms 合并同时段内的多条通知，仅触发一次 reload
+                    setTimeout(() => { window.location.reload(); }, 500);
                 }
             });
 
@@ -151,7 +156,7 @@
     <script type="text/javascript" src="./tmpui.js?v=59"></script>
     <script type="text/javascript">
         let config = {
-            "version": 1751,
+            "version": 1752,
             "siteroot": "/",
             "loadingIcon": "/img/ico/logo-new.svg",
             "loadingText": "TMP.LINK",
