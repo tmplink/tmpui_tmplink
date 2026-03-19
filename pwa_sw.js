@@ -44,28 +44,18 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'CHECK_UPDATE') {
     event.waitUntil(
       (async () => {
-        const url = event.data.url;
-        if (!url) return;
-        
-        const request = new Request(url);
-        
-        // 针对 index.html (根路径) 去除 query 参数，与导航请求的缓存 key 保持一致
-        const requestUrl = new URL(url);
-        const path = requestUrl.pathname;
-        const isIndex = path === '/' || path.toLowerCase().endsWith('/index.html');
-        let cacheKeyRequest = request;
+        const pageUrl = event.data.url;
+        if (!pageUrl) return;
 
-        if (isIndex) {
-            requestUrl.search = '';
-            cacheKeyRequest = new Request(requestUrl.toString());
-        }
+        // 始终使用根 URL 检查版本，与导航缓存键保持一致
+        // 避免不同 SPA 路由各自独立检测到版本变化，引发级联 reload
+        const canonicalUrl = new URL('/', new URL(pageUrl));
+        canonicalUrl.search = '';
+        const canonicalRequest = new Request(canonicalUrl.toString());
 
-        // 尝试匹配当前 URL 的缓存
-        const cachedResponse = await caches.match(cacheKeyRequest);
-        
-        // 复用 fetchAndCache 逻辑，强制标记为 isNavigation=true 以启用内容比对和通知
-        // 这样如果 index.html 变了，就会更新缓存并通知页面刷新
-        await fetchAndCache(request, cachedResponse, true, cacheKeyRequest)
+        const cachedResponse = await caches.match(canonicalRequest);
+
+        await fetchAndCache(canonicalRequest, cachedResponse, true, canonicalRequest)
             .catch(err => console.log('[SW] 定时检查更新失败 (网络或其它原因)', err));
       })()
     );
@@ -95,15 +85,11 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       (async () => {
         try {
-          // 针对 index.html (根路径) 去除 query 参数，确保共用同一个缓存 key
-          const isIndex = path === '/' || path.toLowerCase().endsWith('/index.html');
-          let cacheKeyRequest = event.request;
-
-          if (isIndex) {
-            const cleanUrl = new URL(event.request.url);
-            cleanUrl.search = '';
-            cacheKeyRequest = new Request(cleanUrl.toString());
-          }
+          // 无论访问哪个 SPA 路由，统一使用根 URL 作为 HTML shell 的缓存键
+          // 所有路由共享同一缓存条目，避免各路由独立检测到版本变更后级联触发多次 reload
+          const canonicalUrl = new URL('/', url);
+          canonicalUrl.search = '';
+          const cacheKeyRequest = new Request(canonicalUrl.toString());
 
           const cachedResponse = await caches.match(cacheKeyRequest);
           // 传递 clone 给 fetchAndCache 用于 ETag/版本比较，保留原始引用作 fallback
@@ -240,7 +226,7 @@ const fetchAndCache = async (request, cachedResponse = null, isNavigation = fals
                 // 但为了保险，还是更新一下缓存（虽然内容没变或变了无关紧要的东西），但不发通知
                 const responseToCache = response.clone();
                 const cache = await caches.open(CACHE_NAME);
-                await cache.put(request, responseToCache);
+                await cache.put(cacheKeyRequest || request, responseToCache);
                 return response;
             }
             console.log(`[SW] 版本号变更 ${oldVer} -> ${newVer}`);
@@ -289,8 +275,19 @@ const fetchAndCache = async (request, cachedResponse = null, isNavigation = fals
   }
 };
 
+// 防止并发请求（导航 + 定时检查）在同一时刻重复广播更新通知
+let _notifyScheduled = false;
+
 // 通知所有客户端有更新
 const notifyClientsOfUpdate = async () => {
+  if (_notifyScheduled) {
+    console.log('[SW] 通知已在队列中，跳过重复广播');
+    return;
+  }
+  _notifyScheduled = true;
+  // 10s 后重置，允许下一次真正的版本变更触发通知
+  setTimeout(() => { _notifyScheduled = false; }, 10000);
+
   // includeUncontrolled: true 确保即使页面尚未被当前 SW 完全控制（例如首次加载或刷新瞬间）也能收到消息
   const clients = await self.clients.matchAll({ includeUncontrolled: true, type: 'window' });
   console.log(`[SW] 检测到新版本，向 ${clients.length} 个客户端发送通知`);

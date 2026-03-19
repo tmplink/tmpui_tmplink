@@ -543,7 +543,25 @@ var VX_UPLOADER = VX_UPLOADER || {
         const option = document.querySelector('#vx-upload-model option[value="99"]');
         if (meta) {
             const leftText = this.getLang('upload_settings_private_left') || '剩余私有空间容量';
-            meta.textContent = `${leftText} ${this.formatSize(remaining)}`;
+            
+            const total = this.storage || 1;
+            const used = this.private_storage_used || 0;
+            const percent = Math.min(100, Math.max(0, (used / total) * 100));
+            
+            let barClass = '';
+            if (percent > 90) barClass = 'danger';
+            else if (percent > 70) barClass = 'warning';
+            
+            meta.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span>${leftText}</span>
+                    <span style="font-weight: 500;">${this.formatSize(remaining)}</span>
+                </div>
+                <div class="vx-progress">
+                    <div class="vx-progress-bar ${barClass}" style="width: ${percent}%;"></div>
+                </div>
+            `;
+            meta.style.marginTop = '12px';
             
             // 空间不足时禁用
             if (card) {
@@ -591,16 +609,21 @@ var VX_UPLOADER = VX_UPLOADER || {
      */
     updateModelDescription(model) {
         const hint = document.getElementById('vx-upload-model-hint');
-        if (!hint) return;
+        const meta = document.getElementById('vx-upload-model-99-meta');
         
-        const descriptions = {
-            0: this.getLang('modal_settings_upload_model1_des') || '这个文件在 24 后将被自动销毁。',
-            1: this.getLang('modal_settings_upload_model2_des') || '将在有人下载时自动延长这个期限。',
-            2: this.getLang('modal_settings_upload_model3_des') || '将在有人下载时自动延长这个期限。',
-            99: this.getLang('modal_settings_upload_model99_des') || '文件将存入您的私有空间。'
-        };
-        
-        hint.textContent = descriptions[model] || descriptions[0];
+        if (hint) {
+            const descriptions = {
+                0: this.getLang('modal_settings_upload_model1_des') || '这个文件在 24 后将被自动销毁。',
+                1: this.getLang('modal_settings_upload_model2_des') || '将在有人下载时自动延长这个期限。',
+                2: this.getLang('modal_settings_upload_model3_des') || '将在有人下载时自动延长这个期限。',
+                99: this.getLang('modal_settings_upload_model99_des') || '文件将存入您的私有空间。'
+            };
+            hint.textContent = descriptions[model] || descriptions[0];
+        }
+
+        if (meta) {
+            meta.style.display = Number(model) === 99 ? 'block' : 'none';
+        }
     },
 
     /**
