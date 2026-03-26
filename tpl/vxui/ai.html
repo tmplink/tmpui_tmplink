@@ -1,7 +1,7 @@
 <!-- VXUI AI Module Template -->
 
 <!-- Mobile Header -->
-<div class="vx-mob-topbar vx-ai-mob-header" id="vx-ai-mob-header">
+<div class="vx-mob-topbar vx-ai-mob-header" id="vx-ai-mob-header" style="display:none!important;">
     <div class="vx-mob-topbar-inner vx-ai-mob-toolbar">
         <div class="vx-mob-topbar-left">
         <button type="button" class="vx-mob-topbar-btn vx-ai-mob-icon-btn vx-ai-mob-menu-btn"
@@ -23,7 +23,7 @@
 </div>
 
 <!-- Desktop Header -->
-<header class="vx-header">
+<header class="vx-header" style="display:none!important;">
     <div class="vx-header-left">
         <button class="vx-btn-icon vx-portrait-sidebar-btn" onclick="VXUI.toggleSidebar()" i18n="vx_menu" i18n-only="title">
             <iconpark-icon name="bars"></iconpark-icon>
@@ -50,50 +50,29 @@
 
 <!-- Content -->
 <div class="vx-content vx-p-0">
-    <div class="vx-ai-container">
-        <!-- Messages Area -->
-        <div class="vx-ai-messages" id="vx-ai-messages">
-            <div class="vx-ai-welcome">
-                <div class="vx-ai-welcome-icon">
-                    <iconpark-icon name="user-robot"></iconpark-icon>
-                </div>
-                <h3 data-tpl="ai_start_chat_greeting">开始与智能小薇对话吧！</h3>
-                <p data-tpl="ai_mobile_intro">我是您的AI助手，有什么可以帮助您的吗？</p>
-                <div class="vx-ai-suggestions">
-                    <button class="vx-ai-suggestion" data-tpl="ai_suggest_usage_label" onclick="VX_AI.useSuggestionKey('ai_suggest_usage_prompt')">
-                        分析文件使用情况
-                    </button>
-                    <button class="vx-ai-suggestion" data-tpl="ai_suggest_share_label" onclick="VX_AI.useSuggestionKey('ai_suggest_share_prompt')">
-                        创建共享文件夹
-                    </button>
-                    <button class="vx-ai-suggestion" data-tpl="ai_suggest_direct_label" onclick="VX_AI.useSuggestionKey('ai_suggest_direct_prompt')">
-                        了解直链功能
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Input Area -->
-        <div class="vx-ai-input-area">
-            <div class="vx-ai-input-wrapper">
-                <textarea class="vx-ai-input" id="vx-ai-input" data-tpl="ai_input_placeholder_full"
-                    placeholder="输入消息... (Enter 发送, Shift+Enter 换行)"
-                    rows="1" maxlength="2000"></textarea>
-                <button class="vx-ai-send-btn" onclick="VX_AI.sendMessage()">
-                    <iconpark-icon name="rocket-launch"></iconpark-icon>
-                </button>
-            </div>
-            <div class="vx-ai-meta">
-                <span id="vx-ai-char-count">0/2000</span>
-                <span id="vx-ai-status" class="vx-ai-status" data-tpl="ai_status_ready">就绪</span>
-            </div>
-            <div class="vx-ai-disclaimer" data-tpl="ai_disclaimer">AI 生成的内容可能存在错误，请注意甄别</div>
-        </div>
+    <div class="vx-ai-iframe-wrapper">
+        <iframe
+            src="https://www.vxai.link/agent/c6583dcd33fc/"
+            style="border:0;"
+            allow="microphone"
+            loading="lazy"
+        ></iframe>
     </div>
 </div>
 
 <style>
 /* AI Module Specific Styles */
+.vx-ai-iframe-wrapper {
+    height: 100%;
+    width: 100%;
+}
+
+.vx-ai-iframe-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border-radius: 0 !important;
+}
+
 .vx-ai-container {
     display: flex;
     flex-direction: column;
