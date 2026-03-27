@@ -29,6 +29,11 @@
         overflow: hidden;
     }
 
+    body.vx-ai-active .vx-ai-iframe-wrapper {
+        height: calc(100vh - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom) - 12px);
+        height: calc(100dvh - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom) - 12px);
+    }
+
     body.vx-ai-active .vx-ai-container {
         height: calc(100vh - 72px - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom));
         height: calc(100dvh - 72px - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom));
@@ -189,6 +194,7 @@
         height: calc(100vh - 70px - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom));
         height: calc(100dvh - 70px - var(--vx-mobile-bar-height) - env(safe-area-inset-bottom));
     }
+
 
     body.vx-ai-active .vx-ai-messages {
         padding: 8px 8px 6px;
