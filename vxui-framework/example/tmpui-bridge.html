@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VXUI tmpUI Bridge Demo</title>
+    <link rel="stylesheet" href="../css/vxui-framework.css">
+</head>
+<body>
+    <div class="vx-app" id="vx-app">
+        <div class="vx-shell">
+            <div class="vx-sidebar-overlay" data-vx-sidebar-overlay></div>
+
+            <aside class="vx-sidebar" id="vx-sidebar">
+                <div class="vx-sidebar-header">
+                    <button class="vx-brand" type="button" data-vx-route="bridge-overview">
+                        <span class="vx-brand-mark">B</span>
+                        <span class="vx-brand-copy">
+                            <span class="vx-brand-title">tmpUI Bridge</span>
+                            <span class="vx-brand-subtitle">Host Adapter Example</span>
+                        </span>
+                    </button>
+                    <button class="vx-icon-button" type="button" data-vx-sidebar-close aria-label="close">
+                        <iconpark-icon name="circle-xmark"></iconpark-icon>
+                    </button>
+                </div>
+
+                <div class="vx-sidebar-body">
+                    <div class="vx-section-label">Bridge Views</div>
+                    <nav class="vx-nav-list" id="vx-sidebar-nav"></nav>
+                    <div class="vx-card">
+                        <h3 class="vx-card-title">Host Controls</h3>
+                        <div class="vx-stack">
+                            <button class="vx-btn vx-btn-secondary vx-btn-sm" type="button" id="bridge-host-login"></button>
+                            <button class="vx-btn vx-btn-ghost vx-btn-sm" type="button" id="bridge-host-owner"></button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="vx-main">
+                <header class="vx-topbar">
+                    <div class="vx-topbar-cluster">
+                        <button class="vx-icon-button" type="button" data-vx-sidebar-toggle aria-label="menu">
+                            <iconpark-icon name="bars"></iconpark-icon>
+                        </button>
+                        <div class="vx-header-meta">
+                            <div class="vx-topbar-subtitle">tmpUI Host Sync</div>
+                            <h1 class="vx-topbar-title" id="vx-current-title">Bridge</h1>
+                        </div>
+                    </div>
+                    <div class="vx-inline-actions">
+                        <span class="vx-auth-pill" id="vx-auth-pill"></span>
+                    </div>
+                </header>
+
+                <div class="vx-page">
+                    <nav class="vx-breadcrumb" id="vx-breadcrumb"></nav>
+                    <section class="vx-view" id="vx-view"></section>
+                </div>
+            </main>
+
+            <nav class="vx-mobile-bar" id="vx-mobile-bar"></nav>
+        </div>
+    </div>
+
+    <script src="../../plugin/icon/lib.js"></script>
+    <script src="../js/vxui-framework.js"></script>
+    <script src="../js/vxui-tmpui-bridge.js"></script>
+    <script src="./tmpui-bridge-demo.js"></script>
+</body>
+</html>
