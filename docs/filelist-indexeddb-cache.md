@@ -36,16 +36,17 @@
 缓存不是只按目录 ID 区分，而是按“站点 + token + mrid”隔离：
 
 ```text
-scope = host + '::' + token
+scope = host + '::' + token + '::' + uid
 key   = scope + '::' + mrid
 ```
 
-这样做有两个直接好处：
+这样做有三个直接好处：
 
 1. 同一浏览器下不同站点不会串缓存。
 2. 不同用户或不同访客 token 访问同一目录时不会共用缓存。
+3. 同一 token 被服务端绑定给不同账号时（如注销后换账号登录），因 uid 不同而缓存互不干扰。
 
-这里的 token 来源和页面实际请求保持一致，优先读取 `TL.api_token`，其次才会回退到本地存储或 cookie。
+这里的 token 来源和页面实际请求保持一致，优先读取 `TL.api_token`，其次才会回退到本地存储或 cookie。uid 来自 `TL.uid`，在 `TL.ready()` 触发前由 `get_details()` 填充；匿名用户或未登录时 uid 为 `0`。
 
 ## 快照内容
 

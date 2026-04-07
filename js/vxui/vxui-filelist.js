@@ -123,7 +123,8 @@ var VX_FILELIST = VX_FILELIST || {
     getCacheScope() {
         const host = (typeof window !== 'undefined' && window.location) ? window.location.host : 'unknown';
         const token = this.getToken() || '';
-        return `${host}::${token}`;
+        const uid = (typeof TL !== 'undefined' && TL.uid) ? String(TL.uid) : '0';
+        return `${host}::${token}::${uid}`;
     },
 
     getCacheKey(mrid) {
