@@ -11,7 +11,6 @@ const VX_AI = {
     conversationId: null,
     messages: [],
     isLoading: false,
-    conversations: [],
     userStats: null,
     maxInputLength: 2000,
 
@@ -42,17 +41,6 @@ const VX_AI = {
         }
     },
 
-    getConversationTitleById(conversationId) {
-        if (!conversationId || !Array.isArray(this.conversations)) return '';
-        const conv = this.conversations.find(c => String(c.conversation_id) === String(conversationId));
-        return conv && conv.title ? String(conv.title) : '';
-    },
-
-    trackConversation(conversationId, fallbackTitle) {
-        const title = this.getConversationTitleById(conversationId) || fallbackTitle || this.lang('ai_new_conversation', '新建对话');
-        this.trackUI(`vui_ai[${title}]`);
-    },
-    
     /**
      * 初始化模块
      */
@@ -68,29 +56,21 @@ const VX_AI = {
             }, 300);
             return;
         }
-        
+
         // 确保 token 可用（直达刷新时可能尚未恢复）
         this.ensureTokenReady();
 
         // 重置状态
         this.resetState();
-        
-        // 更新侧边栏
-        this.updateSidebar();
-        
+
+        // 清空动态侧边栏（助手功能已通过外部 iframe 实现）
+        this.clearSidebar();
+
         // 绑定事件
         this.bindEvents();
 
         // 初始化配额显示
         this.loadStatus();
-
-        // 加载对话历史
-        this.loadConversationHistory();
-        
-        // 直达 URL 指定对话
-        if (params.conversationId) {
-            this.switchConversation(params.conversationId);
-        }
     },
     
     /**
@@ -109,7 +89,6 @@ const VX_AI = {
         this.conversationId = null;
         this.messages = [];
         this.isLoading = false;
-        // conversations/userStats 不清空：用于侧边栏与配额显示
         this.setStatusText(this.lang('ai_status_ready', '就绪'));
         this.updateCharCount();
         this.updateSendButton();
@@ -219,60 +198,12 @@ const VX_AI = {
     },
     
     /**
-     * 更新侧边栏
+     * 清空动态侧边栏
      */
-    updateSidebar() {
+    clearSidebar() {
         const sidebarDynamic = document.getElementById('vx-sidebar-dynamic');
         if (!sidebarDynamic) return;
-        
-        sidebarDynamic.innerHTML = `
-            <div class="vx-nav-section">
-                <a href="javascript:;" class="vx-nav-item" onclick="VX_AI.newConversation()">
-                    <iconpark-icon name="circle-plus"></iconpark-icon>
-                    <span class="vx-nav-item-text" data-tpl="ai_new_conversation">新建对话</span>
-                </a>
-            </div>
-
-            <div class="vx-nav-section">
-                <div id="vx-ai-conversation-list"></div>
-                <a href="javascript:;" class="vx-nav-item vx-ai-nav-danger" onclick="VX_AI.deleteAllConversationsUI()">
-                    <iconpark-icon name="delete"></iconpark-icon>
-                    <span class="vx-nav-item-text" data-tpl="ai_delete_all_conversations">删除全部对话</span>
-                </a>
-            </div>
-
-            <style>
-                .vx-ai-nav-danger { color: var(--vx-danger); }
-                .vx-ai-nav-danger:hover { background: rgba(239, 68, 68, 0.08); }
-                .vx-ai-conv-item { position: relative; flex-direction: column; align-items: stretch; gap: 6px; }
-                .vx-ai-conv-top { display: flex; align-items: center; gap: 8px; }
-                .vx-ai-conv-top > iconpark-icon { flex-shrink: 0; width: 20px; display: none; }
-                .vx-ai-conv-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-                .vx-ai-conv-time { font-size: var(--vx-text-xs); color: var(--vx-text-muted); }
-                .vx-ai-conv-del {
-                    margin-left: auto;
-                    border: none;
-                    background: transparent;
-                    color: var(--vx-text-muted);
-                    padding: 4px;
-                    cursor: pointer;
-                    border-radius: var(--vx-radius);
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                .vx-ai-conv-del:hover { color: var(--vx-danger); background: rgba(239, 68, 68, 0.08); }
-            </style>
-        `;
-
-        if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
-            TL.tpl_lang(sidebarDynamic);
-        }
-        
-        if (typeof app !== 'undefined') {
-            app.languageBuild();
-        }
-
+        sidebarDynamic.innerHTML = '';
         if (typeof VXUI !== 'undefined' && typeof VXUI.refreshSidebarDivider === 'function') {
             VXUI.refreshSidebarDivider();
         }
@@ -398,9 +329,6 @@ const VX_AI = {
         // 添加用户消息
         this.addMessage('user', message);
 
-        // 记录对话发送（使用对话标题）
-        this.trackConversation(this.conversationId, this.lang('ai_new_conversation', '新建对话'));
-        
         // 发送到 AI
         this.callAI(message);
     },
@@ -615,14 +543,6 @@ const VX_AI = {
                     this.addMessage('assistant', data.reply);
                 }
 
-                // 新对话：刷新历史列表并高亮
-                if (isNewConversation) {
-                    this.loadConversationHistory();
-                    setTimeout(() => this.highlightActiveConversation(), 300);
-                } else {
-                    this.highlightActiveConversation();
-                }
-
                 this.updateSendButton();
             })
             .catch((err) => {
@@ -636,201 +556,6 @@ const VX_AI = {
             });
     },
     
-    /**
-     * 新对话
-     */
-    newConversation() {
-        VXUI.confirm({
-            title: this.lang('ai_new_conversation', '新建对话'),
-            message: this.lang('ai_confirm_new_conversation', '确定要开始新对话吗？当前对话将被保存。'),
-            onConfirm: () => {
-                this.resetState();
-                this.renderMessages();
-                this.highlightActiveConversation();
-                this.trackConversation(null, this.lang('ai_new_conversation', '新建对话'));
-            }
-        });
-    },
-    
-    /**
-     * 清空历史
-     */
-    clearHistory() {
-        this.trackUI('vui_ai[clear_history]');
-        VXUI.confirm({
-            title: this.lang('ai_clear_current', '清空对话'),
-            message: this.lang('ai_clear_current_confirm', '确定要清空当前对话显示吗？（不会删除服务器上的历史对话）'),
-            confirmClass: 'vx-btn-danger',
-            onConfirm: () => {
-                this.messages = [];
-                this.renderMessages();
-                VXUI.toastSuccess(this.lang('ai_cleared', '对话已清空'));
-                this.setStatusText(this.lang('ai_status_ready', '就绪'));
-                this.updateSendButton();
-            }
-        });
-    },
-    
-    /**
-     * 加载历史对话
-     */
-    loadConversationHistory(limit = 20) {
-        console.log('[VX_AI] loadConversationHistory called, limit:', limit);
-        this.apiPost('history', { limit: String(limit) }, { retryIfNoToken: true })
-            .then((list) => {
-                console.log('[VX_AI] history response:', list, 'isArray:', Array.isArray(list));
-                this.conversations = Array.isArray(list) ? list : [];
-                console.log('[VX_AI] conversations set to:', this.conversations);
-                this.renderConversationList();
-            })
-            .catch((err) => {
-                console.error('[VX_AI] history error:', err);
-                this.conversations = [];
-                this.renderConversationList();
-            });
-    },
-
-    renderConversationList() {
-        const container = document.getElementById('vx-ai-conversation-list');
-        if (!container) return;
-
-        if (!this.conversations || this.conversations.length === 0) {
-            container.innerHTML = `
-                <div class="vx-nav-stats">
-                    <div class="vx-nav-stat-item">
-                        <iconpark-icon name="inbox"></iconpark-icon>
-                        <span data-tpl="ai_no_conversations">暂无对话历史</span>
-                    </div>
-                </div>
-            `;
-            if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
-                TL.tpl_lang(container);
-            }
-            return;
-        }
-
-        container.innerHTML = this.conversations.map(conv => {
-            const id = conv.conversation_id;
-            const title = (conv.title || this.lang('ai_new_conversation', '新建对话')).toString();
-            const time = (conv.time || '').toString();
-            const activeClass = (this.conversationId && id === this.conversationId) ? 'active' : '';
-            return `
-                <a href="javascript:;" class="vx-nav-item vx-ai-conv-item ${activeClass}" data-conversation-id="${id}" onclick="VX_AI.switchConversation('${id}')">
-                    <div class="vx-ai-conv-top">
-                        <span class="vx-ai-conv-title">${this.escapeHtml(title)}</span>
-                        <button type="button" class="vx-ai-conv-del" title="${this.escapeAttr(this.lang('ai_delete_conversation', '删除对话'))}" onclick="event.stopPropagation(); VX_AI.deleteConversationUI('${id}')">
-                            <iconpark-icon name="trash"></iconpark-icon>
-                        </button>
-                    </div>
-                    ${time ? `<div class="vx-ai-conv-time">${this.escapeHtml(time)}</div>` : ''}
-                </a>
-            `;
-        }).join('');
-
-        this.highlightActiveConversation();
-    },
-
-    highlightActiveConversation() {
-        const container = document.getElementById('vx-ai-conversation-list');
-        if (!container) return;
-        const items = container.querySelectorAll('.vx-ai-conv-item');
-        items.forEach(it => it.classList.remove('active'));
-        if (!this.conversationId) return;
-        const active = container.querySelector(`.vx-ai-conv-item[data-conversation-id="${this.conversationId}"]`);
-        if (active) active.classList.add('active');
-    },
-
-    switchConversation(conversationId) {
-        if (!conversationId) return;
-        this.conversationId = conversationId;
-        this.messages = [];
-        this.isLoading = true;
-        this.setStatusText(this.lang('ai_loading_conversation', '加载对话中...'), 'loading');
-        this.renderMessages();
-        this.highlightActiveConversation();
-
-        // 记录对话切换
-        this.trackConversation(conversationId);
-
-        this.apiPost('get_conversation', { conversation_id: conversationId }, { retryIfNoToken: true })
-            .then((conversation) => {
-                this.isLoading = false;
-                this.setStatusText(this.lang('ai_status_ready', '就绪'));
-                const msgs = (conversation && Array.isArray(conversation.messages)) ? conversation.messages : [];
-                this.messages = msgs.map(m => ({
-                    role: this.normalizeRole(m && m.role),
-                    content: m && m.content,
-                    time: Date.now()
-                }));
-                this.renderMessages();
-                this.scrollToBottom();
-                this.loadStatus(false);
-                this.updateSendButton();
-            })
-            .catch((err) => {
-                this.isLoading = false;
-                this.setStatusText(this.lang('ai_load_failed', '加载失败'), 'error');
-                const msg = (err && err.message) ? err.message : this.lang('ai_get_detail_failed', '获取对话详情失败');
-                this.messages = [{ role: 'assistant', content: msg, time: Date.now() }];
-                this.renderMessages();
-                this.updateSendButton();
-            });
-    },
-
-    deleteConversationUI(conversationId) {
-        if (!conversationId) return;
-        this.trackUI('vui_ai[delete_conversation]');
-        VXUI.confirm({
-            title: this.lang('ai_delete_conversation', '删除对话'),
-            message: this.lang('ai_confirm_delete', '确定要删除这个对话吗？此操作无法撤销。'),
-            confirmClass: 'vx-btn-danger',
-            onConfirm: () => {
-                this.apiPost('delete', { conversation_id: conversationId }, { retryIfNoToken: true })
-                    .then(() => {
-                        if (this.conversationId === conversationId) {
-                            this.resetState();
-                            this.renderMessages();
-                        }
-                        this.loadConversationHistory();
-                        VXUI.toastSuccess(this.lang('ai_deleted', '已删除'));
-                    })
-                    .catch((err) => {
-                        VXUI.toastError((err && err.message) ? err.message : this.lang('ai_delete_failed', '删除对话失败'));
-                    });
-            }
-        });
-    },
-
-    deleteAllConversationsUI() {
-        if (!this.conversations || this.conversations.length === 0) {
-            VXUI.toastError(this.lang('ai_no_conversations', '暂无对话历史'));
-            return;
-        }
-        this.trackUI('vui_ai[delete_all_conversations]');
-        VXUI.confirm({
-            title: this.lang('ai_delete_all_conversations', '删除全部对话'),
-            message: this.lang('ai_confirm_delete_all_conversations', '确定要删除全部历史对话吗？此操作无法撤销。'),
-            confirmClass: 'vx-btn-danger',
-            onConfirm: async () => {
-                // 逐个删除：与老版一致，避免后端无 delete_all action
-                const ids = this.conversations.map(c => c.conversation_id).filter(Boolean);
-                this.setStatusText(this.lang('ai_deleting', '删除中…'), 'loading');
-                for (const id of ids) {
-                    try {
-                        // eslint-disable-next-line no-await-in-loop
-                        await this.apiPost('delete', { conversation_id: id }, { retryIfNoToken: true });
-                    } catch (e) {
-                        // continue
-                    }
-                }
-                this.resetState();
-                this.renderMessages();
-                this.loadConversationHistory();
-                VXUI.toastSuccess(this.lang('ai_deleted_all_conversations', '已删除全部对话'));
-            }
-        });
-    },
-
     loadStatus(retryIfFail = true) {
         this.apiPost('status', {}, { retryIfNoToken: true })
             .then((stats) => {

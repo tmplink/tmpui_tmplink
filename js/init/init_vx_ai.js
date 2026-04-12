@@ -21,19 +21,7 @@
             }
         });
 
-        // 键盘快捷键
-        document.addEventListener('keydown', function(e) {
-            if (typeof VXUI === 'undefined' || VXUI.currentModule !== 'ai') return;
-            if (typeof VX_AI === 'undefined') return;
-
-            // Ctrl/Cmd + N 新对话
-            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-                e.preventDefault();
-                if (typeof VX_AI.newConversation === 'function') {
-                    VX_AI.newConversation();
-                }
-            }
-        });
+        // 键盘快捷键（助手功能已通过外部实现，暂无需额外快捷键）
     }
 
     // 自动调整输入框高度
