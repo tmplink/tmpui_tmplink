@@ -1262,5 +1262,7 @@
     "vx_gs_no_result_hint": "別のキーワードで試してください",
     "vx_gs_hint_short": "2文字以上入力してください",
     "vx_gs_result_count_unit": "件の結果",
-    "vx_gs_goto_folder": "このフォルダを開く"
+    "vx_gs_goto_folder": "このフォルダを開く",
+    "vx_gs_action_share": "共有",
+    "vx_gs_action_delete": "削除"
 }

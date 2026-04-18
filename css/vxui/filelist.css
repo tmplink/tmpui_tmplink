@@ -828,7 +828,7 @@ body.vx-gs-no-scroll {
 
 .vx-gs-result-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     padding: 9px 6px;
     cursor: pointer;
@@ -836,12 +836,20 @@ body.vx-gs-no-scroll {
     transition: background 0.12s;
     text-decoration: none;
     color: inherit;
+    position: relative;
 }
 
 .vx-gs-result-item:hover {
     background: var(--vx-bg-hover);
     text-decoration: none;
     color: inherit;
+}
+
+.vx-gs-result-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
 }
 
 .vx-gs-result-icon {
@@ -853,14 +861,29 @@ body.vx-gs-no-scroll {
     justify-content: center;
     border-radius: var(--vx-radius-sm);
     font-size: 18px;
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
 }
 
 .vx-gs-result-info {
     flex: 1;
     min-width: 0;
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.vx-gs-result-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
 }
 
 .vx-gs-result-name {
+    flex: 1;
+    min-width: 0;
     font-size: var(--vx-text-sm);
     color: var(--vx-text-primary);
     overflow: hidden;
@@ -888,6 +911,57 @@ body.vx-gs-no-scroll {
     border-radius: 6px;
     padding: 1px 3px;
     margin-left: -3px;
+}
+
+.vx-gs-result-path-wrap {
+    margin-top: 2px;
+    width: max-content;
+    max-width: 100%;
+    position: relative;
+    z-index: 3;
+    pointer-events: auto;
+}
+
+.vx-gs-result-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+    position: relative;
+    z-index: 3;
+    pointer-events: auto;
+}
+
+.vx-gs-action-btn {
+    min-height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--vx-border);
+    background: var(--vx-bg);
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--vx-text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.vx-gs-action-btn iconpark-icon {
+    font-size: 12px;
+}
+
+.vx-gs-action-btn:hover {
+    color: var(--vx-primary);
+    border-color: rgba(37, 99, 235, 0.22);
+    background: var(--vx-bg-secondary);
+}
+
+.vx-gs-action-btn.vx-action-danger:hover {
+    color: #EF4444;
+    border-color: rgba(239, 68, 68, 0.22);
+    background: rgba(239, 68, 68, 0.08);
 }
 
 /* 可交互路径：显示 pointer 并在 hover/active 时提示可点 */
@@ -1025,6 +1099,16 @@ body.vx-gs-no-scroll {
     .vx-gs-result-name {
         /* 移动端适当放大阅读字号 */
         font-size: 15px;
+    }
+
+    .vx-gs-result-actions {
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .vx-gs-action-btn {
+        min-height: 32px;
+        padding: 0 12px;
     }
 
     .vx-gs-result-path {

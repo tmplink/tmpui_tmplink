@@ -1262,5 +1262,7 @@
     "vx_gs_no_result_hint": "Try a different keyword",
     "vx_gs_hint_short": "Enter at least 2 characters",
     "vx_gs_result_count_unit": "results",
-    "vx_gs_goto_folder": "Go to this folder"
+    "vx_gs_goto_folder": "Go to this folder",
+    "vx_gs_action_share": "Share",
+    "vx_gs_action_delete": "Delete"
 }
