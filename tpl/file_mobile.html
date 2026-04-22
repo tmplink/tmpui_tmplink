@@ -250,6 +250,10 @@
                 <span id="download_progress">0 MB / 0 MB</span>
             </span>
         </button>
+        <button type="button" class="file-support-hint" onclick="window.TMP_SUPPORT_WIDGET && window.TMP_SUPPORT_WIDGET.open()">
+            <iconpark-icon name="comments"></iconpark-icon>
+            <span i18n="support_download_hint">下载有问题？呼叫客服</span>
+        </button>
     </footer>
 
     <div id="file_loading" style="display: none;"></div>
@@ -413,6 +417,25 @@
             </div>
             <div class="file-modal-footer">
                 <button type="button" class="file-modal-btn file-modal-btn-default" onclick="fileUI.closeModal('downloadAlertModal')" i18n="model_btn_cancel">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Support Widget Modal -->
+<!-- Support Widget Modal -->
+<div class="file-modal" id="supportModal">
+    <div class="file-modal-dialog">
+        <div class="file-modal-content file-support-content">
+            <div class="file-modal-body file-support-body">
+                <iframe
+                    class="file-support-iframe"
+                    src="https://www.vxai.link/agent/c6583dcd33fc/?config=13"
+                    style="width:100%;height:100%;border:0;display:block;"
+                    allow="microphone"
+                    loading="lazy"
+                ></iframe>
+                <button type="button" class="file-support-close-mobile" onclick="fileUI.closeModal('supportModal')" i18n="model_btn_cancel">关闭</button>
             </div>
         </div>
     </div>

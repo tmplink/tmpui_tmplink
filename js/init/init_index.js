@@ -148,7 +148,7 @@ function initScrollEffects() {
             if (scrollTop > 300) {
                 languageBtn.style.display = 'none';
             } else {
-                languageBtn.style.display = 'block';
+                languageBtn.style.display = 'flex';
             }
         }
 
