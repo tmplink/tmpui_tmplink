@@ -9,6 +9,17 @@
 - 国内用户官网：https://ttttt.link
 - 海外用户官网：https://tmp.link
 
+URL 构建规则
+- 各文档中出现的相对路径（如 /?tmpui_page=... 或 /file?ukey=... 或 /f/...）仅作为路径标识。
+- 向用户展示完整链接时，须根据用户地区拼接域名前缀：
+  - 国内用户：https://ttttt.link
+  - 海外用户：https://tmp.link
+  - 用中文交流时，默认使用 https://ttttt.link
+  - 用其他语言交流或无法判断地区时，默认使用 https://tmp.link
+- 示例：文件列表入口 /?tmpui_page=/vx&module=filelist
+  → 国内用户：https://ttttt.link/?tmpui_page=/vx&module=filelist
+  → 海外用户：https://tmp.link/?tmpui_page=/vx&module=filelist
+
 文档目录
 1. 总览（本文件）
 2. 文件列表

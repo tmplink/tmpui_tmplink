@@ -13,7 +13,7 @@
 
 页面入口
 - 文件下载页 URL 格式：/file?ukey=文件标识
-- 分享链接格式：https://tmp.link/f/文件标识
+- 分享链接格式：https://ttttt.link/f/文件标识（国内）或 https://tmp.link/f/文件标识（海外）
 
 ========== 页面信息展示 ==========
 
