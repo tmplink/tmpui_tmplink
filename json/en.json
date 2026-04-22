@@ -763,7 +763,7 @@
     "highspeed_type": "Price",
     "model_title_buy_storage": "Premium Storage",
     "storage_content": "Premium Storage is used to store files without expiration dates.",
-    "storage_content2": "<li>Repeating the purchase of Premium Storage with the same capacity will extend the validity period.</li><li>When purchasing Premium Storage with different capacities, the total capacity of the Premium Storage will be accumulated.</li>",
+    "storage_content2": "<li>Purchasing different Premium Storage capacities adds up total capacity, for example 1TB + 3TB = 4TB.</li><li>Repurchasing the same capacity does not increase capacity, for example 1TB + 1TB is still 1TB, but the validity period for that capacity is extended.</li>",
     "storage_price_cny1": "256GB / 6 CNY per month",
     "storage_price_cny2": "1TB / 15 CNY per month",
     "storage_price_cny3": "3TB / 38 CNY per month ",

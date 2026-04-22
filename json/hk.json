@@ -801,7 +801,7 @@
     "media_times": "購買時長",
     "model_title_buy_storage": "私有空間",
     "storage_content": "在存放无期限的檔案時，會占用私有空間的容量。",
-    "storage_content2": "<li>重複購買相同容量的私有空間，將延長有效期。</li><li>購買不同容量的私有空間時，將累積私有空間的總容量。</li>",
+    "storage_content2": "<li>購買不同容量的私有空間會累積總容量，例如 1TB + 3TB = 4TB。</li><li>重複購買相同容量不會累積容量，例如 1TB + 1TB 仍為 1TB，但會延長該容量的有效期。</li>",
     "storage_price_cny1": "256GB / ￥6 / 一個月",
     "storage_price_cny2": "1TB / ￥18 / 一個月",
     "storage_price_usd1": "256GB / $1  / 一個月",

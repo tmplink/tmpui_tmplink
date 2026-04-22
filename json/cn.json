@@ -502,7 +502,7 @@
     "direct_quota_price_usd4": "$15 / 1 TB",
     "model_title_buy_storage": "私有空间",
     "storage_content": "在存放无期限的文件时，会占用私有空间的容量。",
-    "storage_content2": "<li>重复购买相同容量的私有空间，会延长有效期。</li><li>购买不同容量的私有空间时，会叠加私有空间的总容量。</li>",
+    "storage_content2": "<li>购买不同容量的私有空间会叠加总容量，例如 1TB + 3TB = 4TB。</li><li>重复购买相同容量不会叠加容量，例如 1TB + 1TB 仍为 1TB，但会延长该容量的有效期。</li>",
     "storage_price_cny1": "256GB / ￥6 / 一个月",
     "storage_price_cny2": "1TB / ￥18 / 一个月",
     "storage_price_usd1": "256GB / $1  / 一个月",
