@@ -438,6 +438,30 @@ body.file-page .file-page-root .align-self-center {
     }
 }
 
+.file-support-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--app-text-sub);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: color 0.15s;
+}
+
+.file-support-hint:active {
+    color: var(--app-primary);
+}
+
+.file-support-hint iconpark-icon {
+    font-size: 15px;
+}
+
 #file_download_btn_fast {
     width: 100%;
     height: 64px;

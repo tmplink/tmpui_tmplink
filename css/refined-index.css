@@ -621,13 +621,50 @@ body.dark-mode .floating-element svg path {
     }
 }
 
-/* 语言选择器 - 更精致的设计 */
+/* 语言选择器 + 客服按钮 - 更精致的设计 */
 .float-layer {
     position: fixed;
     bottom: var(--space-xl);
     right: var(--space-xl);
     z-index: 1000;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-sm);
     transition: all 0.3s ease;
+}
+
+/* 隐藏全局悬浮触发器，首页使用内联并排样式 */
+.tmp-support-trigger {
+    display: none !important;
+}
+
+/* 首页客服按钮 - 与语言选择器同款 pill 样式 */
+.idx-support-btn {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-lg);
+    color: var(--text-primary);
+    padding: var(--space-lg) var(--space-xl);
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    outline: none;
+    white-space: nowrap;
+}
+
+.idx-support-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--gray-300);
+    color: var(--primary-color);
 }
 
 .language-selector {
@@ -1061,7 +1098,8 @@ body.dark-mode .floating-element svg path {
         min-width: 180px;
     }
     
-    .language-btn {
+    .language-btn,
+    .idx-support-btn {
         padding: var(--space-md) var(--space-lg);
         font-size: 0.85rem;
     }

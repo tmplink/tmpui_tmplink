@@ -1507,6 +1507,9 @@ const fileUI = {
     _modalBackdropHandler(e) {
         if (e.target.classList.contains('file-modal')) {
             fileUI.closeModal(e.target.id);
+        } else if (e.target.classList.contains('file-modal-dialog')) {
+            const modal = e.target.closest('.file-modal');
+            if (modal) fileUI.closeModal(modal.id);
         }
     }
 };

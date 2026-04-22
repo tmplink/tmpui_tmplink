@@ -1,0 +1,56 @@
+/* ==================== 客服支持组件（独立遮罩层）==================== */
+/* 仅在非文件下载页面（首页、登录、注册等）使用此遮罩层样式。        */
+/* 文件下载页面使用 file.css 中的 .file-support-content 样式。       */
+
+.tmp-support-widget-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.tmp-support-widget-overlay.open {
+    display: flex;
+}
+
+.tmp-support-widget-panel {
+    position: relative;
+    width: min(680px, calc(100vw - 40px));
+    height: min(720px, calc(100dvh - 40px));
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    animation: tmpSupportPanelIn 0.2s ease-out;
+}
+
+@keyframes tmpSupportPanelIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.tmp-support-widget-body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+@media (max-width: 600px) {
+    .tmp-support-widget-panel {
+        height: calc(100dvh - 40px);
+        max-width: 100%;
+        border-radius: 16px;
+    }
+}

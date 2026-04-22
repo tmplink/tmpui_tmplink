@@ -2302,3 +2302,72 @@ body.legal-page .lang-toggle::after {
         padding: 16px 20px 24px;
     }
 }
+
+/* ==================== Support Chat Widget Modal ==================== */
+.file-support-content {
+    width: min(680px, calc(100vw - 40px));
+    max-width: none;
+    height: min(720px, calc(100dvh - 40px));
+    max-height: none;
+    overflow: hidden;
+    position: relative;
+}
+
+.file-support-body {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+}
+
+.file-support-iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+}
+
+.file-support-close-mobile {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    #supportModal {
+        padding: 0;
+    }
+
+    #supportModal .file-modal-dialog {
+        width: 100vw;
+        height: 100dvh;
+    }
+
+    .file-support-content {
+        width: 100vw;
+        height: 100dvh;
+        border-radius: 0;
+    }
+
+    .file-support-body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .file-support-iframe {
+        flex: 1;
+        min-height: 0;
+    }
+
+    .file-support-close-mobile {
+        display: block;
+        width: calc(100% - 24px);
+        margin: 10px 12px 12px;
+        height: 44px;
+        border: none;
+        border-radius: 12px;
+        background: #e2e8f0;
+        color: #1e293b;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+}
