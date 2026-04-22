@@ -739,7 +739,7 @@
     "highspeed_type": "価格",
     "model_title_buy_storage": "プライベートストレージ",
     "storage_content": "有効期限を設定していないファイルの保存に使用されます。",
-    "storage_content2": "<li>同じ容量のプライベートストレージを再購入すると、有効期間が延長されます。</li><li>異なる容量のプライベートストレージを購入する場合、総容量が追加されます。</li>",
+    "storage_content2": "<li>異なる容量のプライベートストレージを購入すると総容量が加算されます（例: 1TB + 3TB = 4TB）。</li><li>同じ容量を再購入しても容量は増えません（例: 1TB + 1TB でも 1TB のまま）が、その容量の有効期間は延長されます。</li>",
     "storage_price_cny1": "256GB / 150 JPY / 1か月",
     "storage_price_cny2": "1TB / 450 JPY / 1か月",
     "storage_price_cny3": "3TB / 1150 JPY / 1か月",
