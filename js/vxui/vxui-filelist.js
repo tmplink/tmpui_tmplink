@@ -69,6 +69,7 @@ var VX_FILELIST = VX_FILELIST || {
     _gsDebounceTimer: null,
     _gsCurrentKeyword: '',
     _gsRemoteReqId: 0,
+    _gsLastResults: [],
 
     // 文件同步状态检查器
     _syncCheckTimers: {},
@@ -4766,18 +4767,24 @@ var VX_FILELIST = VX_FILELIST || {
     /**
      * 删除文件
      */
-    deleteFile(ukey) {
+    deleteFile(ukey, sourceMrid, callbacks) {
         if (!confirm(this.t('vx_confirm_delete_file', '确定要删除此文件吗？'))) return;
         
         this.trackUI('vui_filelist[delete_file]');
         const token = this.getToken();
 
-        this._deleteFileWithFallback(ukey, token).then((ok) => {
+        this._deleteFileWithFallback(ukey, token, sourceMrid).then((ok) => {
             if (ok) {
                 this.removeFilesLocally([ukey], { persist: true, render: true, clearSelection: true });
                 VXUI.toastSuccess(this.t('vx_delete_success', '删除成功'));
+                if (callbacks && typeof callbacks.onSuccess === 'function') {
+                    callbacks.onSuccess();
+                }
             } else {
                 VXUI.toastError(this.t('vx_delete_failed_retry', '删除失败，请重试'));
+                if (callbacks && typeof callbacks.onError === 'function') {
+                    callbacks.onError();
+                }
             }
         });
     },
@@ -4785,20 +4792,23 @@ var VX_FILELIST = VX_FILELIST || {
     /**
      * 删除文件：优先从当前文件夹删除；失败时回退到从工作区移除（兼容老逻辑 remove_from_workspace）。
      */
-    _deleteFileWithFallback(ukey, token) {
+    _deleteFileWithFallback(ukey, token, sourceMrid) {
         const mrApiUrl = (typeof TL !== 'undefined' && TL.api_mr)
             ? TL.api_mr
             : '/api_v2/meetingroom';
         const fileApiUrl = (typeof TL !== 'undefined' && TL.api_file)
             ? TL.api_file
             : ((typeof TL !== 'undefined' && TL.api_url) ? (TL.api_url + '/file') : '/api_v2/file');
+        const targetMrid = sourceMrid != null && String(sourceMrid) !== ''
+            ? sourceMrid
+            : this.mrid;
 
         return new Promise((resolve) => {
             // 1) meetingroom 删除
             $.post(mrApiUrl, {
                 action: 'file_del',
                 token: token,
-                mr_id: this.mrid,
+                mr_id: targetMrid,
                 ukey: ukey
             }, (rsp) => {
                 if (rsp && rsp.status === 1) {
@@ -4907,6 +4917,12 @@ var VX_FILELIST = VX_FILELIST || {
 
         this.flashButtonOk(btn);
         this.copyText(this.formatCopyText(this.getFileCopyName(ukey), url, '', 'file'));
+    },
+
+    deleteGlobalSearchFile(ukey, mrid) {
+        this.deleteFile(ukey, mrid, {
+            onSuccess: () => this.removeGlobalSearchResult(ukey)
+        });
     },
     
     /**
@@ -7051,6 +7067,7 @@ var VX_FILELIST = VX_FILELIST || {
         const input = document.getElementById('vx-gs-input');
         if (input) input.value = '';
         this._gsCurrentKeyword = '';
+        this._gsLastResults = [];
         clearTimeout(this._gsDebounceTimer);
     },
 
@@ -7062,10 +7079,12 @@ var VX_FILELIST = VX_FILELIST || {
 
         const trimmed = (keyword || '').trim();
         if (trimmed.length === 0) {
+            this._gsLastResults = [];
             body.innerHTML = '';
             return;
         }
         if (trimmed.length < 2) {
+            this._gsLastResults = [];
             body.innerHTML = `<div class="vx-gs-hint">${this.escapeHtml(this.t('vx_gs_hint_short', '请输入至少 2 个字符'))}</div>`;
             return;
         }
@@ -7297,12 +7316,40 @@ var VX_FILELIST = VX_FILELIST || {
         this.openFolder(mrid);
     },
 
+    buildGlobalSearchActions(file) {
+        if (!file || !file.ukey) return '';
+
+        const shareLabel = this.t('vx_gs_action_share', '分享');
+        const deleteLabel = this.t('vx_gs_action_delete', '删除');
+        const ukey = String(file.ukey);
+        const mrid = file.mrid != null ? String(file.mrid) : '';
+        const actions = [
+            `<button type="button" class="vx-gs-action-btn" onclick="event.preventDefault();event.stopPropagation();VX_FILELIST.shareFile('${ukey}', this)" title="${this.escapeHtml(shareLabel)}"><iconpark-icon name="share-from-square"></iconpark-icon><span>${this.escapeHtml(shareLabel)}</span></button>`
+        ];
+
+        if (this.isOwner) {
+            actions.push(
+                `<button type="button" class="vx-gs-action-btn vx-action-danger" onclick="event.preventDefault();event.stopPropagation();VX_FILELIST.deleteGlobalSearchFile('${ukey}', '${mrid}')" title="${this.escapeHtml(deleteLabel)}"><iconpark-icon name="trash"></iconpark-icon><span>${this.escapeHtml(deleteLabel)}</span></button>`
+            );
+        }
+
+        return `<div class="vx-gs-result-actions">${actions.join('')}</div>`;
+    },
+
+    removeGlobalSearchResult(ukey) {
+        const nextResults = (this._gsLastResults || []).filter(file => String(file.ukey) !== String(ukey));
+        if (nextResults.length === (this._gsLastResults || []).length) return;
+        this._gsLastResults = nextResults;
+        this.renderGlobalSearchResults(nextResults, this._gsCurrentKeyword || '', false, this._gsRemoteReqId);
+    },
+
     renderGlobalSearchResults(results, keyword, isLoading, reqId) {
         if (reqId !== this._gsRemoteReqId) return;
         const body = document.getElementById('vx-gs-body');
         if (!body) return;
 
         if (!results || results.length === 0) {
+            this._gsLastResults = [];
             if (isLoading) return;
             body.innerHTML = `
                 <div class="vx-gs-empty">
@@ -7313,12 +7360,15 @@ var VX_FILELIST = VX_FILELIST || {
             return;
         }
 
+        this._gsLastResults = results.slice();
+
         const kw = keyword.toLowerCase();
         const items = results.map(file => {
             const iconInfo = this.getFileIcon(file.ftype);
             const folderLabel = this.buildGsFolderLabel(file);
+            const actionsHtml = this.buildGlobalSearchActions(file);
             const sizeLabel = file.fsize_formated
-                ? `<div class="vx-gs-result-size" style="position: relative; z-index: 2; pointer-events: none;">${this.escapeHtml(file.fsize_formated)}</div>`
+                ? `<div class="vx-gs-result-size">${this.escapeHtml(file.fsize_formated)}</div>`
                 : '';
 
             const fname = file.fname || '';
@@ -7332,18 +7382,19 @@ var VX_FILELIST = VX_FILELIST || {
                 fnameHtml = this.escapeHtml(fname);
             }
 
-            return `<div class="vx-gs-result-item" style="position: relative;">
-                <a href="/file?ukey=${encodeURIComponent(file.ukey)}" tmpui-app="true" target="_blank" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 1; border-radius: inherit;"></a>
-                <div class="vx-list-icon vx-gs-result-icon ${iconInfo.class}" style="position: relative; z-index: 2; pointer-events: none;">
+            return `<div class="vx-gs-result-item">
+                <a href="/file?ukey=${encodeURIComponent(file.ukey)}" tmpui-app="true" target="_blank" class="vx-gs-result-link"></a>
+                <div class="vx-list-icon vx-gs-result-icon ${iconInfo.class}">
                     <iconpark-icon name="${iconInfo.icon}"></iconpark-icon>
                 </div>
-                <div class="vx-gs-result-info" style="position: relative; z-index: 2; pointer-events: none;">
-                    <div class="vx-gs-result-name">${fnameHtml}</div>
-                    <div style="pointer-events: auto; width: max-content; max-width: 100%;">
-                        ${folderLabel}
+                <div class="vx-gs-result-info">
+                    <div class="vx-gs-result-head">
+                        <div class="vx-gs-result-name">${fnameHtml}</div>
+                        ${sizeLabel}
                     </div>
+                    ${folderLabel ? `<div class="vx-gs-result-path-wrap">${folderLabel}</div>` : ''}
+                    ${actionsHtml}
                 </div>
-                ${sizeLabel}
             </div>`;
         }).join('');
 
