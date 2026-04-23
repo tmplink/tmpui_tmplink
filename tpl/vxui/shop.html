@@ -17,6 +17,10 @@
             <iconpark-icon name="gift-card"></iconpark-icon>
             <span class="vx-nav-item-text" data-tpl="vx_giftcard_title">兑换礼品卡</span>
         </a>
+        <a href="javascript:;" class="vx-nav-item" id="nav-shop-spaces" onclick="VX_SHOP.showTab('spaces')">
+            <iconpark-icon name="album-circle-plus"></iconpark-icon>
+            <span class="vx-nav-item-text" data-tpl="vx_space_mgmt">私有空间</span>
+        </a>
     </div>
 </template>
 
@@ -158,6 +162,62 @@
         </div>
     </div>
 
+    <!-- Spaces Management Tab -->
+    <div class="vx-shop-tab-content" id="vx-shop-spaces" style="display: none;">
+        <div class="vx-shop-section">
+            <!-- Buy New Space Section -->
+            <div class="vx-spaces-buy-section">
+                <h3 class="vx-spaces-header">
+                    <iconpark-icon name="album-circle-plus"></iconpark-icon>
+                    <span data-tpl="vx_space_buy_title">购买私有空间</span>
+                </h3>
+                <p class="vx-spaces-header-desc" data-tpl="vx_space_buy_desc">购买后有效期为 30 天，可多次购买叠加容量（上限 10TB）</p>
+                <div class="vx-space-buy-cards">
+                    <div class="vx-space-buy-card" onclick="VX_SHOP.openStorage('256g')">
+                        <div class="vx-space-buy-card-icon">
+                            <iconpark-icon name="album-circle-plus"></iconpark-icon>
+                        </div>
+                        <div class="vx-space-buy-card-body">
+                            <div class="vx-space-buy-card-size">256 GB</div>
+                            <div class="vx-space-buy-card-price">6 <span data-tpl="vx_pay_point">点数</span> / 30<span data-tpl="vx_space_days_abbr">天</span></div>
+                        </div>
+                        <div class="vx-space-buy-card-action">
+                            <span class="vx-btn vx-btn-primary vx-btn-sm" data-tpl="vx_space_buy_btn">购买</span>
+                        </div>
+                    </div>
+                    <div class="vx-space-buy-card" onclick="VX_SHOP.openStorage('1t')">
+                        <div class="vx-space-buy-card-icon">
+                            <iconpark-icon name="album-circle-plus"></iconpark-icon>
+                        </div>
+                        <div class="vx-space-buy-card-body">
+                            <div class="vx-space-buy-card-size">1 TB</div>
+                            <div class="vx-space-buy-card-price">18 <span data-tpl="vx_pay_point">点数</span> / 30<span data-tpl="vx_space_days_abbr">天</span></div>
+                        </div>
+                        <div class="vx-space-buy-card-action">
+                            <span class="vx-btn vx-btn-primary vx-btn-sm" data-tpl="vx_space_buy_btn">购买</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Spaces Section -->
+            <div class="vx-spaces-my-section">
+                <div class="vx-spaces-my-header">
+                    <h3 class="vx-spaces-header">
+                        <iconpark-icon name="server"></iconpark-icon>
+                        <span data-tpl="vx_space_my_title">我的私有空间</span>
+                    </h3>
+                    <button class="vx-btn vx-btn-sm vx-btn-secondary" id="vx-space-renew-all-btn"
+                        onclick="VX_SHOP.openBulkRenewModal()" style="display:none;">
+                        <iconpark-icon name="rotate"></iconpark-icon>
+                        <span data-tpl="vx_space_renew_all">一键续费所有</span>
+                    </button>
+                </div>
+                <div id="vx-spaces-list-v2" class="vx-spaces-list-v2"></div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <!-- Purchase Modal -->
@@ -189,6 +249,469 @@
 
 <style>
 /* Shop Module Styles */
+
+/* ===== Private Space Management ===== */
+.vx-spaces-buy-section {
+    margin-bottom: 32px;
+}
+
+.vx-spaces-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--vx-text);
+    margin: 0 0 8px;
+}
+
+.vx-spaces-header iconpark-icon {
+    font-size: 18px;
+    color: var(--vx-primary);
+}
+
+.vx-spaces-header-desc {
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+    margin: 0 0 16px;
+}
+
+.vx-space-buy-cards {
+    display: flex;
+    gap: 12px;
+}
+
+.vx-space-buy-card {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vx-space-buy-card:hover {
+    border-color: var(--vx-primary);
+    box-shadow: var(--vx-shadow-sm);
+}
+
+.vx-space-buy-card-disabled {
+    opacity: 0.45;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.vx-space-cap-notice {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+    margin-bottom: 12px;
+}
+
+.vx-space-exceed-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    color: var(--vx-danger, #ef4444);
+    font-size: 13px;
+}
+
+.vx-space-buy-card-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border-radius: var(--vx-radius-md);
+    flex-shrink: 0;
+}
+
+.vx-space-buy-card-icon iconpark-icon {
+    font-size: 24px;
+    color: white;
+}
+
+.vx-space-buy-card-body {
+    flex: 1;
+}
+
+.vx-space-buy-card-size {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--vx-text);
+    line-height: 1.2;
+}
+
+.vx-space-buy-card-price {
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+    margin-top: 3px;
+}
+
+.vx-spaces-my-section {
+    /* container */
+}
+
+.vx-spaces-my-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.vx-spaces-list-v2 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.vx-space-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+}
+
+.vx-space-card-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    border-radius: var(--vx-radius-md);
+    flex-shrink: 0;
+}
+
+.vx-space-card-icon iconpark-icon {
+    font-size: 22px;
+    color: white;
+}
+
+.vx-space-card-icon.vx-space-icon-expired {
+    background: var(--vx-surface-hover);
+}
+
+.vx-space-card-icon.vx-space-icon-expired iconpark-icon {
+    color: var(--vx-text-muted);
+}
+
+.vx-space-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.vx-space-card-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 3px;
+}
+
+.vx-space-card-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--vx-text);
+}
+
+.vx-space-status-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.vx-space-status-active {
+    background: rgba(34, 197, 94, 0.12);
+    color: #16a34a;
+}
+
+.vx-space-status-expired {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.vx-space-card-expiry {
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-space-card-renew-price {
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    margin-top: 2px;
+}
+
+.vx-space-card-action {
+    flex-shrink: 0;
+}
+
+.vx-space-slider-wrap {
+    margin-bottom: 14px;
+    padding: 10px 12px 12px;
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    background: var(--vx-bg-secondary);
+}
+
+.vx-space-slider-head {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-space-slider-head strong {
+    color: var(--vx-primary);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.vx-space-slider {
+    display: block;
+    width: 100%;
+    height: 8px;
+    min-height: 8px;
+    border: 0;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    /* Real-time progress + neutral rail */
+    background:
+        linear-gradient(var(--vx-primary), var(--vx-primary)) 0 / var(--vx-slider-pct, 0%) 100% no-repeat,
+        var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: 99px;
+    margin: 0;
+    transition: background-size 0.12s ease;
+}
+
+.vx-space-slider::-webkit-slider-runnable-track {
+    height: 8px;
+    background: transparent;
+    border: 0;
+}
+
+.vx-space-slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    background: var(--vx-primary);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18), 0 2px 6px rgba(0, 0, 0, 0.22);
+    cursor: pointer;
+    margin-top: -5px;
+}
+
+.vx-space-slider::-moz-range-track {
+    height: 8px;
+    border-radius: 99px;
+    background: transparent;
+    border: 0;
+}
+
+.vx-space-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    background: var(--vx-primary);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18), 0 2px 6px rgba(0, 0, 0, 0.22);
+    cursor: pointer;
+}
+
+.vx-space-slider::-moz-focus-outer {
+    border: 0;
+}
+
+.vx-space-calc-box {
+    margin: 14px 0 16px;
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    background: var(--vx-bg-secondary);
+    padding: 10px 12px;
+}
+
+.vx-space-calc-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+    padding: 3px 0;
+}
+
+.vx-space-calc-item span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.vx-space-calc-item iconpark-icon,
+.vx-section-title iconpark-icon {
+    font-size: 15px;
+    color: var(--vx-primary);
+}
+
+.vx-space-calc-item strong {
+    color: var(--vx-text);
+    font-weight: 700;
+}
+
+.vx-spaces-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: var(--vx-text-muted);
+    gap: 12px;
+    text-align: center;
+}
+
+.vx-spaces-empty iconpark-icon {
+    font-size: 48px;
+}
+
+/* Renew modal months selector */
+.vx-renew-months-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.vx-renew-month-opt {
+    flex: 1;
+    min-width: 80px;
+    padding: 10px 8px;
+    background: var(--vx-bg-secondary);
+    border: 2px solid transparent;
+    border-radius: var(--vx-radius-md);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+}
+
+.vx-renew-month-opt:hover,
+.vx-renew-month-opt.selected {
+    border-color: var(--vx-primary);
+    background: rgba(var(--vx-primary-rgb), 0.08);
+    color: var(--vx-primary);
+}
+
+.vx-renew-month-opt-num {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--vx-text);
+    line-height: 1.2;
+}
+
+.vx-renew-month-opt.selected .vx-renew-month-opt-num {
+    color: var(--vx-primary);
+}
+
+.vx-renew-month-opt-price {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+    margin-top: 2px;
+}
+
+.vx-renew-cost-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+    margin-top: 4px;
+}
+
+.vx-renew-cost-label {
+    font-size: 14px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-renew-cost-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--vx-primary);
+}
+
+.vx-renew-spaces-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--vx-bg-secondary);
+    border-radius: var(--vx-radius-md);
+}
+
+.vx-renew-space-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-renew-space-item-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    color: var(--vx-text);
+}
+
+.vx-renew-space-item-label iconpark-icon {
+    font-size: 15px;
+    color: var(--vx-primary);
+    flex-shrink: 0;
+}
+
+.vx-renew-space-item-etime {
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+}
+
+@media (max-width: 768px) {
+    .vx-space-buy-cards {
+        flex-direction: column;
+    }
+
+    .vx-renew-months-options {
+        gap: 6px;
+    }
+
+    .vx-renew-month-opt {
+        min-width: 60px;
+        padding: 8px 6px;
+    }
+}
+/* ===== End Private Space Management ===== */
 
 /* Point payment icon */
 .vx-pay-point {

@@ -89,6 +89,28 @@ window.VX_SHOP = {
             // ignore
         }
     },
+
+    /**
+     * Resolve shop API endpoint with TL runtime config fallback.
+     */
+    getShopApiUrl() {
+        if (typeof TL !== 'undefined' && TL.api_shop) return TL.api_shop;
+        const apiBase = (typeof TL !== 'undefined' && TL.api_url) ? TL.api_url : 'https://connect.tmp.link/api_v2';
+        return apiBase + '/shop';
+    },
+
+    /**
+     * Parse JSON response safely and avoid uncaught HTML parse errors.
+     */
+    async parseJsonResponse(response, tag = 'shop') {
+        const raw = await response.text();
+        try {
+            return JSON.parse(raw);
+        } catch (e) {
+            console.error(`[VX_SHOP] Invalid JSON response (${tag}), status=${response.status}:`, raw.slice(0, 180));
+            throw new Error('invalid_json_response');
+        }
+    },
     
     /**
      * Initialize the shop module
@@ -139,9 +161,12 @@ window.VX_SHOP = {
             }, 100);
         }
 
-        // Restore tab from URL (deep-link)
-        const nextTab = (params && params.tab) ? String(params.tab) : 'products';
-        if (nextTab === 'purchased' || nextTab === 'products') {
+        // Restore tab from URL (deep-link). Some router paths do not pass tab through init params.
+        const urlParams = (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.getUrlParams === 'function')
+            ? (VXUI.getUrlParams() || {})
+            : {};
+        const nextTab = (params && params.tab) ? String(params.tab) : (urlParams.tab ? String(urlParams.tab) : 'products');
+        if (nextTab === 'purchased' || nextTab === 'products' || nextTab === 'spaces') {
             this.showTab(nextTab);
         } else {
             this.showTab('products');
@@ -175,12 +200,12 @@ window.VX_SHOP = {
 
         this.trackUI(`vui_shop[${tab}]`);
 
-        // Sync URL so products/purchased can be directly opened
+        // Sync URL so tabs can be directly opened
         if (typeof VXUI !== 'undefined' && VXUI && typeof VXUI.updateUrl === 'function') {
             const currentParams = (typeof VXUI.getUrlParams === 'function') ? (VXUI.getUrlParams() || {}) : {};
             delete currentParams.module;
 
-            if (tab === 'purchased') {
+            if (tab === 'purchased' || tab === 'spaces') {
                 currentParams.tab = tab;
             } else {
                 delete currentParams.tab;
@@ -208,18 +233,24 @@ window.VX_SHOP = {
         if (subtitleEl) {
             if (tab === 'purchased') {
                 subtitleEl.textContent = ' - ' + this.t('navbar_hr_shop', '已购');
+            } else if (tab === 'spaces') {
+                subtitleEl.textContent = ' - ' + this.t('vx_space_mgmt', '私有空间');
             } else {
                 subtitleEl.textContent = '';
             }
         }
-        
+
         // Show/hide content
         document.getElementById('vx-shop-products').style.display = tab === 'products' ? 'block' : 'none';
         document.getElementById('vx-shop-purchased').style.display = tab === 'purchased' ? 'block' : 'none';
-        
+        const spacesEl = document.getElementById('vx-shop-spaces');
+        if (spacesEl) spacesEl.style.display = tab === 'spaces' ? 'block' : 'none';
+
         // Load content for the tab
         if (tab === 'purchased') {
             this.loadOrders();
+        } else if (tab === 'spaces') {
+            this.loadSpaces();
         }
     },
     
@@ -311,6 +342,392 @@ window.VX_SHOP = {
         }
     },
     
+    // ==================== 私有空间管理 ====================
+
+    /** Renewable specs (only these support space_renew API) */
+    _RENEWABLE_SPECS: ['256g', '1t'],
+
+    /** Maximum total active private space capacity: 10 TB */
+    _SPACE_CAP_BYTES: 10 * 1024 * 1024 * 1024 * 1024,
+
+    /** Cached total active private space bytes (populated by loadSpaces) */
+    _totalActiveSpaceBytes: 0,
+
+    /** Normalize space spec for comparisons (e.g. 256G -> 256g). */
+    normalizeSpaceSpec(spec) {
+        return String(spec || '').trim().toLowerCase();
+    },
+
+    /** Unit monthly price by space spec (points / 30 days). */
+    getSpaceMonthlyPrice(spec) {
+        const normalized = this.normalizeSpaceSpec(spec);
+        if (normalized === '1t') return 18;
+        return 6; // default 256g
+    },
+
+    /** Capacity bytes by space spec. */
+    getSpaceSpecBytes(spec) {
+        const normalized = this.normalizeSpaceSpec(spec);
+        if (normalized === '1t') return 1024 * 1024 * 1024 * 1024;
+        return 256 * 1024 * 1024 * 1024;
+    },
+
+    /** Resolve display label with robust fallback when API returns "unknown". */
+    getSpaceDisplayLabel(space) {
+        const rawLabel = String(space && space.label ? space.label : '').trim();
+        if (rawLabel && rawLabel.toLowerCase() !== 'unknown') return rawLabel;
+
+        const spec = this.normalizeSpaceSpec(space && space.spec);
+        if (spec === '256g') return '256GB';
+        if (spec === '1t') return '1TB';
+
+        const size = Number(space && space.size);
+        if (Number.isFinite(size) && size > 0) {
+            return this.formatBytes(size);
+        }
+
+        return this.t('vx_space_unknown', '未知规格');
+    },
+
+    /**
+     * Update the buy-space section UI based on total active space vs. 10TB cap.
+     * Called after loadSpaces() resolves.
+     */
+    _updateSpacesBuySection() {
+        const isAtCap = (this._totalActiveSpaceBytes || 0) >= this._SPACE_CAP_BYTES;
+
+        const cardsContainer = document.querySelector('.vx-spaces-buy-section .vx-space-buy-cards');
+        if (!cardsContainer) return;
+
+        // Remove existing cap notice
+        const existingNotice = document.getElementById('vx-space-cap-notice');
+        if (existingNotice) existingNotice.remove();
+
+        if (isAtCap) {
+            cardsContainer.querySelectorAll('.vx-space-buy-card').forEach(card => {
+                card.classList.add('vx-space-buy-card-disabled');
+            });
+
+            const notice = document.createElement('p');
+            notice.id = 'vx-space-cap-notice';
+            notice.className = 'vx-space-cap-notice';
+            notice.innerHTML = `<iconpark-icon name="circle-exclamation"></iconpark-icon> ${this.t('vx_space_cap_reached', '私有空间已达上限（10TB），无法继续购买')}`;
+            cardsContainer.parentNode.insertBefore(notice, cardsContainer);
+        } else {
+            cardsContainer.querySelectorAll('.vx-space-buy-card').forEach(card => {
+                card.classList.remove('vx-space-buy-card-disabled');
+            });
+        }
+    },
+
+    /**
+     * Load private spaces and render cards in the spaces tab
+     */
+    async loadSpaces() {
+        const container = document.getElementById('vx-spaces-list-v2');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="vx-spaces-empty">
+                <div class="vx-spinner"></div>
+            </div>
+        `;
+
+        const renewAllBtn = document.getElementById('vx-space-renew-all-btn');
+        if (renewAllBtn) renewAllBtn.style.display = 'none';
+
+        const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
+        if (!token) {
+            container.innerHTML = `<div class="vx-spaces-empty"><p>${this.t('vx_need_login', '请先登录')}</p></div>`;
+            return;
+        }
+
+        try {
+            const response = await fetch(this.getShopApiUrl(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ action: 'space_list', token }).toString()
+            });
+
+            const rsp = await this.parseJsonResponse(response, 'space_list');
+
+            if (rsp.status !== 1 || !rsp.data || rsp.data.length === 0) {
+                this._loadedSpaces = [];
+                this._totalActiveSpaceBytes = 0;
+                this._updateSpacesBuySection();
+                container.innerHTML = `
+                    <div class="vx-spaces-empty">
+                        <iconpark-icon name="album-circle-plus"></iconpark-icon>
+                        <p>${this.t('vx_space_no_spaces', '暂无私有空间')}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            this._loadedSpaces = rsp.data;
+
+            // Calculate total active space capacity for cap enforcement.
+            // Prefer the `size` field returned by the API (bytes); fall back to spec-derived value.
+            this._totalActiveSpaceBytes = rsp.data
+                .filter(s => s.is_active === 1)
+                .reduce((sum, s) => {
+                    const apiBytes = Number(s.size);
+                    return sum + (Number.isFinite(apiBytes) && apiBytes > 0 ? apiBytes : this.getSpaceSpecBytes(s.spec));
+                }, 0);
+            this._updateSpacesBuySection();
+
+            const hasRenewable = rsp.data.some(s => this._RENEWABLE_SPECS.includes(this.normalizeSpaceSpec(s.spec)));
+            if (renewAllBtn) renewAllBtn.style.display = hasRenewable ? '' : 'none';
+
+            let html = '';
+            rsp.data.forEach(space => {
+                const isActive = space.is_active === 1;
+                const normalizedSpec = this.normalizeSpaceSpec(space.spec);
+                const canRenew = this._RENEWABLE_SPECS.includes(normalizedSpec);
+                const displayLabel = this.getSpaceDisplayLabel(space);
+
+                const statusBadge = isActive
+                    ? `<span class="vx-space-status-badge vx-space-status-active">${this.t('vx_space_status_active', '有效')}</span>`
+                    : `<span class="vx-space-status-badge vx-space-status-expired">${this.t('vx_space_status_expired', '已过期')}</span>`;
+
+                const iconClass = isActive ? '' : ' vx-space-icon-expired';
+                const renewBtn = canRenew
+                    ? `<button class="vx-btn vx-btn-sm" onclick="VX_SHOP.openSpaceRenewModal(${space.id}, ${space.renew_price}, '${this.escapeHtml(displayLabel)}', '${normalizedSpec}')">${this.t('vx_space_renew_btn', '续费')}</button>`
+                    : '';
+
+                html += `
+                    <div class="vx-space-card">
+                        <div class="vx-space-card-icon${iconClass}">
+                            <iconpark-icon name="album-circle-plus"></iconpark-icon>
+                        </div>
+                        <div class="vx-space-card-info">
+                            <div class="vx-space-card-top">
+                                <span class="vx-space-card-label">${this.escapeHtml(displayLabel)}</span>
+                                ${statusBadge}
+                            </div>
+                            <div class="vx-space-card-expiry">${this.t('vx_space_expires', '到期')}: ${space.etime}</div>
+                            ${canRenew ? `<div class="vx-space-card-renew-price">${space.renew_price} ${this.t('vx_pay_point', '点数')} / 30${this.t('vx_space_days_abbr', '天')}</div>` : ''}
+                        </div>
+                        <div class="vx-space-card-action">
+                            ${renewBtn}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+        } catch (e) {
+            console.error('[VX_SHOP] Failed to load spaces:', e);
+            container.innerHTML = `
+                <div class="vx-spaces-empty">
+                    <iconpark-icon name="circle-exclamation"></iconpark-icon>
+                    <p>${this.t('vx_load_failed', '加载失败')}</p>
+                </div>
+            `;
+        }
+    },
+
+    /**
+     * Open renew modal for a single space
+     */
+    openSpaceRenewModal(id, renew_price, label, spec) {
+        const normalizedSpec = this.normalizeSpaceSpec(spec);
+        if (!this._RENEWABLE_SPECS.includes(normalizedSpec)) return;
+
+        this._spaceRenewIds = String(id);
+        this._spaceRenewTotalCostPerMonth = renew_price;
+        this._spaceBulkSpaces = null;
+        this._spaceRenewMonths = 1;
+
+        const modalTitle = document.getElementById('vx-modal-title');
+        const modalBody = document.getElementById('vx-modal-body');
+        if (!modalTitle || !modalBody) return;
+
+        modalTitle.innerHTML = `<iconpark-icon name="rotate"></iconpark-icon> ${this.t('vx_space_renew_title', '续费私有空间')}`;
+
+        modalBody.innerHTML = `
+            <div style="margin-bottom:16px;">
+                <div style="font-size:15px;font-weight:600;color:var(--vx-text);">${this.escapeHtml(label)}</div>
+                <div style="font-size:13px;color:var(--vx-text-secondary);margin-top:2px;">${renew_price} ${this.t('vx_pay_point', '点数')} / 30${this.t('vx_space_days_abbr', '天')}</div>
+            </div>
+            <h4 class="vx-section-title">${this.t('vx_space_renew_months', '续费月数')}</h4>
+            ${this._buildRenewMonthsHtml(renew_price)}
+            <div class="vx-renew-cost-summary" id="vx-space-renew-cost">
+                <span class="vx-renew-cost-label">${this.t('vx_space_renew_cost', '预计费用')}</span>
+                <span class="vx-renew-cost-value"><strong>${renew_price}</strong> ${this.t('vx_pay_point', '点数')}</span>
+            </div>
+        `;
+
+        this._setRenewModalFooter();
+        this.showModal();
+    },
+
+    /**
+     * Open bulk renew modal for all renewable spaces
+     */
+    openBulkRenewModal() {
+        const renewable = (this._loadedSpaces || []).filter(s => this._RENEWABLE_SPECS.includes(this.normalizeSpaceSpec(s.spec)));
+
+        if (renewable.length === 0) {
+            VXUI.toastWarning(this.t('vx_space_renew_no_items', '没有可续费的私有空间'));
+            return;
+        }
+
+        this._spaceRenewIds = renewable.map(s => s.id).join(',');
+        this._spaceBulkSpaces = renewable;
+        this._spaceRenewTotalCostPerMonth = renewable.reduce((sum, s) => sum + s.renew_price, 0);
+        this._spaceRenewMonths = 1;
+
+        const modalTitle = document.getElementById('vx-modal-title');
+        const modalBody = document.getElementById('vx-modal-body');
+        if (!modalTitle || !modalBody) return;
+
+        modalTitle.innerHTML = `<iconpark-icon name="rotate"></iconpark-icon> ${this.t('vx_space_bulk_renew_title', '一键续费所有私有空间')}`;
+
+        const summaryItems = renewable.map(s =>
+            `<div class="vx-renew-space-item">
+                <span class="vx-renew-space-item-label">
+                    <iconpark-icon name="album-circle-plus"></iconpark-icon>
+                    ${this.escapeHtml(this.getSpaceDisplayLabel(s))}
+                    <span class="vx-renew-space-item-etime">${this.t('vx_space_expires', '到期')}: ${s.etime}</span>
+                </span>
+                <span>${s.renew_price} ${this.t('vx_pay_point', '点数')} / ${this.t('vx_space_month_abbr', '月')}</span>
+            </div>`
+        ).join('');
+
+        const totalPerMonth = this._spaceRenewTotalCostPerMonth;
+
+        modalBody.innerHTML = `
+            <div class="vx-renew-spaces-summary">
+                ${summaryItems}
+            </div>
+            <h4 class="vx-section-title">${this.t('vx_space_renew_months', '续费月数')}</h4>
+            ${this._buildRenewMonthsHtml(totalPerMonth)}
+            <div class="vx-renew-cost-summary" id="vx-space-renew-cost">
+                <span class="vx-renew-cost-label">${this.t('vx_space_renew_cost', '预计费用')}</span>
+                <span class="vx-renew-cost-value"><strong>${totalPerMonth}</strong> ${this.t('vx_pay_point', '点数')}</span>
+            </div>
+        `;
+
+        this._setRenewModalFooter();
+        this.showModal();
+    },
+
+    /**
+     * Build the months selector HTML for renew modals
+     */
+    _buildRenewMonthsHtml(costPerMonth) {
+        const months = [1, 3, 6, 12];
+        const monthAbbr = this.t('vx_space_month_abbr', '个月');
+        const pointLabel = this.t('vx_pay_point', '点数');
+
+        const opts = months.map(m => `
+            <div class="vx-renew-month-opt ${m === 1 ? 'selected' : ''}" data-months="${m}"
+                onclick="VX_SHOP._selectRenewMonths(${m})">
+                <div class="vx-renew-month-opt-num">${m} ${monthAbbr}</div>
+                <div class="vx-renew-month-opt-price">${costPerMonth * m} ${pointLabel}</div>
+            </div>
+        `).join('');
+
+        return `<div class="vx-renew-months-options" id="vx-space-renew-months-options">${opts}</div>`;
+    },
+
+    /**
+     * Set custom footer for the renew confirm modal
+     */
+    _setRenewModalFooter() {
+        const modalFooter = document.querySelector('#vx-shop-modal .vx-modal-footer');
+        this._originalFooter = modalFooter ? modalFooter.innerHTML : null;
+        if (modalFooter) {
+            modalFooter.innerHTML = `
+                <div></div>
+                <div class="vx-modal-actions">
+                    <button class="vx-btn vx-btn-secondary" onclick="VX_SHOP.closeModal(); VX_SHOP.restoreModalFooter()">
+                        ${this.t('btn_cancel', '取消')}
+                    </button>
+                    <button class="vx-btn vx-btn-primary" id="vx-space-renew-submit-btn" onclick="VX_SHOP._submitSpaceRenew()">
+                        <iconpark-icon name="rotate"></iconpark-icon>
+                        ${this.t('vx_space_confirm_renew', '确认续费')}
+                    </button>
+                </div>
+            `;
+        }
+    },
+
+    /**
+     * Update months selection UI and cost display
+     */
+    _selectRenewMonths(months) {
+        this._spaceRenewMonths = months;
+
+        document.querySelectorAll('#vx-space-renew-months-options .vx-renew-month-opt').forEach(opt => {
+            opt.classList.toggle('selected', parseInt(opt.dataset.months) === months);
+        });
+
+        const totalCost = (this._spaceRenewTotalCostPerMonth || 0) * months;
+        const costEl = document.getElementById('vx-space-renew-cost');
+        if (costEl) {
+            costEl.querySelector('.vx-renew-cost-value').innerHTML =
+                `<strong>${totalCost}</strong> ${this.t('vx_pay_point', '点数')}`;
+        }
+    },
+
+    /**
+     * Submit the space renewal
+     */
+    async _submitSpaceRenew() {
+        const ids = this._spaceRenewIds;
+        const months = this._spaceRenewMonths || 1;
+        if (!ids) return;
+
+        const btn = document.getElementById('vx-space-renew-submit-btn');
+        if (btn) btn.disabled = true;
+
+        try {
+            const totalCost = await this._doRenewSpaceMonths(ids, months);
+            this.closeModal();
+            this.restoreModalFooter();
+            VXUI.toastSuccess(this.fmt('vx_space_renew_success', { cost: totalCost }, `续费成功！消耗 ${totalCost} 点数`));
+            this.loadSpaces();
+            if (typeof TL !== 'undefined' && TL.get_details) TL.get_details();
+        } catch (e) {
+            if (!e || e.message !== 'handled') {
+                VXUI.toastError(this.t('vx_space_renew_failed', '续费失败'));
+            }
+            if (btn) btn.disabled = false;
+        }
+    },
+
+    /**
+     * Perform space renewal for N months (calls space_renew N times sequentially)
+     * @returns {Promise<number>} total points spent
+     */
+    async _doRenewSpaceMonths(ids, months) {
+        const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
+        VXUI.toastInfo(this.t('vx_processing', '处理中...'));
+        let totalCost = 0;
+
+        for (let i = 0; i < months; i++) {
+            const response = await fetch(this.getShopApiUrl(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ action: 'space_renew', token, ids: String(ids) }).toString()
+            });
+            const result = await this.parseJsonResponse(response, 'space_renew');
+
+            if (result.status === 1) {
+                totalCost += (result.data && result.data.cost) ? result.data.cost : 0;
+            } else {
+                const msg = (result.data && result.data.message) || result.debug || this.t('vx_space_renew_failed', '续费失败');
+                VXUI.toastError(msg);
+                throw new Error('handled');
+            }
+        }
+
+        return totalCost;
+    },
+
     /**
      * Load orders list from API
      */
@@ -372,6 +789,7 @@ window.VX_SHOP = {
             let html = '';
             for (const key in orders) {
                 const order = orders[key];
+
                 html += `
                     <div class="vx-order-item">
                         <div class="vx-order-icon">
@@ -410,7 +828,8 @@ window.VX_SHOP = {
                 name: '',
                 des: '',
                 icon: '',
-                etime: item.etime
+                etime: item.etime,
+                code: item.code
             };
             
             switch (item.code) {
@@ -510,13 +929,24 @@ window.VX_SHOP = {
     
     /**
      * Open storage purchase modal
+     * @param {string} [spec='256g'] - Pre-selected spec: '256g' or '1t'
      */
-    openStorage() {
+    openStorage(spec = '256g') {
         this.trackUI('vui_shop[storage]');
-        this.purchaseType = 'addon';
-        this.selectedProduct = 'storage';
-        this.selectedCode = '256GB';
+
+        // Check if already at 10TB cap
+        if ((this._totalActiveSpaceBytes || 0) >= this._SPACE_CAP_BYTES) {
+            VXUI.toastWarning(this.t('vx_space_cap_reached', '私有空间已达上限（10TB），无法继续购买'));
+            return;
+        }
+
+        this.purchaseType = 'space';
+        this.selectedProduct = 'space';
+        this.selectedCode = spec;
         this.selectedTime = 1;
+        this.selectedPayment = 'point'; // Space only supports points
+        this.spaceQuantity = 1;
+        this.spaceMonths = 1;
         
         const modalTitle = document.getElementById('vx-modal-title');
         const modalBody = document.getElementById('vx-modal-body');
@@ -529,46 +959,125 @@ window.VX_SHOP = {
         modalTitle.innerHTML = '<iconpark-icon name="album-circle-plus"></iconpark-icon> ' + 
             this.t('model_title_buy_storage', '私有空间');
         
-        const items = this.products.storage.items;
-        
         modalBody.innerHTML = `
             <p class="vx-modal-desc">${this.t('storage_content', '扩展您的私有存储空间')}</p>
+            <p style="color: var(--vx-text-secondary); font-size: 13px; margin-bottom: 16px;">
+                私有空间每次购买有效期为30天。可多次购买以叠加容量，总量上限为 10TB。
+            </p>
             
-            <h4 class="vx-section-title">${this.t('payment_capacity', '选择容量')}</h4>
+            <h4 class="vx-section-title"><iconpark-icon name="database"></iconpark-icon> ${this.t('payment_capacity', '选择容量')}</h4>
             <div class="vx-purchase-options">
-                <div class="vx-purchase-option selected" onclick="VX_SHOP.selectCode('256GB')">
+                <div class="vx-purchase-option ${spec === '256g' ? 'selected' : ''}" data-code="256g" onclick="VX_SHOP.selectCode('256g')">
                     <h4>256GB</h4>
-                    <div class="vx-option-price">¥${items['256GB'].monthlyPrice}/月</div>
+                    <div class="vx-option-price">6 ${this.t('vx_pay_point', '点数')} / 30天</div>
                 </div>
-                <div class="vx-purchase-option" onclick="VX_SHOP.selectCode('1TB')">
+                <div class="vx-purchase-option ${spec === '1t' ? 'selected' : ''}" data-code="1t" onclick="VX_SHOP.selectCode('1t')">
                     <h4>1TB</h4>
-                    <div class="vx-option-price">¥${items['1TB'].monthlyPrice}/月</div>
-                </div>
-                <div class="vx-purchase-option" onclick="VX_SHOP.selectCode('3TB')">
-                    <h4>3TB</h4>
-                    <div class="vx-option-price">¥${items['3TB'].monthlyPrice}/月</div>
-                </div>
-                <div class="vx-purchase-option" onclick="VX_SHOP.selectCode('5TB')">
-                    <h4>5TB</h4>
-                    <div class="vx-option-price">¥${items['5TB'].monthlyPrice}/月</div>
+                    <div class="vx-option-price">18 ${this.t('vx_pay_point', '点数')} / 30天</div>
                 </div>
             </div>
-            
-            <h4 class="vx-section-title">${this.t('payment_duration', '选择时长')}</h4>
-            <div class="vx-purchase-options">
-                <div class="vx-purchase-option selected" data-type="time" data-time="1" onclick="VX_SHOP.selectTime(1)">
-                    <h4>1 月</h4>
+
+            <h4 class="vx-section-title"><iconpark-icon name="list"></iconpark-icon> ${this.t('vx_space_buy_copies', '购买份数')}</h4>
+            <div class="vx-space-slider-wrap">
+                <div class="vx-space-slider-head">
+                    <strong id="vx-space-qty-value">1 ${this.t('vx_space_buy_copies_unit', '份')}</strong>
                 </div>
-                <div class="vx-purchase-option" data-type="time" data-time="12" onclick="VX_SHOP.selectTime(12)">
-                    <h4>1 ${this.t('payment_year', '年')}</h4>
+                <input type="range" class="vx-space-slider" id="vx-space-qty-range"
+                    min="1" max="10" step="1" value="1" oninput="VX_SHOP.setSpaceQuantity(this.value)">
+            </div>
+
+            <h4 class="vx-section-title"><iconpark-icon name="timer"></iconpark-icon> ${this.t('vx_space_valid_months', '有效期')}</h4>
+            <div class="vx-space-slider-wrap">
+                <div class="vx-space-slider-head">
+                    <strong id="vx-space-months-value">1 ${this.t('vx_space_month_abbr', '个月')}</strong>
+                </div>
+                <input type="range" class="vx-space-slider" id="vx-space-months-range"
+                    min="1" max="12" step="1" value="1" oninput="VX_SHOP.setSpaceMonths(this.value)">
+            </div>
+
+            <div class="vx-space-calc-box" id="vx-space-calc-box">
+                <div class="vx-space-calc-item">
+                    <span><iconpark-icon name="database"></iconpark-icon> ${this.t('vx_space_result_capacity', '新增容量')}</span>
+                    <strong id="vx-space-result-capacity">256 GB</strong>
+                </div>
+                <div class="vx-space-calc-item">
+                    <span><iconpark-icon name="timer"></iconpark-icon> ${this.t('vx_space_result_period', '有效期')}</span>
+                    <strong id="vx-space-result-period">1 ${this.t('vx_space_month_abbr', '个月')}</strong>
                 </div>
             </div>
+
+            <div id="vx-space-exceed-warning" class="vx-space-exceed-warning" style="display:none;">
+                <iconpark-icon name="circle-exclamation"></iconpark-icon>
+                <span>${this.t('vx_space_would_exceed', '计划购买容量超出上限（10TB），请减少份数')}</span>
+            </div>
             
-            ${this.renderPaymentMethods()}
+            <h4 class="vx-section-title"><iconpark-icon name="funds"></iconpark-icon> ${this.t('payment_method', '支付方式')}</h4>
+            <div class="vx-payment-methods">
+                <div class="vx-payment-method selected" onclick="VX_SHOP.selectPayment('point')">
+                    <span class="vx-pay-icon vx-pay-point"><iconpark-icon name="funds"></iconpark-icon></span>
+                    <span>${this.t('vx_pay_point', '点数')}</span>
+                </div>
+            </div>
         `;
+
+        this.updateSpacePurchasePreview();
         
         this.updateModalPrice();
         this.showModal();
+    },
+
+    setSpaceQuantity(value) {
+        this.spaceQuantity = Math.max(1, Math.min(10, parseInt(value, 10) || 1));
+        this.updateSpacePurchasePreview();
+        this.updateModalPrice();
+    },
+
+    setSpaceMonths(value) {
+        this.spaceMonths = Math.max(1, Math.min(12, parseInt(value, 10) || 1));
+        this.updateSpacePurchasePreview();
+        this.updateModalPrice();
+    },
+
+    updateSpacePurchasePreview() {
+        if (this.purchaseType !== 'space') return;
+
+        const quantity = Math.max(1, Math.min(10, parseInt(this.spaceQuantity, 10) || 1));
+        const months = Math.max(1, Math.min(12, parseInt(this.spaceMonths, 10) || 1));
+
+        const qtyEl = document.getElementById('vx-space-qty-value');
+        const monthsEl = document.getElementById('vx-space-months-value');
+        const resultCapEl = document.getElementById('vx-space-result-capacity');
+        const resultPeriodEl = document.getElementById('vx-space-result-period');
+        const qtyRangeEl = document.getElementById('vx-space-qty-range');
+        const monthsRangeEl = document.getElementById('vx-space-months-range');
+
+        if (qtyEl) qtyEl.textContent = `${quantity} ${this.t('vx_space_buy_copies_unit', '份')}`;
+        if (monthsEl) monthsEl.textContent = `${months} ${this.t('vx_space_month_abbr', '个月')}`;
+
+        const totalBytes = this.getSpaceSpecBytes(this.selectedCode) * quantity;
+        const totalCapText = this.formatBytes(totalBytes);
+        if (resultCapEl) resultCapEl.textContent = totalCapText;
+        if (resultPeriodEl) resultPeriodEl.textContent = `${months} ${this.t('vx_space_month_abbr', '个月')}`;
+
+        this._updateRangeProgress(qtyRangeEl, quantity, 1, 10);
+        this._updateRangeProgress(monthsRangeEl, months, 1, 12);
+
+        // Check if planned purchase would exceed 10TB cap
+        const alreadyBytes = this._totalActiveSpaceBytes || 0;
+        const plannedBytes = this.getSpaceSpecBytes(this.selectedCode) * quantity;
+        const wouldExceed = alreadyBytes + plannedBytes > this._SPACE_CAP_BYTES;
+
+        const warningEl = document.getElementById('vx-space-exceed-warning');
+        if (warningEl) warningEl.style.display = wouldExceed ? '' : 'none';
+
+        const payBtn = document.querySelector('#vx-shop-modal .vx-btn-primary');
+        if (payBtn) payBtn.disabled = wouldExceed;
+    },
+
+    _updateRangeProgress(el, value, min, max) {
+        if (!el || max <= min) return;
+        const pct = ((value - min) / (max - min)) * 100;
+        el.style.setProperty('--vx-slider-pct', `${pct}%`);
     },
     
     /**
@@ -721,17 +1230,24 @@ window.VX_SHOP = {
     selectCode(code) {
         this.selectedCode = code;
         
-        // Update UI
+        // Update UI - use data-code attribute when available, fall back to h4 text
         document.querySelectorAll('.vx-purchase-options').forEach((group, index) => {
             if (index === 0) { // First group is capacity selection
                 group.querySelectorAll('.vx-purchase-option').forEach(opt => {
                     opt.classList.remove('selected');
-                    if (opt.querySelector('h4').textContent === code) {
+                    const dataCode = opt.dataset.code;
+                    if (dataCode) {
+                        if (dataCode === code) opt.classList.add('selected');
+                    } else if (opt.querySelector('h4') && opt.querySelector('h4').textContent === code) {
                         opt.classList.add('selected');
                     }
                 });
             }
         });
+
+        if (this.purchaseType === 'space') {
+            this.updateSpacePurchasePreview();
+        }
         
         this.updateModalPrice();
     },
@@ -783,6 +1299,19 @@ window.VX_SHOP = {
      */
     updateModalPrice() {
         let priceCNY = 0;
+        
+        if (this.purchaseType === 'space') {
+            const unitPrice = this.getSpaceMonthlyPrice(this.selectedCode);
+            const quantity = Math.max(1, Math.min(10, parseInt(this.spaceQuantity, 10) || 1));
+            const months = Math.max(1, Math.min(12, parseInt(this.spaceMonths, 10) || 1));
+            const pts = unitPrice * quantity * months;
+            
+            const unitEl = document.getElementById('vx-modal-unit');
+            const totalEl = document.getElementById('vx-modal-total');
+            if (unitEl) unitEl.textContent = '';
+            if (totalEl) totalEl.textContent = pts + ' ' + this.t('vx_pay_point', '点数');
+            return;
+        }
         
         if (this.selectedProduct === 'firstTimeSponsor') {
             priceCNY = 36;
@@ -852,6 +1381,11 @@ window.VX_SHOP = {
     async makeOrder() {
         this.trackUI('vui_shop[make_order]');
 
+        if (this.purchaseType === 'space') {
+            await this._buySpaceWithPoints();
+            return;
+        }
+
         // 点数支付：直接调用 point_buy API
         if (this.selectedPayment === 'point') {
             await this._buyWithPoints();
@@ -904,6 +1438,110 @@ window.VX_SHOP = {
         
         // Open payment in new window
         window.open(paymentUrl, '_blank');
+    },
+
+    /**
+     * Buy private space with points
+     */
+    async _buySpaceWithPoints() {
+        const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
+        if (!token) {
+            VXUI.toastWarning(this.t('vx_need_login', '请先登录'));
+            return;
+        }
+
+        const buyBtn = document.querySelector('#vx-shop-modal .vx-btn-primary');
+        if (buyBtn) buyBtn.disabled = true;
+
+        VXUI.toastInfo(this.t('vx_processing', '处理中...'));
+
+        try {
+            const apiUrl = this.getShopApiUrl();
+            const quantity = Math.max(1, Math.min(10, parseInt(this.spaceQuantity, 10) || 1));
+            const months = Math.max(1, Math.min(12, parseInt(this.spaceMonths, 10) || 1));
+            const spec = this.normalizeSpaceSpec(this.selectedCode);
+            const unitPrice = this.getSpaceMonthlyPrice(spec);
+
+            let totalCost = 0;
+            const boughtIds = [];
+
+            // 1) Buy N copies (each copy = one space record, 30 days)
+            for (let i = 0; i < quantity; i++) {
+                const buyResponse = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'space_buy',
+                        token,
+                        spec
+                    }).toString()
+                });
+                const buyResult = await this.parseJsonResponse(buyResponse, 'space_buy');
+
+                if (buyResult.status !== 1) {
+                    if (buyResult.status === 2102) {
+                        // Server-side cap enforcement: refresh UI to reflect real state
+                        this.loadSpaces();
+                        VXUI.toastError(this.t('vx_space_cap_reached', '私有空间已达上限（10TB），无法继续购买'));
+                    } else {
+                        const msg = (buyResult.data && buyResult.data.message) || buyResult.debug || this.t('vx_purchase_failed', '购买失败');
+                        VXUI.toastError(msg);
+                    }
+                    // If some copies were already bought, reload spaces to show them
+                    if (boughtIds.length > 0) this.loadSpaces();
+                    return;
+                }
+
+                const boughtId = buyResult.data && buyResult.data.id;
+                if (boughtId) boughtIds.push(boughtId);
+                totalCost += Number((buyResult.data && buyResult.data.price) || unitPrice);
+            }
+
+            // 2) Extend to M months by renewing these newly bought records (M-1 times)
+            if (months > 1 && boughtIds.length > 0) {
+                const renewIds = boughtIds.join(',');
+                for (let m = 1; m < months; m++) {
+                    const renewResponse = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({
+                            action: 'space_renew',
+                            token,
+                            ids: renewIds
+                        }).toString()
+                    });
+                    const renewResult = await this.parseJsonResponse(renewResponse, 'space_renew');
+
+                    if (renewResult.status !== 1) {
+                        const msg = (renewResult.data && renewResult.data.message) || renewResult.debug || this.t('vx_space_renew_failed', '续费失败');
+                        VXUI.toastError(msg);
+                        return;
+                    }
+
+                    totalCost += Number((renewResult.data && renewResult.data.cost) || (unitPrice * quantity));
+                }
+            }
+
+            this.closeModal();
+            VXUI.toastSuccess(this.fmt('vx_space_renew_success', { cost: totalCost }, `购买成功！共消耗 ${totalCost} 点数`));
+
+            // 刷新用户数据与列表
+            if (typeof TL !== 'undefined' && TL.get_details) {
+                TL.get_details(() => this.loadUserStatus());
+            } else {
+                this.loadUserStatus();
+            }
+            this.loadSpaces();
+        } catch (e) {
+            console.error('[VX_SHOP] _buySpaceWithPoints error:', e);
+            if (e && e.message === 'invalid_json_response') {
+                VXUI.toastError(this.t('vx_load_failed', '加载失败'));
+            } else {
+                VXUI.toastError(this.t('error_network', '网络错误'));
+            }
+        } finally {
+            if (buyBtn) buyBtn.disabled = false;
+        }
     },
 
     /**
@@ -1092,6 +1730,11 @@ window.VX_SHOP = {
     refresh() {
         this.checkFirstTimeSponsor();
         this.loadUserStatus();
+        if (this.currentTab === 'spaces') {
+            this.loadSpaces();
+        } else if (this.currentTab === 'purchased') {
+            this.loadOrders();
+        }
         VXUI.toastInfo(this.t('vx_refreshed', '已刷新'));
     },
 
@@ -1104,12 +1747,14 @@ window.VX_SHOP = {
         if (subtitleEl) {
             if (this.currentTab === 'purchased') {
                 subtitleEl.textContent = ' - ' + this.t('navbar_hr_shop', '已购');
+            } else if (this.currentTab === 'spaces') {
+                subtitleEl.textContent = ' - ' + this.t('vx_space_mgmt', '私有空间');
             } else {
                 subtitleEl.textContent = '';
             }
         }
-        
-        // Reload content if on purchased tab
+
+        // Reload content for the active tab
         if (this.currentTab === 'purchased') {
             this.loadOrders();
         }
