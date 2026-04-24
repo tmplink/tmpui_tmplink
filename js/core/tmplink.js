@@ -103,7 +103,7 @@ class tmplink {
         this.download = new download;
         this.notification = new notification;
         this.file = new file;
-        this.ai = new ai;
+        this.ai = typeof ai === 'function' ? new ai : null;
 
         this.stream.init(this);
         this.giftcard.init(this);
@@ -120,7 +120,9 @@ class tmplink {
         this.download.init(this);
         this.notification.init(this);
         this.file.init(this);
-        this.ai.init(this);
+        if (this.ai && typeof this.ai.init === 'function') {
+            this.ai.init(this);
+        }
 
         //
         $('.workspace-navbar').hide();

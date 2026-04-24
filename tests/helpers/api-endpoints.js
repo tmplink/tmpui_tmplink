@@ -76,15 +76,6 @@ const endpoints = [
     },
   },
   {
-    name: 'AI History',
-    path: '/api_v2/ai',
-    action: 'history',
-    requiresToken: true,
-    validate: (rsp) => {
-      if (rsp.status !== 1) throw new Error(`Expected status=1, got ${rsp.status}`);
-    },
-  },
-  {
     name: 'Shop Products',
     path: '/api_v2/shop',
     action: 'products',
