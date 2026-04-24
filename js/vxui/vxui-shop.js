@@ -111,6 +111,46 @@ window.VX_SHOP = {
             throw new Error('invalid_json_response');
         }
     },
+    extractApiErrorMessage(result) {
+        if (!result) return '';
+
+        if (typeof result.data === 'string' && result.data.trim()) {
+            return result.data.trim();
+        }
+
+        if (result.data && typeof result.data.message === 'string' && result.data.message.trim()) {
+            return result.data.message.trim();
+        }
+
+        if (typeof result.debug === 'string' && result.debug.trim()) {
+            return result.debug.trim();
+        }
+
+        if (Array.isArray(result.debug)) {
+            const joined = result.debug.filter(Boolean).join(' ').trim();
+            if (joined) return joined;
+        }
+
+        return '';
+    },
+
+    getKnownSpaceErrorMessage(result, fallbackKey, fallbackText) {
+        const status = Number(result && result.status);
+        const knownMessages = {
+            2003: ['vx_point_insufficient', '点数不足'],
+            2004: [fallbackKey, fallbackText],
+            2101: ['vx_space_invalid_spec', '无效的私有空间规格'],
+            2102: ['vx_space_cap_reached', '私有空间已达上限（10TB），无法继续购买'],
+            2103: ['vx_space_invalid_ids', '私有空间记录无效，请刷新后重试'],
+            2104: ['vx_space_spec_error', '私有空间规格数据异常，请稍后重试']
+        };
+
+        if (knownMessages[status]) {
+            return this.t(knownMessages[status][0], knownMessages[status][1]);
+        }
+
+        return this.extractApiErrorMessage(result) || this.t(fallbackKey, fallbackText);
+    },
     
     /**
      * Initialize the shop module
@@ -817,7 +857,7 @@ window.VX_SHOP = {
             if (result.status === 1) {
                 totalCost += (result.data && result.data.cost) ? result.data.cost : 0;
             } else {
-                const msg = (result.data && result.data.message) || result.debug || this.t('vx_space_renew_failed', '续费失败');
+                const msg = this.getKnownSpaceErrorMessage(result, 'vx_space_renew_failed', '续费失败');
                 VXUI.toastError(msg);
                 throw new Error('handled');
             }
@@ -1577,12 +1617,12 @@ window.VX_SHOP = {
                 const buyResult = await this.parseJsonResponse(buyResponse, 'space_buy');
 
                 if (buyResult.status !== 1) {
+                    const msg = this.getKnownSpaceErrorMessage(buyResult, 'vx_purchase_failed', '购买失败');
                     if (buyResult.status === 2102) {
                         // Server-side cap enforcement: refresh UI to reflect real state
                         this.loadSpaces();
-                        VXUI.toastError(this.t('vx_space_cap_reached', '私有空间已达上限（10TB），无法继续购买'));
+                        VXUI.toastError(msg);
                     } else {
-                        const msg = (buyResult.data && buyResult.data.message) || buyResult.debug || this.t('vx_purchase_failed', '购买失败');
                         VXUI.toastError(msg);
                     }
                     // If some copies were already bought, reload spaces to show them
@@ -1611,8 +1651,14 @@ window.VX_SHOP = {
                     const renewResult = await this.parseJsonResponse(renewResponse, 'space_renew');
 
                     if (renewResult.status !== 1) {
-                        const msg = (renewResult.data && renewResult.data.message) || renewResult.debug || this.t('vx_space_renew_failed', '续费失败');
+                        const msg = this.getKnownSpaceErrorMessage(renewResult, 'vx_space_renew_failed', '续费失败');
                         VXUI.toastError(msg);
+                        this.loadSpaces();
+                        if (typeof TL !== 'undefined' && TL.get_details) {
+                            TL.get_details(() => this.loadUserStatus());
+                        } else {
+                            this.loadUserStatus();
+                        }
                         return;
                     }
 
