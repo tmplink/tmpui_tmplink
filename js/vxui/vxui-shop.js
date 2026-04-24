@@ -394,30 +394,117 @@ window.VX_SHOP = {
      * Called after loadSpaces() resolves.
      */
     _updateSpacesBuySection() {
-        const isAtCap = (this._totalActiveSpaceBytes || 0) >= this._SPACE_CAP_BYTES;
+        const buyBtn = document.getElementById('vx-space-buy-trigger');
+        if (!buyBtn) return;
 
-        const cardsContainer = document.querySelector('.vx-spaces-buy-section .vx-space-buy-cards');
-        if (!cardsContainer) return;
+        buyBtn.disabled = (this._totalActiveSpaceBytes || 0) >= this._SPACE_CAP_BYTES;
+    },
 
-        // Remove existing cap notice
-        const existingNotice = document.getElementById('vx-space-cap-notice');
-        if (existingNotice) existingNotice.remove();
+    _clearSpacesOverview() {
+        const overviewEl = document.getElementById('vx-space-overview');
+        if (!overviewEl) return;
+        overviewEl.style.display = 'none';
+        overviewEl.innerHTML = '';
+    },
 
-        if (isAtCap) {
-            cardsContainer.querySelectorAll('.vx-space-buy-card').forEach(card => {
-                card.classList.add('vx-space-buy-card-disabled');
-            });
+    _getPrivateStorageUsedBytes() {
+        const used = (typeof TL !== 'undefined' && TL && TL.private_storage_used !== undefined)
+            ? Number(TL.private_storage_used)
+            : 0;
+        if (!Number.isFinite(used) || used < 0) return 0;
+        return used;
+    },
 
-            const notice = document.createElement('p');
-            notice.id = 'vx-space-cap-notice';
-            notice.className = 'vx-space-cap-notice';
-            notice.innerHTML = `<iconpark-icon name="circle-exclamation"></iconpark-icon> ${this.t('vx_space_cap_reached', '私有空间已达上限（10TB），无法继续购买')}`;
-            cardsContainer.parentNode.insertBefore(notice, cardsContainer);
-        } else {
-            cardsContainer.querySelectorAll('.vx-space-buy-card').forEach(card => {
-                card.classList.remove('vx-space-buy-card-disabled');
-            });
+    _renderSpacesOverview(spaces) {
+        const overviewEl = document.getElementById('vx-space-overview');
+        if (!overviewEl) return;
+
+        const activeSpaces = (spaces || []).filter(s => s && s.is_active === 1);
+        if (activeSpaces.length === 0) {
+            this._clearSpacesOverview();
+            return;
         }
+
+        const totalBytes = this._totalActiveSpaceBytes || activeSpaces.reduce((sum, s) => {
+            const apiBytes = Number(s.size);
+            return sum + (Number.isFinite(apiBytes) && apiBytes > 0 ? apiBytes : this.getSpaceSpecBytes(s.spec));
+        }, 0);
+
+        const usedRaw = this._getPrivateStorageUsedBytes();
+        const usedBytes = Math.min(usedRaw, totalBytes);
+        const freeBytes = Math.max(totalBytes - usedBytes, 0);
+        const usedPercent = totalBytes > 0 ? (usedBytes / totalBytes) * 100 : 0;
+
+        const groups = {};
+        activeSpaces.forEach(space => {
+            const label = this.getSpaceDisplayLabel(space);
+            const apiBytes = Number(space.size);
+            const bytes = Number.isFinite(apiBytes) && apiBytes > 0 ? apiBytes : this.getSpaceSpecBytes(space.spec);
+            groups[label] = (groups[label] || 0) + bytes;
+        });
+
+        const entries = Object.keys(groups)
+            .map(label => ({ label, bytes: groups[label] }))
+            .sort((a, b) => b.bytes - a.bytes);
+
+        const palette = ['#2563eb', '#0ea5e9', '#8b5cf6', '#f59e0b', '#14b8a6', '#ef4444'];
+
+        const compBarHtml = entries.map((item, idx) => {
+            const pct = totalBytes > 0 ? (item.bytes / totalBytes) * 100 : 0;
+            return `<span class="vx-space-comp-seg" style="width:${pct.toFixed(2)}%;background:${palette[idx % palette.length]};"></span>`;
+        }).join('');
+
+        const compLegendHtml = entries.map((item, idx) => {
+            const pct = totalBytes > 0 ? (item.bytes / totalBytes) * 100 : 0;
+            return `
+                <div class="vx-space-comp-item">
+                    <span class="vx-space-comp-left">
+                        <span class="vx-space-comp-dot" style="background:${palette[idx % palette.length]};"></span>
+                        <span class="vx-space-comp-name">${this.escapeHtml(item.label)}</span>
+                    </span>
+                    <span class="vx-space-comp-val">${this.formatBytes(item.bytes)} (${pct.toFixed(1)}%)</span>
+                </div>
+            `;
+        }).join('');
+
+        overviewEl.innerHTML = `
+            <div class="vx-space-overview-card">
+                <div class="vx-space-overview-top">
+                    <span class="vx-space-overview-title">${this.t('vx_space_overview_title', '私有空间总览')}</span>
+                    <span class="vx-space-overview-cap">${this.t('vx_space_overview_cap', '总量上限 10TB')}</span>
+                </div>
+
+                <div class="vx-space-kpis">
+                    <div class="vx-space-kpi">
+                        <div class="vx-space-kpi-label">${this.t('vx_space_overview_total', '总容量')}</div>
+                        <div class="vx-space-kpi-value">${this.formatBytes(totalBytes)}</div>
+                    </div>
+                    <div class="vx-space-kpi">
+                        <div class="vx-space-kpi-label">${this.t('vx_space_overview_free', '已购可用空间')}</div>
+                        <div class="vx-space-kpi-value">${this.formatBytes(freeBytes)}</div>
+                    </div>
+                    <div class="vx-space-kpi">
+                        <div class="vx-space-kpi-label">${this.t('vx_space_overview_used', '已使用空间')}</div>
+                        <div class="vx-space-kpi-value">${this.formatBytes(usedBytes)}</div>
+                    </div>
+                </div>
+
+                <div class="vx-space-section-title">${this.t('vx_space_overview_comp', '私有空间构成')}</div>
+                <div class="vx-space-comp-bar">${compBarHtml}</div>
+                <div class="vx-space-comp-legend">${compLegendHtml}</div>
+
+                <div class="vx-space-section-title">${this.t('vx_space_overview_usage', '私有空间使用情况')}</div>
+                <div class="vx-space-used-bar">
+                    <span class="vx-space-used-fill" style="width:${usedPercent.toFixed(2)}%;"></span>
+                </div>
+                <div class="vx-space-used-meta">
+                    <span>${this.t('vx_space_overview_used_ratio', '已使用')} ${this.formatBytes(usedBytes)} / ${this.formatBytes(totalBytes)}</span>
+                    <span>${usedPercent.toFixed(1)}%</span>
+                </div>
+            </div>
+        `;
+
+        overviewEl.style.display = '';
     },
 
     /**
@@ -438,6 +525,7 @@ window.VX_SHOP = {
 
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
         if (!token) {
+            this._clearSpacesOverview();
             container.innerHTML = `<div class="vx-spaces-empty"><p>${this.t('vx_need_login', '请先登录')}</p></div>`;
             return;
         }
@@ -454,6 +542,7 @@ window.VX_SHOP = {
             if (rsp.status !== 1 || !rsp.data || rsp.data.length === 0) {
                 this._loadedSpaces = [];
                 this._totalActiveSpaceBytes = 0;
+                this._clearSpacesOverview();
                 this._updateSpacesBuySection();
                 container.innerHTML = `
                     <div class="vx-spaces-empty">
@@ -474,7 +563,15 @@ window.VX_SHOP = {
                     const apiBytes = Number(s.size);
                     return sum + (Number.isFinite(apiBytes) && apiBytes > 0 ? apiBytes : this.getSpaceSpecBytes(s.spec));
                 }, 0);
+            this._renderSpacesOverview(rsp.data);
             this._updateSpacesBuySection();
+
+            // Refresh used-space stats from profile details when available.
+            if (typeof TL !== 'undefined' && TL && typeof TL.get_details === 'function') {
+                TL.get_details(() => {
+                    this._renderSpacesOverview(this._loadedSpaces || []);
+                });
+            }
 
             const hasRenewable = rsp.data.some(s => this._RENEWABLE_SPECS.includes(this.normalizeSpaceSpec(s.spec)));
             if (renewAllBtn) renewAllBtn.style.display = hasRenewable ? '' : 'none';
@@ -519,6 +616,7 @@ window.VX_SHOP = {
 
         } catch (e) {
             console.error('[VX_SHOP] Failed to load spaces:', e);
+            this._clearSpacesOverview();
             container.innerHTML = `
                 <div class="vx-spaces-empty">
                     <iconpark-icon name="circle-exclamation"></iconpark-icon>
