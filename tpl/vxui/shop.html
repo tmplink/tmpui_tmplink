@@ -165,54 +165,21 @@
     <!-- Spaces Management Tab -->
     <div class="vx-shop-tab-content" id="vx-shop-spaces" style="display: none;">
         <div class="vx-shop-section">
-            <!-- Buy New Space Section -->
-            <div class="vx-spaces-buy-section">
-                <h3 class="vx-spaces-header">
-                    <iconpark-icon name="album-circle-plus"></iconpark-icon>
-                    <span data-tpl="vx_space_buy_title">购买私有空间</span>
-                </h3>
-                <p class="vx-spaces-header-desc" data-tpl="vx_space_buy_desc">购买后有效期为 30 天，可多次购买叠加容量（上限 10TB）</p>
-                <div class="vx-space-buy-cards">
-                    <div class="vx-space-buy-card" onclick="VX_SHOP.openStorage('256g')">
-                        <div class="vx-space-buy-card-icon">
-                            <iconpark-icon name="album-circle-plus"></iconpark-icon>
-                        </div>
-                        <div class="vx-space-buy-card-body">
-                            <div class="vx-space-buy-card-size">256 GB</div>
-                            <div class="vx-space-buy-card-price">6 <span data-tpl="vx_pay_point">点数</span> / 30<span data-tpl="vx_space_days_abbr">天</span></div>
-                        </div>
-                        <div class="vx-space-buy-card-action">
-                            <span class="vx-btn vx-btn-primary vx-btn-sm" data-tpl="vx_space_buy_btn">购买</span>
-                        </div>
-                    </div>
-                    <div class="vx-space-buy-card" onclick="VX_SHOP.openStorage('1t')">
-                        <div class="vx-space-buy-card-icon">
-                            <iconpark-icon name="album-circle-plus"></iconpark-icon>
-                        </div>
-                        <div class="vx-space-buy-card-body">
-                            <div class="vx-space-buy-card-size">1 TB</div>
-                            <div class="vx-space-buy-card-price">18 <span data-tpl="vx_pay_point">点数</span> / 30<span data-tpl="vx_space_days_abbr">天</span></div>
-                        </div>
-                        <div class="vx-space-buy-card-action">
-                            <span class="vx-btn vx-btn-primary vx-btn-sm" data-tpl="vx_space_buy_btn">购买</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- My Spaces Section -->
             <div class="vx-spaces-my-section">
-                <div class="vx-spaces-my-header">
-                    <h3 class="vx-spaces-header">
-                        <iconpark-icon name="server"></iconpark-icon>
-                        <span data-tpl="vx_space_my_title">我的私有空间</span>
-                    </h3>
+                <div class="vx-spaces-actions">
                     <button class="vx-btn vx-btn-sm vx-btn-secondary" id="vx-space-renew-all-btn"
                         onclick="VX_SHOP.openBulkRenewModal()" style="display:none;">
                         <iconpark-icon name="rotate"></iconpark-icon>
                         <span data-tpl="vx_space_renew_all">一键续费所有</span>
                     </button>
+                    <button class="vx-btn vx-btn-sm vx-btn-primary" id="vx-space-buy-trigger"
+                        onclick="VX_SHOP.openStorage('256g')">
+                        <iconpark-icon name="album-circle-plus"></iconpark-icon>
+                        <span data-tpl="vx_space_buy_btn">购买</span>
+                    </button>
                 </div>
+                <div id="vx-space-overview" class="vx-space-overview" style="display:none;"></div>
                 <div id="vx-spaces-list-v2" class="vx-spaces-list-v2"></div>
             </div>
         </div>
@@ -251,10 +218,6 @@
 /* Shop Module Styles */
 
 /* ===== Private Space Management ===== */
-.vx-spaces-buy-section {
-    margin-bottom: 32px;
-}
-
 .vx-spaces-header {
     display: flex;
     align-items: center;
@@ -276,44 +239,6 @@
     margin: 0 0 16px;
 }
 
-.vx-space-buy-cards {
-    display: flex;
-    gap: 12px;
-}
-
-.vx-space-buy-card {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px 20px;
-    background: var(--vx-surface);
-    border: 1px solid var(--vx-border);
-    border-radius: var(--vx-radius-lg);
-    cursor: pointer;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.vx-space-buy-card:hover {
-    border-color: var(--vx-primary);
-    box-shadow: var(--vx-shadow-sm);
-}
-
-.vx-space-buy-card-disabled {
-    opacity: 0.45;
-    pointer-events: none;
-    cursor: not-allowed;
-}
-
-.vx-space-cap-notice {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: var(--vx-text-secondary);
-    margin-bottom: 12px;
-}
-
 .vx-space-exceed-warning {
     display: flex;
     align-items: center;
@@ -327,48 +252,156 @@
     font-size: 13px;
 }
 
-.vx-space-buy-card-icon {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    border-radius: var(--vx-radius-md);
-    flex-shrink: 0;
-}
-
-.vx-space-buy-card-icon iconpark-icon {
-    font-size: 24px;
-    color: white;
-}
-
-.vx-space-buy-card-body {
-    flex: 1;
-}
-
-.vx-space-buy-card-size {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--vx-text);
-    line-height: 1.2;
-}
-
-.vx-space-buy-card-price {
-    font-size: 13px;
-    color: var(--vx-text-secondary);
-    margin-top: 3px;
-}
-
 .vx-spaces-my-section {
     /* container */
 }
 
-.vx-spaces-my-header {
+.vx-spaces-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+#vx-space-buy-trigger[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.vx-space-overview {
+    margin-bottom: 14px;
+}
+
+.vx-space-overview-card {
+    padding: 14px;
+    background: var(--vx-surface);
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-lg);
+}
+
+.vx-space-overview-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.vx-space-overview-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--vx-text);
+}
+
+.vx-space-overview-cap {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+}
+
+.vx-space-kpis {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.vx-space-kpi {
+    padding: 10px 10px 9px;
+    border: 1px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    background: var(--vx-bg-secondary);
+}
+
+.vx-space-kpi-label {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+    margin-bottom: 4px;
+}
+
+.vx-space-kpi-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--vx-text);
+}
+
+.vx-space-section-title {
+    font-size: 12px;
+    color: var(--vx-text-secondary);
+    margin-bottom: 6px;
+}
+
+.vx-space-comp-bar,
+.vx-space-used-bar {
+    display: flex;
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid var(--vx-border);
+    background: var(--vx-bg-secondary);
+}
+
+.vx-space-comp-seg {
+    height: 100%;
+    min-width: 0;
+}
+
+.vx-space-comp-legend {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 10px;
+    margin-top: 8px;
+    margin-bottom: 12px;
+}
+
+.vx-space-comp-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+    min-width: 0;
+}
+
+.vx-space-comp-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.vx-space-comp-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.vx-space-comp-name {
+    color: var(--vx-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vx-space-comp-val {
+    color: var(--vx-text-secondary);
+    flex-shrink: 0;
+}
+
+.vx-space-used-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.vx-space-used-meta {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--vx-text-secondary);
 }
 
 .vx-spaces-list-v2 {
@@ -698,8 +731,12 @@
 }
 
 @media (max-width: 768px) {
-    .vx-space-buy-cards {
-        flex-direction: column;
+    .vx-space-kpis {
+        grid-template-columns: 1fr;
+    }
+
+    .vx-space-comp-legend {
+        grid-template-columns: 1fr;
     }
 
     .vx-renew-months-options {

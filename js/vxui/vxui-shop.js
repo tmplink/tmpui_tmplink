@@ -111,6 +111,46 @@ window.VX_SHOP = {
             throw new Error('invalid_json_response');
         }
     },
+    extractApiErrorMessage(result) {
+        if (!result) return '';
+
+        if (typeof result.data === 'string' && result.data.trim()) {
+            return result.data.trim();
+        }
+
+        if (result.data && typeof result.data.message === 'string' && result.data.message.trim()) {
+            return result.data.message.trim();
+        }
+
+        if (typeof result.debug === 'string' && result.debug.trim()) {
+            return result.debug.trim();
+        }
+
+        if (Array.isArray(result.debug)) {
+            const joined = result.debug.filter(Boolean).join(' ').trim();
+            if (joined) return joined;
+        }
+
+        return '';
+    },
+
+    getKnownSpaceErrorMessage(result, fallbackKey, fallbackText) {
+        const status = Number(result && result.status);
+        const knownMessages = {
+            2003: ['vx_point_insufficient', '点数不足'],
+            2004: [fallbackKey, fallbackText],
+            2101: ['vx_space_invalid_spec', '无效的私有空间规格'],
+            2102: ['vx_space_cap_reached', '私有空间已达上限（10TB），无法继续购买'],
+            2103: ['vx_space_invalid_ids', '私有空间记录无效，请刷新后重试'],
+            2104: ['vx_space_spec_error', '私有空间规格数据异常，请稍后重试']
+        };
+
+        if (knownMessages[status]) {
+            return this.t(knownMessages[status][0], knownMessages[status][1]);
+        }
+
+        return this.extractApiErrorMessage(result) || this.t(fallbackKey, fallbackText);
+    },
     
     /**
      * Initialize the shop module
@@ -361,8 +401,8 @@ window.VX_SHOP = {
     /** Unit monthly price by space spec (points / 30 days). */
     getSpaceMonthlyPrice(spec) {
         const normalized = this.normalizeSpaceSpec(spec);
-        if (normalized === '1t') return 18;
-        return 6; // default 256g
+        if (normalized === '1t') return 2000;
+        return 600; // default 256g
     },
 
     /** Capacity bytes by space spec. */
@@ -394,30 +434,117 @@ window.VX_SHOP = {
      * Called after loadSpaces() resolves.
      */
     _updateSpacesBuySection() {
-        const isAtCap = (this._totalActiveSpaceBytes || 0) >= this._SPACE_CAP_BYTES;
+        const buyBtn = document.getElementById('vx-space-buy-trigger');
+        if (!buyBtn) return;
 
-        const cardsContainer = document.querySelector('.vx-spaces-buy-section .vx-space-buy-cards');
-        if (!cardsContainer) return;
+        buyBtn.disabled = (this._totalActiveSpaceBytes || 0) >= this._SPACE_CAP_BYTES;
+    },
 
-        // Remove existing cap notice
-        const existingNotice = document.getElementById('vx-space-cap-notice');
-        if (existingNotice) existingNotice.remove();
+    _clearSpacesOverview() {
+        const overviewEl = document.getElementById('vx-space-overview');
+        if (!overviewEl) return;
+        overviewEl.style.display = 'none';
+        overviewEl.innerHTML = '';
+    },
 
-        if (isAtCap) {
-            cardsContainer.querySelectorAll('.vx-space-buy-card').forEach(card => {
-                card.classList.add('vx-space-buy-card-disabled');
-            });
+    _getPrivateStorageUsedBytes() {
+        const used = (typeof TL !== 'undefined' && TL && TL.private_storage_used !== undefined)
+            ? Number(TL.private_storage_used)
+            : 0;
+        if (!Number.isFinite(used) || used < 0) return 0;
+        return used;
+    },
 
-            const notice = document.createElement('p');
-            notice.id = 'vx-space-cap-notice';
-            notice.className = 'vx-space-cap-notice';
-            notice.innerHTML = `<iconpark-icon name="circle-exclamation"></iconpark-icon> ${this.t('vx_space_cap_reached', '私有空间已达上限（10TB），无法继续购买')}`;
-            cardsContainer.parentNode.insertBefore(notice, cardsContainer);
-        } else {
-            cardsContainer.querySelectorAll('.vx-space-buy-card').forEach(card => {
-                card.classList.remove('vx-space-buy-card-disabled');
-            });
+    _renderSpacesOverview(spaces) {
+        const overviewEl = document.getElementById('vx-space-overview');
+        if (!overviewEl) return;
+
+        const activeSpaces = (spaces || []).filter(s => s && s.is_active === 1);
+        if (activeSpaces.length === 0) {
+            this._clearSpacesOverview();
+            return;
         }
+
+        const totalBytes = this._totalActiveSpaceBytes || activeSpaces.reduce((sum, s) => {
+            const apiBytes = Number(s.size);
+            return sum + (Number.isFinite(apiBytes) && apiBytes > 0 ? apiBytes : this.getSpaceSpecBytes(s.spec));
+        }, 0);
+
+        const usedRaw = this._getPrivateStorageUsedBytes();
+        const usedBytes = Math.min(usedRaw, totalBytes);
+        const freeBytes = Math.max(totalBytes - usedBytes, 0);
+        const usedPercent = totalBytes > 0 ? (usedBytes / totalBytes) * 100 : 0;
+
+        const groups = {};
+        activeSpaces.forEach(space => {
+            const label = this.getSpaceDisplayLabel(space);
+            const apiBytes = Number(space.size);
+            const bytes = Number.isFinite(apiBytes) && apiBytes > 0 ? apiBytes : this.getSpaceSpecBytes(space.spec);
+            groups[label] = (groups[label] || 0) + bytes;
+        });
+
+        const entries = Object.keys(groups)
+            .map(label => ({ label, bytes: groups[label] }))
+            .sort((a, b) => b.bytes - a.bytes);
+
+        const palette = ['#2563eb', '#0ea5e9', '#8b5cf6', '#f59e0b', '#14b8a6', '#ef4444'];
+
+        const compBarHtml = entries.map((item, idx) => {
+            const pct = totalBytes > 0 ? (item.bytes / totalBytes) * 100 : 0;
+            return `<span class="vx-space-comp-seg" style="width:${pct.toFixed(2)}%;background:${palette[idx % palette.length]};"></span>`;
+        }).join('');
+
+        const compLegendHtml = entries.map((item, idx) => {
+            const pct = totalBytes > 0 ? (item.bytes / totalBytes) * 100 : 0;
+            return `
+                <div class="vx-space-comp-item">
+                    <span class="vx-space-comp-left">
+                        <span class="vx-space-comp-dot" style="background:${palette[idx % palette.length]};"></span>
+                        <span class="vx-space-comp-name">${this.escapeHtml(item.label)}</span>
+                    </span>
+                    <span class="vx-space-comp-val">${this.formatBytes(item.bytes)} (${pct.toFixed(1)}%)</span>
+                </div>
+            `;
+        }).join('');
+
+        overviewEl.innerHTML = `
+            <div class="vx-space-overview-card">
+                <div class="vx-space-overview-top">
+                    <span class="vx-space-overview-title">${this.t('vx_space_overview_title', '私有空间总览')}</span>
+                    <span class="vx-space-overview-cap">${this.t('vx_space_overview_cap', '总量上限 10TB')}</span>
+                </div>
+
+                <div class="vx-space-kpis">
+                    <div class="vx-space-kpi">
+                        <div class="vx-space-kpi-label">${this.t('vx_space_overview_total', '总容量')}</div>
+                        <div class="vx-space-kpi-value">${this.formatBytes(totalBytes)}</div>
+                    </div>
+                    <div class="vx-space-kpi">
+                        <div class="vx-space-kpi-label">${this.t('vx_space_overview_free', '已购可用空间')}</div>
+                        <div class="vx-space-kpi-value">${this.formatBytes(freeBytes)}</div>
+                    </div>
+                    <div class="vx-space-kpi">
+                        <div class="vx-space-kpi-label">${this.t('vx_space_overview_used', '已使用空间')}</div>
+                        <div class="vx-space-kpi-value">${this.formatBytes(usedBytes)}</div>
+                    </div>
+                </div>
+
+                <div class="vx-space-section-title">${this.t('vx_space_overview_comp', '私有空间构成')}</div>
+                <div class="vx-space-comp-bar">${compBarHtml}</div>
+                <div class="vx-space-comp-legend">${compLegendHtml}</div>
+
+                <div class="vx-space-section-title">${this.t('vx_space_overview_usage', '私有空间使用情况')}</div>
+                <div class="vx-space-used-bar">
+                    <span class="vx-space-used-fill" style="width:${usedPercent.toFixed(2)}%;"></span>
+                </div>
+                <div class="vx-space-used-meta">
+                    <span>${this.t('vx_space_overview_used_ratio', '已使用')} ${this.formatBytes(usedBytes)} / ${this.formatBytes(totalBytes)}</span>
+                    <span>${usedPercent.toFixed(1)}%</span>
+                </div>
+            </div>
+        `;
+
+        overviewEl.style.display = '';
     },
 
     /**
@@ -438,6 +565,7 @@ window.VX_SHOP = {
 
         const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
         if (!token) {
+            this._clearSpacesOverview();
             container.innerHTML = `<div class="vx-spaces-empty"><p>${this.t('vx_need_login', '请先登录')}</p></div>`;
             return;
         }
@@ -454,6 +582,7 @@ window.VX_SHOP = {
             if (rsp.status !== 1 || !rsp.data || rsp.data.length === 0) {
                 this._loadedSpaces = [];
                 this._totalActiveSpaceBytes = 0;
+                this._clearSpacesOverview();
                 this._updateSpacesBuySection();
                 container.innerHTML = `
                     <div class="vx-spaces-empty">
@@ -474,7 +603,15 @@ window.VX_SHOP = {
                     const apiBytes = Number(s.size);
                     return sum + (Number.isFinite(apiBytes) && apiBytes > 0 ? apiBytes : this.getSpaceSpecBytes(s.spec));
                 }, 0);
+            this._renderSpacesOverview(rsp.data);
             this._updateSpacesBuySection();
+
+            // Refresh used-space stats from profile details when available.
+            if (typeof TL !== 'undefined' && TL && typeof TL.get_details === 'function') {
+                TL.get_details(() => {
+                    this._renderSpacesOverview(this._loadedSpaces || []);
+                });
+            }
 
             const hasRenewable = rsp.data.some(s => this._RENEWABLE_SPECS.includes(this.normalizeSpaceSpec(s.spec)));
             if (renewAllBtn) renewAllBtn.style.display = hasRenewable ? '' : 'none';
@@ -519,6 +656,7 @@ window.VX_SHOP = {
 
         } catch (e) {
             console.error('[VX_SHOP] Failed to load spaces:', e);
+            this._clearSpacesOverview();
             container.innerHTML = `
                 <div class="vx-spaces-empty">
                     <iconpark-icon name="circle-exclamation"></iconpark-icon>
@@ -719,7 +857,7 @@ window.VX_SHOP = {
             if (result.status === 1) {
                 totalCost += (result.data && result.data.cost) ? result.data.cost : 0;
             } else {
-                const msg = (result.data && result.data.message) || result.debug || this.t('vx_space_renew_failed', '续费失败');
+                const msg = this.getKnownSpaceErrorMessage(result, 'vx_space_renew_failed', '续费失败');
                 VXUI.toastError(msg);
                 throw new Error('handled');
             }
@@ -969,11 +1107,11 @@ window.VX_SHOP = {
             <div class="vx-purchase-options">
                 <div class="vx-purchase-option ${spec === '256g' ? 'selected' : ''}" data-code="256g" onclick="VX_SHOP.selectCode('256g')">
                     <h4>256GB</h4>
-                    <div class="vx-option-price">6 ${this.t('vx_pay_point', '点数')} / 30天</div>
+                    <div class="vx-option-price">600 ${this.t('vx_pay_point', '点数')} / 30天</div>
                 </div>
                 <div class="vx-purchase-option ${spec === '1t' ? 'selected' : ''}" data-code="1t" onclick="VX_SHOP.selectCode('1t')">
                     <h4>1TB</h4>
-                    <div class="vx-option-price">18 ${this.t('vx_pay_point', '点数')} / 30天</div>
+                    <div class="vx-option-price">2000 ${this.t('vx_pay_point', '点数')} / 30天</div>
                 </div>
             </div>
 
@@ -1479,12 +1617,12 @@ window.VX_SHOP = {
                 const buyResult = await this.parseJsonResponse(buyResponse, 'space_buy');
 
                 if (buyResult.status !== 1) {
+                    const msg = this.getKnownSpaceErrorMessage(buyResult, 'vx_purchase_failed', '购买失败');
                     if (buyResult.status === 2102) {
                         // Server-side cap enforcement: refresh UI to reflect real state
                         this.loadSpaces();
-                        VXUI.toastError(this.t('vx_space_cap_reached', '私有空间已达上限（10TB），无法继续购买'));
+                        VXUI.toastError(msg);
                     } else {
-                        const msg = (buyResult.data && buyResult.data.message) || buyResult.debug || this.t('vx_purchase_failed', '购买失败');
                         VXUI.toastError(msg);
                     }
                     // If some copies were already bought, reload spaces to show them
@@ -1513,8 +1651,14 @@ window.VX_SHOP = {
                     const renewResult = await this.parseJsonResponse(renewResponse, 'space_renew');
 
                     if (renewResult.status !== 1) {
-                        const msg = (renewResult.data && renewResult.data.message) || renewResult.debug || this.t('vx_space_renew_failed', '续费失败');
+                        const msg = this.getKnownSpaceErrorMessage(renewResult, 'vx_space_renew_failed', '续费失败');
                         VXUI.toastError(msg);
+                        this.loadSpaces();
+                        if (typeof TL !== 'undefined' && TL.get_details) {
+                            TL.get_details(() => this.loadUserStatus());
+                        } else {
+                            this.loadUserStatus();
+                        }
                         return;
                     }
 

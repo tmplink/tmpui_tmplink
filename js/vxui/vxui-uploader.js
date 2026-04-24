@@ -543,6 +543,7 @@ var VX_UPLOADER = VX_UPLOADER || {
         const option = document.querySelector('#vx-upload-model option[value="99"]');
         if (meta) {
             const leftText = this.getLang('upload_settings_private_left') || '剩余私有空间容量';
+            const manageText = this.getLang('vx_manage') || '管理';
             
             const total = this.storage || 1;
             const used = this.private_storage_used || 0;
@@ -554,7 +555,7 @@ var VX_UPLOADER = VX_UPLOADER || {
             
             meta.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span>${leftText}</span>
+                    <span>${leftText} <a href="javascript:;" onclick="event.stopPropagation(); VXUI.navigate('shop', { tab: 'spaces' })" style="margin-left: 6px; color: var(--vx-primary); text-decoration: none;">(${manageText})</a></span>
                     <span style="font-weight: 500;">${this.formatSize(remaining)}</span>
                 </div>
                 <div class="vx-progress">
