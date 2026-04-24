@@ -361,8 +361,8 @@ window.VX_SHOP = {
     /** Unit monthly price by space spec (points / 30 days). */
     getSpaceMonthlyPrice(spec) {
         const normalized = this.normalizeSpaceSpec(spec);
-        if (normalized === '1t') return 18;
-        return 6; // default 256g
+        if (normalized === '1t') return 2000;
+        return 600; // default 256g
     },
 
     /** Capacity bytes by space spec. */
@@ -969,11 +969,11 @@ window.VX_SHOP = {
             <div class="vx-purchase-options">
                 <div class="vx-purchase-option ${spec === '256g' ? 'selected' : ''}" data-code="256g" onclick="VX_SHOP.selectCode('256g')">
                     <h4>256GB</h4>
-                    <div class="vx-option-price">6 ${this.t('vx_pay_point', '点数')} / 30天</div>
+                    <div class="vx-option-price">600 ${this.t('vx_pay_point', '点数')} / 30天</div>
                 </div>
                 <div class="vx-purchase-option ${spec === '1t' ? 'selected' : ''}" data-code="1t" onclick="VX_SHOP.selectCode('1t')">
                     <h4>1TB</h4>
-                    <div class="vx-option-price">18 ${this.t('vx_pay_point', '点数')} / 30天</div>
+                    <div class="vx-option-price">2000 ${this.t('vx_pay_point', '点数')} / 30天</div>
                 </div>
             </div>
 
