@@ -7,7 +7,7 @@ module.exports = defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 0,
-  workers: process.env.CI ? 4 : 4,
+  workers: process.env.TEST_AUTO ? 1 : (process.env.CI ? 4 : 4),
   reporter: [['html', { open: 'never' }], ['list']],
 
   globalSetup: path.resolve(__dirname, 'tests/setup/credentials.setup.js'),
@@ -59,6 +59,17 @@ module.exports = defineConfig({
     {
       name: 'uploader-desktop',
       testMatch: /uploader\.spec\.js/,
+      use: {
+        viewport: { width: 1440, height: 900 },
+        storageState: 'tests/.auth/state.json',
+      },
+      dependencies: ['auth-setup'],
+    },
+
+    // --- Shop private space purchase flow checks (desktop) ---
+    {
+      name: 'shop-space-desktop',
+      testMatch: /shop-space-purchase\.spec\.js/,
       use: {
         viewport: { width: 1440, height: 900 },
         storageState: 'tests/.auth/state.json',

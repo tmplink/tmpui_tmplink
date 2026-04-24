@@ -17,14 +17,14 @@ const pages = [
     name: 'login',
     url: '/?tmpui_page=/login',
     requiresAuth: false,
-    waitFor: 'body',
+    waitFor: '#submit',
     masks: [],
   },
   {
     name: 'register',
     url: '/?tmpui_page=/reg',
     requiresAuth: false,
-    waitFor: 'body',
+    waitFor: '#submit',
     masks: [],
   },
   {
@@ -45,7 +45,7 @@ const pages = [
     name: 'direct-dashboard',
     url: '/?tmpui_page=/vx&module=direct&tab=dashboard',
     requiresAuth: true,
-    waitFor: '#vx-direct-panel-dashboard',
+    waitFor: '#vx-direct-usage-card',
     masks: [
       '#vx-direct-count',
       '#vx-direct-folder-count',
@@ -62,7 +62,7 @@ const pages = [
     name: 'direct-files',
     url: '/?tmpui_page=/vx&module=direct&tab=files&sort_by=0&sort_type=0',
     requiresAuth: true,
-    waitFor: '#vx-direct-panel-files',
+    waitFor: '#vx-direct-files-list-body',
     masks: ['#vx-direct-files-list-body'],
   },
   {

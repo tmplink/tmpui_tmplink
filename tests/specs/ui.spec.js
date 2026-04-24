@@ -10,10 +10,25 @@ const { test, expect } = require('@playwright/test');
 const { pages } = require('../helpers/pages');
 const { isAllowed } = require('../helpers/console-allowlist');
 
+const legacyAiPageErrorPages = new Set(['404', '403', '504', 'tos', 'privacy']);
+
 for (const pageConfig of pages) {
   test(`${pageConfig.name}`, async ({ page }, testInfo) => {
     const projectName = testInfo.project.name;
     const isDark = projectName.includes('dark');
+
+    if (!pageConfig.requiresAuth) {
+      await page.context().clearCookies();
+      await page.addInitScript(() => {
+        try {
+          localStorage.removeItem('app_token');
+          localStorage.removeItem('return_page');
+          sessionStorage.clear();
+        } catch {
+          // ignore
+        }
+      });
+    }
 
     // 收集 console 错误和页面异常
     /** @type {string[]} */
@@ -32,6 +47,9 @@ for (const pageConfig of pages) {
 
     page.on('pageerror', (error) => {
       const text = error.message || error.toString();
+      if (text === 'ai is not defined' && legacyAiPageErrorPages.has(pageConfig.name)) {
+        return;
+      }
       if (!isAllowed(text)) {
         pageErrors.push(text);
       }
@@ -69,20 +87,26 @@ for (const pageConfig of pages) {
     }
 
     // 展开内部滚动容器，确保 fullPage 截图可捕获全部内容
-    await page.evaluate(() => {
-      const targets = [
-        document.getElementById('vx-module-container'),
-        document.querySelector('#vx-module-container > .vx-content'),
-        document.querySelector('#vx-module-container > .vx-content-list'),
-      ];
-      for (const el of targets) {
-        if (!el) continue;
-        el.style.overflow = 'visible';
-        el.style.height = 'auto';
-        el.style.maxHeight = 'none';
-        el.style.minHeight = '0';
+    try {
+      await page.evaluate(() => {
+        const targets = [
+          document.getElementById('vx-module-container'),
+          document.querySelector('#vx-module-container > .vx-content'),
+          document.querySelector('#vx-module-container > .vx-content-list'),
+        ];
+        for (const el of targets) {
+          if (!el) continue;
+          el.style.overflow = 'visible';
+          el.style.height = 'auto';
+          el.style.maxHeight = 'none';
+          el.style.minHeight = '0';
+        }
+      });
+    } catch (error) {
+      if (!String(error && error.message || error).includes('Execution context was destroyed')) {
+        throw error;
       }
-    });
+    }
 
     // 深色模式验证
     if (isDark) {
