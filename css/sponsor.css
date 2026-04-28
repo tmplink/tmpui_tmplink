@@ -93,8 +93,7 @@ body.sponsor-mode .vx-header .vx-btn-outline {
 body.sponsor-mode .vx-btn-primary {
     border-radius: 999px;
     background: var(--sponsor-gradient);
-    border: 1px solid transparent !important;
-    background-clip: padding-box !important;
+    border: none !important;
     color: var(--sponsor-btn-text);
     box-shadow: rgba(255, 255, 255, 0.4) 0px 1px 0px 0px inset, rgba(200, 169, 124, 0.1) 0px 0px 10px 0px, rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
 }
@@ -116,8 +115,7 @@ body.sponsor-mode .vx-select:focus {
 
 body.sponsor-mode .vx-btn-primary:hover:not(:disabled) {
     background: linear-gradient(135deg, #fdf4e6 0%, #d8be9a 48%, #c8a97c 100%);
-    border: 1px solid transparent !important;
-    background-clip: padding-box !important;
+    border: none !important;
     color: var(--sponsor-btn-text);
     box-shadow: rgba(255, 255, 255, 0.5) 0px 1px 0px 0px inset, rgba(200, 169, 124, 0.3) 0px 0px 20px 0px, rgba(0, 0, 0, 0.2) 0px 8px 16px -4px;
 }
@@ -262,8 +260,7 @@ body.sponsor-mode .vx-lang-options {
     background: transparent;
     margin: 0;
     padding: 0 0 4px 0;
-    border: 1px solid transparent !important;
-    background-clip: padding-box !important;
+    border: none !important;
     border-radius: 0;
 }
 
