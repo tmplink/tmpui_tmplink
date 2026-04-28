@@ -302,8 +302,10 @@ class VXUICore {
         // 侧边栏显示模式（抽屉/常驻）
         this.sidebarOverlayMode = false;
         
-        // 暗色模式
-        this.darkMode = this.getDarkModePreference();
+        // 主题模式: 'auto' | 'light' | 'dark'
+        this.themeMode = this.getThemeModePreference();
+        // 暗色模式（由 themeMode 计算得出）
+        this.darkMode = this._computeIsDark();
         
         // 已加载的模板
         this.loadedTemplates = new Map();
@@ -479,6 +481,9 @@ class VXUICore {
         this.ensureLanguageReady().finally(() => {
             // 初始化语言切换器（VXUI 顶层入口）
             this.initLanguageSwitcher();
+
+            // 初始化主题切换器
+            this.initThemeSwitcher();
 
             if (typeof TL !== 'undefined' && TL && typeof TL.tpl_lang === 'function') {
                 TL.tpl_lang();
@@ -1049,6 +1054,34 @@ class VXUICore {
         
         // 点击侧边栏外部关闭
         document.addEventListener('click', (e) => {
+            // Theme dropdown toggle
+            const themeToggle = e.target && e.target.closest ? e.target.closest('[data-action="vx-theme-toggle"]') : null;
+            const themeSet = e.target && e.target.closest ? e.target.closest('[data-action="vx-theme-set"]') : null;
+            const themeDropdown = document.getElementById('vx-theme-dropdown');
+
+            if (themeToggle && themeDropdown) {
+                e.preventDefault();
+                e.stopPropagation();
+                themeDropdown.classList.toggle('open');
+                return;
+            }
+
+            if (themeSet) {
+                e.preventDefault();
+                e.stopPropagation();
+                const nextTheme = themeSet.getAttribute('data-theme');
+                if (themeDropdown) themeDropdown.classList.remove('open');
+                this.setThemeMode(nextTheme);
+                return;
+            }
+
+            // Click outside closes theme dropdown
+            if (themeDropdown && themeDropdown.classList.contains('open')) {
+                if (!themeDropdown.contains(e.target)) {
+                    themeDropdown.classList.remove('open');
+                }
+            }
+
             // Language dropdown toggle
             const langToggle = e.target && e.target.closest ? e.target.closest('[data-action="vx-lang-toggle"]') : null;
             const langSet = e.target && e.target.closest ? e.target.closest('[data-action="vx-lang-set"]') : null;
@@ -1145,30 +1178,57 @@ class VXUICore {
     }
     
     // ==================== 暗色模式 ====================
-    
+
     /**
-     * 获取暗色模式偏好
+     * 读取用户选择的主题模式（'auto' | 'light' | 'dark'）
+     */
+    getThemeModePreference() {
+        const stored = localStorage.getItem('vxui-theme-mode');
+        if (stored === 'light' || stored === 'dark' || stored === 'auto') return stored;
+        return 'auto';
+    }
+
+    /**
+     * 根据当前 themeMode 计算是否应为深色
+     * auto: 跟随系统；系统不可用则按时间（18:00-06:00 为深色）
+     */
+    _computeIsDark() {
+        if (this.themeMode === 'dark') return true;
+        if (this.themeMode === 'light') return false;
+        // auto
+        try {
+            const mq = window.matchMedia('(prefers-color-scheme: dark)');
+            if (typeof mq.matches === 'boolean') return mq.matches;
+        } catch (e) { /* ignore */ }
+        // 时间兜底：18:00–06:00 为深色
+        const h = new Date().getHours();
+        return h >= 18 || h < 6;
+    }
+
+    /**
+     * 兼容旧接口
      */
     getDarkModePreference() {
-        // 始终跟随系统主题
-        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return this._computeIsDark();
     }
-    
+
     /**
-     * 监听系统主题变化
+     * 监听系统主题变化（仅 auto 模式下生效）
      */
     listenSystemTheme() {
         const media = window.matchMedia('(prefers-color-scheme: dark)');
         const callback = (e) => {
+            if (this.themeMode !== 'auto') return;
             this.darkMode = e.matches;
             this.applyDarkMode();
-            
+            this.updateThemeSwitcherUI();
+
             // 同步更新主题色
             if (typeof TL !== 'undefined' && typeof TL.setThemeColor === 'function') {
                 TL.setThemeColor();
             }
         };
-        
+
         if (typeof media.addEventListener === 'function') {
             media.addEventListener('change', callback);
         } else if (typeof media.addListener === 'function') {
@@ -1176,25 +1236,86 @@ class VXUICore {
             media.addListener(callback);
         }
     }
-    
+
     /**
      * 应用暗色模式
+     * - darkMode=true:  添加 vx-dark，移除 vx-light
+     * - darkMode=false + themeMode='light': 添加 vx-light 以覆盖系统深色媒体查询
+     * - darkMode=false + themeMode='auto': 两者均移除，由媒体查询自然控制
      */
     applyDarkMode() {
         if (this.darkMode) {
             document.documentElement.classList.add('vx-dark');
+            document.documentElement.classList.remove('vx-light');
         } else {
             document.documentElement.classList.remove('vx-dark');
+            if (this.themeMode === 'light') {
+                // 用户显式选择浅色：必须添加 vx-light 以覆盖系统深色媒体查询
+                document.documentElement.classList.add('vx-light');
+            } else {
+                // auto 模式解析为浅色：移除两个类，媒体查询自然处理
+                document.documentElement.classList.remove('vx-light');
+            }
         }
     }
-    
+
     /**
-     * 切换暗色模式
+     * 设置主题模式并保存
+     * @param {'auto'|'light'|'dark'} mode
+     */
+    setThemeMode(mode) {
+        if (mode !== 'auto' && mode !== 'light' && mode !== 'dark') return;
+        this.themeMode = mode;
+        localStorage.setItem('vxui-theme-mode', mode);
+        this.darkMode = this._computeIsDark();
+        this.applyDarkMode();
+        this.updateThemeSwitcherUI();
+        // 同步更新主题色
+        if (typeof TL !== 'undefined' && typeof TL.setThemeColor === 'function') {
+            TL.setThemeColor();
+        }
+    }
+
+    /**
+     * 初始化主题切换器（同步当前选中状态到 UI）
+     */
+    initThemeSwitcher() {
+        this.updateThemeSwitcherUI();
+    }
+
+    /**
+     * 更新主题切换器的选中状态指示
+     */
+    updateThemeSwitcherUI() {
+        const dropdown = document.getElementById('vx-theme-dropdown');
+        if (!dropdown) return;
+        // 更新图标
+        const icon = dropdown.querySelector('#vx-theme-icon');
+        if (icon) {
+            const iconName = this.themeMode === 'dark' ? 'moon'
+                : this.themeMode === 'light' ? 'sun'
+                : (this.darkMode ? 'moon' : 'sun');
+            icon.setAttribute('name', iconName);
+        }
+        // 更新选项激活状态
+        dropdown.querySelectorAll('[data-action="vx-theme-set"]').forEach((el) => {
+            if (el.getAttribute('data-theme') === this.themeMode) {
+                el.classList.add('vx-theme-option-active');
+            } else {
+                el.classList.remove('vx-theme-option-active');
+            }
+        });
+    }
+
+    /**
+     * 切换暗色模式（旧接口兼容）
      */
     toggleDarkMode() {
         this.darkMode = !this.darkMode;
-        localStorage.setItem('vxui-dark-mode', this.darkMode);
+        this.themeMode = this.darkMode ? 'dark' : 'light';
+        localStorage.setItem('vxui-theme-mode', this.themeMode);
         this.applyDarkMode();
+        this.updateThemeSwitcherUI();
     }
 
     /**
