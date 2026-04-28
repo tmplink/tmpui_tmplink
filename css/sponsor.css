@@ -124,6 +124,7 @@ body.sponsor-mode .vx-btn-secondary {
     background: rgba(200, 169, 124, 0.08);
     border-color: var(--sponsor-border);
     color: var(--sponsor-text);
+    border-radius: 999px !important;
 }
 
 body.sponsor-mode .vx-btn-secondary:hover:not(:disabled) {
@@ -133,6 +134,7 @@ body.sponsor-mode .vx-btn-secondary:hover:not(:disabled) {
 
 body.sponsor-mode .vx-btn-ghost {
     color: var(--sponsor-text);
+    border-radius: 999px !important;
 }
 
 body.sponsor-mode .vx-btn-ghost:hover:not(:disabled),
@@ -546,4 +548,40 @@ body.sponsor-mode .vx-card {
 /* Make all buttons pill-shaped to match Aura-Share */
 body.sponsor-mode .vx-btn {
     border-radius: 999px !important;
+}
+
+/* Also ensure all secondary forms inputs have smooth borders */
+body.sponsor-mode .vx-btn-secondary,
+body.sponsor-mode .vx-btn-outline,
+body.sponsor-mode .vx-btn-ghost {
+    border-radius: 999px !important;
+}
+
+/* Ensure all buttons globally use pill shape in sponsor mode */
+body.sponsor-mode .vx-btn,
+body.sponsor-mode .vx-btn-primary,
+body.sponsor-mode .vx-btn-secondary,
+body.sponsor-mode .vx-btn-outline,
+body.sponsor-mode .vx-btn-ghost,
+body.sponsor-mode .vx-action-btn,
+body.sponsor-mode button {
+    border-radius: 999px !important;
+}
+
+/* For inputs that are paired with buttons (like send verification code), keep input rounded slightly to match pill design aesthetic optionally */
+body.sponsor-mode .vx-input-group .vx-input {
+    border-radius: 16px;
+}
+
+/* Add matching radius to all form inputs */
+body.sponsor-mode .vx-input,
+body.sponsor-mode .vx-textarea,
+body.sponsor-mode .vx-select {
+    border-radius: 999px; /* Give them pill shape to match! */
+    padding-left: 20px;
+    padding-right: 20px;
+}
+/* Fix specifically textarea */
+body.sponsor-mode .vx-textarea {
+    border-radius: 16px;
 }
