@@ -664,6 +664,76 @@ html.vx-dark .vx-lang-option:hover {
     background: rgba(255, 255, 255, 0.1);
 }
 
+/* Theme mode switcher: same inline-expandable pattern as language switcher */
+.vx-theme-switcher {
+    width: 100%;
+    border-radius: var(--vx-radius);
+    transition: var(--vx-transition-fast);
+}
+
+.vx-theme-switcher .vx-nav-item {
+    position: relative;
+}
+
+.vx-theme-switcher.open .vx-lang-arrow {
+    transform: rotate(180deg);
+}
+
+.vx-theme-switcher.open {
+    background: var(--vx-primary-light);
+    box-shadow: 0 4px 12px -4px rgba(37, 99, 235, 0.15);
+}
+
+.vx-theme-switcher.open .vx-nav-item {
+    background: transparent;
+    color: var(--vx-primary);
+    border-radius: 0;
+}
+
+.vx-theme-switcher.open .vx-nav-item:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: var(--vx-primary);
+}
+
+.vx-theme-switcher .vx-lang-options {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease-out;
+}
+
+.vx-theme-switcher.open .vx-lang-options {
+    max-height: 160px;
+    padding: 0 0 4px 0;
+    transition: max-height 0.3s ease-in;
+}
+
+/* Active option indicator */
+.vx-theme-option-active {
+    font-weight: 600;
+    color: var(--vx-primary) !important;
+}
+
+.vx-theme-option-active::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--vx-primary);
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+html.vx-dark .vx-theme-switcher.open {
+    background: rgba(37, 99, 235, 0.15);
+    box-shadow: 0 4px 12px -4px rgba(37, 99, 235, 0.2);
+}
+
+html.vx-dark .vx-theme-switcher.open .vx-nav-item:hover,
+html.vx-dark .vx-theme-switcher .vx-lang-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
 .vx-sidebar-header {
     height: var(--vx-header-height);
     display: flex;

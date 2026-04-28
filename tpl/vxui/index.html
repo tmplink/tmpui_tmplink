@@ -95,6 +95,20 @@
             </div>
             
             <div class="vx-sidebar-footer">
+                <!-- Theme Mode Switcher (inline expandable) -->
+                <div class="vx-theme-switcher" id="vx-theme-dropdown">
+                    <a href="javascript:;" class="vx-nav-item" data-action="vx-theme-toggle">
+                        <iconpark-icon name="sun" id="vx-theme-icon"></iconpark-icon>
+                        <span class="vx-nav-item-text" data-tpl="vx_theme_label">外观</span>
+                        <iconpark-icon name="chevron-down" class="vx-lang-arrow"></iconpark-icon>
+                    </a>
+                    <div class="vx-lang-options">
+                        <div class="vx-lang-option" data-action="vx-theme-set" data-theme="auto" data-tpl="vx_theme_auto">自动</div>
+                        <div class="vx-lang-option" data-action="vx-theme-set" data-theme="light" data-tpl="vx_theme_light">浅色</div>
+                        <div class="vx-lang-option" data-action="vx-theme-set" data-theme="dark" data-tpl="vx_theme_dark">深色</div>
+                    </div>
+                </div>
+
                 <!-- Language Switcher (inline expandable) -->
                 <div class="vx-lang-switcher" id="vx-lang-dropdown">
                     <a href="javascript:;" class="vx-nav-item" data-action="vx-lang-toggle">

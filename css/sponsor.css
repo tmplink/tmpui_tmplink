@@ -1,23 +1,69 @@
 /* Sponsor/VIP visual accents - applied via body.sponsor-mode */
 body.sponsor-mode {
-    --sponsor-gold: #f5c542;
-    --sponsor-gold-strong: #f59e0b;
-    --sponsor-gold-soft: rgba(245, 197, 66, 0.18);
-    --sponsor-glow: rgba(245, 158, 11, 0.25);
-    --sponsor-border: rgba(245, 158, 11, 0.35);
-    --sponsor-text: #7c4a00;
-    --sponsor-gradient: linear-gradient(135deg, #f8d36a 0%, #f5b94a 45%, #f59e0b 100%);
+    /* Override VXUI base colors to warm/neutral (remove bluish tint) */
+    --vx-primary: var(--sponsor-gold-strong);
+    --vx-primary-hover: var(--sponsor-gold);
+    --vx-primary-light: var(--sponsor-gold-soft);
+    --vx-primary-alpha: rgba(200, 169, 124, 0.08);
+    
+    --vx-bg: #fdfbf7;
+    --vx-bg-secondary: #f4f1ea;
+    --vx-surface: #ffffff;
+    --vx-surface-hover: #fcfaf6;
+    --vx-surface-active: #f4f1ea;
+    
+    --vx-border: #e8e3d9;
+    --vx-border-hover: #d5cec0;
+    
+    --vx-text: #2d2620;
+    --vx-text-secondary: #6e655b;
+    --vx-text-muted: #9e958a;
+    
+    --vx-sidebar-bg: #ffffff;
+    --vx-header-bg: #fdfbf7;
+
+    --sponsor-gold: #8a6530;
+    --sponsor-gold-strong: #6e4f22;
+    --sponsor-gold-soft: rgba(160, 120, 60, 0.12);
+    --sponsor-glow: rgba(160, 120, 60, 0.25);
+    --sponsor-border: rgba(160, 120, 60, 0.35);
+    --sponsor-text: #7a5a28;
+    --sponsor-gradient: linear-gradient(135deg, #f5e9d7 0%, #c8a97c 48%, #b88d54 100%);
+    --sponsor-btn-text: #0a0d14;
 }
 
 body.dark-mode.sponsor-mode,
 html.vx-dark body.sponsor-mode {
-    --sponsor-gold: #f9d67a;
-    --sponsor-gold-strong: #fbbf24;
-    --sponsor-gold-soft: rgba(251, 191, 36, 0.18);
-    --sponsor-glow: rgba(251, 191, 36, 0.3);
-    --sponsor-border: rgba(251, 191, 36, 0.45);
-    --sponsor-text: #fef3c7;
-    --sponsor-gradient: linear-gradient(135deg, #fde68a 0%, #fbbf24 55%, #f59e0b 100%);
+    /* Override VXUI base colors to true black/warm-dark (remove dark blue tint) */
+    --vx-primary: var(--sponsor-gold-strong);
+    --vx-primary-hover: var(--sponsor-gold);
+    --vx-primary-light: var(--sponsor-gold-soft);
+    --vx-primary-alpha: rgba(200, 169, 124, 0.08);
+    
+    --vx-bg: #090908;
+    --vx-bg-secondary: #131210;
+    --vx-surface: #181614;
+    --vx-surface-hover: #221f1c;
+    --vx-surface-active: #2e2a26;
+    
+    --vx-border: #2e2a26;
+    --vx-border-hover: #403a35;
+    
+    --vx-text: #f0ebe1;
+    --vx-text-secondary: #9e958a;
+    --vx-text-muted: #6e655b;
+    
+    --vx-sidebar-bg: #090908;
+    --vx-header-bg: #090908;
+
+    --sponsor-gold: #e1c699;
+    --sponsor-gold-strong: #c8a97c;
+    --sponsor-gold-soft: rgba(200, 169, 124, 0.15);
+    --sponsor-glow: rgba(200, 169, 124, 0.3);
+    --sponsor-border: rgba(200, 169, 124, 0.45);
+    --sponsor-text: #f5e9d7;
+    --sponsor-gradient: linear-gradient(135deg, #f5e9d7 0%, #c8a97c 48%, #b88d54 100%);
+    --sponsor-btn-text: #0a0d14;
 }
 
 /* Subtle header accent (VXUI) */
@@ -45,42 +91,99 @@ body.sponsor-mode .vx-header .vx-btn-outline {
 
 /* Buttons color tuning (keep shape/layout) */
 body.sponsor-mode .vx-btn-primary {
+    border-radius: 999px;
     background: var(--sponsor-gradient);
+    border: none !important;
+    color: var(--sponsor-btn-text);
+    box-shadow: rgba(255, 255, 255, 0.4) 0px 1px 0px 0px inset, rgba(200, 169, 124, 0.1) 0px 0px 10px 0px, rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
+}
+
+/* Also ensure forms inputs have warm borders rather than blue in light mode */
+body.sponsor-mode .vx-input,
+body.sponsor-mode .vx-textarea,
+body.sponsor-mode .vx-select {
+    border-color: var(--vx-border);
+    background: var(--vx-surface);
+    color: var(--vx-text);
+}
+body.sponsor-mode .vx-input:focus,
+body.sponsor-mode .vx-textarea:focus,
+body.sponsor-mode .vx-select:focus {
     border-color: var(--sponsor-gold-strong);
-    color: var(--sponsor-text);
+    box-shadow: 0 0 0 3px var(--sponsor-gold-soft);
 }
 
 body.sponsor-mode .vx-btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #fbe08e 0%, #f7c55c 55%, #f59e0b 100%);
-    border-color: var(--sponsor-gold-strong);
+    background: linear-gradient(135deg, #fdf4e6 0%, #d8be9a 48%, #c8a97c 100%);
+    border: none !important;
+    color: var(--sponsor-btn-text);
+    box-shadow: rgba(255, 255, 255, 0.5) 0px 1px 0px 0px inset, rgba(200, 169, 124, 0.3) 0px 0px 20px 0px, rgba(0, 0, 0, 0.2) 0px 8px 16px -4px;
 }
 
 body.sponsor-mode .vx-btn-secondary {
-    background: rgba(245, 197, 66, 0.08);
-    border-color: var(--sponsor-border);
-    color: var(--sponsor-text);
+    border-radius: 999px !important;
+    background: var(--sponsor-gradient);
+    border: none !important;
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: rgba(255, 255, 255, 0.4) 0px 1px 0px 0px inset, rgba(200, 169, 124, 0.1) 0px 0px 10px 0px, rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
 }
 
 body.sponsor-mode .vx-btn-secondary:hover:not(:disabled) {
-    background: rgba(245, 197, 66, 0.14);
-    border-color: var(--sponsor-gold-strong);
+    background: linear-gradient(135deg, #fdf4e6 0%, #d8be9a 48%, #c8a97c 100%);
+    border: none !important;
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: rgba(255, 255, 255, 0.5) 0px 1px 0px 0px inset, rgba(200, 169, 124, 0.3) 0px 0px 20px 0px, rgba(0, 0, 0, 0.2) 0px 8px 16px -4px;
 }
 
-body.sponsor-mode .vx-btn-ghost {
-    color: var(--sponsor-text);
+/* Ghost buttons: gold gradient (except danger variants) */
+body.sponsor-mode .vx-btn-ghost:not(.vx-text-danger),
+html.vx-dark body.sponsor-mode .vx-btn-ghost:not(.vx-text-danger) {
+    background: var(--sponsor-gradient);
+    border: none !important;
+    color: var(--sponsor-btn-text) !important;
+    border-radius: 999px !important;
+    box-shadow: none;
 }
 
-body.sponsor-mode .vx-btn-ghost:hover:not(:disabled),
+body.sponsor-mode .vx-btn-ghost:not(.vx-text-danger):hover:not(:disabled),
+html.vx-dark body.sponsor-mode .vx-btn-ghost:not(.vx-text-danger):hover:not(:disabled) {
+    background: linear-gradient(135deg, #fdf4e6 0%, #d8be9a 48%, #c8a97c 100%);
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: none;
+}
+
 body.sponsor-mode .vx-btn-icon:hover {
     background: var(--sponsor-gold-soft);
     color: var(--sponsor-gold-strong);
+}
+
+/* Desktop view toggle container & active state */
+body.sponsor-mode .vx-view-toggle,
+body.sponsor-mode .vx-album-controls,
+body.sponsor-mode .vx-action-toggle {
+    background: var(--sponsor-gold-soft) !important;
+    border: 1px solid var(--sponsor-border) !important;
+}
+
+/* Icon buttons inside toggle groups: gold color */
+body.sponsor-mode .vx-view-toggle .vx-btn-icon,
+body.sponsor-mode .vx-album-controls .vx-btn-icon,
+body.sponsor-mode .vx-action-toggle .vx-btn-icon {
+    color: var(--sponsor-gold) !important;
+}
+
+body.sponsor-mode .vx-view-toggle .vx-btn-icon.active,
+body.sponsor-mode .vx-album-controls .vx-btn-icon.active {
+    background: var(--sponsor-gradient) !important;
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: none;
 }
 
 /* Sponsor badge enhancement */
 body.sponsor-mode .vx-badge-sponsor,
 body.sponsor-mode .publisher-badge {
     background: var(--sponsor-gradient);
-    color: var(--sponsor-text);
+    color: var(--sponsor-btn-text);
     box-shadow: 0 8px 18px -10px var(--sponsor-glow);
 }
 
@@ -109,7 +212,7 @@ body.sponsor-mode .user-info-card::after {
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.6px;
-    color: var(--sponsor-text);
+    color: var(--sponsor-btn-text);
     background: var(--sponsor-gradient);
     border-radius: 999px;
     box-shadow: 0 6px 14px -8px var(--sponsor-glow);
@@ -118,13 +221,13 @@ body.sponsor-mode .user-info-card::after {
 /* Publisher card emphasis on file pages */
 body.sponsor-mode .file-publisher {
     border-color: var(--sponsor-border);
-    background: linear-gradient(135deg, rgba(245, 197, 66, 0.18) 0%, rgba(245, 158, 11, 0.12) 100%);
+    background: linear-gradient(135deg, rgba(200, 169, 124, 0.18) 0%, rgba(184, 141, 84, 0.12) 100%);
     box-shadow: 0 8px 24px -16px var(--sponsor-glow);
 }
 
 body.sponsor-mode .file-publisher:hover {
     border-color: var(--sponsor-gold-strong);
-    background: linear-gradient(135deg, rgba(245, 197, 66, 0.28) 0%, rgba(245, 158, 11, 0.2) 100%);
+    background: linear-gradient(135deg, rgba(200, 169, 124, 0.28) 0%, rgba(184, 141, 84, 0.2) 100%);
 }
 
 /* File list selection accent (VXUI) */
@@ -132,45 +235,96 @@ body.sponsor-mode .vx-list-row.selected {
     box-shadow: inset 2px 0 0 var(--sponsor-gold-strong);
 }
 
+/* File type icons - override hardcoded colors to sponsor gold tones */
+body.sponsor-mode .vx-list-icon.vx-icon-folder iconpark-icon {
+    color: var(--sponsor-gold-strong) !important;
+}
+body.sponsor-mode .vx-list-icon.vx-icon-document iconpark-icon {
+    color: var(--sponsor-gold) !important;
+}
+
+/* Album mode: override --album-accent variable and direct icon color */
+body.sponsor-mode {
+    --album-accent: var(--sponsor-gold-strong);
+    --album-accent-glow: var(--sponsor-glow);
+}
+body.sponsor-mode .album-folder-card iconpark-icon {
+    color: var(--sponsor-gold-strong) !important;
+}
+
 /* List header + hover accents */
 body.sponsor-mode .vx-list-header {
-    background: linear-gradient(180deg, rgba(245, 197, 66, 0.08) 0%, rgba(245, 158, 11, 0.02) 100%);
+    background: linear-gradient(180deg, rgba(200, 169, 124, 0.08) 0%, rgba(184, 141, 84, 0.02) 100%);
     border-bottom-color: var(--sponsor-border);
 }
 
 body.sponsor-mode .vx-list-row:hover {
-    background: rgba(245, 197, 66, 0.08);
+    background: rgba(200, 169, 124, 0.08);
 }
 
 /* Subtle page surface glow for sponsor */
 body.sponsor-mode .vx-content,
 body.sponsor-mode .vx-list-container,
 body.sponsor-mode .vx-album-container {
-    background-image: radial-gradient(600px circle at 20% -10%, rgba(245, 197, 66, 0.08), transparent 60%);
+    background-image: radial-gradient(600px circle at 20% -10%, rgba(200, 169, 124, 0.08), transparent 60%);
 }
 
 /* Dark mode adjustments */
 body.dark-mode.sponsor-mode .vx-list-row:hover,
 html.vx-dark body.sponsor-mode .vx-list-row:hover {
-    background: rgba(251, 191, 36, 0.12);
+    background: rgba(225, 198, 153, 0.12);
 }
 
 body.dark-mode.sponsor-mode .vx-list-header,
 html.vx-dark body.sponsor-mode .vx-list-header {
-    background: linear-gradient(180deg, rgba(251, 191, 36, 0.12) 0%, rgba(245, 158, 11, 0.04) 100%);
+    background: linear-gradient(180deg, rgba(225, 198, 153, 0.12) 0%, rgba(184, 141, 84, 0.04) 100%);
     border-bottom-color: var(--sponsor-border);
+}
+
+/* ==================== Sidebar Brand & Nav - Sponsor Gold Theme ==================== */
+
+/* Logo: bright luminous gold filter, matching brand text gradient tone */
+body.sponsor-mode .vx-sidebar-brand-logo {
+    filter: sepia(1) saturate(3) hue-rotate(5deg) brightness(1.6) contrast(0.85);
+}
+
+/* Brand text: gold gradient */
+body.sponsor-mode .vx-sidebar-brand-text {
+    background: var(--sponsor-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* All nav items: default gold text + icon */
+body.sponsor-mode .vx-nav-item {
+    color: var(--sponsor-gold) !important;
+}
+
+body.sponsor-mode .vx-nav-item iconpark-icon {
+    color: var(--sponsor-gold) !important;
+}
+
+/* Nav section titles */
+body.sponsor-mode .vx-nav-title {
+    color: var(--sponsor-gold-strong);
+    opacity: 0.6;
 }
 
 /* Sidebar/nav hover colors */
 body.sponsor-mode .vx-nav-item:hover,
 body.sponsor-mode .vx-lang-option:hover {
     background: var(--sponsor-gold-soft);
-    color: var(--sponsor-gold-strong);
+    color: var(--sponsor-gold-strong) !important;
 }
 
 body.sponsor-mode .vx-nav-item.active {
-    background: rgba(245, 197, 66, 0.2);
-    color: var(--sponsor-gold-strong);
+    background: rgba(200, 169, 124, 0.2);
+    color: var(--sponsor-gold-strong) !important;
+}
+
+body.sponsor-mode .vx-nav-item.active iconpark-icon {
+    color: var(--sponsor-gold-strong) !important;
 }
 
 /* Language Switcher Special Handling - Seamless Unified Look */
@@ -195,7 +349,7 @@ body.sponsor-mode .vx-lang-options {
     background: transparent;
     margin: 0;
     padding: 0 0 4px 0;
-    border: none;
+    border: none !important;
     border-radius: 0;
 }
 
@@ -217,12 +371,12 @@ body.sponsor-mode .vx-lang-option:last-child {
 /* Dark mode adjustments */
 body.dark-mode.sponsor-mode .vx-nav-item.active,
 html.vx-dark body.sponsor-mode .vx-nav-item.active {
-    background: rgba(251, 191, 36, 0.22);
+    background: rgba(225, 198, 153, 0.22);
 }
 
 body.dark-mode.sponsor-mode .vx-lang-switcher.open,
 html.vx-dark body.sponsor-mode .vx-lang-switcher.open {
-    background: rgba(251, 191, 36, 0.18);
+    background: rgba(225, 198, 153, 0.18);
 }
 
 body.dark-mode.sponsor-mode .vx-lang-switcher.open .vx-nav-item,
@@ -245,29 +399,29 @@ html.vx-dark body.sponsor-mode .vx-lang-option:hover {
 
 /* Profile Header - Golden VIP Theme */
 body.sponsor-mode .vx-profile-header {
-    background: linear-gradient(135deg, #f5c542 0%, #f59e0b 100%);
-    color: #5d4037 !important;
+    background: linear-gradient(135deg, #c8a97c 0%, #b88d54 100%);
+    color: #1a1612 !important;
 }
 
 body.sponsor-mode .vx-profile-header .vx-profile-intro {
-    color: rgba(93, 64, 55, 0.85);
+    color: rgba(139, 102, 59, 0.85);
 }
 
 body.sponsor-mode .vx-profile-header .vx-badge-rank {
     background: rgba(255, 255, 255, 0.3);
-    color: #5d4037;
+    color: #1a1612;
 }
 
 body.sponsor-mode .vx-profile-header .vx-profile-avatar img {
     border-color: rgba(255, 255, 255, 0.5);
-    box-shadow: 0 4px 12px rgba(93, 64, 55, 0.15);
+    box-shadow: 0 4px 12px rgba(139, 102, 59, 0.15);
 }
 
 /* Edit Mode Inputs & Buttons inside the Golden Header */
 body.sponsor-mode .vx-profile-edit .vx-input {
     background: rgba(255, 255, 255, 0.4);
     border-color: rgba(255, 255, 255, 0.6);
-    color: #5d4037;
+    color: #1a1612;
 }
 
 body.sponsor-mode .vx-profile-edit .vx-input:focus {
@@ -277,42 +431,55 @@ body.sponsor-mode .vx-profile-edit .vx-input:focus {
 }
 
 body.sponsor-mode .vx-profile-edit .vx-btn-ghost {
-    color: #5d4037;
-    border-color: rgba(93, 64, 55, 0.2);
+    color: #1a1612;
+    border-color: rgba(139, 102, 59, 0.2);
 }
 
 body.sponsor-mode .vx-profile-edit .vx-btn-ghost:hover {
-    background: rgba(93, 64, 55, 0.08);
+    background: rgba(139, 102, 59, 0.08);
 }
 
 body.sponsor-mode .vx-profile-edit .vx-btn-primary {
-    background: #5d4037;
-    border-color: #5d4037;
-    color: #f5c542;
-    box-shadow: 0 4px 12px rgba(93, 64, 55, 0.3);
+    background: #1a1612;
+    border-color: #1a1612;
+    color: #c8a97c;
+    box-shadow: 0 4px 12px rgba(139, 102, 59, 0.3);
 }
 
 body.sponsor-mode .vx-profile-edit .vx-btn-primary:hover {
-    background: #462f28;
-    border-color: #462f28;
+    background: #100d0a;
+    border-color: #100d0a;
     transform: translateY(-1px);
+}
+
+/* Cancel (secondary) button inside the golden profile header - needs contrast override */
+body.sponsor-mode .vx-profile-edit .vx-btn-secondary {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    color: #1a1612;
+    box-shadow: none;
+}
+
+body.sponsor-mode .vx-profile-edit .vx-btn-secondary:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.42) !important;
+    border: 1px solid rgba(255, 255, 255, 0.65) !important;
+    color: #1a1612;
+    box-shadow: none;
 }
 
 /* Edit Profile Button in Header */
 body.sponsor-mode .vx-profile-edit-btn.vx-btn {
-    background: rgba(255, 255, 255, 0.5); /* Boost contrast */
-    border-color: rgba(255, 255, 255, 0.7);
-    color: #4a322b; /* Darker text */
-    backdrop-filter: blur(4px);
-    box-shadow: 0 2px 8px rgba(93, 64, 55, 0.1);
+    background: var(--sponsor-gradient) !important;
+    border-color: transparent !important;
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: 0 2px 8px -2px var(--sponsor-glow);
     font-weight: 600;
 }
 
 body.sponsor-mode .vx-profile-edit-btn.vx-btn:hover {
-    background: rgba(255, 255, 255, 0.85);
-    color: #2c1e19;
+    opacity: 0.9;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(93, 64, 55, 0.2);
+    box-shadow: 0 4px 12px -2px var(--sponsor-glow);
 }
 
 /* Dark Mode - Edit Inputs */
@@ -320,18 +487,18 @@ body.dark-mode.sponsor-mode .vx-profile-edit .vx-input,
 html.vx-dark body.sponsor-mode .vx-profile-edit .vx-input {
     background: rgba(0, 0, 0, 0.3);
     border-color: rgba(255, 255, 255, 0.15);
-    color: #fef3c7;
+    color: #f5e9d7;
 }
 
 body.dark-mode.sponsor-mode .vx-profile-edit .vx-input:focus,
 html.vx-dark body.sponsor-mode .vx-profile-edit .vx-input:focus {
     background: rgba(0, 0, 0, 0.5);
-    border-color: #f59e0b;
+    border-color: #b88d54;
 }
 
 body.dark-mode.sponsor-mode .vx-profile-edit .vx-btn-ghost,
 html.vx-dark body.sponsor-mode .vx-profile-edit .vx-btn-ghost {
-    color: #fef3c7;
+    color: #f5e9d7;
     border-color: rgba(254, 243, 199, 0.2);
 }
 
@@ -342,25 +509,37 @@ html.vx-dark body.sponsor-mode .vx-profile-edit .vx-btn-ghost:hover {
 
 body.dark-mode.sponsor-mode .vx-profile-edit .vx-btn-primary,
 html.vx-dark body.sponsor-mode .vx-profile-edit .vx-btn-primary {
-    background: #fef3c7;
-    color: #78350f;
-    border-color: #fef3c7;
+    background: #f5e9d7;
+    color: #1a1612;
+    border-color: #f5e9d7;
 }
 
 body.dark-mode.sponsor-mode .vx-profile-edit .vx-btn-primary:hover,
 html.vx-dark body.sponsor-mode .vx-profile-edit .vx-btn-primary:hover {
     background: #fff;
-}
-    background: rgba(255, 255, 255, 0.5);
-    border-color: rgba(255, 255, 255, 0.6);
+    border-color: #fff;
     transform: translateY(-1px);
+}
+
+body.dark-mode.sponsor-mode .vx-profile-edit .vx-btn-secondary,
+html.vx-dark body.sponsor-mode .vx-profile-edit .vx-btn-secondary {
+    background: rgba(0, 0, 0, 0.22) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #f5e9d7;
+    box-shadow: none;
+}
+
+body.dark-mode.sponsor-mode .vx-profile-edit .vx-btn-secondary:hover:not(:disabled),
+html.vx-dark body.sponsor-mode .vx-profile-edit .vx-btn-secondary:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.35) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
 }
 
 /* Dark Mode - Profile Header */
 body.dark-mode.sponsor-mode .vx-profile-header,
 html.vx-dark body.sponsor-mode .vx-profile-header {
-    background: linear-gradient(135deg, #b45309 0%, #78350f 100%);
-    color: #fef3c7 !important;
+    background: linear-gradient(135deg, #2d2011 0%, #1a1612 100%);
+    color: #f5e9d7 !important;
 }
 
 body.dark-mode.sponsor-mode .vx-profile-header .vx-profile-intro,
@@ -371,20 +550,21 @@ html.vx-dark body.sponsor-mode .vx-profile-header .vx-profile-intro {
 body.dark-mode.sponsor-mode .vx-profile-header .vx-badge-rank,
 html.vx-dark body.sponsor-mode .vx-profile-header .vx-badge-rank {
     background: rgba(0, 0, 0, 0.2);
-    color: #fef3c7;
+    color: #f5e9d7;
 }
 
 body.dark-mode.sponsor-mode .vx-profile-edit-btn.vx-btn,
 html.vx-dark body.sponsor-mode .vx-profile-edit-btn.vx-btn {
-    background: rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #fef3c7;
+    background: var(--sponsor-gradient) !important;
+    border-color: transparent !important;
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: 0 2px 8px -2px var(--sponsor-glow);
 }
 
 body.dark-mode.sponsor-mode .vx-profile-edit-btn.vx-btn:hover,
 html.vx-dark body.sponsor-mode .vx-profile-edit-btn.vx-btn:hover {
-    background: rgba(0, 0, 0, 0.3);
-    border-color: rgba(255, 255, 255, 0.2);
+    opacity: 0.9;
+    box-shadow: 0 4px 12px -2px var(--sponsor-glow);
 }
 
 /* ==================== Upload Indicator - Sponsor Gold Theme ==================== */
@@ -405,10 +585,10 @@ body.sponsor-mode .vx-upload-badge {
 /* 暗色模式下的金色上传徽标 */
 body.dark-mode.sponsor-mode .vx-upload-badge,
 html.vx-dark body.sponsor-mode .vx-upload-badge {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    background: linear-gradient(135deg, #e1c699 0%, #b88d54 100%);
     color: #1a1a1a;
     text-shadow: none;
-    box-shadow: 0 2px 10px -2px rgba(251, 191, 36, 0.5);
+    box-shadow: 0 2px 10px -2px rgba(225, 198, 153, 0.5);
 }
 
 /* ==================== Upload Row - Sponsor Gold Theme ==================== */
@@ -448,10 +628,287 @@ body.sponsor-mode .vx-upload-status-text {
 /* 暗色模式微调 */
 body.dark-mode.sponsor-mode .vx-upload-row,
 html.vx-dark body.sponsor-mode .vx-upload-row {
-    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.15);
+    box-shadow: 0 4px 12px rgba(225, 198, 153, 0.15);
 }
 
 body.dark-mode.sponsor-mode .vx-upload-progress-bar,
 html.vx-dark body.sponsor-mode .vx-upload-progress-bar {
-    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    background: linear-gradient(90deg, #e1c699, #b88d54);
+}
+
+
+/* Complete background overrides for elements that might have hardcoded backgrounds */
+body.sponsor-mode .vx-sidebar {
+    background: var(--vx-sidebar-bg) !important;
+}
+
+body.sponsor-mode .vx-layout {
+    background: var(--vx-bg) !important;
+}
+
+html.vx-dark body.sponsor-mode {
+    background: var(--vx-bg) !important;
+}
+
+body.sponsor-mode {
+    background: var(--vx-bg) !important;
+}
+
+
+body.sponsor-mode .vx-card {
+    background: var(--vx-surface);
+    border-color: var(--vx-border);
+}
+
+/* Pill shape for all semantic button classes */
+body.sponsor-mode .vx-btn,
+body.sponsor-mode .vx-btn-primary,
+body.sponsor-mode .vx-btn-secondary,
+body.sponsor-mode .vx-btn-outline,
+body.sponsor-mode .vx-btn-ghost,
+body.sponsor-mode .vx-action-btn {
+    border-radius: 999px !important;
+}
+
+/* Restore card elements that use <button> tag */
+body.sponsor-mode .vx-copy-style-card {
+    border-radius: var(--vx-radius) !important;
+}
+
+/* Input paired with button: give slight rounding to match pill aesthetic */
+body.sponsor-mode .vx-input-group .vx-input {
+    border-radius: 16px;
+}
+
+/* ==================== Mobile filelist - Sponsor Gold Theme ==================== */
+
+/* 视图切换组容器（列表/相册两个按钮的胶囊背景） */
+@media (max-width: 768px) {
+    body.sponsor-mode .vx-fl-mob-view-switch {
+        background: var(--sponsor-gold-soft);
+        border-color: var(--sponsor-border);
+        box-shadow: none;
+        overflow: hidden;
+    }
+
+    /* 顶栏所有按钮（危险按钮除外）：统一金色渐变风格 */
+    body.sponsor-mode .vx-mob-topbar-btn:not(.is-danger),
+    html.vx-dark body.sponsor-mode .vx-mob-topbar-btn:not(.is-danger) {
+        background: var(--sponsor-gradient) !important;
+        border-color: transparent !important;
+        color: var(--sponsor-btn-text) !important;
+        box-shadow: none !important;
+    }
+
+    /* 非激活视图切换按钮 */
+    body.sponsor-mode .vx-fl-mob-switch-btn {
+        color: var(--sponsor-text);
+    }
+
+    /* 激活的视图切换按钮（无大 Y 轴阴影，避免阴影溢出容器造成视觉空白）*/
+    body.sponsor-mode .vx-fl-mob-switch-btn.active {
+        background: var(--sponsor-gradient);
+        color: var(--sponsor-btn-text);
+        box-shadow: none;
+    }
+
+    /* 上传按钮 */
+    body.sponsor-mode .vx-fl-mob-upload-btn {
+        background: var(--sponsor-gradient);
+        color: var(--sponsor-btn-text);
+        box-shadow: none;
+    }
+
+    /* 顶栏 is-primary 按钮（含暗色模式，提升权重覆盖 vxui.css 加载顺序差）*/
+    body.sponsor-mode .vx-mob-topbar-btn.is-primary,
+    html.vx-dark body.sponsor-mode .vx-mob-topbar-btn.is-primary {
+        background: var(--sponsor-gradient) !important;
+        color: var(--sponsor-btn-text) !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    /* 后退/返回按钮 */
+    body.sponsor-mode .vx-fl-mob-back-btn {
+        color: var(--sponsor-gold-strong);
+        background: var(--sponsor-gold-soft) !important;
+        border-color: var(--sponsor-border) !important;
+    }
+
+    /* 顶栏背景：去掉蓝色渐变光晕 */
+    body.sponsor-mode.vx-has-mob-topbar .vx-mob-topbar,
+    html.vx-dark body.sponsor-mode.vx-has-mob-topbar .vx-mob-topbar {
+        background: var(--vx-header-bg) !important;
+    }
+
+    /* 搜索提交按钮 */
+    body.sponsor-mode .vx-fl-mob-search-submit {
+        background: var(--sponsor-gradient);
+        color: var(--sponsor-btn-text);
+        border-color: transparent;
+        box-shadow: 0 4px 10px -4px var(--sponsor-glow);
+    }
+
+    /* 底部导航栏背景 */
+    body.sponsor-mode.vx-fl-active .vx-mobile-bar {
+        background: var(--vx-surface);
+        border-top-color: var(--sponsor-border);
+        box-shadow: 0 -8px 20px var(--sponsor-glow);
+    }
+
+    /* 底部导航 active tab */
+    body.sponsor-mode.vx-fl-active .vx-mobile-btn.active {
+        color: var(--sponsor-gold-strong);
+        background: var(--sponsor-gold-soft);
+    }
+
+    body.sponsor-mode.vx-fl-active .vx-mobile-btn.active::after {
+        background: var(--sponsor-gold-strong);
+    }
+}
+
+/* 暗色模式下的移动端覆盖 */
+@media (max-width: 768px) {
+    html.vx-dark body.sponsor-mode .vx-fl-mob-view-switch,
+    body.dark-mode.sponsor-mode .vx-fl-mob-view-switch {
+        background: rgba(225, 198, 153, 0.12);
+        border-color: var(--sponsor-border);
+        overflow: hidden;
+    }
+
+    html.vx-dark body.sponsor-mode .vx-fl-mob-switch-btn.active,
+    body.dark-mode.sponsor-mode .vx-fl-mob-switch-btn.active {
+        background: var(--sponsor-gradient);
+        color: var(--sponsor-btn-text);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+    }
+
+    html.vx-dark body.sponsor-mode.vx-fl-active .vx-mobile-bar,
+    body.dark-mode.sponsor-mode.vx-fl-active .vx-mobile-bar {
+        background: var(--vx-bg);
+        border-top-color: var(--sponsor-border);
+        box-shadow: 0 -10px 24px rgba(200, 169, 124, 0.15);
+    }
+
+    html.vx-dark body.sponsor-mode.vx-fl-active .vx-mobile-btn.active,
+    body.dark-mode.sponsor-mode.vx-fl-active .vx-mobile-btn.active {
+        color: var(--sponsor-gold);
+        background: rgba(225, 198, 153, 0.15);
+    }
+
+    html.vx-dark body.sponsor-mode.vx-fl-active .vx-mobile-btn.active::after,
+    body.dark-mode.sponsor-mode.vx-fl-active .vx-mobile-btn.active::after {
+        background: var(--sponsor-gold);
+    }
+}
+
+/* ==================== File Download Page - Sponsor Gold Theme ==================== */
+
+/* Override CSS variables for the file page */
+body.file-page.sponsor-mode {
+    --file-accent: var(--sponsor-gold-strong);
+    --file-accent-hover: #a07840;
+    --file-border: rgba(200, 169, 124, 0.3);
+}
+
+body.file-page.dark-mode.sponsor-mode,
+body.file-page.sponsor-mode.dark-mode {
+    --file-accent: var(--sponsor-gold);
+    --file-accent-hover: #c8a97c;
+    --file-border: rgba(200, 169, 124, 0.3);
+    --file-bg: #120e08;
+    --file-card-bg: #1c1508;
+    --file-sidebar-bg: #1c1508;
+}
+
+/* Header logo: gold tint */
+body.file-page.sponsor-mode .file-logo img {
+    filter: sepia(1) saturate(3) hue-rotate(5deg) brightness(1.6) contrast(0.85);
+}
+
+/* Header action buttons */
+body.file-page.sponsor-mode .lang-chip {
+    background: var(--sponsor-gold-soft);
+    border: 1px solid var(--sponsor-border);
+    color: var(--sponsor-gold);
+}
+
+body.file-page.sponsor-mode .lang-chip:hover {
+    background: rgba(200, 169, 124, 0.25);
+    color: var(--sponsor-gold-strong);
+}
+
+body.file-page.sponsor-mode .lang-toggle {
+    color: var(--sponsor-gold);
+    border: 1px solid var(--sponsor-border);
+    background: var(--sponsor-gold-soft);
+}
+
+body.file-page.sponsor-mode .lang-toggle:hover {
+    background: rgba(200, 169, 124, 0.25);
+}
+
+/* File icon: gold */
+body.file-page.sponsor-mode .file-icon {
+    background: linear-gradient(135deg, rgba(200, 169, 124, 0.15) 0%, rgba(184, 141, 84, 0.1) 100%);
+    border: 1px solid var(--sponsor-border);
+    box-shadow: 0 12px 24px -8px var(--sponsor-glow);
+    color: var(--sponsor-gold-strong);
+}
+
+/* Main download button: gold gradient */
+body.file-page.sponsor-mode .file-download-btn {
+    background: var(--sponsor-gradient) !important;
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: 0 12px 24px -6px var(--sponsor-glow) !important;
+}
+
+body.file-page.sponsor-mode .file-download-btn:hover {
+    box-shadow: 0 20px 40px -8px var(--sponsor-glow) !important;
+}
+
+body.file-page.sponsor-mode .file-download-btn.download-started {
+    background: linear-gradient(135deg, #b8e6c8 0%, #4caf7d 100%) !important;
+    color: #0a2e18 !important;
+    box-shadow: 0 12px 24px -6px rgba(76, 175, 125, 0.4) !important;
+}
+
+/* Action grid icon containers: gold tint */
+body.file-page.sponsor-mode .action-icon {
+    background: var(--sponsor-gold-soft);
+    border-color: var(--sponsor-border);
+    color: var(--sponsor-gold-strong);
+}
+
+body.file-page.sponsor-mode .file-action-item:hover .action-icon {
+    background: rgba(200, 169, 124, 0.25);
+    border-color: var(--sponsor-gold);
+    color: var(--sponsor-gold-strong);
+}
+
+body.file-page.sponsor-mode .file-action-item:hover {
+    color: var(--sponsor-gold-strong);
+}
+
+/* Publisher badge (赞助者/分享者) */
+body.file-page.sponsor-mode .publisher-badge {
+    background: var(--sponsor-gradient);
+    color: var(--sponsor-btn-text);
+    box-shadow: 0 2px 6px var(--sponsor-glow);
+}
+
+body.file-page.sponsor-mode .publisher-meta .userinfo_pro {
+    color: var(--sponsor-gold-strong);
+}
+
+/* Meta chips */
+body.file-page.sponsor-mode .file-meta-item {
+    background: var(--sponsor-gold-soft);
+    border-color: var(--sponsor-border);
+    color: var(--sponsor-gold-strong);
+}
+
+body.file-page.sponsor-mode .file-meta-like:hover {
+    border-color: var(--file-danger);
+    color: var(--file-danger);
 }
