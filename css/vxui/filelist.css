@@ -576,7 +576,7 @@ body.vx-fl-has-sponsor .vx-content {
 
 @supports (backdrop-filter: blur(12px)) {
     .vx-header-minimal {
-        background: rgba(30, 41, 59, 0.85);
+        background: rgba(26, 25, 25, 0.85);
     }
     
     @media (prefers-color-scheme: light) {

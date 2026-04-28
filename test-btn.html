@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body { background: #111; padding: 50px; font-family: sans-serif; }
+.btn {
+    display: inline-block;
+    padding: 8px 24px;
+    font-size: 14px;
+    border-radius: 999px;
+    text-align: center;
+    cursor: pointer;
+}
+/* Aura Share Style */
+.btn-aura {
+    background: linear-gradient(135deg, rgb(245, 233, 215) 0%, rgb(200, 169, 124) 48%, rgb(184, 141, 84) 100%);
+    color: #111;
+    border: none; /* No border */
+    box-shadow: rgba(255, 255, 255, 0.56) 0px 1px 0px 0px inset, 
+                rgba(200, 169, 124, 0.3) 0px 0px 26px 0px, 
+                rgba(0, 0, 0, 0.34) 0px 18px 42px 0px;
+}
+/* Tmplink old style with border-color: transparent */
+.btn-tmp {
+    background: linear-gradient(135deg, #fdf4e6 0%, #c8a97c 48%, #b88d54 100%);
+    color: #111;
+    border: 1px solid transparent;
+    border-radius: 8px; /* tmpui standard */
+    box-shadow: rgba(255, 255, 255, 0.4) 0px 1px 0px 0px inset, rgba(200, 169, 124, 0.1) 0px 0px 10px 0px, rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
+}
+</style>
+</head>
+<body>
+    <div class="btn btn-aura">开始上传</div>
+    <div class="btn btn-tmp">确定</div>
+</body>
+</html>

@@ -19,15 +19,15 @@ body.sponsor-mode {
     --vx-text-secondary: #6e655b;
     --vx-text-muted: #9e958a;
     
-    --vx-sidebar-bg: #f5f2eb;
+    --vx-sidebar-bg: #ffffff;
     --vx-header-bg: #fdfbf7;
 
-    --sponsor-gold: #c8a97c;
-    --sponsor-gold-strong: #b88d54;
-    --sponsor-gold-soft: rgba(200, 169, 124, 0.15);
-    --sponsor-glow: rgba(200, 169, 124, 0.3);
-    --sponsor-border: rgba(200, 169, 124, 0.4);
-    --sponsor-text: #9a7545;
+    --sponsor-gold: #8a6530;
+    --sponsor-gold-strong: #6e4f22;
+    --sponsor-gold-soft: rgba(160, 120, 60, 0.12);
+    --sponsor-glow: rgba(160, 120, 60, 0.25);
+    --sponsor-border: rgba(160, 120, 60, 0.35);
+    --sponsor-text: #7a5a28;
     --sponsor-gradient: linear-gradient(135deg, #f5e9d7 0%, #c8a97c 48%, #b88d54 100%);
     --sponsor-btn-text: #0a0d14;
 }
@@ -121,26 +121,62 @@ body.sponsor-mode .vx-btn-primary:hover:not(:disabled) {
 }
 
 body.sponsor-mode .vx-btn-secondary {
-    background: rgba(200, 169, 124, 0.08);
-    border-color: var(--sponsor-border);
-    color: var(--sponsor-text);
     border-radius: 999px !important;
+    background: var(--sponsor-gradient);
+    border: none !important;
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: rgba(255, 255, 255, 0.4) 0px 1px 0px 0px inset, rgba(200, 169, 124, 0.1) 0px 0px 10px 0px, rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
 }
 
 body.sponsor-mode .vx-btn-secondary:hover:not(:disabled) {
-    background: rgba(200, 169, 124, 0.14);
-    border-color: var(--sponsor-gold-strong);
+    background: linear-gradient(135deg, #fdf4e6 0%, #d8be9a 48%, #c8a97c 100%);
+    border: none !important;
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: rgba(255, 255, 255, 0.5) 0px 1px 0px 0px inset, rgba(200, 169, 124, 0.3) 0px 0px 20px 0px, rgba(0, 0, 0, 0.2) 0px 8px 16px -4px;
 }
 
-body.sponsor-mode .vx-btn-ghost {
-    color: var(--sponsor-text);
+/* Ghost buttons: gold gradient (except danger variants) */
+body.sponsor-mode .vx-btn-ghost:not(.vx-text-danger),
+html.vx-dark body.sponsor-mode .vx-btn-ghost:not(.vx-text-danger) {
+    background: var(--sponsor-gradient);
+    border: none !important;
+    color: var(--sponsor-btn-text) !important;
     border-radius: 999px !important;
+    box-shadow: none;
 }
 
-body.sponsor-mode .vx-btn-ghost:hover:not(:disabled),
+body.sponsor-mode .vx-btn-ghost:not(.vx-text-danger):hover:not(:disabled),
+html.vx-dark body.sponsor-mode .vx-btn-ghost:not(.vx-text-danger):hover:not(:disabled) {
+    background: linear-gradient(135deg, #fdf4e6 0%, #d8be9a 48%, #c8a97c 100%);
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: none;
+}
+
 body.sponsor-mode .vx-btn-icon:hover {
     background: var(--sponsor-gold-soft);
     color: var(--sponsor-gold-strong);
+}
+
+/* Desktop view toggle container & active state */
+body.sponsor-mode .vx-view-toggle,
+body.sponsor-mode .vx-album-controls,
+body.sponsor-mode .vx-action-toggle {
+    background: var(--sponsor-gold-soft) !important;
+    border: 1px solid var(--sponsor-border) !important;
+}
+
+/* Icon buttons inside toggle groups: gold color */
+body.sponsor-mode .vx-view-toggle .vx-btn-icon,
+body.sponsor-mode .vx-album-controls .vx-btn-icon,
+body.sponsor-mode .vx-action-toggle .vx-btn-icon {
+    color: var(--sponsor-gold) !important;
+}
+
+body.sponsor-mode .vx-view-toggle .vx-btn-icon.active,
+body.sponsor-mode .vx-album-controls .vx-btn-icon.active {
+    background: var(--sponsor-gradient) !important;
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: none;
 }
 
 /* Sponsor badge enhancement */
@@ -199,6 +235,23 @@ body.sponsor-mode .vx-list-row.selected {
     box-shadow: inset 2px 0 0 var(--sponsor-gold-strong);
 }
 
+/* File type icons - override hardcoded colors to sponsor gold tones */
+body.sponsor-mode .vx-list-icon.vx-icon-folder iconpark-icon {
+    color: var(--sponsor-gold-strong) !important;
+}
+body.sponsor-mode .vx-list-icon.vx-icon-document iconpark-icon {
+    color: var(--sponsor-gold) !important;
+}
+
+/* Album mode: override --album-accent variable and direct icon color */
+body.sponsor-mode {
+    --album-accent: var(--sponsor-gold-strong);
+    --album-accent-glow: var(--sponsor-glow);
+}
+body.sponsor-mode .album-folder-card iconpark-icon {
+    color: var(--sponsor-gold-strong) !important;
+}
+
 /* List header + hover accents */
 body.sponsor-mode .vx-list-header {
     background: linear-gradient(180deg, rgba(200, 169, 124, 0.08) 0%, rgba(184, 141, 84, 0.02) 100%);
@@ -228,16 +281,50 @@ html.vx-dark body.sponsor-mode .vx-list-header {
     border-bottom-color: var(--sponsor-border);
 }
 
+/* ==================== Sidebar Brand & Nav - Sponsor Gold Theme ==================== */
+
+/* Logo: bright luminous gold filter, matching brand text gradient tone */
+body.sponsor-mode .vx-sidebar-brand-logo {
+    filter: sepia(1) saturate(3) hue-rotate(5deg) brightness(1.6) contrast(0.85);
+}
+
+/* Brand text: gold gradient */
+body.sponsor-mode .vx-sidebar-brand-text {
+    background: var(--sponsor-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* All nav items: default gold text + icon */
+body.sponsor-mode .vx-nav-item {
+    color: var(--sponsor-gold) !important;
+}
+
+body.sponsor-mode .vx-nav-item iconpark-icon {
+    color: var(--sponsor-gold) !important;
+}
+
+/* Nav section titles */
+body.sponsor-mode .vx-nav-title {
+    color: var(--sponsor-gold-strong);
+    opacity: 0.6;
+}
+
 /* Sidebar/nav hover colors */
 body.sponsor-mode .vx-nav-item:hover,
 body.sponsor-mode .vx-lang-option:hover {
     background: var(--sponsor-gold-soft);
-    color: var(--sponsor-gold-strong);
+    color: var(--sponsor-gold-strong) !important;
 }
 
 body.sponsor-mode .vx-nav-item.active {
     background: rgba(200, 169, 124, 0.2);
-    color: var(--sponsor-gold-strong);
+    color: var(--sponsor-gold-strong) !important;
+}
+
+body.sponsor-mode .vx-nav-item.active iconpark-icon {
+    color: var(--sponsor-gold-strong) !important;
 }
 
 /* Language Switcher Special Handling - Seamless Unified Look */
@@ -365,21 +452,34 @@ body.sponsor-mode .vx-profile-edit .vx-btn-primary:hover {
     transform: translateY(-1px);
 }
 
+/* Cancel (secondary) button inside the golden profile header - needs contrast override */
+body.sponsor-mode .vx-profile-edit .vx-btn-secondary {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    color: #1a1612;
+    box-shadow: none;
+}
+
+body.sponsor-mode .vx-profile-edit .vx-btn-secondary:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.42) !important;
+    border: 1px solid rgba(255, 255, 255, 0.65) !important;
+    color: #1a1612;
+    box-shadow: none;
+}
+
 /* Edit Profile Button in Header */
 body.sponsor-mode .vx-profile-edit-btn.vx-btn {
-    background: rgba(255, 255, 255, 0.5); /* Boost contrast */
-    border-color: rgba(255, 255, 255, 0.7);
-    color: #1a1612; /* Darker text */
-    backdrop-filter: blur(4px);
-    box-shadow: 0 2px 8px rgba(139, 102, 59, 0.1);
+    background: var(--sponsor-gradient) !important;
+    border-color: transparent !important;
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: 0 2px 8px -2px var(--sponsor-glow);
     font-weight: 600;
 }
 
 body.sponsor-mode .vx-profile-edit-btn.vx-btn:hover {
-    background: rgba(255, 255, 255, 0.85);
-    color: #1a1612;
+    opacity: 0.9;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(139, 102, 59, 0.2);
+    box-shadow: 0 4px 12px -2px var(--sponsor-glow);
 }
 
 /* Dark Mode - Edit Inputs */
@@ -421,6 +521,20 @@ html.vx-dark body.sponsor-mode .vx-profile-edit .vx-btn-primary:hover {
     transform: translateY(-1px);
 }
 
+body.dark-mode.sponsor-mode .vx-profile-edit .vx-btn-secondary,
+html.vx-dark body.sponsor-mode .vx-profile-edit .vx-btn-secondary {
+    background: rgba(0, 0, 0, 0.22) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #f5e9d7;
+    box-shadow: none;
+}
+
+body.dark-mode.sponsor-mode .vx-profile-edit .vx-btn-secondary:hover:not(:disabled),
+html.vx-dark body.sponsor-mode .vx-profile-edit .vx-btn-secondary:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.35) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
 /* Dark Mode - Profile Header */
 body.dark-mode.sponsor-mode .vx-profile-header,
 html.vx-dark body.sponsor-mode .vx-profile-header {
@@ -441,15 +555,16 @@ html.vx-dark body.sponsor-mode .vx-profile-header .vx-badge-rank {
 
 body.dark-mode.sponsor-mode .vx-profile-edit-btn.vx-btn,
 html.vx-dark body.sponsor-mode .vx-profile-edit-btn.vx-btn {
-    background: rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #f5e9d7;
+    background: var(--sponsor-gradient) !important;
+    border-color: transparent !important;
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: 0 2px 8px -2px var(--sponsor-glow);
 }
 
 body.dark-mode.sponsor-mode .vx-profile-edit-btn.vx-btn:hover,
 html.vx-dark body.sponsor-mode .vx-profile-edit-btn.vx-btn:hover {
-    background: rgba(0, 0, 0, 0.3);
-    border-color: rgba(255, 255, 255, 0.2);
+    opacity: 0.9;
+    box-shadow: 0 4px 12px -2px var(--sponsor-glow);
 }
 
 /* ==================== Upload Indicator - Sponsor Gold Theme ==================== */
@@ -545,43 +660,255 @@ body.sponsor-mode .vx-card {
     border-color: var(--vx-border);
 }
 
-/* Make all buttons pill-shaped to match Aura-Share */
-body.sponsor-mode .vx-btn {
-    border-radius: 999px !important;
-}
-
-/* Also ensure all secondary forms inputs have smooth borders */
-body.sponsor-mode .vx-btn-secondary,
-body.sponsor-mode .vx-btn-outline,
-body.sponsor-mode .vx-btn-ghost {
-    border-radius: 999px !important;
-}
-
-/* Ensure all buttons globally use pill shape in sponsor mode */
+/* Pill shape for all semantic button classes */
 body.sponsor-mode .vx-btn,
 body.sponsor-mode .vx-btn-primary,
 body.sponsor-mode .vx-btn-secondary,
 body.sponsor-mode .vx-btn-outline,
 body.sponsor-mode .vx-btn-ghost,
-body.sponsor-mode .vx-action-btn,
-body.sponsor-mode button {
+body.sponsor-mode .vx-action-btn {
     border-radius: 999px !important;
 }
 
-/* For inputs that are paired with buttons (like send verification code), keep input rounded slightly to match pill design aesthetic optionally */
+/* Restore card elements that use <button> tag */
+body.sponsor-mode .vx-copy-style-card {
+    border-radius: var(--vx-radius) !important;
+}
+
+/* Input paired with button: give slight rounding to match pill aesthetic */
 body.sponsor-mode .vx-input-group .vx-input {
     border-radius: 16px;
 }
 
-/* Add matching radius to all form inputs */
-body.sponsor-mode .vx-input,
-body.sponsor-mode .vx-textarea,
-body.sponsor-mode .vx-select {
-    border-radius: 999px; /* Give them pill shape to match! */
-    padding-left: 20px;
-    padding-right: 20px;
+/* ==================== Mobile filelist - Sponsor Gold Theme ==================== */
+
+/* 视图切换组容器（列表/相册两个按钮的胶囊背景） */
+@media (max-width: 768px) {
+    body.sponsor-mode .vx-fl-mob-view-switch {
+        background: var(--sponsor-gold-soft);
+        border-color: var(--sponsor-border);
+        box-shadow: none;
+        overflow: hidden;
+    }
+
+    /* 顶栏所有按钮（危险按钮除外）：统一金色渐变风格 */
+    body.sponsor-mode .vx-mob-topbar-btn:not(.is-danger),
+    html.vx-dark body.sponsor-mode .vx-mob-topbar-btn:not(.is-danger) {
+        background: var(--sponsor-gradient) !important;
+        border-color: transparent !important;
+        color: var(--sponsor-btn-text) !important;
+        box-shadow: none !important;
+    }
+
+    /* 非激活视图切换按钮 */
+    body.sponsor-mode .vx-fl-mob-switch-btn {
+        color: var(--sponsor-text);
+    }
+
+    /* 激活的视图切换按钮（无大 Y 轴阴影，避免阴影溢出容器造成视觉空白）*/
+    body.sponsor-mode .vx-fl-mob-switch-btn.active {
+        background: var(--sponsor-gradient);
+        color: var(--sponsor-btn-text);
+        box-shadow: none;
+    }
+
+    /* 上传按钮 */
+    body.sponsor-mode .vx-fl-mob-upload-btn {
+        background: var(--sponsor-gradient);
+        color: var(--sponsor-btn-text);
+        box-shadow: none;
+    }
+
+    /* 顶栏 is-primary 按钮（含暗色模式，提升权重覆盖 vxui.css 加载顺序差）*/
+    body.sponsor-mode .vx-mob-topbar-btn.is-primary,
+    html.vx-dark body.sponsor-mode .vx-mob-topbar-btn.is-primary {
+        background: var(--sponsor-gradient) !important;
+        color: var(--sponsor-btn-text) !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    /* 后退/返回按钮 */
+    body.sponsor-mode .vx-fl-mob-back-btn {
+        color: var(--sponsor-gold-strong);
+        background: var(--sponsor-gold-soft) !important;
+        border-color: var(--sponsor-border) !important;
+    }
+
+    /* 顶栏背景：去掉蓝色渐变光晕 */
+    body.sponsor-mode.vx-has-mob-topbar .vx-mob-topbar,
+    html.vx-dark body.sponsor-mode.vx-has-mob-topbar .vx-mob-topbar {
+        background: var(--vx-header-bg) !important;
+    }
+
+    /* 搜索提交按钮 */
+    body.sponsor-mode .vx-fl-mob-search-submit {
+        background: var(--sponsor-gradient);
+        color: var(--sponsor-btn-text);
+        border-color: transparent;
+        box-shadow: 0 4px 10px -4px var(--sponsor-glow);
+    }
+
+    /* 底部导航栏背景 */
+    body.sponsor-mode.vx-fl-active .vx-mobile-bar {
+        background: var(--vx-surface);
+        border-top-color: var(--sponsor-border);
+        box-shadow: 0 -8px 20px var(--sponsor-glow);
+    }
+
+    /* 底部导航 active tab */
+    body.sponsor-mode.vx-fl-active .vx-mobile-btn.active {
+        color: var(--sponsor-gold-strong);
+        background: var(--sponsor-gold-soft);
+    }
+
+    body.sponsor-mode.vx-fl-active .vx-mobile-btn.active::after {
+        background: var(--sponsor-gold-strong);
+    }
 }
-/* Fix specifically textarea */
-body.sponsor-mode .vx-textarea {
-    border-radius: 16px;
+
+/* 暗色模式下的移动端覆盖 */
+@media (max-width: 768px) {
+    html.vx-dark body.sponsor-mode .vx-fl-mob-view-switch,
+    body.dark-mode.sponsor-mode .vx-fl-mob-view-switch {
+        background: rgba(225, 198, 153, 0.12);
+        border-color: var(--sponsor-border);
+        overflow: hidden;
+    }
+
+    html.vx-dark body.sponsor-mode .vx-fl-mob-switch-btn.active,
+    body.dark-mode.sponsor-mode .vx-fl-mob-switch-btn.active {
+        background: var(--sponsor-gradient);
+        color: var(--sponsor-btn-text);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+    }
+
+    html.vx-dark body.sponsor-mode.vx-fl-active .vx-mobile-bar,
+    body.dark-mode.sponsor-mode.vx-fl-active .vx-mobile-bar {
+        background: var(--vx-bg);
+        border-top-color: var(--sponsor-border);
+        box-shadow: 0 -10px 24px rgba(200, 169, 124, 0.15);
+    }
+
+    html.vx-dark body.sponsor-mode.vx-fl-active .vx-mobile-btn.active,
+    body.dark-mode.sponsor-mode.vx-fl-active .vx-mobile-btn.active {
+        color: var(--sponsor-gold);
+        background: rgba(225, 198, 153, 0.15);
+    }
+
+    html.vx-dark body.sponsor-mode.vx-fl-active .vx-mobile-btn.active::after,
+    body.dark-mode.sponsor-mode.vx-fl-active .vx-mobile-btn.active::after {
+        background: var(--sponsor-gold);
+    }
+}
+
+/* ==================== File Download Page - Sponsor Gold Theme ==================== */
+
+/* Override CSS variables for the file page */
+body.file-page.sponsor-mode {
+    --file-accent: var(--sponsor-gold-strong);
+    --file-accent-hover: #a07840;
+    --file-border: rgba(200, 169, 124, 0.3);
+}
+
+body.file-page.dark-mode.sponsor-mode,
+body.file-page.sponsor-mode.dark-mode {
+    --file-accent: var(--sponsor-gold);
+    --file-accent-hover: #c8a97c;
+    --file-border: rgba(200, 169, 124, 0.3);
+    --file-bg: #120e08;
+    --file-card-bg: #1c1508;
+    --file-sidebar-bg: #1c1508;
+}
+
+/* Header logo: gold tint */
+body.file-page.sponsor-mode .file-logo img {
+    filter: sepia(1) saturate(3) hue-rotate(5deg) brightness(1.6) contrast(0.85);
+}
+
+/* Header action buttons */
+body.file-page.sponsor-mode .lang-chip {
+    background: var(--sponsor-gold-soft);
+    border: 1px solid var(--sponsor-border);
+    color: var(--sponsor-gold);
+}
+
+body.file-page.sponsor-mode .lang-chip:hover {
+    background: rgba(200, 169, 124, 0.25);
+    color: var(--sponsor-gold-strong);
+}
+
+body.file-page.sponsor-mode .lang-toggle {
+    color: var(--sponsor-gold);
+    border: 1px solid var(--sponsor-border);
+    background: var(--sponsor-gold-soft);
+}
+
+body.file-page.sponsor-mode .lang-toggle:hover {
+    background: rgba(200, 169, 124, 0.25);
+}
+
+/* File icon: gold */
+body.file-page.sponsor-mode .file-icon {
+    background: linear-gradient(135deg, rgba(200, 169, 124, 0.15) 0%, rgba(184, 141, 84, 0.1) 100%);
+    border: 1px solid var(--sponsor-border);
+    box-shadow: 0 12px 24px -8px var(--sponsor-glow);
+    color: var(--sponsor-gold-strong);
+}
+
+/* Main download button: gold gradient */
+body.file-page.sponsor-mode .file-download-btn {
+    background: var(--sponsor-gradient) !important;
+    color: var(--sponsor-btn-text) !important;
+    box-shadow: 0 12px 24px -6px var(--sponsor-glow) !important;
+}
+
+body.file-page.sponsor-mode .file-download-btn:hover {
+    box-shadow: 0 20px 40px -8px var(--sponsor-glow) !important;
+}
+
+body.file-page.sponsor-mode .file-download-btn.download-started {
+    background: linear-gradient(135deg, #b8e6c8 0%, #4caf7d 100%) !important;
+    color: #0a2e18 !important;
+    box-shadow: 0 12px 24px -6px rgba(76, 175, 125, 0.4) !important;
+}
+
+/* Action grid icon containers: gold tint */
+body.file-page.sponsor-mode .action-icon {
+    background: var(--sponsor-gold-soft);
+    border-color: var(--sponsor-border);
+    color: var(--sponsor-gold-strong);
+}
+
+body.file-page.sponsor-mode .file-action-item:hover .action-icon {
+    background: rgba(200, 169, 124, 0.25);
+    border-color: var(--sponsor-gold);
+    color: var(--sponsor-gold-strong);
+}
+
+body.file-page.sponsor-mode .file-action-item:hover {
+    color: var(--sponsor-gold-strong);
+}
+
+/* Publisher badge (赞助者/分享者) */
+body.file-page.sponsor-mode .publisher-badge {
+    background: var(--sponsor-gradient);
+    color: var(--sponsor-btn-text);
+    box-shadow: 0 2px 6px var(--sponsor-glow);
+}
+
+body.file-page.sponsor-mode .publisher-meta .userinfo_pro {
+    color: var(--sponsor-gold-strong);
+}
+
+/* Meta chips */
+body.file-page.sponsor-mode .file-meta-item {
+    background: var(--sponsor-gold-soft);
+    border-color: var(--sponsor-border);
+    color: var(--sponsor-gold-strong);
+}
+
+body.file-page.sponsor-mode .file-meta-like:hover {
+    border-color: var(--file-danger);
+    color: var(--file-danger);
 }

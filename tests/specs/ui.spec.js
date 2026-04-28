@@ -81,6 +81,21 @@ for (const pageConfig of pages) {
     // 等待异步渲染和动画完成
     await page.waitForTimeout(800);
 
+    // 密记页需要等待左右两侧加载占位消失，否则截图会在“加载中”与实际列表之间抖动。
+    if (pageConfig.name === 'notes') {
+      try {
+        await page.waitForFunction(() => {
+          const sidebarLoading = document.getElementById('vx-notes-loading');
+          const mainLoading = document.getElementById('vx-notes-main-loading');
+          const sidebarReady = !sidebarLoading || sidebarLoading.classList.contains('vx-hidden');
+          const mainReady = !mainLoading || mainLoading.classList.contains('vx-hidden');
+          return sidebarReady && mainReady;
+        }, { timeout: 5000 });
+      } catch {
+        console.warn(`[${projectName}/${pageConfig.name}] 密记加载占位未在超时内消失`);
+      }
+    }
+
     // 直链页面约束："仪表盘"顶栏触发器仅允许移动端出现
     if (pageConfig.name.startsWith('direct-') && projectName.includes('desktop')) {
       await expect(page.locator('#vx-direct-header-tab-trigger')).toBeHidden();
