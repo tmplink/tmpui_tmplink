@@ -4,6 +4,7 @@ window.VX_POINTS = {
 	_tabMenuSource: null,
 	_onDocumentClick: null,
 	_onDocumentKeydown: null,
+	_pointRefreshTimer: null,
 
 	t(key, fallback) {
 		return (typeof TL !== 'undefined' && TL.tpl && TL.tpl[key]) ? TL.tpl[key] : fallback;
@@ -80,6 +81,7 @@ window.VX_POINTS = {
 		document.body.classList.remove('vx-points-active');
 		this.closeTabMenu();
 		this.unbindEvents();
+		this.stopPointRefreshPolling();
 	},
 
 	bindEvents() {
@@ -192,6 +194,42 @@ window.VX_POINTS = {
 		if (!el) return;
 		const userPoint = (typeof TL !== 'undefined' && typeof TL.user_point !== 'undefined') ? TL.user_point : 0;
 		el.textContent = this.formatPoints(userPoint);
+	},
+
+	startPointRefreshPolling() {
+		if (this._pointRefreshTimer) return;
+		this._pointRefreshTimer = setInterval(() => {
+			this.refreshUserPointsForPolling();
+		}, 10000);
+	},
+
+	stopPointRefreshPolling() {
+		if (!this._pointRefreshTimer) return;
+		clearInterval(this._pointRefreshTimer);
+		this._pointRefreshTimer = null;
+	},
+
+	refreshUserPointsForPolling() {
+		try {
+			if (typeof TL !== 'undefined' && typeof TL.get_details === 'function') {
+				TL.get_details(() => {
+					this.fetchBalance();
+					this.updateRechargeStatusBalance();
+				});
+			} else {
+				this.fetchBalance();
+				this.updateRechargeStatusBalance();
+			}
+		} catch (e) {
+			console.warn('[VX_POINTS] refreshUserPointsForPolling failed:', e);
+		}
+	},
+
+	updateRechargeStatusBalance() {
+		const balanceEl = document.getElementById('vx-recharge-status-balance');
+		if (!balanceEl) return;
+		const userPoint = (typeof TL !== 'undefined' && typeof TL.user_point !== 'undefined') ? TL.user_point : 0;
+		balanceEl.textContent = this.formatPoints(userPoint);
 	},
 
 	updateSidebar() {
@@ -1116,9 +1154,30 @@ window.VX_POINTS = {
 		}
 	},
 
-	openPointRecharge() {
+	openPointRecharge(requiredPoints = 0) {
 		this.trackUI('vui_points[point_recharge]');
 		const isCN = this.isCN();
+
+		let modal = document.getElementById('vx-points-modal');
+		if (!modal) {
+			modal = document.createElement('div');
+			modal.className = 'vx-modal';
+			modal.id = 'vx-points-modal';
+			modal.innerHTML = `
+				<div class="vx-modal-overlay" onclick="VX_POINTS.closeModal()"></div>
+				<div class="vx-modal-container vx-modal-lg">
+					<div class="vx-modal-header">
+						<h3 class="vx-modal-title" id="vx-points-modal-title"></h3>
+						<button class="vx-modal-close" onclick="VX_POINTS.closeModal()">
+							<iconpark-icon name="circle-xmark"></iconpark-icon>
+						</button>
+					</div>
+					<div class="vx-modal-body" id="vx-points-modal-body"></div>
+					<div class="vx-modal-footer" id="vx-points-modal-footer"></div>
+				</div>
+			`;
+			document.body.appendChild(modal);
+		}
 
 		const modalTitle = document.getElementById('vx-points-modal-title');
 		const modalBody = document.getElementById('vx-points-modal-body');
@@ -1129,6 +1188,7 @@ window.VX_POINTS = {
 
 		this._rechargeIsCN = isCN;
 		this._rechargePayMethod = isCN ? 'cny' : 'paypal';
+		this._rechargeRequiredPoints = requiredPoints;
 
 		const payMethodHtml = isCN ? `
 			<div class="vx-recharge-pay-methods">
@@ -1262,6 +1322,39 @@ window.VX_POINTS = {
 			? `https://s12.tmp.link/payment/paypal/checkout_v2?price=${amount}&token=${token}&prepare_type=POINT&prepare_code=POINT_CUSTOM`
 			: `https://pay.vezii.com/id4/pay_v2?price=${amount}&token=${token}&prepare_type=POINT&prepare_code=POINT_CUSTOM`;
 		window.open(payUrl, '_blank');
+		this.showRechargeStatusWindow(amount, currency, Math.floor(amount * (this._rechargeRate || 100)));
+		this.startPointRefreshPolling();
+	},
+
+	showRechargeStatusWindow(amount, currency, points) {
+		const modalTitle = document.getElementById('vx-points-modal-title');
+		const modalBody = document.getElementById('vx-points-modal-body');
+		const modalFooter = document.getElementById('vx-points-modal-footer');
+		if (!modalTitle || !modalBody || !modalFooter) return;
+
+		const userPoint = (typeof TL !== 'undefined' && typeof TL.user_point !== 'undefined') ? TL.user_point : 0;
+		modalTitle.innerHTML = `<iconpark-icon name="clock"></iconpark-icon> ${this.t('vx_recharge_status_title', '充值处理中')}`;
+		modalBody.innerHTML = `
+			<div class="vx-recharge-status">
+				<div class="vx-recharge-status-hero">
+					<div class="vx-recharge-status-icon">
+						<iconpark-icon name="loader" class="fa-spin"></iconpark-icon>
+					</div>
+					<div class="vx-recharge-status-title">${this.t('vx_recharge_status_started', '支付页面已打开')}</div>
+					<p class="vx-recharge-status-desc">${this.t('vx_recharge_status_desc', '请在新打开的支付页面完成付款。付款完成后，系统会在后台自动刷新点数余额。')}</p>
+				</div>
+			</div>
+		`;
+		modalFooter.innerHTML = `
+			<div></div>
+			<div class="vx-modal-actions vx-recharge-status-actions">
+				<button class="vx-btn vx-btn-secondary" onclick="VX_POINTS.closeModal()">${this.t('btn_close', '关闭')}</button>
+				<button class="vx-btn vx-btn-primary" onclick="VX_POINTS.refreshUserPointsForPolling()">
+					<iconpark-icon name="rotate"></iconpark-icon>
+					${this.t('vx_recharge_refresh_balance', '刷新余额')}
+				</button>
+			</div>
+		`;
 	},
 
 	escapeHtml(str) {

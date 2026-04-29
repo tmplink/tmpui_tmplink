@@ -2,7 +2,7 @@ class buy {
     parent_op = null;
 
     selected_times = 1
-    selected_payment = 'cny'
+    selected_payment = 'point'
     selected_type = 'addon'
     selected_code = 'HS'
     selected_price = 0
@@ -20,15 +20,8 @@ class buy {
     }
 
     setAvaliablePayment() {
-        console.log(this.parent_op.currentLanguage);
-        //根据语言设定可用的支付方式
-        if (this.parent_op.currentLanguage !== 'cn') {
-            this.selectPayment('usd');
-            $('.buy_payment_cny').hide();
-        } else {
-            this.selectPayment('cny');
-            $('.buy_payment_cny').show();
-        }
+        this.selectPayment('point');
+        $('.buy_payment_cny, .buy_payment_usd').hide();
     }
 
     openQuato() {
@@ -136,37 +129,52 @@ class buy {
     }
 
     selectPayment(payment) {
-        this.selected_payment = payment == 'cny' ? 'cny' : 'usd';
+        this.selected_payment = 'point';
         const cnyCards = document.querySelectorAll('.buy_payment_cny > .card');
         const usdCards = document.querySelectorAll('.buy_payment_usd > .card'); // 假设 USD 也应该选择 .card
-        const isSelected = payment === 'cny';
-        cnyCards.forEach(card => card.classList.toggle('card-selected', isSelected));
-        usdCards.forEach(card => card.classList.toggle('card-selected', !isSelected));
+        cnyCards.forEach(card => card.classList.remove('card-selected'));
+        usdCards.forEach(card => card.classList.remove('card-selected'));
         this.computePrice();
     }
 
     computePrice() {
-        let price = 0;
-
-        if (this.selected_payment === 'cny') {
-            $('.payment_units').html(app.languageData.payment_cny);
-            price = this.selected_price * this.selected_times;
-        } else {
-            $('.payment_units').html(app.languageData.payment_usd);
-            price = (this.selected_price / 6) * this.selected_times;
-        }
+        let price = this.selected_price * this.selected_times * 100;
         this.payment_price = price;
+        $('.payment_units').html('');
         $('.payment_total').html(price);
+        $('.payment_total').next('.payment-point-unit').remove();
+        $('.payment_total').after(`<span class="payment-point-unit"> ${app.languageData.vx_points || '点数'}</span>`);
     }
 
     makeOrder() {
-        let payURL = '';
-        if (this.selected_payment == 'cny') {
-            payURL = `https://pay.vezii.com/id4/pay_v2?price=${this.payment_price}&token=${this.parent_op.api_token}&prepare_type=${this.selected_type}&prepare_code=${this.selected_code}&prepare_times=${this.selected_times}`;
-        } else {
-            payURL = `https://s12.tmp.link/payment/paypal/checkout_v2?price=${this.payment_price}&token=${this.parent_op.api_token}&prepare_type=${this.selected_type}&prepare_code=${this.selected_code}&prepare_times=${this.selected_times}`;
-        }
-        window.location.href = payURL;
+        this.buyWithPoints(this.selected_type, this.selected_code, this.selected_times);
+    }
+
+    buyWithPoints(type, code, times) {
+        const productType = type === 'direct' ? 'DIRECT' : 'ADDON';
+        $.post(this.parent_op.api_pay, {
+            action: 'point_buy',
+            token: this.parent_op.api_token,
+            product_type: productType,
+            product_id: code,
+            product_times: times
+        }, (rsp) => {
+            if (rsp.status === 1) {
+                alert(app.languageData.vx_purchase_success || '购买成功！');
+                window.location.reload();
+                return;
+            }
+            if (rsp.status === 1001) {
+                alert(app.languageData.vx_point_recharge_first || '请先充值点数后再购买');
+                window.location.href = '/?tmpui_page=/vx&module=points';
+                return;
+            }
+            if (rsp.status === 1002) {
+                alert(app.languageData.vx_product_already_bought || '该商品不能重复购买');
+                return;
+            }
+            alert((rsp.data && rsp.data.message) || rsp.debug || app.languageData.vx_purchase_failed || '购买失败');
+        }, 'json');
     }
 
     /**
@@ -255,17 +263,7 @@ class buy {
             return;
         }
 
-        let price = 36;
-        // 根据语言设置价格：中文/日文36元，其他语言6美元等值
-        if (this.parent_op.currentLanguage === 'cn' || this.parent_op.currentLanguage === 'jp') {
-            price = 36; // 人民币/日元
-        } else {
-            price = 6;  // 美元等值，支付宝会自动转换
-        }
-        
-        // 只使用支付宝支付
-        const payURL = `https://pay.vezii.com/id4/pay_v2?price=${price}&token=${this.parent_op.api_token}&prepare_type=addon&prepare_code=FN01&prepare_times=1`;
-        window.location.href = payURL;
+        this.buyWithPoints('addon', 'FN01', 1);
     }
 
     /**

@@ -3354,3 +3354,181 @@ html.vx-dark .vx-mobile-btn.active {
         display: none;
     }
 }
+.vx-recharge-pay-methods {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.vx-recharge-pay-method {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background: var(--vx-bg-secondary);
+    border: 2px solid var(--vx-border);
+    border-radius: var(--vx-radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--vx-text-secondary);
+    transition: all 0.2s ease;
+}
+
+.vx-recharge-pay-method iconpark-icon {
+    font-size: 18px;
+}
+
+.vx-recharge-pay-method:hover {
+    border-color: var(--vx-primary);
+    color: var(--vx-primary);
+}
+
+.vx-recharge-pay-method-active {
+    border-color: var(--vx-primary);
+    background: rgba(var(--vx-primary-rgb), 0.08);
+    color: var(--vx-primary);
+}
+
+.vx-recharge-presets {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+
+.vx-recharge-preset {
+    padding: 10px 6px;
+    background: var(--vx-bg-secondary);
+    border: 2px solid transparent;
+    border-radius: var(--vx-radius-md);
+    cursor: pointer;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--vx-text);
+    transition: all 0.2s ease;
+    line-height: 1.4;
+}
+
+.vx-recharge-preset:hover,
+.vx-recharge-preset-active {
+    border-color: var(--vx-primary);
+    background: rgba(var(--vx-primary-rgb), 0.08);
+    color: var(--vx-primary);
+}
+
+.vx-recharge-preset-points {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--vx-text-muted);
+    margin-top: 2px;
+}
+
+.vx-recharge-preset-active .vx-recharge-preset-points {
+    color: var(--vx-primary);
+    opacity: 0.8;
+}
+
+.vx-recharge-custom {
+    border-top: 1px solid var(--vx-border);
+    padding-top: 16px;
+}
+
+.vx-recharge-custom-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--vx-text-muted);
+    margin-bottom: 8px;
+}
+
+.vx-recharge-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vx-recharge-currency {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--vx-text);
+    min-width: 16px;
+}
+
+.vx-recharge-preview {
+    margin-top: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--vx-primary);
+    min-height: 22px;
+    transition: color 0.2s;
+}
+
+.vx-recharge-status {
+    display: flex;
+    flex-direction: column;
+    padding: 32px 0 24px;
+}
+
+.vx-recharge-status-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+}
+
+.vx-recharge-status-icon {
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--vx-primary);
+    background: rgba(var(--vx-primary-rgb), 0.1);
+    margin-bottom: 8px;
+}
+
+.vx-recharge-status-icon iconpark-icon {
+    font-size: 36px;
+}
+
+.vx-recharge-status-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--vx-text);
+    margin: 0;
+}
+
+.vx-recharge-status-desc {
+    font-size: 15px;
+    color: var(--vx-text-secondary);
+    margin: 0;
+    max-width: 85%;
+    line-height: 1.6;
+}
+
+.vx-recharge-status-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+@media (max-width: 520px) {
+    .vx-recharge-status-desc {
+        max-width: 100%;
+    }
+}
+
+.vx-selling-stats-inline {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 12px;
+    color: var(--vx-text-muted);
+    vertical-align: middle;
+    white-space: nowrap;
