@@ -1813,6 +1813,12 @@ html.vx-dark .vx-theme-switcher .vx-lang-option:hover {
     flex-shrink: 0;
 }
 
+.vx-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 /* Body scroll lock */
 body.vx-modal-body-open {
     overflow: hidden;
