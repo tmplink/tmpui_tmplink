@@ -283,9 +283,9 @@ html.vx-dark body.sponsor-mode .vx-list-header {
 
 /* ==================== Sidebar Brand & Nav - Sponsor Gold Theme ==================== */
 
-/* Logo: bright luminous gold filter, matching brand text gradient tone */
+/* Logo: Gold SVG logo */
 body.sponsor-mode .vx-sidebar-brand-logo {
-    filter: sepia(1) saturate(3) hue-rotate(5deg) brightness(1.6) contrast(0.85);
+    content: url('/img/ico/logo-gold.svg');
 }
 
 /* Brand text: gold gradient */
@@ -821,9 +821,9 @@ body.file-page.sponsor-mode.dark-mode {
     --file-sidebar-bg: #1c1508;
 }
 
-/* Header logo: gold tint */
+/* Header logo: gold SVG tint */
 body.file-page.sponsor-mode .file-logo img {
-    filter: sepia(1) saturate(3) hue-rotate(5deg) brightness(1.6) contrast(0.85);
+    content: url('/img/ico/logo-gold.svg');
 }
 
 /* Header action buttons */

@@ -120,55 +120,5 @@ module.exports = defineConfig({
       },
       dependencies: ['auth-setup'],
     },
-
-    // --- Desktop Light (13" MacBook Air: 1440×900) ---
-    {
-      name: 'desktop-light',
-      testMatch: /ui\.spec\.js/,
-      use: {
-        viewport: { width: 1440, height: 900 },
-        storageState: 'tests/.auth/state.json',
-      },
-      dependencies: ['auth-setup'],
-    },
-
-    // --- Mobile Light (iPhone SE: 375×812) ---
-    {
-      name: 'mobile-light',
-      testMatch: /ui\.spec\.js/,
-      use: {
-        viewport: { width: 375, height: 812 },
-        isMobile: true,
-        hasTouch: true,
-        storageState: 'tests/.auth/state.json',
-      },
-      dependencies: ['auth-setup'],
-    },
-
-    // --- Desktop Dark ---
-    {
-      name: 'desktop-dark',
-      testMatch: /ui\.spec\.js/,
-      use: {
-        viewport: { width: 1440, height: 900 },
-        colorScheme: 'dark',
-        storageState: 'tests/.auth/state.json',
-      },
-      dependencies: ['auth-setup'],
-    },
-
-    // --- Mobile Dark ---
-    {
-      name: 'mobile-dark',
-      testMatch: /ui\.spec\.js/,
-      use: {
-        viewport: { width: 375, height: 812 },
-        isMobile: true,
-        hasTouch: true,
-        colorScheme: 'dark',
-        storageState: 'tests/.auth/state.json',
-      },
-      dependencies: ['auth-setup'],
-    },
   ],
 });

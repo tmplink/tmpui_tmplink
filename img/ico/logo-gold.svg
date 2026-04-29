@@ -1,30 +1,29 @@
 <svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- 金色扁平渐变背景 -->
-    <linearGradient id="goldBg" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#F7D774"/>
-      <stop offset="55%" stop-color="#D9A93A"/>
-      <stop offset="100%" stop-color="#B67A18"/>
-    </linearGradient>
-
-    <!-- 浅金色高光线条 -->
-    <linearGradient id="goldStroke" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FFF4C2"/>
-      <stop offset="50%" stop-color="#FFE08A"/>
-      <stop offset="100%" stop-color="#F6C453"/>
+    <!-- 扁平蓝色背景渐变（保留原始品牌感） -->
+    <linearGradient id="flatGold" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F6D878"/>
+      <stop offset="55%" stop-color="#D9A63A"/>
+      <stop offset="100%" stop-color="#B87916"/>
     </linearGradient>
   </defs>
 
-  <!-- 背景 -->
-  <rect x="0" y="0" width="256" height="256" rx="48" fill="url(#goldBg)"/>
+  <!-- 扁平圆角背景 -->
+  <rect x="0" y="0" width="256" height="256" rx="46" fill="url(#flatGold)"/>
 
-  <!-- 图形主体 -->
-  <g stroke="url(#goldStroke)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+  <!-- 图标主体：简洁白色线条，去掉厚重立体感 -->
+  <g
+    stroke="#FFFFFF"
+    stroke-width="18"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  >
     <path d="M112 139.88C112 139.88 138 166.88 165 149.17C178.74 140.17 246.09 61.75 246.09 61.75"/>
     <path d="M133.67 69.42L181.04 60.83"/>
     <path d="M178.88 8C160.21 34.67 133.66 69.44 133.66 69.44L124.75 28.83"/>
 
-    <path d="M143.13 114.29C143.13 114.29 117.13 87.34 90.13 105C76.4 114 9.05 192.42 9.05 192.42"/>
+    <path d="M143.13 114.29C143.13 114.29 117.13 87.34 90.13 105C76.40 114 9.05 192.42 9.05 192.42"/>
     <path d="M121.45 184.75L74.08 193.34"/>
     <path d="M76.25 246.17C94.92 219.5 121.47 184.73 121.47 184.73L130.42 225.34"/>
   </g>

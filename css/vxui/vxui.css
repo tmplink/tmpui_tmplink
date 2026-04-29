@@ -3358,6 +3358,7 @@ html.vx-dark .vx-mobile-btn.active {
     display: flex;
     gap: 8px;
     margin-bottom: 16px;
+    align-items: center;
 }
 
 .vx-recharge-pay-method {
@@ -3366,7 +3367,12 @@ html.vx-dark .vx-mobile-btn.active {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 10px 12px;
+    height: 44px;
+    padding: 0 12px;
+    margin: 0;
+    outline: none !important;
+    transform: none !important;
+    box-sizing: border-box !important;
     background: var(--vx-bg-secondary);
     border: 2px solid var(--vx-border);
     border-radius: var(--vx-radius-md);
