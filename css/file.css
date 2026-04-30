@@ -180,6 +180,7 @@ body.file-page #footer .container {
 .file-body {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 0; 
@@ -193,6 +194,7 @@ body.file-page #footer .container {
     box-shadow: var(--file-shadow);
     display: flex;
     flex-direction: row; /* Side by side on desktop */
+    flex-wrap: wrap;
     width: 100%;
     max-width: var(--file-shell-width);
     overflow: hidden;
@@ -865,8 +867,8 @@ body.file-page.dark-mode {
     --file-card-bg: #1e293b;
     --file-sidebar-bg: #1e293b;
     --file-border: #334155;
-    --file-text-main: #f1f5f9;
-    --file-text-sub: #94a3b8;
+    --file-text-main: #f6c843;
+    --file-text-sub: #c9974d;
     --file-accent: #2563eb;
     --file-accent-hover: #1d4ed8;
     --file-danger: #ef4444;
@@ -879,8 +881,8 @@ body.file-page.dark-mode {
         --file-card-bg: #1e293b;
         --file-sidebar-bg: #1e293b;
         --file-border: #334155;
-        --file-text-main: #f1f5f9;
-        --file-text-sub: #94a3b8;
+        --file-text-main: #f6c843;
+        --file-text-sub: #c9974d;
         --file-accent: #2563eb;
         --file-accent-hover: #1d4ed8;
         --file-danger: #ef4444;
@@ -927,7 +929,7 @@ body.file-page.dark-mode .file-icon {
 }
 
 body.file-page.dark-mode .file-meta-item {
-    color: var(--file-text-sub);
+    color: var(--file-text-main);
 }
 
 body.file-page.dark-mode .file-alert {
@@ -953,17 +955,17 @@ body.file-page.dark-mode .file-publisher .publisher-avatar {
 body.file-page.dark-mode .file-publisher .publisher-name,
 body.file-page.dark-mode .file-publisher .publisher-name .userinfo_nickname,
 body.file-page.dark-mode .file-publisher .publisher-name .userinfo_card_nickname {
-    color: #f1f5f9 !important;
+    color: var(--file-text-main) !important;
 }
 
 body.file-page.dark-mode .file-publisher .publisher-name .userinfo_pro,
 body.file-page.dark-mode .file-publisher .publisher-name .userinfo_card_pro {
-    color: #a5b4fc !important;
+    color: var(--file-text-main) !important;
 }
 
 body.file-page.dark-mode .file-publisher .publisher-intro,
 body.file-page.dark-mode .file-publisher .publisher-intro .userinfo_card_intro {
-    color: #94a3b8 !important;
+    color: var(--file-text-sub) !important;
 }
 
 body.file-page.dark-mode .file-publisher .publisher-badge {
@@ -990,17 +992,17 @@ body.file-page.dark-mode .file-publisher .publisher-badge {
     body.file-page .file-publisher .publisher-name,
     body.file-page .file-publisher .publisher-name .userinfo_nickname,
     body.file-page .file-publisher .publisher-name .userinfo_card_nickname {
-        color: #f1f5f9 !important;
+        color: var(--file-text-main) !important;
     }
     
     body.file-page .file-publisher .publisher-name .userinfo_pro,
     body.file-page .file-publisher .publisher-name .userinfo_card_pro {
-        color: #a5b4fc !important;
+        color: var(--file-text-main) !important;
     }
     
     body.file-page .file-publisher .publisher-intro,
     body.file-page .file-publisher .publisher-intro .userinfo_card_intro {
-        color: #94a3b8 !important;
+        color: var(--file-text-sub) !important;
     }
     
     body.file-page .file-publisher .publisher-badge {
@@ -1025,8 +1027,20 @@ body.file-page.dark-mode .file-action-item:hover {
     color: var(--file-accent);
 }
 
+body.file-page.dark-mode .file-action-item {
+    color: var(--file-text-main);
+}
+
 body.file-page.dark-mode .action-icon {
     color: var(--file-text-main);
+}
+
+body.file-page.dark-mode .action-icon iconpark-icon,
+body.file-page.dark-mode .file-meta-item iconpark-icon,
+body.file-page.dark-mode .lang-chip iconpark-icon,
+body.file-page.dark-mode .lang-toggle iconpark-icon {
+    color: var(--file-text-main) !important;
+    fill: var(--file-text-main) !important;
 }
 
 body.file-page.dark-mode .file-action-item:hover .action-icon {
@@ -1058,7 +1072,7 @@ body.file-page.dark-mode .lang-chip,
 body.file-page.dark-mode .lang-toggle {
     background: var(--file-card-bg);
     border-color: var(--file-border);
-    color: var(--file-text-sub);
+    color: var(--file-text-main);
 }
 
 body.file-page.dark-mode .lang-chip:hover,
@@ -1108,7 +1122,7 @@ body.file-page.dark-mode .lang-toggle:hover {
     }
 
     body.file-page .file-meta-item {
-        color: var(--file-text-sub);
+        color: var(--file-text-main);
     }
 
     body.file-page .file-alert {
@@ -1147,8 +1161,20 @@ body.file-page.dark-mode .lang-toggle:hover {
         color: var(--file-accent);
     }
 
+    body.file-page .file-action-item {
+        color: var(--file-text-main);
+    }
+
     body.file-page .action-icon {
         color: var(--file-text-main);
+    }
+
+    body.file-page .action-icon iconpark-icon,
+    body.file-page .file-meta-item iconpark-icon,
+    body.file-page .lang-chip iconpark-icon,
+    body.file-page .lang-toggle iconpark-icon {
+        color: var(--file-text-main) !important;
+        fill: var(--file-text-main) !important;
     }
 
     body.file-page .file-action-item:hover .action-icon {
@@ -1180,7 +1206,7 @@ body.file-page.dark-mode .lang-toggle:hover {
     body.file-page .lang-toggle {
         background: var(--file-card-bg);
         border-color: var(--file-border);
-        color: var(--file-text-sub);
+        color: var(--file-text-main);
     }
 
     body.file-page .lang-chip:hover,

@@ -158,10 +158,10 @@
 
         <div id="file_download_area">
             <div id="file_op" style="display: none;">
-                <div class="action-grid">
+                <div class="action-grid file-actions-grid">
                     <div class="file-dropdown">
-                        <button class="action-item file-dropdown-toggle" type="button" onclick="fileUI.toggleDropdown(this)">
-                            <span class="action-icon-box">
+                        <button class="file-action-item file-dropdown-toggle" type="button" onclick="fileUI.toggleDropdown(this)">
+                            <span class="action-icon">
                                 <iconpark-icon name="laptop-arrow-down"></iconpark-icon>
                             </span>
                             <span class="action-label" id="file_btn_download_opt" i18n="file_btn_download_opt">.</span>
@@ -182,52 +182,47 @@
                         </div>
                     </div>
 
-                    <button class="action-item" id="file_download_by_qrcode" type="button">
-                        <span class="action-icon-box">
+                    <button class="file-action-item" id="file_download_by_qrcode" type="button">
+                        <span class="action-icon">
                             <iconpark-icon name="mobile-signal"></iconpark-icon>
                         </span>
                         <span class="action-label" i18n="file_btn_qr_mobile">.</span>
                     </button>
 
-                    <button class="action-item btn_copy_fileurl" id="btn_copy_fileurl_mobile" type="button" onclick="mobileCopyFileUrl()">
-                        <span class="action-icon-box" id="btn_copy_fileurl_icon">
+                    <button class="file-action-item btn_copy_fileurl" id="btn_copy_fileurl_mobile" type="button" onclick="mobileCopyFileUrl()">
+                        <span class="action-icon" id="btn_copy_fileurl_icon">
                             <iconpark-icon name="share-all"></iconpark-icon>
                         </span>
                         <span class="action-label" i18n="file_btn_copy">.</span>
                     </button>
 
-                    <button class="action-item btn_play" type="button" style="display: none;" onclick="fileUI.openModal('openWithPlayerModal');">
-                        <span class="action-icon-box">
+                    <button class="file-action-item btn_play" type="button" style="display: none;" onclick="fileUI.openModal('openWithPlayerModal');">
+                        <span class="action-icon">
                             <iconpark-icon name="play"></iconpark-icon>
                         </span>
                         <span class="action-label" i18n="file_btn_play">.</span>
                     </button>
 
-                    <button class="action-item" id="btn_add_to_workspace_mobile" type="button" onclick="mobileAddToWorkspace()">
-                        <span class="action-icon-box" id="btn_add_to_workspace_icon">
+                    <button class="file-action-item" id="btn_add_to_workspace_mobile" type="button" onclick="mobileAddToWorkspace()">
+                        <span class="action-icon" id="btn_add_to_workspace_icon">
                             <iconpark-icon name="file-collection-one"></iconpark-icon>
                         </span>
                         <span class="action-label" i18n="file_btn_collect">.</span>
                     </button>
 
-                    <button class="action-item" id="btn_highdownload" type="button">
-                        <span class="action-icon-box">
+                    <button class="file-action-item" id="btn_highdownload" type="button">
+                        <span class="action-icon">
                             <iconpark-icon name="rocket-launch"></iconpark-icon>
                         </span>
                         <span class="action-label" i18n="file_btn_upup">.</span>
                     </button>
 
-                    <button class="action-item" id="btn_report_file" type="button">
-                        <span class="action-icon-box" style="color: #ef4444;">
+                    <button class="file-action-item" id="btn_report_file" type="button">
+                        <span class="action-icon" style="color: #ef4444;">
                             <iconpark-icon name="circle-exclamation"></iconpark-icon>
                         </span>
                         <span class="action-label" i18n="file_btn_report">.</span>
                     </button>
-                </div>
-
-                <div class="legal-text" id="downloadAlert" onclick="fileUI.openModal('downloadAlertModal')" style="display: none;">
-                    <iconpark-icon name="triangle-exclamation-solid"></iconpark-icon>
-                    <span i18n="da_file">.</span>
                 </div>
             </div>
         </div>
@@ -238,7 +233,7 @@
     </main>
 
     <footer class="mobile-footer" style="display: none;">
-        <button type="button" id="file_download_btn_fast">
+        <button type="button" class="file-download-btn" id="file_download_btn_fast">
             <span class="download-progress-fill" id="progress_thread_1"></span>
             <span class="download-btn-label">
                 <span class="download-btn-text" i18n="file_btn_download_fast">Download</span>
@@ -250,6 +245,7 @@
                 <span id="download_progress">0 MB / 0 MB</span>
             </span>
         </button>
+        <div id="downloadAlert" onclick="fileUI.openModal('downloadAlertModal')" style="display: none; text-align: center; font-size: 13px; padding: 12px 0; opacity: 0.55; cursor: pointer;"><iconpark-icon name="triangle-exclamation-solid" style="font-size: 14px; vertical-align: middle; margin-right: 5px;"></iconpark-icon><span i18n="da_file" style="vertical-align: middle;">.</span></div>
         <button type="button" class="file-support-hint" onclick="window.TMP_SUPPORT_WIDGET && window.TMP_SUPPORT_WIDGET.open()">
             <iconpark-icon name="comments"></iconpark-icon>
             <span i18n="support_download_hint">下载有问题？呼叫客服</span>

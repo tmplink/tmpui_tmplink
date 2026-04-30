@@ -376,7 +376,8 @@ body.file-page .file-page-root .align-self-center {
     width: 100%;
 }
 
-.action-item {
+.action-item,
+.file-action-item {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -386,6 +387,14 @@ body.file-page .file-page-root .align-self-center {
     border: none;
     color: var(--app-text-sub);
     cursor: pointer;
+}
+
+/* 移动端图标框尺寸（覆盖 file.css 桌面端的 48px） */
+body.file-page .action-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    font-size: 24px;
 }
 
 .action-icon-box {
@@ -401,14 +410,17 @@ body.file-page .file-page-root .align-self-center {
     transition: all 0.2s;
 }
 
-.action-item:active .action-icon-box {
+.action-item:active .action-icon-box,
+.file-action-item:active .action-icon {
     background: var(--app-border);
     transform: scale(0.95);
 }
 
 /* Success state for icons */
 .action-icon-box iconpark-icon[name="circle-check"],
-.action-icon-box iconpark-icon.text-green {
+.action-icon-box iconpark-icon.text-green,
+.action-icon iconpark-icon[name="circle-check"],
+.action-icon iconpark-icon.text-green {
     color: #22c55e !important;
 }
 
@@ -751,7 +763,18 @@ body.file-page .file-page-root .align-self-center {
     }
 
     .file-icon-wrapper iconpark-icon {
-        color: #ddd6fe;
+        color: #f6c843;
+    }
+
+    /* 文件页面：文字改为亮金色 */
+    body.file-page {
+        --app-text: #f6c843;
+        --app-text-sub: #c9974d;
+    }
+
+    /* 文件大小等元数据使用亮金色 */
+    body.file-page .file-meta-row {
+        color: var(--app-text);
     }
 
     /* Meta dot */
@@ -883,13 +906,25 @@ body.file-page .file-page-root .align-self-center {
 }
 
 /* 手动深色模式 - JavaScript切换 */
+
+/* 文件页面：文字改为亮金色 */
+body.file-page.dark-mode {
+    --app-text: #f6c843;
+    --app-text-sub: #c9974d;
+}
+
+/* 文件大小等元数据使用亮金色 */
+body.file-page.dark-mode .file-meta-row {
+    color: var(--app-text);
+}
+
 body.dark-mode .file-icon-wrapper {
     background: linear-gradient(135deg, #3730a3 0%, #6d28d9 100%);
     box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.45);
 }
 
 body.dark-mode .file-icon-wrapper iconpark-icon {
-    color: #ddd6fe;
+    color: #f6c843;
 }
 
 body.dark-mode .meta-dot {
@@ -974,17 +1009,17 @@ body.dark-mode .publisher-card .publisher-content,
 body.dark-mode .publisher-card .publisher-name-row,
 body.dark-mode .publisher-card .userinfo_nickname,
 body.dark-mode .publisher-card .userinfo_card_nickname {
-    color: #f1f5f9 !important;
+    color: var(--app-text) !important;
 }
 
 body.dark-mode .publisher-card .publisher-name-row .userinfo_pro,
 body.dark-mode .publisher-card .publisher-name-row .userinfo_card_pro {
-    color: #a5b4fc !important;
+    color: var(--app-text) !important;
 }
 
 body.dark-mode .publisher-card .publisher-intro,
 body.dark-mode .publisher-card .userinfo_card_intro {
-    color: #94a3b8 !important;
+    color: var(--app-text-sub) !important;
 }
 
 body.dark-mode .hs-model,

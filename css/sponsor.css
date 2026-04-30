@@ -822,7 +822,8 @@ body.file-page.sponsor-mode.dark-mode {
 }
 
 /* Header logo: gold SVG tint */
-body.file-page.sponsor-mode .file-logo img {
+body.file-page.sponsor-mode .file-logo img,
+body.file-page.sponsor-mode .mobile-brand img {
     content: url('/img/ico/logo-gold.svg');
 }
 
@@ -848,11 +849,16 @@ body.file-page.sponsor-mode .lang-toggle:hover {
     background: rgba(200, 169, 124, 0.25);
 }
 
-/* File icon: gold */
-body.file-page.sponsor-mode .file-icon {
+/* File icon: gold (desktop .file-icon + mobile .file-icon-wrapper) */
+body.file-page.sponsor-mode .file-icon,
+body.file-page.sponsor-mode .file-icon-wrapper {
     background: linear-gradient(135deg, rgba(200, 169, 124, 0.15) 0%, rgba(184, 141, 84, 0.1) 100%);
     border: 1px solid var(--sponsor-border);
     box-shadow: 0 12px 24px -8px var(--sponsor-glow);
+    color: var(--sponsor-gold-strong);
+}
+
+body.file-page.sponsor-mode .file-icon-wrapper iconpark-icon {
     color: var(--sponsor-gold-strong);
 }
 
@@ -890,6 +896,16 @@ body.file-page.sponsor-mode .file-action-item:hover {
     color: var(--sponsor-gold-strong);
 }
 
+/* 深色模式下 action item 文字始终亮金色 */
+body.file-page.dark-mode.sponsor-mode .file-action-item,
+body.file-page.dark-mode.sponsor-mode .file-action-item:hover {
+    color: #f6c843;
+}
+
+body.file-page.dark-mode.sponsor-mode .file-action-item:hover .action-icon {
+    color: #f6c843;
+}
+
 /* Publisher badge (赞助者/分享者) */
 body.file-page.sponsor-mode .publisher-badge {
     background: var(--sponsor-gradient);
@@ -911,4 +927,134 @@ body.file-page.sponsor-mode .file-meta-item {
 body.file-page.sponsor-mode .file-meta-like:hover {
     border-color: var(--file-danger);
     color: var(--file-danger);
+}
+
+/* 深色模式下 meta 数据（文件大小、点赞数、就绪等）使用亮金色 */
+body.file-page.dark-mode.sponsor-mode .file-meta-item,
+body.file-page.sponsor-mode.dark-mode .file-meta-item {
+    color: #f6c843;
+}
+
+body.file-page.dark-mode.sponsor-mode .file-meta-item iconpark-icon,
+body.file-page.sponsor-mode.dark-mode .file-meta-item iconpark-icon {
+    color: #f6c843 !important;
+    fill: #f6c843 !important;
+}
+
+body.file-page.dark-mode.sponsor-mode .hs-model-title,
+body.file-page.sponsor-mode.dark-mode .hs-model-title {
+    color: #f6c843;
+}
+
+body.file-page.dark-mode.sponsor-mode .file-icon,
+body.file-page.sponsor-mode.dark-mode .file-icon,
+body.file-page.dark-mode.sponsor-mode .file-icon-wrapper,
+body.file-page.sponsor-mode.dark-mode .file-icon-wrapper {
+    color: #f6c843;
+}
+
+body.file-page.dark-mode.sponsor-mode .file-icon-wrapper iconpark-icon,
+body.file-page.sponsor-mode.dark-mode .file-icon-wrapper iconpark-icon {
+    color: #f6c843;
+}
+
+@media (prefers-color-scheme: dark) {
+    body.file-page.sponsor-mode .file-meta-item {
+        color: #f6c843;
+    }
+
+    body.file-page.sponsor-mode .file-meta-item iconpark-icon {
+        color: #f6c843 !important;
+        fill: #f6c843 !important;
+    }
+
+    body.file-page.sponsor-mode .hs-model-title {
+        color: #f6c843;
+    }
+
+    body.file-page.sponsor-mode .file-icon,
+    body.file-page.sponsor-mode .file-icon-wrapper {
+        color: #f6c843;
+    }
+
+    body.file-page.sponsor-mode .file-icon-wrapper iconpark-icon {
+        color: #f6c843;
+    }
+
+    body.file-page.sponsor-mode #footer,
+    body.file-page.sponsor-mode #tpl_footer,
+    body.file-page.sponsor-mode #footer a,
+    body.file-page.sponsor-mode #footer .btn-pointer,
+    body.file-page.sponsor-mode #tpl_footer a,
+    body.file-page.sponsor-mode #tpl_footer .btn-pointer {
+        color: #f6c843 !important;
+    }
+
+    body.file-page.sponsor-mode #footer a:hover,
+    body.file-page.sponsor-mode #footer .btn-pointer:hover,
+    body.file-page.sponsor-mode #tpl_footer a:hover,
+    body.file-page.sponsor-mode #tpl_footer .btn-pointer:hover {
+        color: #fff !important;
+    }
+
+    body.file-page.sponsor-mode .lang-chip,
+    body.file-page.sponsor-mode .lang-chip:hover,
+    body.file-page.sponsor-mode .lang-chip:focus,
+    body.file-page.sponsor-mode .lang-toggle,
+    body.file-page.sponsor-mode .lang-toggle:hover,
+    body.file-page.sponsor-mode .lang-toggle:focus {
+        color: #f6c843;
+    }
+
+    body.file-page.sponsor-mode .lang-chip iconpark-icon,
+    body.file-page.sponsor-mode .lang-chip:hover iconpark-icon,
+    body.file-page.sponsor-mode .lang-toggle iconpark-icon,
+    body.file-page.sponsor-mode .lang-toggle:hover iconpark-icon {
+        color: #f6c843 !important;
+        fill: #f6c843 !important;
+    }
+
+    body.file-page.sponsor-mode .file-action-item,
+    body.file-page.sponsor-mode .file-action-item:hover {
+        color: #f6c843;
+    }
+
+    body.file-page.sponsor-mode .file-action-item:hover .action-icon {
+        color: #f6c843;
+    }
+}
+
+/* 手动深色模式 footer 链接颜色 */
+body.file-page.dark-mode.sponsor-mode #footer,
+body.file-page.dark-mode.sponsor-mode #tpl_footer,
+body.file-page.dark-mode.sponsor-mode #footer a,
+body.file-page.dark-mode.sponsor-mode #footer .btn-pointer,
+body.file-page.dark-mode.sponsor-mode #tpl_footer a,
+body.file-page.dark-mode.sponsor-mode #tpl_footer .btn-pointer {
+    color: #f6c843 !important;
+}
+
+body.file-page.dark-mode.sponsor-mode #footer a:hover,
+body.file-page.dark-mode.sponsor-mode #footer .btn-pointer:hover,
+body.file-page.dark-mode.sponsor-mode #tpl_footer a:hover,
+body.file-page.dark-mode.sponsor-mode #tpl_footer .btn-pointer:hover {
+    color: #fff !important;
+}
+
+/* 手动深色模式 header 按钮亮金色（含悬停/焦点状态不改变颜色） */
+body.file-page.dark-mode.sponsor-mode .lang-chip,
+body.file-page.dark-mode.sponsor-mode .lang-chip:hover,
+body.file-page.dark-mode.sponsor-mode .lang-chip:focus,
+body.file-page.dark-mode.sponsor-mode .lang-toggle,
+body.file-page.dark-mode.sponsor-mode .lang-toggle:hover,
+body.file-page.dark-mode.sponsor-mode .lang-toggle:focus {
+    color: #f6c843;
+}
+
+body.file-page.dark-mode.sponsor-mode .lang-chip iconpark-icon,
+body.file-page.dark-mode.sponsor-mode .lang-chip:hover iconpark-icon,
+body.file-page.dark-mode.sponsor-mode .lang-toggle iconpark-icon,
+body.file-page.dark-mode.sponsor-mode .lang-toggle:hover iconpark-icon {
+    color: #f6c843 !important;
+    fill: #f6c843 !important;
 }
