@@ -1813,29 +1813,50 @@ class tmplink {
         }, 'json');
     }
 
+    point_buy_legacy(productType, productId, productTimes) {
+        const normalizedType = productType === 'direct' ? 'DIRECT' : 'ADDON';
+        const normalizedId = String(productId || '').replace(/-us$/, '');
+        $.post(this.api_pay, {
+            action: 'point_buy',
+            token: this.api_token,
+            product_type: normalizedType,
+            product_id: normalizedId,
+            product_times: productTimes
+        }, (rsp) => {
+            if (rsp.status === 1) {
+                this.alert(this.app.languageData.vx_purchase_success || '购买成功！');
+                window.location.reload();
+                return;
+            }
+            if (rsp.status === 1001) {
+                this.alert(this.app.languageData.vx_point_recharge_first || '请先充值点数后再购买');
+                window.location.href = '/?tmpui_page=/vx&module=points';
+                return;
+            }
+            if (rsp.status === 1002) {
+                this.alert(this.app.languageData.vx_product_already_bought || '该商品不能重复购买');
+                return;
+            }
+            this.alert((rsp.data && rsp.data.message) || rsp.debug || this.app.languageData.vx_purchase_failed || '购买失败');
+        }, 'json');
+    }
+
     direct_quota_buy() {
         if (this.logined === 0) {
             this.alert(this.app.languageData.status_need_login);
             return false;
         }
 
-        let price = 0;
         let time = 1;
         let code = 0;
 
         if (this.buy_currency == 'cny') {
             code = $('#dq_code_cny').val();
-            price = $("#dq_code_cny option:selected").attr('data-price');
         } else {
             code = $('#dq_code_usd').val();
-            price = $("#dq_code_usd option:selected").attr('data-price');
         }
 
-        if (this.buy_currency == 'cny') {
-            window.location.href = "https://pay.vezii.com/id4/pay_v2?price=" + price + "&token=" + this.api_token + "&prepare_code=" + code + "&prepare_type=direct&prepare_times=" + time;
-        } else {
-            window.location.href = 'https://s12.tmp.link/payment/paypal/checkout_v2?price=' + price + '&token=' + this.api_token + '&prepare_type=direct&prepare_code=' + code + '&prepare_times=' + time;
-        }
+        this.point_buy_legacy('direct', code, time);
     }
 
     hs_download_buy() {
@@ -1844,23 +1865,9 @@ class tmplink {
             return false;
         }
 
-        let price = 0;
         let time = $('#highspeed_time').val();
         let code = 'HS';
-
-        if (this.buy_currency == 'cny') {
-            code = 'HS';
-            price = 6 * time;
-        } else {
-            code = 'HS-us';
-            price = 1 * time;
-        }
-
-        if (this.buy_currency == 'cny') {
-            window.location.href = "https://pay.vezii.com/id4/pay_v2?price=" + price + "&token=" + this.api_token + "&prepare_code=" + code + "&prepare_type=addon&prepare_times=" + time;
-        } else {
-            window.location.href = 'https://s12.tmp.link/payment/paypal/checkout_v2?price=' + price + '&token=' + this.api_token + '&prepare_type=addon&prepare_code=' + code + '&prepare_times=' + time;
-        }
+        this.point_buy_legacy('addon', code, time);
     }
 
     storage_buy() {
@@ -1868,7 +1875,6 @@ class tmplink {
             this.alert(this.app.languageData.status_need_login);
             return false;
         }
-        var price = 0;
         let code = 0;
         if (this.buy_currency == 'cny') {
             code = $('#storage_code_cny').val();
@@ -1876,26 +1882,7 @@ class tmplink {
             code = $('#storage_code_usd').val();
         }
         let time = $('#storage_time').val();
-        switch (code) {
-            case '256GB':
-                price = 6 * time;
-                break;
-            case '1TB':
-                price = 18 * time;
-                break;
-
-            case '256GB-us':
-                price = 1 * time;
-                break;
-            case '1TB-us':
-                price = 3 * time;
-                break;
-        }
-        if (this.buy_currency == 'cny') {
-            window.location.href = "https://pay.vezii.com/id4/pay_v2?price=" + price + "&token=" + this.api_token + "&prepare_code=" + code + "&prepare_type=addon&prepare_times=" + time;
-        } else {
-            window.location.href = 'https://s12.tmp.link/payment/paypal/checkout_v2?price=' + price + '&token=' + this.api_token + '&prepare_type=addon&prepare_code=' + code + '&prepare_times=' + time;
-        }
+        this.point_buy_legacy('addon', code, time);
     }
 
     media_buy() {
@@ -1903,7 +1890,6 @@ class tmplink {
             this.alert(this.app.languageData.status_need_login);
             return false;
         }
-        var price = 0;
         let code = 0;
         if (this.buy_currency == 'cny') {
             code = $('#media_code_cny').val();
@@ -1911,26 +1897,7 @@ class tmplink {
             code = $('#media_code_usd').val();
         }
         let time = $('#media_time').val();
-        switch (code) {
-            case 'MEDIA-V-P':
-                price = 6 * time;
-                break;
-            case 'MEDIA-V-H':
-                price = 18 * time;
-                break;
-
-            case 'MEDIA-V-P-us':
-                price = 1 * time;
-                break;
-            case 'MEDIA-V-H-us':
-                price = 3 * time;
-                break;
-        }
-        if (this.buy_currency == 'cny') {
-            window.location.href = "https://pay.vezii.com/id4/pay_v2?price=" + price + "&token=" + this.api_token + "&prepare_code=" + code + "&prepare_type=addon&prepare_times=" + time;
-        } else {
-            window.location.href = 'https://s12.tmp.link/payment/paypal/checkout_v2?price=' + price + '&token=' + this.api_token + '&prepare_type=addon&prepare_code=' + code + '&prepare_times=' + time;
-        }
+        this.point_buy_legacy('addon', code, time);
     }
 
     orders_list() {

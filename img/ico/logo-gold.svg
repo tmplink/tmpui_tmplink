@@ -1,14 +1,15 @@
 <svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <!-- 扁平蓝色背景渐变（保留原始品牌感） -->
-    <linearGradient id="flatBlue" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#2F7FE3"/>
-      <stop offset="100%" stop-color="#185CAD"/>
+    <linearGradient id="flatGold" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F6D878"/>
+      <stop offset="55%" stop-color="#D9A63A"/>
+      <stop offset="100%" stop-color="#B87916"/>
     </linearGradient>
   </defs>
 
   <!-- 扁平圆角背景 -->
-  <rect x="0" y="0" width="256" height="256" rx="46" fill="url(#flatBlue)"/>
+  <rect x="0" y="0" width="256" height="256" rx="46" fill="url(#flatGold)"/>
 
   <!-- 图标主体：简洁白色线条，去掉厚重立体感 -->
   <g

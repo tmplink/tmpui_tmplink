@@ -245,10 +245,6 @@
                             </button>
                         </div>
 
-                        <div class="file-disclaimer" id="downloadAlert" onclick="fileUI.openModal('downloadAlertModal')" style="display: none;">
-                            <iconpark-icon name="triangle-exclamation-solid"></iconpark-icon>
-                            <span i18n="da_file">.</span>
-                        </div>
                     </div>
                 </div>
 
@@ -257,6 +253,7 @@
                 </div>
             </section>
         </div>
+        <div id="downloadAlert" onclick="fileUI.openModal('downloadAlertModal')" style="display: none; width: 100%; max-width: var(--file-shell-width); text-align: right; font-size: 13px; padding: 16px 4px 0; opacity: 0.55; cursor: pointer;"><iconpark-icon name="triangle-exclamation-solid" style="font-size: 14px; vertical-align: middle; margin-right: 5px;"></iconpark-icon><span i18n="da_file" style="vertical-align: middle;">.</span></div>
         <div id="file_loading" style="display: none;"></div>
     </section>
 </div>

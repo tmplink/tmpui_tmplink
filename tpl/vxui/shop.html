@@ -80,7 +80,7 @@
                 </div>
                 <div class="vx-shop-card-content">
                     <h3 class="vx-shop-card-title" data-tpl="first_time_sponsor_title">初次赞助特典</h3>
-                    <p class="vx-shop-card-desc" data-tpl="first_time_sponsor_subtitle">第一次成为赞助者？一年仅需 36 元！</p>
+                    <p class="vx-shop-card-desc" data-tpl="first_time_sponsor_subtitle">第一次成为赞助者？一年仅需 3600 点数！</p>
                     <p class="vx-shop-card-note" data-tpl="first_time_sponsor_description">每位用户限一次！</p>
                 </div>
                 <div class="vx-shop-card-arrow">
@@ -1002,6 +1002,62 @@
     transition: color 0.2s;
 }
 
+.vx-recharge-status {
+    display: flex;
+    flex-direction: column;
+    padding: 32px 0 24px;
+}
+
+.vx-recharge-status-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+}
+
+.vx-recharge-status-icon {
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--vx-primary);
+    background: rgba(var(--vx-primary-rgb), 0.1);
+    margin-bottom: 8px;
+}
+
+.vx-recharge-status-icon iconpark-icon {
+    font-size: 36px;
+}
+
+.vx-recharge-status-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--vx-text);
+    margin: 0;
+}
+
+.vx-recharge-status-desc {
+    font-size: 15px;
+    color: var(--vx-text-secondary);
+    margin: 0;
+    max-width: 85%;
+    line-height: 1.6;
+}
+
+.vx-recharge-status-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+@media (max-width: 520px) {
+    .vx-recharge-status-desc {
+        max-width: 100%;
+    }
+}
+
 .vx-header-shop {
     position: sticky;
     top: 0;
@@ -1410,44 +1466,6 @@
     margin-top: 4px;
 }
 
-/* Payment Methods */
-.vx-payment-methods {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-}
-
-.vx-payment-method {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 16px;
-    background: var(--vx-bg-secondary);
-    border: 2px solid transparent;
-    border-radius: var(--vx-radius-md);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.vx-payment-method:hover {
-    border-color: var(--vx-border-hover);
-}
-
-.vx-payment-method.selected {
-    border-color: var(--vx-primary);
-    background: rgba(var(--vx-primary-rgb), 0.1);
-}
-
-.vx-payment-method iconpark-icon {
-    font-size: 20px;
-}
-
-.vx-payment-method span {
-    font-weight: 500;
-}
-
 /* Quantity Input */
 .vx-quantity-input {
     display: flex;
@@ -1491,27 +1509,6 @@
     margin-top: 0;
 }
 
-/* Payment Icons */
-.vx-pay-icon {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 700;
-    color: white;
-}
-
-.vx-pay-alipay {
-    background: linear-gradient(135deg, #1677FF, #009CFF);
-}
-
-.vx-pay-paypal {
-    background: linear-gradient(135deg, #003087, #009CDE);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .vx-shop-card {
@@ -1520,10 +1517,6 @@
     
     .vx-purchase-options {
         grid-template-columns: 1fr;
-    }
-    
-    .vx-payment-methods {
-        flex-direction: column;
     }
     
     .vx-header-shop .vx-header-left {
