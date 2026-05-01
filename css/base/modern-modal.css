@@ -1102,3 +1102,63 @@ body.dark-mode .modal-dialog-scrollable .modal-body::-webkit-scrollbar-track {
 body.dark-mode .modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.3) !important;
 }
+
+/* Upload Area styles from model.html */
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 20px 20px;
+    text-align: center;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    border-color: #007bff;
+    background: #f1f3f5;
+}
+
+.upload-icon {
+    font-size: 48px;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+.upload-text {
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+#fileInput {
+    display: none;
+}
+
+/* Hover effect */
+.upload-area:hover {
+    border-color: #0056b3;
+    background: #e7f1ff;
+}
+
+/* Dragging effect */
+.upload-area.dragging {
+    border-color: #0056b3;
+    background: linear-gradient(rgba(0, 86, 179, 0.03), rgba(0, 86, 179, 0.06));
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 86, 179, 0.15);
+}
+
+/* Icon text transitions */
+.upload-area .upload-icon {
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.upload-area.dragging .upload-icon {
+    color: #0056b3;
+    transform: translateY(-5px);
+}
+
+.upload-area.dragging .upload-text h5 {
+    color: #0056b3;
+}

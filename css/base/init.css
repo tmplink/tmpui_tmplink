@@ -1,0 +1,37 @@
+html,
+body,
+#tmpui,
+#tmpui_body {
+    background-color: #fff;
+}
+
+html.system-dark,
+html.system-dark body,
+html.system-dark #tmpui,
+html.system-dark #tmpui_body {
+    background-color: #363434 !important;
+    color-scheme: dark;
+}
+
+/* version.html fallback style */
+html,body{
+    height: 100%;
+}
+.Aligner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.Aligner-item {
+    max-width: 50%;
+}
+
+.Aligner-item--top {
+    align-self: flex-start;
+}
+
+.Aligner-item--bottom {
+    align-self: flex-end;
+}

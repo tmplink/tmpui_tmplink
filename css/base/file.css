@@ -2414,3 +2414,8 @@ body.legal-page .lang-toggle::after {
 .d-none.d-sm-block { display: none !important; }
 @media (min-width: 576px) { .d-none.d-sm-block { display: block !important; } }
 /* --- End Bootstrap Shims --- */
+
+body.file-page .file-action-item:hover,
+body.file-page.dark-mode .file-action-item:hover {
+    background: transparent !important;
+}
