@@ -1702,3 +1702,137 @@ div[style*="position: fixed"][style*="right: 14px"] {
         transform: translateY(0);
     }
 }
+
+
+/* ==========================================================================
+   Layout Helpers (Replacing Bootstrap)
+   ========================================================================== */
+
+.vx-index-container {
+    width: 100%;
+    max-width: 1200px;
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: var(--space-xl);
+    padding-left: var(--space-xl);
+}
+
+.sponsor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xl);
+    margin-top: var(--space-3xl);
+    align-items: center;
+}
+
+@media (min-width: 768px) {
+    .sponsor-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 992px) {
+    .sponsor-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+.sponsor-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md);
+}
+
+.sponsor-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.7;
+}
+
+.sponsor-logo:hover {
+    transform: scale(1.05);
+    opacity: 1;
+}
+
+.sponsor-logo img {
+    max-width: 100%;
+    height: auto;
+    max-height: 40px;
+}
+
+/* Inline Styles Replacement */
+.faq-arrow {
+    transition: transform 0.2s ease;
+}
+
+.about-intro-icon {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    width: 3rem;
+    height: 3rem;
+}
+
+.stats-grid {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.stat-value.primary {
+    color: var(--primary-color);
+}
+
+.stat-value.accent {
+    color: var(--accent-color);
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.feature-icon-wrapper {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: var(--space-md);
+    display: block;
+}
+
+.feature-check-icon {
+    color: var(--accent-color);
+    margin-right: var(--space-md);
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.footer-brand {
+    margin-bottom: var(--space-xl);
+}
+
+.footer-brand h3 {
+    color: white;
+    margin-bottom: var(--space-sm);
+    font-size: 1.5rem;
+}
+
+.footer-brand p {
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 400px;
+    margin: 0 auto;
+}

@@ -4,7 +4,7 @@
   <div class="hero-bg-image"></div>
   <div class="hero-bg-overlay"></div>
   
-  <div class="vx-index-container">
+  <div class="container">
     <div class="hero-content">
       
       <h1 i18n="i2023_new_index_title" class="hero-title">.</h1>
@@ -24,7 +24,7 @@
         <path d="M12.87 15.07L10.33 12.56L10.36 12.53C12.1 10.59 13.34 8.36 14.07 6H17V4H10V2H8V4H1V6H12.17C11.5 7.92 10.44 9.75 9 11.35C8.07 10.32 7.3 9.19 6.69 8H4.69C5.42 9.63 6.42 11.17 7.67 12.56L2.58 17.58L4 19L9 14L12.11 17.11L12.87 15.07ZM18.5 10H16.5L12 22H14L15.12 19H19.87L21 22H23L18.5 10ZM15.88 17L17.5 12.67L19.12 17H15.88Z"/>
       </svg>
       <span class="selected_lang">.</span>
-      <svg class="icon-svg icon-svg-sm faq-arrow" viewBox="0 0 24 24">
+      <svg class="icon-svg icon-svg-sm" viewBox="0 0 24 24" style="transition: transform 0.2s ease;">
         <path d="M7.41 15.41L12 10.83L16.59 15.41L18 14L12 8L6 14Z"/>
       </svg>
     </button>
@@ -43,7 +43,7 @@
 
   <!-- ======= Refined About Section ======= -->
   <section id="about">
-    <div class="vx-index-container">
+    <div class="container">
       <div class="section-title">
         <h2 i18n="i2023_new_index_about_title">.</h2>
         <p class="section-subtitle" i18n="i2023_new_index_about_des">.</p>
@@ -52,27 +52,27 @@
       <div class="about-grid">
         <div class="about-content">
           <div class="content-icon">
-            <svg class="icon-svg-2xl about-intro-icon" viewBox="0 0 24 24">
+            <svg class="icon-svg-2xl" viewBox="0 0 24 24" style="color: var(--primary-color); margin-bottom: 1.5rem; width: 3rem; height: 3rem;">
               <path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20ZM8.5 13.5L9.5 14.5L13 11L16.5 14.5L17.5 13.5L13 9L8.5 13.5Z"/>
             </svg>
           </div>
           <h3 i18n="i2023_new_index_about_title">.</h3>
           <p i18n="i2023_new_index_about_des">.</p>
-          <div class="stats-grid" >
-            <div class="stat-item" >
-              <div class="stat-value primary">∞</div>
-              <div class="stat-label" i18n="i2023_new_index_stats_unlimited">.</div>
+          <div class="stats-grid" style="margin-top: 2rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+            <div class="stat-item" style="text-align: center; padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius-lg);">
+              <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">∞</div>
+              <div style="font-size: 0.85rem; color: var(--text-secondary);" i18n="i2023_new_index_stats_unlimited">.</div>
             </div>
-            <div class="stat-item" >
-              <div class="stat-value accent">24/7</div>
-              <div class="stat-label" i18n="i2023_new_index_stats_24x7">.</div>
+            <div class="stat-item" style="text-align: center; padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius-lg);">
+              <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-color);">24/7</div>
+              <div style="font-size: 0.85rem; color: var(--text-secondary);" i18n="i2023_new_index_stats_24x7">.</div>
             </div>
           </div>
         </div>
         
         <div class="feature-grid">
           <div class="feature-box">
-            <svg class="feature-icon icon-svg-2xl" viewBox="0 0 24 24" class="feature-icon icon-svg-2xl feature-icon-wrapper">
+            <svg class="feature-icon icon-svg-2xl" viewBox="0 0 24 24" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: var(--space-md); display: block;">
               <path d="M7 2V13L10.5 9.5L14 13V2H7ZM15 15.5V22H17V15.5H15ZM1 9H3V15H1V9ZM5 11H7V17H5V11ZM9 7H11V21H9V7ZM13 14H15V20H13V14ZM17 12H19V18H17V12ZM21 10H23V16H21V10Z"/>
             </svg>
             <h4 i18n="i2023_new_index_about_f1_title">.</h4>
@@ -80,7 +80,7 @@
           </div>
           
           <div class="feature-box">
-            <svg class="feature-icon icon-svg-2xl" viewBox="0 0 24 24" class="feature-icon icon-svg-2xl feature-icon-wrapper">
+            <svg class="feature-icon icon-svg-2xl" viewBox="0 0 24 24" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: var(--space-md); display: block;">
               <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM10 17L6 13L7.41 11.59L10 14.17L16.59 7.58L18 9L10 17Z"/>
             </svg>
             <h4 i18n="i2023_new_index_about_f2_title">.</h4>
@@ -88,7 +88,7 @@
           </div>
           
           <div class="feature-box">
-            <svg class="feature-icon icon-svg-2xl" viewBox="0 0 24 24" class="feature-icon icon-svg-2xl feature-icon-wrapper">
+            <svg class="feature-icon icon-svg-2xl" viewBox="0 0 24 24" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: var(--space-md); display: block;">
               <path d="M4 6H20V16H4V6ZM20 18H4V20H20V18ZM20 4H4C2.89 4 2 4.89 2 6V20C2 21.11 2.89 22 4 22H20C21.11 22 22 21.11 22 20V6C22 4.89 21.11 4 20 4ZM14 7H18V10H14V7ZM14 11H18V14H14V11ZM6 7H12V14H6V7Z"/>
             </svg>
             <h4 i18n="i2023_new_index_about_f3_title">.</h4>
@@ -96,7 +96,7 @@
           </div>
           
           <div class="feature-box">
-            <svg class="feature-icon icon-svg-2xl" viewBox="0 0 24 24" class="feature-icon icon-svg-2xl feature-icon-wrapper">
+            <svg class="feature-icon icon-svg-2xl" viewBox="0 0 24 24" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: var(--space-md); display: block;">
               <path d="M11.99 2C6.47 2 2 6.48 2 12C2 17.52 6.47 22 11.99 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 11.99 2ZM18.92 8H15.97C15.65 6.75 15.19 5.55 14.59 4.44C16.43 5.07 17.96 6.35 18.92 8ZM12 4.04C12.83 5.24 13.48 6.57 13.91 8H10.09C10.52 6.57 11.17 5.24 12 4.04ZM4.26 14C4.1 13.36 4 12.69 4 12C4 11.31 4.1 10.64 4.26 10H7.64C7.56 10.66 7.5 11.32 7.5 12C7.5 12.68 7.56 13.34 7.64 14H4.26ZM5.08 16H8.03C8.35 17.25 8.81 18.45 9.41 19.56C7.57 18.93 6.04 17.65 5.08 16ZM8.03 8H5.08C6.04 6.35 7.57 5.07 9.41 4.44C8.81 5.55 8.35 6.75 8.03 8ZM12 19.96C11.17 18.76 10.52 17.43 10.09 16H13.91C13.48 17.43 12.83 18.76 12 19.96ZM14.34 14H9.66C9.57 13.34 9.5 12.68 9.5 12C9.5 11.32 9.57 10.65 9.66 10H14.34C14.43 10.65 14.5 11.32 14.5 12C14.5 12.68 14.43 13.34 14.34 14ZM14.59 19.56C15.19 18.45 15.65 17.25 15.97 16H18.92C17.96 17.65 16.43 18.93 14.59 19.56ZM16.36 14C16.44 13.34 16.5 12.68 16.5 12C16.5 11.32 16.44 10.66 16.36 10H19.74C19.9 10.64 20 11.31 20 12C20 12.69 19.9 13.36 19.74 14H16.36Z"/>
             </svg>
             <h4 i18n="i2023_new_index_about_f4_title">.</h4>
@@ -109,32 +109,32 @@
 
   <!-- ======= Clients Section ======= -->
   <!-- <section id="clients" class="clients">
-    <div class="vx-index-container" data-aos="zoom-in">
+    <div class="container" data-aos="zoom-in">
 
-      <div class="sponsor-grid">
+      <div class="row">
 
-        <div class="sponsor-item">
-          <img src="/plugin/bk/assets/img/clients/client-1.png"  alt="">
+        <div class="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center">
+          <img src="/plugin/bk/assets/img/clients/client-1.png" class="img-fluid" alt="">
         </div>
 
-        <div class="sponsor-item">
-          <img src="/plugin/bk/assets/img/clients/client-2.png"  alt="">
+        <div class="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center">
+          <img src="/plugin/bk/assets/img/clients/client-2.png" class="img-fluid" alt="">
         </div>
 
-        <div class="sponsor-item">
-          <img src="/plugin/bk/assets/img/clients/client-3.png"  alt="">
+        <div class="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center">
+          <img src="/plugin/bk/assets/img/clients/client-3.png" class="img-fluid" alt="">
         </div>
 
-        <div class="sponsor-item">
-          <img src="/plugin/bk/assets/img/clients/client-4.png"  alt="">
+        <div class="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center">
+          <img src="/plugin/bk/assets/img/clients/client-4.png" class="img-fluid" alt="">
         </div>
 
-        <div class="sponsor-item">
-          <img src="/plugin/bk/assets/img/clients/client-5.png"  alt="">
+        <div class="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center">
+          <img src="/plugin/bk/assets/img/clients/client-5.png" class="img-fluid" alt="">
         </div>
 
-        <div class="sponsor-item">
-          <img src="/plugin/bk/assets/img/clients/client-6.png"  alt="">
+        <div class="col-lg-2 col-md-4 col-6 d-flex align-items-center justify-content-center">
+          <img src="/plugin/bk/assets/img/clients/client-6.png" class="img-fluid" alt="">
         </div>
 
       </div>
@@ -144,7 +144,7 @@
 
   <!-- ======= Refined Features Section ======= -->
   <section id="features">
-    <div class="vx-index-container">
+    <div class="container">
       <div class="section-title">
         <h2 i18n="i2023_new_index_features">.</h2>
         <p class="section-subtitle" i18n="i2023_new_index_features_subtitle">.</p>
@@ -159,19 +159,19 @@
           <p i18n="i2023_new_index_features2">.</p>
           <ul class="feature-list">
             <li>
-              <svg class="icon-svg-lg" viewBox="0 0 24 24" class="icon-svg-lg feature-check-icon">
+              <svg class="icon-svg-lg" viewBox="0 0 24 24" style="color: var(--accent-color); margin-right: var(--space-md); font-size: 1.25rem; flex-shrink: 0;">
                 <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z"/>
               </svg>
               <span i18n="i2023_new_index_features3">.</span>
             </li>
             <li>
-              <svg class="icon-svg-lg" viewBox="0 0 24 24" class="icon-svg-lg feature-check-icon">
+              <svg class="icon-svg-lg" viewBox="0 0 24 24" style="color: var(--accent-color); margin-right: var(--space-md); font-size: 1.25rem; flex-shrink: 0;">
                 <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z"/>
               </svg>
               <span i18n="i2023_new_index_features4">.</span>
             </li>
             <li>
-              <svg class="icon-svg-lg" viewBox="0 0 24 24" class="icon-svg-lg feature-check-icon">
+              <svg class="icon-svg-lg" viewBox="0 0 24 24" style="color: var(--accent-color); margin-right: var(--space-md); font-size: 1.25rem; flex-shrink: 0;">
                 <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z"/>
               </svg>
               <span i18n="i2023_new_index_features5">.</span>
@@ -200,19 +200,19 @@
           <p i18n="i2023_new_index_features10">.</p>
           <ul class="feature-list">
             <li>
-              <svg class="icon-svg-lg" viewBox="0 0 24 24" class="icon-svg-lg feature-check-icon">
+              <svg class="icon-svg-lg" viewBox="0 0 24 24" style="color: var(--accent-color); margin-right: var(--space-md); font-size: 1.25rem; flex-shrink: 0;">
                 <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z"/>
               </svg>
               <span i18n="i2023_new_index_features11">.</span>
             </li>
             <li>
-              <svg class="icon-svg-lg" viewBox="0 0 24 24" class="icon-svg-lg feature-check-icon">
+              <svg class="icon-svg-lg" viewBox="0 0 24 24" style="color: var(--accent-color); margin-right: var(--space-md); font-size: 1.25rem; flex-shrink: 0;">
                 <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z"/>
               </svg>
               <span i18n="i2023_new_index_features12">.</span>
             </li>
             <li>
-              <svg class="icon-svg-lg" viewBox="0 0 24 24" class="icon-svg-lg feature-check-icon">
+              <svg class="icon-svg-lg" viewBox="0 0 24 24" style="color: var(--accent-color); margin-right: var(--space-md); font-size: 1.25rem; flex-shrink: 0;">
                 <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z"/>
               </svg>
               <span i18n="i2023_new_index_features13">.</span>
@@ -238,11 +238,11 @@
 
 <!-- ======= Refined Footer ======= -->
 <footer id="footer">
-  <div class="vx-index-container">
+  <div class="container">
     <div class="footer-content">
-      <div class="footer-brand">
-        <h3>TMP.link</h3>
-        <p i18n="i2023_new_index_footer_description">.</p>
+      <div class="footer-brand" style="margin-bottom: var(--space-xl);">
+        <h3 style="color: white; margin-bottom: var(--space-sm); font-size: 1.5rem;">TMP.link</h3>
+        <p style="color: rgba(255, 255, 255, 0.7); max-width: 400px; margin: 0 auto;" i18n="i2023_new_index_footer_description">.</p>
       </div>
       
       <div class="footer-links">

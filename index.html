@@ -190,17 +190,17 @@
                     "/js/core/mobile-file.js": { "type": "js", "reload": false },
                     "/js/core/api.js": { "type": "js", "reload": false },
 
-                    "/css/reset.css": { "type": "css", "reload": false },
-                    "/css/index.css": { "type": "css", "reload": false },
-                    "/css/sp.css": { "type": "css", "reload": false },
-                    "/css/fa.css": { "type": "css", "reload": false },
-                    "/css/dark.css": { "type": "css", "reload": false },
-                    "/css/sponsor.css": { "type": "css", "reload": false },
-                    "/css/user-info-card.css": { "type": "css", "reload": false },
-                    "/css/prism.css": { "type": "css", "reload": false },
-                    "/css/modern-auth.css": { "type": "css", "reload": false },
-                    "/css/modern-modal.css": { "type": "css", "reload": false },
-                    "/css/move-folder-modal.css": { "type": "css", "reload": false },
+                    "/css/base/reset.css": { "type": "css", "reload": false },
+                    "/css/base/index.css": { "type": "css", "reload": false },
+                    "/css/base/sp.css": { "type": "css", "reload": false },
+                    "/css/base/fa.css": { "type": "css", "reload": false },
+                    "/css/base/dark.css": { "type": "css", "reload": false },
+                    "/css/base/sponsor.css": { "type": "css", "reload": false },
+                    "/css/base/user-info-card.css": { "type": "css", "reload": false },
+                    "/css/base/prism.css": { "type": "css", "reload": false },
+                    "/css/base/modern-auth.css": { "type": "css", "reload": false },
+                    "/css/base/modern-modal.css": { "type": "css", "reload": false },
+                    "/css/base/move-folder-modal.css": { "type": "css", "reload": false },
                     "/tpl/include/gtpl.html": { "type": "tpl", "reload": false },
 
                     "/js/core/tmplink.js": { "type": "js", "reload": false },
@@ -220,12 +220,12 @@
                     "/plugin/trumbowyg/trumbowyg.min.js": { "type": "js", "reload": false },
                     "/plugin/trumbowyg/ui/trumbowyg.min.css": { "type": "css", "reload": false },
 
-                    "/css/reset.css": { "type": "css", "reload": false },
-                    "/css/index.css": { "type": "css", "reload": false },
-                    "/css/sp.css": { "type": "css", "reload": false },
-                    "/css/fa.css": { "type": "css", "reload": false },
-                    "/css/dark.css": { "type": "css", "reload": false },
-                    "/css/sponsor.css": { "type": "css", "reload": false },
+                    "/css/base/reset.css": { "type": "css", "reload": false },
+                    "/css/base/index.css": { "type": "css", "reload": false },
+                    "/css/base/sp.css": { "type": "css", "reload": false },
+                    "/css/base/fa.css": { "type": "css", "reload": false },
+                    "/css/base/dark.css": { "type": "css", "reload": false },
+                    "/css/base/sponsor.css": { "type": "css", "reload": false },
                     "/tpl/include/gtpl.html": { "type": "tpl", "reload": false },
 
                     "/js/core/function.js": { "type": "js", "reload": false },
@@ -246,13 +246,13 @@
                     "/js/core/api.js": { "type": "js", "reload": false },
                     "/js/file.js": { "type": "js", "reload": false },
 
-                    "/css/reset.css": { "type": "css", "reload": false },
-                    "/css/sp.css": { "type": "css", "reload": false },
-                    "/css/fa.css": { "type": "css", "reload": false },
-                    "/css/dark.css": { "type": "css", "reload": false },
-                    "/css/sponsor.css": { "type": "css", "reload": false },
-                    "/css/file.css": { "type": "css", "reload": false },
-                    "/css/user-info-card.css": { "type": "css", "reload": false },
+                    "/css/base/reset.css": { "type": "css", "reload": false },
+                    "/css/base/sp.css": { "type": "css", "reload": false },
+                    "/css/base/fa.css": { "type": "css", "reload": false },
+                    "/css/base/dark.css": { "type": "css", "reload": false },
+                    "/css/base/sponsor.css": { "type": "css", "reload": false },
+                    "/css/base/file.css": { "type": "css", "reload": false },
+                    "/css/base/user-info-card.css": { "type": "css", "reload": false },
                     "/tpl/include/gtpl.html": { "type": "tpl", "reload": false }
                 },
                 "auth_init": {
@@ -267,12 +267,12 @@
                     "/js/core/oauth.js": { "type": "js", "reload": false },
                     "/js/auth.js": { "type": "js", "reload": false },
 
-                    "/css/reset.css": { "type": "css", "reload": false },
-                    "/css/sp.css": { "type": "css", "reload": false },
-                    "/css/fa.css": { "type": "css", "reload": false },
-                    "/css/dark.css": { "type": "css", "reload": false },
-                    "/css/sponsor.css": { "type": "css", "reload": false },
-                    "/css/file.css": { "type": "css", "reload": false },
+                    "/css/base/reset.css": { "type": "css", "reload": false },
+                    "/css/base/sp.css": { "type": "css", "reload": false },
+                    "/css/base/fa.css": { "type": "css", "reload": false },
+                    "/css/base/dark.css": { "type": "css", "reload": false },
+                    "/css/base/sponsor.css": { "type": "css", "reload": false },
+                    "/css/base/file.css": { "type": "css", "reload": false },
                     "/tpl/include/gtpl.html": { "type": "tpl", "reload": false }
                 }
             },
@@ -286,7 +286,7 @@
             "path": {
                 "/app": {
                     "title": "TMP.link",
-                    "preload": ["init"],
+                    "preload": ["file_init"],
                     "append": ["tmplink"],
                     "body": {
 
@@ -322,20 +322,20 @@
                         "/js/core/dynamic.js": { "type": "js", "reload": false },
                         "/js/init/init_dynamic.js": { "type": "js" },
 
-                        "/css/photo-album.css": { "type": "css", "reload": false },
+                        "/css/base/photo-album.css": { "type": "css", "reload": false },
                     }
                 },
                 "/": {
                     "title": "TMP.link - Welcome",
                     "body": {
-                        "/css/support-widget.css": { "type": "css", "reload": false },
+                        "/css/base/support-widget.css": { "type": "css", "reload": false },
                         "/js/core/support-widget.js": { "type": "js", "reload": false },
                         "/tpl/index.html": { "type": "html", "target": { "type": "body" } },
                         "/js/init/init_index.js": { "type": "js" },
-                        "/css/refined-index.css": { "type": "css" },
-                        "/css/fa.css": { "type": "css" },
-                        "/css/dark.css": { "type": "css", "reload": false },
-                        "/css/sponsor.css": { "type": "css", "reload": false }
+                        "/css/base/refined-index.css": { "type": "css" },
+                        "/css/base/fa.css": { "type": "css" },
+                        "/css/base/dark.css": { "type": "css", "reload": false },
+                        "/css/base/sponsor.css": { "type": "css", "reload": false }
                     }
                 },
                 "/room": {
@@ -346,7 +346,7 @@
                 },
                 "/about": {
                     "title": "TMP.link -About",
-                    "preload": ["init"],
+                    "preload": ["file_init"],
                     "append": ["tmplink"],
                     "body": {
                         "/tpl/about.html": { "type": "html", "target": { "type": "body" } }
@@ -354,45 +354,45 @@
                 },
                 "/503": {
                     "title": "TMP.link - 503",
-                    "preload": ["init"],
+                    "preload": ["file_init"],
                     "append": ["tmplink"],
                     "body": {
-                        "/css/file.css": { "type": "css", "reload": false },
+                        "/css/base/file.css": { "type": "css", "reload": false },
                         "/tpl/503.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/503_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] },
+                        "/tpl/503_mobile.html": { "type": "file", "styles": ["/css/base/file.css", "/css/base/file-mobile-v2.css"] },
                         "/js/init/init_503.js": { "type": "js" }
                     }
                 },
                 "/404": {
                     "title": "TMP.link - 404",
-                    "preload": ["init"],
+                    "preload": ["file_init"],
                     "append": ["tmplink"],
                     "body": {
-                        "/css/file.css": { "type": "css", "reload": false },
+                        "/css/base/file.css": { "type": "css", "reload": false },
                         "/tpl/404.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/404_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] },
+                        "/tpl/404_mobile.html": { "type": "file", "styles": ["/css/base/file.css", "/css/base/file-mobile-v2.css"] },
                         "/js/init/init_404.js": { "type": "js" }
                     }
                 },
                 "/403": {
                     "title": "TMP.link - 403",
-                    "preload": ["init"],
+                    "preload": ["file_init"],
                     "append": ["tmplink"],
                     "body": {
-                        "/css/file.css": { "type": "css", "reload": false },
+                        "/css/base/file.css": { "type": "css", "reload": false },
                         "/tpl/403.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/403_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] },
+                        "/tpl/403_mobile.html": { "type": "file", "styles": ["/css/base/file.css", "/css/base/file-mobile-v2.css"] },
                         "/js/init/init_403.js": { "type": "js" }
                     }
                 },
                 "/504": {
                     "title": "TMP.link - 504",
-                    "preload": ["init"],
+                    "preload": ["file_init"],
                     "append": ["tmplink"],
                     "body": {
-                        "/css/file.css": { "type": "css", "reload": false },
+                        "/css/base/file.css": { "type": "css", "reload": false },
                         "/tpl/504.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/504_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] },
+                        "/tpl/504_mobile.html": { "type": "file", "styles": ["/css/base/file.css", "/css/base/file-mobile-v2.css"] },
                         "/js/init/init_504.js": { "type": "js" }
                     }
                 },
@@ -400,23 +400,23 @@
                     "title": "TMP.link - Download",
                     "preload": ["file_init"],
                     "body": {
-                        "/css/support-widget.css": { "type": "css", "reload": false },
+                        "/css/base/support-widget.css": { "type": "css", "reload": false },
                         "/js/core/support-widget.js": { "type": "js", "reload": false },
                         "/js/init/init_file.js": { "type": "js" },
                         "/tpl/file.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/file_desktop.html": { "type": "file", "styles": ["/css/file.css"] },
-                        "/tpl/file_mobile.html": { "type": "file", "styles": ["/css/file.css", "/css/file-mobile-v2.css"] }
+                        "/tpl/file_desktop.html": { "type": "file", "styles": ["/css/base/file.css"] },
+                        "/tpl/file_mobile.html": { "type": "file", "styles": ["/css/base/file.css", "/css/base/file-mobile-v2.css"] }
                     }
                 },
                 "/login": {
                     "title": "TMP.link - Login",
                     "preload": ["auth_init"],
                     "body": {
-                        "/css/support-widget.css": { "type": "css", "reload": false },
+                        "/css/base/support-widget.css": { "type": "css", "reload": false },
                         "/js/core/support-widget.js": { "type": "js", "reload": false },
                         "/tpl/auth.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/auth_login.html": { "type": "file", "styles": ["/css/auth.css"] },
-                        "/tpl/auth_login_mobile.html": { "type": "file", "styles": ["/css/auth-mobile.css"] },
+                        "/tpl/auth_login.html": { "type": "file", "styles": ["/css/base/auth.css"] },
+                        "/tpl/auth_login_mobile.html": { "type": "file", "styles": ["/css/base/auth-mobile.css"] },
                         "/js/init/init_auth.js": { "type": "js" }
                     }
                 },
@@ -424,11 +424,11 @@
                     "title": "TMP.link - Register",
                     "preload": ["auth_init"],
                     "body": {
-                        "/css/support-widget.css": { "type": "css", "reload": false },
+                        "/css/base/support-widget.css": { "type": "css", "reload": false },
                         "/js/core/support-widget.js": { "type": "js", "reload": false },
                         "/tpl/auth.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/auth_reg.html": { "type": "file", "styles": ["/css/auth.css"] },
-                        "/tpl/auth_reg_mobile.html": { "type": "file", "styles": ["/css/auth-mobile.css"] },
+                        "/tpl/auth_reg.html": { "type": "file", "styles": ["/css/base/auth.css"] },
+                        "/tpl/auth_reg_mobile.html": { "type": "file", "styles": ["/css/base/auth-mobile.css"] },
                         "/js/init/init_auth.js": { "type": "js" }
                     }
                 },
@@ -437,8 +437,8 @@
                     "preload": ["auth_init"],
                     "body": {
                         "/tpl/auth.html": { "type": "html", "target": { "type": "body" } },
-                        "/tpl/auth_reset.html": { "type": "file", "styles": ["/css/auth.css"] },
-                        "/tpl/auth_reset_mobile.html": { "type": "file", "styles": ["/css/auth-mobile.css"] },
+                        "/tpl/auth_reset.html": { "type": "file", "styles": ["/css/base/auth.css"] },
+                        "/tpl/auth_reset_mobile.html": { "type": "file", "styles": ["/css/base/auth-mobile.css"] },
                         "/js/init/init_auth.js": { "type": "js" }
                     }
                 },
@@ -448,7 +448,7 @@
                     "body": {
                         "/css/vxui/vxui.css": { "type": "css", "reload": false },
                         "/css/vxui/account.css": { "type": "css", "reload": false },
-                        "/css/photo-album.css": { "type": "css", "reload": false },
+                        "/css/base/photo-album.css": { "type": "css", "reload": false },
                         "/css/vxui/filelist.css": { "type": "css", "reload": false },
                         "/css/vxui/filelist-mobile-fix.css": { "type": "css", "reload": false },
                         "/css/vxui/direct.css": { "type": "css", "reload": false },
