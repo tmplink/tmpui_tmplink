@@ -52,6 +52,18 @@ app.ready(() => {
         // Apply i18n translations
         app.languageBuild();
 
+        // Area-based UI adjustment — hostname is synchronous, do this immediately
+        // to avoid layout shift from both regions being visible during API init.
+        const isAreaCN = (window.location.hostname === 'www.ttttt.link');
+        if (isAreaCN) {
+            $('.area_global').remove();
+        } else {
+            $('.area_cn').remove();
+        }
+
+        // Show language selector immediately — no API dependency
+        $('#index_lang').show();
+
         // Set page-specific title and description
         if (pagePath.startsWith('/reg')) {
             $('title').html(app.languageData.title_reg || 'Register');
@@ -65,17 +77,6 @@ app.ready(() => {
         }
 
         TL.ready(() => {
-            // Show language selector
-            $('#index_lang').fadeIn();
-
-            // Area-based UI adjustment (CN users are redirected to ttttt.link)
-            const isAreaCN = (window.location.hostname === 'www.ttttt.link');
-            if (isAreaCN) {
-                $('.area_global').remove();
-            } else {
-                $('.area_cn').remove();
-            }
-
             // Redirect already-logged-in users (except on reset page)
             if (TL.isLogin() && !pagePath.startsWith('/reset')) {
                 const uiPreference = localStorage.getItem('tmplink_ui_preference');
