@@ -534,7 +534,7 @@ var VX_FILELIST = VX_FILELIST || {
 
         if (options.clearSelection !== false) {
             this.selectedItems = (this.selectedItems || []).filter(item => !(item.type === 'file' && target.has(String(item.id))));
-            this.updateSelectionBar();
+            this.updateSelectionUI();
         }
 
         if (options.render !== false) {
@@ -560,7 +560,7 @@ var VX_FILELIST = VX_FILELIST || {
 
         if (options.clearSelection !== false) {
             this.selectedItems = (this.selectedItems || []).filter(item => !(item.type === 'folder' && target.has(String(item.id))));
-            this.updateSelectionBar();
+            this.updateSelectionUI();
         }
 
         if (options.render !== false) {
@@ -4790,50 +4790,23 @@ var VX_FILELIST = VX_FILELIST || {
     },
 
     /**
-     * 删除文件：优先从当前文件夹删除；失败时回退到从工作区移除（兼容老逻辑 remove_from_workspace）。
+     * 删除文件：从工作区永久移除（remove_from_workspace）。
+     * 注意：不调用 meetingroom file_del，因为 file_del 仅解除文件与文件夹的关联，
+     * 不会永久删除文件，会导致文件在刷新后重新出现。
      */
     _deleteFileWithFallback(ukey, token, sourceMrid) {
-        const mrApiUrl = (typeof TL !== 'undefined' && TL.api_mr)
-            ? TL.api_mr
-            : '/api_v2/meetingroom';
         const fileApiUrl = (typeof TL !== 'undefined' && TL.api_file)
             ? TL.api_file
             : ((typeof TL !== 'undefined' && TL.api_url) ? (TL.api_url + '/file') : '/api_v2/file');
-        const targetMrid = sourceMrid != null && String(sourceMrid) !== ''
-            ? sourceMrid
-            : this.mrid;
 
         return new Promise((resolve) => {
-            // 1) meetingroom 删除
-            $.post(mrApiUrl, {
-                action: 'file_del',
+            $.post(fileApiUrl, {
+                action: 'remove_from_workspace',
                 token: token,
-                mr_id: targetMrid,
                 ukey: ukey
             }, (rsp) => {
-                if (rsp && rsp.status === 1) {
-                    resolve(true);
-                    return;
-                }
-
-                // 2) fallback：从工作区移除
-                $.post(fileApiUrl, {
-                    action: 'remove_from_workspace',
-                    token: token,
-                    ukey: ukey
-                }, (rsp2) => {
-                    resolve(!!(rsp2 && rsp2.status === 1));
-                }, 'json').fail(() => resolve(false));
-            }, 'json').fail(() => {
-                // 走不到 meetingroom，则直接尝试移出工作区
-                $.post(fileApiUrl, {
-                    action: 'remove_from_workspace',
-                    token: token,
-                    ukey: ukey
-                }, (rsp2) => {
-                    resolve(!!(rsp2 && rsp2.status === 1));
-                }, 'json').fail(() => resolve(false));
-            });
+                resolve(!!(rsp && rsp.status === 1));
+            }, 'json').fail(() => resolve(false));
         });
     },
     
