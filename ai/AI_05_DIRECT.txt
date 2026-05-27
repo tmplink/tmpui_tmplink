@@ -45,3 +45,92 @@ API Key
 - 用户问“直链为什么不能用”，优先检查域名是否已绑定、CNAME 是否正确。
 - 用户问“怎么用 API 上传到直链”，再展开 API Key。
 - 不要把普通分享说成直链，也不要把普通 CLI 上传说成直链 API。
+
+直链 API 参考
+
+直链 API 是面向用户的 HTTP 接口，使用直链页面的独立 API Key 进行鉴权。包含直链管理 API 和文件上传 API。
+
+文件上传 API
+
+用于通过脚本或 CLI 上传文件到仓库，上传后可在直链页面管理并创建直链。
+
+- 端点：`https://tmp-cli.vx-cdn.com/app/upload_cli`
+- 方法：POST
+- Content-Type：`multipart/form-data`
+- 鉴权：表单字段 `key`（API Key）
+
+curl 示例：
+```
+curl -F "file=@/root/test.bin" -F "key=YOUR_API_KEY" https://tmp-cli.vx-cdn.com/app/upload_cli
+```
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `key` | string | API Key（必填） |
+| `file` | file | 文件内容（必填） |
+| `model` | int | 存储模式（可选）：99=永久、0=24小时、1=3天、2=7天 |
+
+返回 status 码：
+| status | 含义 |
+|--------|------|
+| 1 | 成功，`data` 为文件 UKEY |
+| 0 | 无效请求 |
+| 2 | 文件过大 |
+| 3 | 服务器繁忙 |
+| 4 | 空间不足 |
+| 5 | 配额不足 |
+| 6 | API Key 无效 |
+
+直链管理 API
+
+用于通过 API Key 管理直链（查询配额、获取文件列表、创建/删除直链）。
+
+- 端点：`https://tmp-api.vx-cdn.com/services/direct`
+- 方法：POST
+- Content-Type：`application/x-www-form-urlencoded`
+- 鉴权：请求体附带 `key`（API Key）
+
+| Action | 参数 | 说明 |
+|--------|------|------|
+| `quota` | `key` | 查询已购买配额（字节），返回 `data.quota` |
+| `list_of_workspace` | `key`、`page`（可选） | 获取仓库文件列表，返回 `data[]` 含 `ukey`、`name`、`size` |
+| `list_of_direct` | `key`、`page`（可选） | 获取直链列表，返回 `data[]` 含 `dkey`、`link`、`name`、`size`、`etime` |
+| `link_add` | `key`、`ukey`、`valid_time`（可选，分钟）、`download_limit`（可选） | 创建直链 |
+
+`link_add` 返回 status 码：
+| status | 含义 |
+|--------|------|
+| 1 | 成功 |
+| 0 | 失败 |
+| 1001 | 文件不存在 |
+| 1002 | 内部错误 |
+| 1005 | 文件未就绪 |
+
+| Action | 参数 | 说明 |
+|--------|------|------|
+| `link_del` | `key`、`dkey`、`delete`（可选，是否同时删除源文件） | 删除直链 |
+
+`link_del` 返回 status 码：
+| status | 含义 |
+|--------|------|
+| 1 | 成功 |
+| 0 | 失败 |
+| 1003 | 直链不存在 |
+
+直链 URL 格式
+
+绑定域名后，直链的访问 URL 遵循以下格式：
+
+| 类型 | URL 格式 |
+|------|----------|
+| 文件下载 | `{protocol}{domain}/files/{dkey}/{filename}` |
+| 文件资源 | `{protocol}{domain}/res/{dkey}/{filename}` |
+| 文件播放（视频/音频） | `{protocol}{domain}/stream-{dkey}` |
+| 文件夹分享页 | `{protocol}{domain}/share/{dkey}/` |
+| 文件夹内文件 | `{protocol}{domain}/share/{dkey}/{filename}` |
+
+注意
+- API Key 在直链页面的 API Tab 中查看和重置，与普通文件列表的登录 Token 完全不同，不能混用。
+- 上传 API 和直链管理 API 的端点不同，不能混用。
+- 使用直链 API 必须先绑定域名并获取 API Key。
+- `list_of_workspace` 和 `list_of_direct` 的返回字段名不同：前者用 `ukey`、`name`、`size`，后者用 `dkey`、`link`、`name`、`size`、`etime`。
