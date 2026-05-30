@@ -887,13 +887,6 @@ body.file-page .action-icon {
         color: var(--app-text-sub) !important;
     }
 
-    /* 速度/就绪标签在深色下更柔和 */
-    .hs-model,
-    .hs-model iconpark-icon,
-    .hs-model-title {
-        color: var(--app-text-sub) !important;
-    }
-
     /* 保持举报按钮红色 */
     #btn_report_file .action-icon-box {
         color: #f87171;
@@ -1019,12 +1012,6 @@ body.dark-mode .publisher-card .publisher-name-row .userinfo_card_pro {
 
 body.dark-mode .publisher-card .publisher-intro,
 body.dark-mode .publisher-card .userinfo_card_intro {
-    color: var(--app-text-sub) !important;
-}
-
-body.dark-mode .hs-model,
-body.dark-mode .hs-model iconpark-icon,
-body.dark-mode .hs-model-title {
     color: var(--app-text-sub) !important;
 }
 

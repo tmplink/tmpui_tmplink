@@ -317,7 +317,6 @@ const VX_ACCOUNT = {
             uid: TL.uid,
             sponsor: TL.sponsor,
             sponsor_time: TL.sponsor_time,
-            high_speed_channel: TL.high_speed_channel,
             user_group: TL.user_group,
             user_join: TL.user_join,
             user_acv: TL.user_acv,
@@ -407,26 +406,19 @@ const VX_ACCOUNT = {
                 return `<span style="color: var(--vx-text-muted)">${this.lang('opt_disable', '未启用')}</span>`;
             };
             
-            // High speed channel - check both boolean and string '1'
-            const hasHighSpeed = TL.high_speed_channel === true || TL.high_speed_channel === '1' || 
-                                 (TL.user_group && TL.user_group.highspeed);
             const hasBlue = (TL.user_group && TL.user_group.blue);
-            const sponsorText = this.lang('service_code_hs', '赞助者特权');
             
             // Stats elements
-            const highspeedEl = document.getElementById('vx-stat-highspeed');
             const blueEl = document.getElementById('vx-stat-blue');
             const dvdEl = document.getElementById('vx-stat-dvd');
             const filesellEl = document.getElementById('vx-stat-filesell');
             
             // If sponsor, all features are enabled
             if (TL.sponsor) {
-                if (highspeedEl) highspeedEl.innerHTML = formatStatus(true);
                 if (blueEl) blueEl.innerHTML = formatStatus(true);
                 if (dvdEl) dvdEl.innerHTML = formatStatus(true);
                 if (filesellEl) filesellEl.innerHTML = formatStatus(true);
             } else {
-                if (highspeedEl) highspeedEl.innerHTML = formatStatus(hasHighSpeed);
                 if (blueEl) blueEl.innerHTML = formatStatus(hasBlue);
                 if (dvdEl) dvdEl.innerHTML = formatStatus(false);
                 if (filesellEl) filesellEl.innerHTML = formatStatus(false);

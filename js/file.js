@@ -430,8 +430,6 @@ class FilePageController {
                 $('.user-login').hide();
             }
 
-            this.updateHighSpeedStatus('ready');
-
             const domain = (typeof TL !== 'undefined' && TL.site_domain) ? TL.site_domain : window.location.host;
             const shareUrl = `https://${domain}/f/${params.ukey}`;
 
@@ -510,10 +508,6 @@ class FilePageController {
                     return;
                 }
 
-                if (typeof TL !== 'undefined' && TL.sponsor) {
-                    this.updateHighSpeedStatus('enhanced');
-                }
-
                 if (typeof window.filePage !== 'undefined') {
                     const getDownloadUrl = async () => {
                         if (typeof TL !== 'undefined' && typeof TL.file_download_url === 'function') {
@@ -570,7 +564,6 @@ class FilePageController {
                         $('.play_copy_url').attr('onclick', `filePage.requestStream('${params.ukey}','copy')`);
                         $('.play_copy_url').show();
                     }
-                    $('#btn_highdownload').hide();
                 }
             }
 
@@ -585,10 +578,6 @@ class FilePageController {
                     localStorage.setItem('return_page', getCurrentURL());
                     app.open('/login');
                 }
-            });
-
-            $('#btn_highdownload').off('click').on('click', () => {
-                fileUI.openModal('upupModal');
             });
 
             $('#btn_report_file').off('click').on('click', () => {
@@ -683,32 +672,6 @@ class FilePageController {
             TL.ga(`Unavailable-[${params.ukey}]`);
         }
         return false;
-    }
-
-    updateHighSpeedStatus(status) {
-        const $title = $('.hs-model-title');
-        const currentText = $title.html();
-        if (status === 'ready') {
-            if (currentText !== app.languageData.hs_ready) {
-                $('.hs-model').fadeOut(() => {
-                    $title.html(app.languageData.hs_ready);
-                    $('.hs-model').fadeIn();
-                    $('.hs-model').addClass('text-blue');
-                });
-            }
-        }
-        if (status === 'enhanced') {
-            if (currentText !== app.languageData.hs_enhanced) {
-                $('.hs-model').fadeOut(() => {
-                    if (currentText === app.languageData.hs_ready) {
-                        $('.hs-model').removeClass('text-blue');
-                    }
-                    $title.html(app.languageData.hs_enhanced);
-                    $('.hs-model').fadeIn();
-                    $('.hs-model').addClass('text-green');
-                });
-            }
-        }
     }
 
     async copyDownloadOption(type, ukey, filename) {
