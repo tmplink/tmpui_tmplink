@@ -10,13 +10,9 @@ class buy {
     selected_dom_time = null
     selected_dom_payment = null
     payment_price = 0
-    
-    // 初次赞助特典相关
-    firstTimeSponsorAvailable = false
 
     init(op) {
         this.parent_op = op;
-        this.checkFirstTimeSponsor();
     }
 
     setAvaliablePayment() {
@@ -60,13 +56,6 @@ class buy {
         setTimeout(() => {
             $('#sponsorModal').modal('show');
         }, 100);
-    }
-
-    /**
-     * 当shopModal显示时重新检查初次赞助特典
-     */
-    onShopModalShow() {
-        this.checkFirstTimeSponsor();
     }
 
     /**
@@ -177,118 +166,4 @@ class buy {
         }, 'json');
     }
 
-    /**
-     * 检查用户是否可以购买初次赞助特典
-     */
-    async checkFirstTimeSponsor() {
-        if (!this.parent_op.api_token) {
-            return;
-        }
-
-        try {
-            const response = await fetch(this.parent_op.api_pay, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `action=limit_product_check&token=${this.parent_op.api_token}&code=FN01`
-            });
-
-            const data = await response.json();
-            if (data.status === 1) {
-                this.firstTimeSponsorAvailable = true;
-                this.showFirstTimeSponsorOption();
-            } else {
-                this.firstTimeSponsorAvailable = false;
-                this.hideFirstTimeSponsorOption();
-            }
-        } catch (error) {
-            console.error('检查初次赞助特典失败:', error);
-            this.firstTimeSponsorAvailable = false;
-            this.hideFirstTimeSponsorOption();
-        }
-    }
-
-    /**
-     * 显示初次赞助特典选项
-     */
-    showFirstTimeSponsorOption() {
-        const firstTimeSponsorOption = document.getElementById('firstTimeSponsorOption');
-        if (firstTimeSponsorOption) {
-            firstTimeSponsorOption.style.display = 'block';
-            this.updateFirstTimeSponsorPrice();
-        }
-        this.showShopBadge();
-    }
-
-    /**
-     * 更新初次赞助特典价格显示
-     */
-    updateFirstTimeSponsorPrice() {
-        const priceElement = document.getElementById('firstTimeSponsorPrice');
-        if (priceElement) {
-            if (this.parent_op.currentLanguage === 'cn' || this.parent_op.currentLanguage === 'jp') {
-                priceElement.textContent = '36';
-            } else {
-                priceElement.textContent = '6';
-            }
-        }
-    }
-
-    /**
-     * 当语言切换时，更新价格显示
-     */
-    onLanguageChange() {
-        if (this.firstTimeSponsorAvailable) {
-            this.updateFirstTimeSponsorPrice();
-        }
-    }
-
-    /**
-     * 隐藏初次赞助特典选项
-     */
-    hideFirstTimeSponsorOption() {
-        const firstTimeSponsorOption = document.getElementById('firstTimeSponsorOption');
-        if (firstTimeSponsorOption) {
-            firstTimeSponsorOption.style.display = 'none';
-        }
-        this.hideShopBadge();
-    }
-
-    /**
-     * 购买初次赞助特典
-     */
-    buyFirstTimeSponsor() {
-        if (!this.firstTimeSponsorAvailable) {
-            return;
-        }
-
-        this.buyWithPoints('addon', 'FN01', 1);
-    }
-
-    /**
-     * 显示商店红色提示点
-     */
-    showShopBadge() {
-        // 显示所有商店按钮的红色提示点
-        const badges = document.querySelectorAll('#shopBadge, #shopBadgeMobile');
-        badges.forEach(badge => {
-            if (badge) {
-                badge.style.display = 'inline-block';
-            }
-        });
-    }
-
-    /**
-     * 隐藏商店红色提示点
-     */
-    hideShopBadge() {
-        // 隐藏所有商店按钮的红色提示点
-        const badges = document.querySelectorAll('#shopBadge, #shopBadgeMobile');
-        badges.forEach(badge => {
-            if (badge) {
-                badge.style.display = 'none';
-            }
-        });
-    }
 }

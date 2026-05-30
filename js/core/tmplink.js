@@ -752,14 +752,6 @@ class tmplink {
                     }
                 }
 
-                // 检查初次赞助特典
-                this.buy.checkFirstTimeSponsor();
-
-                // 为shopModal添加show事件监听器
-                $('#shopModal').on('show.bs.modal', () => {
-                    this.buy.onShopModalShow();
-                });
-
             } else {
                 $('.user-unlogin').show();
                 localStorage.setItem('app_login', 0);

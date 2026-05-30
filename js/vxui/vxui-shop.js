@@ -33,9 +33,7 @@ window.VX_SHOP = {
             type: 'addon',
             items: {
                 '256GB': { code: '256GB', name: '256GB', monthlyPrice: 6, prices: { '1': 6, '12': 72 } },
-                '1TB': { code: '1TB', name: '1TB', monthlyPrice: 18, prices: { '1': 18, '12': 216 } },
-                '3TB': { code: '3TB', name: '3TB', monthlyPrice: 66, prices: { '1': 66, '12': 792 } },
-                '5TB': { code: '5TB', name: '5TB', monthlyPrice: 120, prices: { '1': 120, '12': 1440 } }
+                '1TB': { code: '1TB', name: '1TB', monthlyPrice: 18, prices: { '1': 18, '12': 216 } }
             }
         },
         direct: {
@@ -46,12 +44,6 @@ window.VX_SHOP = {
                 'D600': { code: 'D600', name: '600GB', size: '600GB', price: 60 },
                 'D1024': { code: 'D1024', name: '1TB', size: '1TB', price: 90 }
             }
-        },
-        firstTimeSponsor: {
-            type: 'addon',
-            code: 'FN01',
-            name: '初次赞助特典',
-            price: 36
         }
     },
     
@@ -178,9 +170,6 @@ window.VX_SHOP = {
             TL.tpl_lang();
         }
         
-        // Check first time sponsor availability
-        this.checkFirstTimeSponsor();
-        
         // Load user status
         this.loadUserStatus();
         
@@ -294,55 +283,6 @@ window.VX_SHOP = {
             this.loadOrders();
         } else if (tab === 'spaces') {
             this.loadSpaces();
-        }
-    },
-    
-    /**
-     * Check if first time sponsor is available
-     */
-    async checkFirstTimeSponsor() {
-        const apiUrl = (typeof TL !== 'undefined' && TL.api_pay) ? TL.api_pay : '/api_v2/pay';
-        const token = (typeof TL !== 'undefined' && TL.api_token) ? TL.api_token : '';
-        
-        if (!token) {
-            console.warn('[VX_SHOP] No token, skipping first time sponsor check');
-            return;
-        }
-        
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `action=limit_product_check&token=${token}&code=FN01`
-            });
-            
-            const data = await response.json();
-            
-            // API returns status=1 when available
-            if (data.status === 1) {
-                document.getElementById('vx-shop-special').style.display = 'block';
-                
-                // Update price based on language
-                const priceEl = document.getElementById('vx-first-sponsor-price');
-                const unitEl = priceEl.nextElementSibling;
-                const isCN = typeof TL !== 'undefined' && (TL.lang === 'cn' || TL.lang === 'jp');
-                
-                if (isCN) {
-                    priceEl.textContent = '36';
-                    unitEl.textContent = '元';
-                } else {
-                    priceEl.textContent = '6';
-                    unitEl.textContent = 'USD';
-                }
-            } else {
-                // Hide if not available
-                document.getElementById('vx-shop-special').style.display = 'none';
-            }
-        } catch (e) {
-            console.warn('[VX_SHOP] First time sponsor check failed:', e);
-            document.getElementById('vx-shop-special').style.display = 'none';
         }
     },
     
@@ -1301,39 +1241,6 @@ window.VX_SHOP = {
     },
     
     /**
-     * Buy first time sponsor special
-     */
-    async buyFirstTimeSponsor() {
-        this._purchaseModalActive = true;
-        this.purchaseType = 'addon';
-        this.selectedProduct = 'firstTimeSponsor';
-        this.selectedCode = 'FN01';
-        this.selectedTime = 1;
-        
-        const modalTitle = document.getElementById('vx-modal-title');
-        modalTitle.innerHTML = '<iconpark-icon name="circle-heart"></iconpark-icon> ' + 
-            this.t('first_time_sponsor_title', '初次赞助特典');
-        
-        const modalBody = document.getElementById('vx-modal-body');
-        modalBody.innerHTML = `
-            <p class="vx-modal-desc">${this.t('first_time_sponsor_description', '每位用户限一次！')}</p>
-            
-            <div style="text-align: center; padding: 20px 0;">
-                <div style="font-size: 48px; font-weight: 700; color: var(--vx-primary);">
-                    3600 ${this.t('vx_pay_point', '点数')}
-                </div>
-                <div style="color: var(--vx-text-secondary);">
-                    ${this.t('first_time_sponsor_subtitle', '第一次成为赞助者？一年仅需 3600 点数！')}
-                </div>
-            </div>
-        `;
-        
-        this.setPurchaseModalFooter();
-        this.updateModalPrice();
-        this.showModal();
-    },
-    
-    /**
      * Select product code
      */
     selectCode(code) {
@@ -1425,9 +1332,7 @@ window.VX_SHOP = {
         }
 
         let priceCNY = 0;
-        if (this.selectedProduct === 'firstTimeSponsor') {
-            priceCNY = 36;
-        } else if (this.selectedProduct === 'sponsor') {
+        if (this.selectedProduct === 'sponsor') {
             priceCNY = this.products.sponsor.prices[this.selectedTime.toString()] || 0;
         } else if (this.selectedProduct === 'storage') {
             const item = this.products.storage.items[this.selectedCode];
@@ -1527,10 +1432,6 @@ window.VX_SHOP = {
 
     restorePurchaseModalFromState(state) {
         if (!state) return;
-        if (state.selectedProduct === 'firstTimeSponsor') {
-            this.buyFirstTimeSponsor();
-            return;
-        }
         if (state.purchaseType === 'space') {
             this.openStorage(state.selectedCode || '256g');
             this.setSpaceQuantity(state.spaceQuantity || 1);
@@ -1775,11 +1676,7 @@ window.VX_SHOP = {
         let productId = '';
         let productTimes = 1;
 
-        if (this.selectedProduct === 'firstTimeSponsor') {
-            productType = 'ADDON';
-            productId = 'FN01';
-            productTimes = 1;
-        } else if (this.selectedProduct === 'sponsor') {
+        if (this.selectedProduct === 'sponsor') {
             productType = 'ADDON';
             productId = 'HS';
             productTimes = this.selectedTime;
@@ -1945,7 +1842,6 @@ window.VX_SHOP = {
      * Refresh shop data
      */
     refresh() {
-        this.checkFirstTimeSponsor();
         this.loadUserStatus();
         if (this.currentTab === 'spaces') {
             this.loadSpaces();
