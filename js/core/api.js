@@ -42,7 +42,6 @@ class tmplink_api {
     storage = 0;
     storage_used = 0;
     private_storage_used = 0;
-    high_speed_channel = false;
     isSponsor = false;
 
     uid = 0;
@@ -379,7 +378,6 @@ class tmplink_api {
                 this.storage_used = rsp.data.storage_used;
                 this.storage = rsp.data.storage;
                 this.private_storage_used = rsp.data.private_storage_used;
-                this.high_speed_channel = rsp.data.highspeed;
                 this.sponsor = rsp.data.sponsor;
                 this.sponsor_time = rsp.data.sponsor_time;
                 this.user_acv = rsp.data.acv;

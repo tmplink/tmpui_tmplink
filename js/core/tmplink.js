@@ -44,8 +44,6 @@ class tmplink {
 
     storage = 0
     storage_used = 0
-    high_speed_channel = false
-
     page_number = 1
     sort_by = 0
     sort_type = 0
@@ -713,7 +711,6 @@ class tmplink {
                 this.storage_used = rsp.data.storage_used;
                 this.storage = rsp.data.storage;
                 this.private_storage_used = rsp.data.private_storage_used;
-                this.high_speed_channel = rsp.data.highspeed;
                 this.sponsor = rsp.data.sponsor;
                 this.sponsor_time = rsp.data.sponsor_time;
                 this.user_acv = rsp.data.acv;
@@ -1005,33 +1002,6 @@ class tmplink {
         }, 'json');
     }
 
-    ui_hs_change(status) {
-        let st = $('.hs-model-title').html();
-        switch (status) {
-            case 'ready':
-                if (st !== app.languageData.hs_ready) {
-                    $('.hs-model').fadeOut(() => {
-                        $('.hs-model-title').html(app.languageData.hs_ready);
-                        $('.hs-model').fadeIn();
-                        $('.hs-model').addClass('text-blue');
-                    });
-                }
-                break;
-            case 'enhanced':
-                if (st !== app.languageData.hs_enhanced) {
-                    $('.hs-model').fadeOut(() => {
-                        if (st === app.languageData.hs_ready) {
-                            $('.hs-model').removeClass('text-blue');
-                        }
-                        $('.hs-model-title').html(app.languageData.hs_enhanced);
-                        $('.hs-model').fadeIn();
-                        $('.hs-model').addClass('text-green');
-                    });
-                }
-                break;
-        }
-    }
-
     file_details() {
         // Ensure the home logo is available on the file download page (especially on mobile)
         // so users can always navigate back to the homepage.
@@ -1173,7 +1143,6 @@ class tmplink {
                     // $('#download_msg').html('<iconpark-icon name="loader" class="fa-fw fa-spin"></iconpark-icon> ');
 
                     //修改按钮状态
-                    this.ui_hs_change('ready');
                     $('#file_download_btn').addClass('btn-success');
                     $('#file_download_btn').html(app.languageData.file_btn_download);
 
@@ -1207,10 +1176,6 @@ class tmplink {
 
                     //下载按钮绑定事件，触发下载
                     const downloadHandler = () => {
-                        if (this.sponsor) {
-                            this.ui_hs_change('enhanced');
-                        }
-
                         // 使用新的 filePage 控制器处理下载
                         // filePage 由 file.js 提供，负责 UI 和多线程下载
                         if (typeof window.filePage !== 'undefined') {
@@ -1321,8 +1286,6 @@ class tmplink {
                             $('.play_copy_url').attr('onclick', `TL.stream.request('${params.ukey}','copy')`);
                             $('.play_copy_url').show();
                         }
-                        //隐藏一个按钮，使排位保持平衡
-                        $('#btn_highdownload').hide();
                     }
 
                     // 复制链接按钮绑定已移动到HTML的onclick属性，使用copyFileUrl方法
@@ -1346,11 +1309,6 @@ class tmplink {
                             localStorage.setItem('return_page', getCurrentURL());
                             app.open('/login');
                         }
-                    });
-
-                    //下载提速按钮绑定
-                    $('#btn_highdownload').on('click', () => {
-                        $('#upupModal').modal('show');
                     });
 
                     //举报文件按钮绑定
@@ -1760,7 +1718,6 @@ class tmplink {
         //显示当前币种的价格列表
         $('#hs_price_of_' + type).show();
 
-        $('#highspeedModal').modal('show');
     }
 
     direct_buy_modal(type) {
@@ -1775,42 +1732,6 @@ class tmplink {
         $('#direct_quota_opt_' + type).show();
 
         $('#directQuotaModal').modal('show');
-    }
-
-    hs_download_file(filename) {
-        if (this.logined === 0) {
-            this.alert(app.languageData.status_need_login);
-            return false;
-        }
-        $('#btn_highdownload').addClass('disabled');
-        $('#btn_highdownload').html(app.languageData.file_btn_download_status0);
-        $.post(this.api_file, {
-            action: 'highspeed_check',
-            token: this.api_token
-        }, (rsp) => {
-            if (rsp.status == 0) {
-                $('#highspeedModal').modal('show');
-                $('#btn_highdownload').removeClass('disabled');
-                $('#btn_highdownload').html(app.languageData.file_btn_highdownload);
-            } else {
-                $.post(this.api_file, {
-                    action: 'download_check',
-                    token: this.api_token
-                }, (rsp) => {
-                    if (rsp.status == 1) {
-                        // location.href = $('#btn_download').attr('x-href');
-                        // $('#btn_highdownload').html(app.languageData.file_btn_download_status2);
-                        this.download.single_start($('.single_download_progress_bar').attr('data-href'), $('.single_download_progress_bar').attr('data-filename'));
-                    } else {
-                        $('#btn_highdownload').html(app.languageData.file_btn_download_status1);
-                    }
-                    setTimeout(() => {
-                        $('#btn_highdownload').removeClass('disabled');
-                        $('#btn_highdownload').html(app.languageData.file_btn_highdownload);
-                    }, 3000);
-                }, 'json');
-            }
-        }, 'json');
     }
 
     point_buy_legacy(productType, productId, productTimes) {
@@ -1857,17 +1778,6 @@ class tmplink {
         }
 
         this.point_buy_legacy('direct', code, time);
-    }
-
-    hs_download_buy() {
-        if (this.logined === 0) {
-            this.alert(this.app.languageData.status_need_login);
-            return false;
-        }
-
-        let time = $('#highspeed_time').val();
-        let code = 'HS';
-        this.point_buy_legacy('addon', code, time);
     }
 
     storage_buy() {

@@ -301,10 +301,6 @@ body.file-page #footer .container {
     color: var(--file-danger);
 }
 
-.hs-model-title {
-    color: var(--file-accent);
-}
-
 /* Alerts */
 .file-alert {
     background: #fef2f2;

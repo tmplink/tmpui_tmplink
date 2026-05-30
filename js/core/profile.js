@@ -135,13 +135,6 @@ class profile {
         }
         $('.user_group_storage').html(this.parent_op.user_group.storage+' GB');
 
-        if(this.parent_op.user_group_highspeed==='1'){
-            $('.user_group_highspeed').html(app.languageData.opt_enable);
-            $('.user_group_highspeed').addClass('text-green');
-        }else{
-            $('.user_group_highspeed').html(app.languageData.opt_disable);
-            $('.user_group_highspeed').addClass('text-red');
-        }
         if(this.parent_op.user_group_blue){
             $('.user_group_blue').html(app.languageData.opt_enable);
             $('.user_group_blue').addClass('text-green');
@@ -157,10 +150,8 @@ class profile {
             $('.user_group_dvd').addClass('text-red');
         }
 
-        //如果是赞助者，需要标记已启用高速通道和蓝标
+        //如果是赞助者，需要标记已启用蓝标
         if(this.parent_op.sponsor){
-            $('.user_group_highspeed').html(app.languageData.opt_enable);
-            $('.user_group_highspeed').addClass('text-green');
             $('.user_group_blue').html(app.languageData.opt_enable);
             $('.user_group_blue').addClass('text-green');
         }

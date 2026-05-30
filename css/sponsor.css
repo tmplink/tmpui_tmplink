@@ -941,11 +941,6 @@ body.file-page.sponsor-mode.dark-mode .file-meta-item iconpark-icon {
     fill: #f6c843 !important;
 }
 
-body.file-page.dark-mode.sponsor-mode .hs-model-title,
-body.file-page.sponsor-mode.dark-mode .hs-model-title {
-    color: #f6c843;
-}
-
 body.file-page.dark-mode.sponsor-mode .file-icon,
 body.file-page.sponsor-mode.dark-mode .file-icon,
 body.file-page.dark-mode.sponsor-mode .file-icon-wrapper,
@@ -966,10 +961,6 @@ body.file-page.sponsor-mode.dark-mode .file-icon-wrapper iconpark-icon {
     body.file-page.sponsor-mode .file-meta-item iconpark-icon {
         color: #f6c843 !important;
         fill: #f6c843 !important;
-    }
-
-    body.file-page.sponsor-mode .hs-model-title {
-        color: #f6c843;
     }
 
     body.file-page.sponsor-mode .file-icon,
