@@ -42,6 +42,14 @@ var VX_UPLOADER = VX_UPLOADER || {
     _indicatorTimer: null,
     _titleSuffix: /\s*\[↑[^\]]*\]$/,
 
+    // 服务器预检测 & 健康检查
+    serverLatency: {},        // { url: latency_ms } 服务器延迟记录
+    serverFailCount: {},      // { url: fail_count } 连续失败计数
+    serverProbeTimeout: 5000, // 探测请求超时 (ms)
+    serverMaxFailBeforeSwitch: 3, // 连续失败 N 次后自动切换服务器
+    _healthCheckTimer: null,  // 长时上传健康检查定时器
+    _healthCheckInterval: 30000, // 健康检查间隔 (ms)
+
     /**
      * 初始化上传模块
      */
@@ -178,17 +186,19 @@ var VX_UPLOADER = VX_UPLOADER || {
                     if (rsp.data && rsp.data.servers) {
                         this.servers = rsp.data.servers;
                         
-                        // 验证存储的服务器是否有效
+                        // 验证存储的服务器是否有效，并尝试使用最优服务器
                         if (this.upload_server) {
                             const valid = this.servers.some(s => s.url === this.upload_server);
                             if (!valid && this.servers.length > 0) {
-                                this.upload_server = this.servers[0].url;
+                                const best = this.selectBestServer();
+                                this.upload_server = best || this.servers[0].url;
                             }
                         } else if (this.servers.length > 0) {
-                            this.upload_server = this.servers[0].url;
+                            const best = this.selectBestServer();
+                            this.upload_server = best || this.servers[0].url;
                         }
                         
-                        // 更新下拉框
+                        // 更新下拉框（会触发 pingServer 探测）
                         this.updateServerSelect();
                     }
                 } else {
@@ -903,6 +913,11 @@ var VX_UPLOADER = VX_UPLOADER || {
             this.uploading[task.id] = task;
             this.startUpload(task);
         }
+        
+        // 有活跃上传时启动健康检查
+        if (this.active_count > 0) {
+            this.startHealthCheck();
+        }
     },
 
     /**
@@ -1018,8 +1033,14 @@ var VX_UPLOADER = VX_UPLOADER || {
     
     /**
      * 实际执行分片上传
+     * 在上传前先探测端点可达性，失败时自动切换服务器
      */
     doUploadSlice(task) {
+        // 如果任务标记了服务器已切换，使用当前最新服务器
+        if (task._serverSwitched) {
+            task._serverSwitched = false;
+        }
+        
         const server = this.upload_server || (this.servers.length > 0 ? this.servers[0].url : null);
         if (!server) {
             this.uploadFailed(task, '无可用服务器');
@@ -1030,14 +1051,40 @@ var VX_UPLOADER = VX_UPLOADER || {
         const sliceSize = task.slice_size || this.slice_size;
         const uptoken = CryptoJS.SHA1(this.getUid() + task.filename + task.file.size + sliceSize).toString();
         
-        // 初始化分片跟踪
-        task.slices = {
-            total: Math.ceil(task.file.size / sliceSize),
-            uploaded: [],
-            current: 0
-        };
+        // 初始化分片跟踪（仅首次）
+        if (!task.slices) {
+            task.slices = {
+                total: Math.ceil(task.file.size / sliceSize),
+                uploaded: [],
+                current: 0
+            };
+        }
         
-        this.prepareSlice(api, task, uptoken);
+        // 记录当前任务使用的服务器，用于失败时切换
+        task._currentServer = server;
+        
+        // 上传前快速探测端点可达性
+        this.probeUploadEndpoint(server).then(result => {
+            if (task.status === 'cancelled') return;
+            
+            if (result.reachable) {
+                // 端点可达，直接开始上传
+                this.prepareSlice(api, task, uptoken);
+            } else {
+                // 端点不可达，尝试切换服务器
+                console.warn(`[VX_UPLOADER] Upload endpoint ${api} unreachable, trying alternative server...`);
+                const newServer = this.switchToNextServer(server);
+                if (newServer) {
+                    // 使用新服务器重试
+                    const newApi = newServer + '/app/upload_slice';
+                    task._currentServer = newServer;
+                    this.prepareSlice(newApi, task, uptoken);
+                } else {
+                    // 所有服务器都不可用，取消全部上传队列
+                    this.cancelAllUploads('所有上传服务器当前不可用，请刷新页面后再试。');
+                }
+            }
+        });
     },
 
     /**
@@ -1105,7 +1152,32 @@ var VX_UPLOADER = VX_UPLOADER || {
         }, 'json').fail(() => {
             // 检查任务是否已取消
             if (task.status === 'cancelled') return;
-            // 重试
+            
+            // 增加当前服务器的连续失败计数
+            const currentServer = task._currentServer || this.upload_server;
+            if (!this.serverFailCount[currentServer]) {
+                this.serverFailCount[currentServer] = 0;
+            }
+            this.serverFailCount[currentServer]++;
+            
+            console.warn(`[VX_UPLOADER] prepareSlice failed for server ${currentServer} (fail count: ${this.serverFailCount[currentServer]})`);
+            
+            // 连续失败超过阈值，尝试切换服务器
+            if (this.serverFailCount[currentServer] >= this.serverMaxFailBeforeSwitch) {
+                const newServer = this.switchToNextServer(currentServer);
+                if (newServer) {
+                    const newApi = newServer + '/app/upload_slice';
+                    task._currentServer = newServer;
+                    console.log(`[VX_UPLOADER] Switched to ${newServer}, retrying prepareSlice...`);
+                    setTimeout(() => this.prepareSlice(newApi, task, uptoken), 1000);
+                    return;
+                }
+                // 无备用服务器，所有服务器都已不可用
+                this.cancelAllUploads('所有上传服务器当前不可用，请刷新页面后再试。');
+                return;
+            }
+            
+            // 未达阈值，继续在当前服务器重试
             setTimeout(() => this.prepareSlice(api, task, uptoken), 3000);
         });
     },
@@ -1169,6 +1241,32 @@ var VX_UPLOADER = VX_UPLOADER || {
         xhr.onerror = () => {
             task._xhr = null;
             if (task.status === 'cancelled') return;
+            
+            // 增加当前服务器的连续失败计数
+            const currentServer = task._currentServer || this.upload_server;
+            if (!this.serverFailCount[currentServer]) {
+                this.serverFailCount[currentServer] = 0;
+            }
+            this.serverFailCount[currentServer]++;
+            
+            console.warn(`[VX_UPLOADER] uploadSliceData XHR error for server ${currentServer} (fail count: ${this.serverFailCount[currentServer]})`);
+            
+            // 连续失败超过阈值，尝试切换服务器
+            if (this.serverFailCount[currentServer] >= this.serverMaxFailBeforeSwitch) {
+                const newServer = this.switchToNextServer(currentServer);
+                if (newServer) {
+                    const newApi = newServer + '/app/upload_slice';
+                    task._currentServer = newServer;
+                    console.log(`[VX_UPLOADER] Switched to ${newServer}, retrying uploadSliceData...`);
+                    setTimeout(() => this.prepareSlice(newApi, task, uptoken), 1000);
+                    return;
+                }
+                // 无备用服务器，所有服务器都已不可用
+                this.cancelAllUploads('所有上传服务器当前不可用，请刷新页面后再试。');
+                return;
+            }
+            
+            // 未达阈值，继续在当前服务器重试
             setTimeout(() => this.prepareSlice(api, task, uptoken), 3000);
         };
         
@@ -1769,52 +1867,295 @@ var VX_UPLOADER = VX_UPLOADER || {
 
     /**
      * 服务器测速 (基于 HTTP 发送无缓存的探测请求计算延迟)
+     * 探测实际上传端点 /app/upload_slice，并将延迟结果存储到 serverLatency
      */
     pingServer(url, elementId) {
         const el = document.getElementById(elementId);
-        if (!el) return;
         
-        // 测速URL追加时间戳避免缓存
-        let targetUrl = url;
-        if (!targetUrl.includes('?')) {
-            targetUrl += '?_ping=' + Date.now();
+        // 探测实际上传端点而非根 URL
+        let probeUrl = url.replace(/\/+$/, '') + '/app/upload_slice';
+        // 追加时间戳避免缓存
+        if (!probeUrl.includes('?')) {
+            probeUrl += '?_probe=' + Date.now();
         } else {
-            targetUrl += '&_ping=' + Date.now();
+            probeUrl += '&_probe=' + Date.now();
         }
 
         const start = performance.now();
         
-        fetch(targetUrl, { 
-            method: 'GET', 
+        // 使用 AbortController 实现超时
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), this.serverProbeTimeout);
+        
+        fetch(probeUrl, {
+            method: 'HEAD',
             mode: 'no-cors',
-            cache: 'no-store'
+            cache: 'no-store',
+            signal: controller.signal
         })
         .then(() => {
-            const elNode = document.getElementById(elementId);
-            const dotNode = document.getElementById(elementId + '-dot');
-            if (!elNode) return;
+            clearTimeout(timeoutId);
             const time = Math.round(performance.now() - start);
-            elNode.textContent = time + ' ms';
-            if (dotNode) dotNode.style.display = 'inline-block';
-            if (time < 150) {
-                if (dotNode) dotNode.style.backgroundColor = 'var(--vx-success, #10b981)';
-            } else if (time < 300) {
-                if (dotNode) dotNode.style.backgroundColor = 'var(--vx-warning, #f59e0b)';
-            } else {
-                if (dotNode) dotNode.style.backgroundColor = 'var(--vx-danger, #ef4444)';
+            // 存储延迟结果，用于服务器优选
+            this.serverLatency[url] = time;
+            // 重置失败计数
+            this.serverFailCount[url] = 0;
+            
+            if (el) {
+                const dotNode = document.getElementById(elementId + '-dot');
+                el.textContent = time + ' ms';
+                if (dotNode) dotNode.style.display = 'inline-block';
+                if (time < 150) {
+                    if (dotNode) dotNode.style.backgroundColor = 'var(--vx-success, #10b981)';
+                } else if (time < 300) {
+                    if (dotNode) dotNode.style.backgroundColor = 'var(--vx-warning, #f59e0b)';
+                } else {
+                    if (dotNode) dotNode.style.backgroundColor = 'var(--vx-danger, #ef4444)';
+                }
             }
         })
         .catch(() => {
-            const elNode = document.getElementById(elementId);
-            const dotNode = document.getElementById(elementId + '-dot');
-            if (elNode) {
-                elNode.textContent = '超时';
+            clearTimeout(timeoutId);
+            // 标记为不可达（延迟设为极大值）
+            this.serverLatency[url] = 999999;
+            
+            if (el) {
+                const dotNode = document.getElementById(elementId + '-dot');
+                el.textContent = '超时';
                 if (dotNode) {
                     dotNode.style.display = 'inline-block';
                     dotNode.style.backgroundColor = 'var(--vx-danger, #ef4444)';
                 }
             }
         });
+    },
+
+    /**
+     * 上传端点快速探测 (HEAD 请求，带超时)
+     * 返回 Promise<boolean>，用于在上传前检测 URL 是否可达
+     * @param {string} serverUrl - 服务器根 URL
+     * @returns {Promise<{reachable: boolean, latency: number}>}
+     */
+    probeUploadEndpoint(serverUrl) {
+        const probeUrl = serverUrl.replace(/\/+$/, '') + '/app/upload_slice';
+        const urlWithCache = probeUrl.includes('?')
+            ? probeUrl + '&_probe=' + Date.now()
+            : probeUrl + '?_probe=' + Date.now();
+        
+        const start = performance.now();
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), this.serverProbeTimeout);
+        
+        return fetch(urlWithCache, {
+            method: 'HEAD',
+            mode: 'no-cors',
+            cache: 'no-store',
+            signal: controller.signal
+        })
+        .then(() => {
+            clearTimeout(timeoutId);
+            const latency = Math.round(performance.now() - start);
+            this.serverLatency[serverUrl] = latency;
+            this.serverFailCount[serverUrl] = 0;
+            return { reachable: true, latency: latency };
+        })
+        .catch(() => {
+            clearTimeout(timeoutId);
+            this.serverLatency[serverUrl] = 999999;
+            return { reachable: false, latency: 999999 };
+        });
+    },
+
+    /**
+     * 根据延迟记录选择最优服务器
+     * 优先选择延迟最低且可达的服务器
+     * @returns {string|null} 最优服务器 URL
+     */
+    selectBestServer() {
+        if (!this.servers || this.servers.length === 0) return null;
+        
+        let bestUrl = null;
+        let bestLatency = Infinity;
+        
+        for (const s of this.servers) {
+            const url = s.url;
+            const latency = this.serverLatency[url];
+            
+            // 未探测过的服务器优先于已知超时的服务器
+            if (latency === undefined) {
+                if (bestUrl === null) {
+                    bestUrl = url;
+                }
+                continue;
+            }
+            
+            // 超时/不可达的跳过
+            if (latency >= 999999) continue;
+            
+            // 选择延迟最低的
+            if (latency < bestLatency) {
+                bestLatency = latency;
+                bestUrl = url;
+            }
+        }
+        
+        return bestUrl || (this.servers.length > 0 ? this.servers[0].url : null);
+    },
+
+    /**
+     * 切换到下一个可用服务器
+     * 排除当前失败的服务器，从剩余服务器中选择延迟最低的
+     * @param {string} failedServerUrl - 当前失败的服务器 URL
+     * @returns {string|null} 新的服务器 URL，无可切换则返回 null
+     */
+    switchToNextServer(failedServerUrl) {
+        if (!this.servers || this.servers.length === 0) return null;
+        
+        // 增加失败计数
+        if (!this.serverFailCount[failedServerUrl]) {
+            this.serverFailCount[failedServerUrl] = 0;
+        }
+        this.serverFailCount[failedServerUrl]++;
+        
+        console.log(`[VX_UPLOADER] Server ${failedServerUrl} failed (count: ${this.serverFailCount[failedServerUrl]})`);
+        
+        // 从候选列表中排除当前失败的服务器
+        const candidates = this.servers.filter(s => s.url !== failedServerUrl);
+        if (candidates.length === 0) {
+            console.warn('[VX_UPLOADER] No alternative servers available');
+            return null;
+        }
+        
+        // 从候选中选择延迟最低的
+        let bestUrl = null;
+        let bestLatency = Infinity;
+        
+        for (const s of candidates) {
+            const latency = this.serverLatency[s.url];
+            if (latency === undefined) {
+                if (bestUrl === null) bestUrl = s.url;
+                continue;
+            }
+            if (latency >= 999999) continue;
+            if (latency < bestLatency) {
+                bestLatency = latency;
+                bestUrl = s.url;
+            }
+        }
+        
+        const nextUrl = bestUrl || candidates[0].url;
+        console.log(`[VX_UPLOADER] Switching to server: ${nextUrl}`);
+        
+        // 更新当前服务器
+        this.upload_server = nextUrl;
+        localStorage.setItem('app_upload_server', nextUrl);
+        this.syncServerTabState();
+        
+        return nextUrl;
+    },
+
+    /**
+     * 启动长时上传健康检查
+     * 在上传过程中定期检查当前服务器是否仍然健康
+     */
+    startHealthCheck() {
+        this.stopHealthCheck();
+        console.log('[VX_UPLOADER] Starting health check timer');
+        this._healthCheckTimer = setInterval(() => {
+            if (!this.hasActiveUploads()) {
+                this.stopHealthCheck();
+                return;
+            }
+            const currentServer = this.upload_server;
+            if (!currentServer) return;
+            
+            this.probeUploadEndpoint(currentServer).then(result => {
+                if (!result.reachable && this.hasActiveUploads()) {
+                    console.warn(`[VX_UPLOADER] Health check: server ${currentServer} unreachable, switching...`);
+                    const newServer = this.switchToNextServer(currentServer);
+                    if (newServer) {
+                        // 标记所有正在上传任务，使其在下次 prepareSlice 时使用新服务器
+                        for (const id in this.uploading) {
+                            const task = this.uploading[id];
+                            if (task && task.status === 'uploading') {
+                                task._serverSwitched = true;
+                            }
+                        }
+                    } else {
+                        // 所有服务器都不可用，取消全部上传
+                        this.cancelAllUploads('所有上传服务器当前不可用，请刷新页面后再试。');
+                    }
+                }
+            });
+        }, this._healthCheckInterval);
+    },
+
+    /**
+     * 停止健康检查
+     */
+    stopHealthCheck() {
+        if (this._healthCheckTimer) {
+            clearInterval(this._healthCheckTimer);
+            this._healthCheckTimer = null;
+            console.log('[VX_UPLOADER] Health check timer stopped');
+        }
+    },
+
+    /**
+     * 检查是否所有已知服务器都已不可达
+     * @returns {boolean}
+     */
+    areAllServersUnreachable() {
+        if (!this.servers || this.servers.length === 0) return true;
+        return this.servers.every(s => {
+            const latency = this.serverLatency[s.url];
+            return latency !== undefined && latency >= 999999;
+        });
+    },
+
+    /**
+     * 取消所有上传任务（队列 + 正在上传），并弹窗提示用户
+     * 当所有服务器都不可用时调用
+     */
+    cancelAllUploads(reason) {
+        console.warn(`[VX_UPLOADER] Cancelling all uploads: ${reason}`);
+
+        // 取消所有正在上传的任务
+        for (const id in this.uploading) {
+            const task = this.uploading[id];
+            if (task) {
+                task.status = 'cancelled';
+                // 中断正在进行的 XHR 请求
+                if (task._xhr) {
+                    try { task._xhr.abort(); } catch (e) { /* ignore */ }
+                    task._xhr = null;
+                }
+                this.removeUploadRow(id);
+            }
+        }
+        // 清空 uploading 对象
+        this.uploading = {};
+        this.active_count = 0;
+
+        // 取消队列中等待的任务
+        for (const task of this.upload_queue) {
+            this.removeUploadRow(task.id);
+        }
+        this.upload_queue = [];
+
+        // 停止健康检查
+        this.stopHealthCheck();
+
+        // 更新指示器
+        this._updateUploadIndicators();
+
+        // 弹窗提示
+        const msg = reason || '所有上传服务器当前不可用，请刷新页面后再试。';
+        if (typeof VXUI !== 'undefined' && typeof VXUI.toastError === 'function') {
+            VXUI.toastError(msg, 0); // duration=0 表示不自动消失
+        } else {
+            alert(msg);
+        }
     },
 
     getServerBadge(label, url) {
