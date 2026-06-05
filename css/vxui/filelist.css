@@ -1688,9 +1688,27 @@ body.vx-gs-no-scroll {
 }
 
 .vx-upload-row.failed {
-    background: var(--vx-surface);
+    background: rgba(239, 68, 68, 0.08);
     border-left-color: var(--vx-danger);
     box-shadow: none;
+}
+
+/* 重试中状态：橙色警告背景 */
+.vx-upload-row.retrying {
+    background: rgba(245, 158, 11, 0.06);
+    border-left-color: var(--vx-warning, #f59e0b);
+}
+
+.vx-upload-row.retrying .vx-upload-progress-bar {
+    background: linear-gradient(90deg, var(--vx-warning, #f59e0b), #fbbf24);
+}
+
+.vx-upload-row.retrying .vx-upload-progress-percent {
+    color: var(--vx-warning, #f59e0b);
+}
+
+.vx-upload-row.retrying .vx-upload-status-text {
+    color: var(--vx-warning, #f59e0b);
 }
 
 /* Upload progress cell - Desktop */
@@ -1766,6 +1784,22 @@ body.vx-gs-no-scroll {
     text-overflow: ellipsis;
     flex: 1;
     text-align: right;
+}
+
+/* 异常状态下进度文本：红色，允许换行显示详细信息 */
+.vx-upload-row.failed .vx-upload-progress-text,
+.vx-upload-row.retrying .vx-upload-progress-text {
+    color: var(--vx-danger, #ef4444);
+    white-space: normal;
+    text-align: left;
+    line-height: 1.4;
+}
+
+/* 异常状态下状态文字：红色 */
+.vx-upload-row.failed .vx-upload-status-text,
+.vx-upload-row.retrying .vx-upload-status-text {
+    color: var(--vx-danger, #ef4444);
+    font-weight: 600;
 }
 
 /* Upload filename with validity badge inline */

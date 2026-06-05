@@ -1005,6 +1005,9 @@ var VX_UPLOADER = VX_UPLOADER || {
                 captcha: captcha
             }, (rsp) => {
                 if (task.status === 'cancelled') return;
+                // 请求成功，清除重试状态
+                task._isRetrying = false;
+                task._retryStatusText = '';
                 if (rsp.status === 1) {
                     task.utoken = rsp.data.utoken;
                     this.uploadSlice(task);
@@ -1013,7 +1016,12 @@ var VX_UPLOADER = VX_UPLOADER || {
                 }
             }, 'json').fail(() => {
                 if (task.status === 'cancelled') return;
-                this.uploadFailed(task, '网络错误');
+                // 使用统一的错误处理进行重试，而非直接标记失败
+                console.warn(`[VX_UPLOADER] requestUpload failed for ${task.filename}, will retry...`);
+                this.handleUploadError(task, this.upload_server || 'unknown', () => {
+                    // 重试：重新发起 requestUpload
+                    this.requestUpload(task);
+                });
             });
         });
     },
@@ -1071,18 +1079,20 @@ var VX_UPLOADER = VX_UPLOADER || {
                 // 端点可达，直接开始上传
                 this.prepareSlice(api, task, uptoken);
             } else {
-                // 端点不可达，尝试切换服务器
-                console.warn(`[VX_UPLOADER] Upload endpoint ${api} unreachable, trying alternative server...`);
-                const newServer = this.switchToNextServer(server);
-                if (newServer) {
-                    // 使用新服务器重试
-                    const newApi = newServer + '/app/upload_slice';
-                    task._currentServer = newServer;
-                    this.prepareSlice(newApi, task, uptoken);
-                } else {
-                    // 所有服务器都不可用，取消全部上传队列
-                    this.cancelAllUploads('所有上传服务器当前不可用，请刷新页面后再试。');
+                // 端点不可达，使用统一的错误处理进行重试和切换
+                console.warn(`[VX_UPLOADER] Upload endpoint ${api} unreachable, will retry with alternative server...`);
+                
+                // 增加失败计数
+                if (!this.serverFailCount[server]) {
+                    this.serverFailCount[server] = 0;
                 }
+                this.serverFailCount[server]++;
+                
+                this.handleUploadError(task, server, () => {
+                    const newServer = task._currentServer || this.upload_server;
+                    const newApi = newServer + '/app/upload_slice';
+                    this.prepareSlice(newApi, task, uptoken);
+                });
             }
         });
     },
@@ -1109,6 +1119,11 @@ var VX_UPLOADER = VX_UPLOADER || {
             mr_id: task.mrid,
             model: task.model
         }, (rsp) => {
+            // 请求成功，清除重试状态
+            task._isRetrying = false;
+            task._retryStatusText = '';
+            task._serverSwitched = false;
+            
             switch (rsp.status) {
                 case 1: // 上传完成（秒传）
                 case 6:
@@ -1150,11 +1165,11 @@ var VX_UPLOADER = VX_UPLOADER || {
                     this.uploadFailed(task, `未知错误: ${rsp.status}`);
             }
         }, 'json').fail(() => {
-            // 检查任务是否已取消
             if (task.status === 'cancelled') return;
             
-            // 增加当前服务器的连续失败计数
             const currentServer = task._currentServer || this.upload_server;
+            
+            // 增加当前服务器的连续失败计数（用于全局统计）
             if (!this.serverFailCount[currentServer]) {
                 this.serverFailCount[currentServer] = 0;
             }
@@ -1162,23 +1177,12 @@ var VX_UPLOADER = VX_UPLOADER || {
             
             console.warn(`[VX_UPLOADER] prepareSlice failed for server ${currentServer} (fail count: ${this.serverFailCount[currentServer]})`);
             
-            // 连续失败超过阈值，尝试切换服务器
-            if (this.serverFailCount[currentServer] >= this.serverMaxFailBeforeSwitch) {
-                const newServer = this.switchToNextServer(currentServer);
-                if (newServer) {
-                    const newApi = newServer + '/app/upload_slice';
-                    task._currentServer = newServer;
-                    console.log(`[VX_UPLOADER] Switched to ${newServer}, retrying prepareSlice...`);
-                    setTimeout(() => this.prepareSlice(newApi, task, uptoken), 1000);
-                    return;
-                }
-                // 无备用服务器，所有服务器都已不可用
-                this.cancelAllUploads('所有上传服务器当前不可用，请刷新页面后再试。');
-                return;
-            }
-            
-            // 未达阈值，继续在当前服务器重试
-            setTimeout(() => this.prepareSlice(api, task, uptoken), 3000);
+            // 使用统一的错误处理：先重试3次，再切换服务器，循环不放弃
+            this.handleUploadError(task, currentServer, () => {
+                const newServer = task._currentServer || this.upload_server;
+                const newApi = newServer + '/app/upload_slice';
+                this.prepareSlice(newApi, task, uptoken);
+            });
         });
     },
 
@@ -1242,8 +1246,9 @@ var VX_UPLOADER = VX_UPLOADER || {
             task._xhr = null;
             if (task.status === 'cancelled') return;
             
-            // 增加当前服务器的连续失败计数
             const currentServer = task._currentServer || this.upload_server;
+            
+            // 增加当前服务器的连续失败计数（用于全局统计）
             if (!this.serverFailCount[currentServer]) {
                 this.serverFailCount[currentServer] = 0;
             }
@@ -1251,23 +1256,12 @@ var VX_UPLOADER = VX_UPLOADER || {
             
             console.warn(`[VX_UPLOADER] uploadSliceData XHR error for server ${currentServer} (fail count: ${this.serverFailCount[currentServer]})`);
             
-            // 连续失败超过阈值，尝试切换服务器
-            if (this.serverFailCount[currentServer] >= this.serverMaxFailBeforeSwitch) {
-                const newServer = this.switchToNextServer(currentServer);
-                if (newServer) {
-                    const newApi = newServer + '/app/upload_slice';
-                    task._currentServer = newServer;
-                    console.log(`[VX_UPLOADER] Switched to ${newServer}, retrying uploadSliceData...`);
-                    setTimeout(() => this.prepareSlice(newApi, task, uptoken), 1000);
-                    return;
-                }
-                // 无备用服务器，所有服务器都已不可用
-                this.cancelAllUploads('所有上传服务器当前不可用，请刷新页面后再试。');
-                return;
-            }
-            
-            // 未达阈值，继续在当前服务器重试
-            setTimeout(() => this.prepareSlice(api, task, uptoken), 3000);
+            // 使用统一的错误处理：先重试3次，再切换服务器，循环不放弃
+            this.handleUploadError(task, currentServer, () => {
+                const newServer = task._currentServer || this.upload_server;
+                const newApi = newServer + '/app/upload_slice';
+                this.prepareSlice(newApi, task, uptoken);
+            });
         };
         
         xhr.open('POST', api);
@@ -1678,49 +1672,106 @@ var VX_UPLOADER = VX_UPLOADER || {
         if (!row) return;
         
         const progressBar = row.querySelector('.vx-upload-progress-bar');
+        const progressWrap = row.querySelector('.vx-upload-progress-wrap');
         const progressText = row.querySelector('.vx-upload-progress-text');
         const progressPercent = row.querySelector('.vx-upload-progress-percent');
+        const progressInfo = row.querySelector('.vx-upload-progress-info');
         const statusText = row.querySelector('.vx-upload-status-text');
         
-        if (progressBar) {
-            progressBar.style.width = `${task.progress}%`;
-        }
+        const isError = task._isRetrying || task.status === 'failed';
 
-        if (progressPercent) {
-            if (task.status === 'completed') {
-                progressPercent.innerHTML = '<iconpark-icon name="check" style="font-size: 14px;"></iconpark-icon>';
-            } else if (task.status === 'failed') {
-                progressPercent.innerHTML = '<iconpark-icon name="xmark" style="font-size: 14px;"></iconpark-icon>';
-            } else {
-                progressPercent.textContent = `${task.progress}%`;
+        if (isError) {
+            // 异常状态：隐藏进度条和百分比，进度区域显示详细错误信息
+            if (progressWrap) progressWrap.style.display = 'none';
+            if (progressPercent) progressPercent.style.display = 'none';
+            
+            if (progressText) {
+                if (task.status === 'failed') {
+                    progressText.textContent = task.error || '上传失败';
+                } else if (task._isRetrying) {
+                    // 构建详细的错误处理描述
+                    const retryCount = task._retryCount || 0;
+                    const maxRetry = this.serverMaxFailBeforeSwitch;
+                    const round = task._serverRetryRound || 0;
+                    
+                    if (task._serverSwitched && task._retryStatusText && task._retryStatusText.includes('切换')) {
+                        progressText.textContent = `正在切换至备用线路...`;
+                    } else if (task._retryStatusText && task._retryStatusText.includes('探测')) {
+                        progressText.textContent = `正在探测所有服务器可用性...`;
+                    } else if (task._retryStatusText && task._retryStatusText.includes('等待')) {
+                        progressText.textContent = `所有服务器暂不可达，${5}秒后重新探测...`;
+                    } else {
+                        progressText.textContent = `请求失败，正在重试 (${retryCount}/${maxRetry})`;
+                    }
+                }
+                progressText.style.color = 'var(--vx-danger, #ef4444)';
             }
-        }
-        
-        if (progressText) {
-            if (task.status === 'preparing' && task.sha1_progress !== undefined) {
-                progressText.textContent = `校验中... ${task.sha1_progress}%`;
-            } else if (task.status === 'uploading') {
-                const uploaded = this.formatSize(task.uploaded || 0);
-                const total = this.formatSize(task.file.size);
-                progressText.textContent = `${uploaded} / ${total}`;
-            } else if (task.status === 'completed') {
-                progressText.textContent = `已完成 · ${this.formatSize(task.file.size)}`;
-            } else if (task.status === 'failed') {
-                progressText.textContent = task.error || '上传失败';
-            } else if (task.status === 'merging') {
-                progressText.textContent = '正在合并文件...';
-            } else {
-                progressText.textContent = this.getStatusText(task.status);
+            
+            // 状态列显示简化状态词
+            if (statusText) {
+                if (task.status === 'failed') {
+                    statusText.textContent = '异常';
+                } else if (task._isRetrying) {
+                    if (task._retryStatusText && task._retryStatusText.includes('切换')) {
+                        statusText.textContent = '换线';
+                    } else if (task._retryStatusText && (task._retryStatusText.includes('探测') || task._retryStatusText.includes('等待'))) {
+                        statusText.textContent = '探测';
+                    } else {
+                        statusText.textContent = '重试中';
+                    }
+                }
+                statusText.style.color = 'var(--vx-danger, #ef4444)';
             }
-        }
-        
-        if (statusText) {
-            statusText.textContent = this.getStatusText(task.status);
+        } else {
+            // 正常状态：显示进度条和百分比
+            if (progressWrap) progressWrap.style.display = '';
+            if (progressPercent) progressPercent.style.display = '';
+            if (progressText) progressText.style.color = '';
+            if (statusText) statusText.style.color = '';
+            
+            if (progressBar) {
+                progressBar.style.width = `${task.progress}%`;
+            }
+
+            if (progressPercent) {
+                if (task.status === 'completed') {
+                    progressPercent.innerHTML = '<iconpark-icon name="check" style="font-size: 14px;"></iconpark-icon>';
+                } else {
+                    progressPercent.textContent = `${task.progress}%`;
+                }
+            }
+            
+            if (progressText) {
+                if (task.status === 'preparing' && task.sha1_progress !== undefined) {
+                    progressText.textContent = `校验中... ${task.sha1_progress}%`;
+                } else if (task.status === 'uploading') {
+                    const uploaded = this.formatSize(task.uploaded || 0);
+                    const total = this.formatSize(task.file.size);
+                    progressText.textContent = `${uploaded} / ${total}`;
+                } else if (task.status === 'completed') {
+                    progressText.textContent = `已完成 · ${this.formatSize(task.file.size)}`;
+                } else if (task.status === 'merging') {
+                    progressText.textContent = '正在合并文件...';
+                } else {
+                    progressText.textContent = this.getStatusText(task.status);
+                }
+            }
+            
+            if (statusText) {
+                statusText.textContent = this.getStatusText(task.status);
+            }
         }
         
         // 更新行样式
-        row.classList.remove('uploading', 'completed', 'failed', 'preparing', 'merging');
-        row.classList.add(task.status);
+        row.classList.remove('uploading', 'completed', 'failed', 'preparing', 'merging', 'retrying');
+        if (task._isRetrying) {
+            row.classList.add('retrying');
+        }
+        if (task.status === 'failed') {
+            row.classList.add('failed');
+        } else {
+            row.classList.add(task.status);
+        }
         
         // 完成后隐藏取消按钮
         const cancelBtn = row.querySelector('.vx-list-action-btn');
@@ -1819,7 +1870,24 @@ var VX_UPLOADER = VX_UPLOADER || {
 
     recaptchaDo(action, callback) {
         if (typeof TL !== 'undefined' && typeof TL.recaptcha_do === 'function') {
-            TL.recaptcha_do(action, callback);
+            // 设置超时保护：如果 recaptcha_do 在5秒内没有调用回调（如离线时 $.post 失败），
+            // 则使用空字符串作为 fallback，确保上传流程不被卡住
+            let called = false;
+            const timeoutId = setTimeout(() => {
+                if (!called) {
+                    called = true;
+                    console.warn(`[VX_UPLOADER] recaptcha_do timed out for action: ${action}, using fallback`);
+                    callback('');
+                }
+            }, 5000);
+            
+            TL.recaptcha_do(action, (token) => {
+                if (!called) {
+                    called = true;
+                    clearTimeout(timeoutId);
+                    callback(token);
+                }
+            });
         } else {
             callback('');
         }
@@ -2022,7 +2090,7 @@ var VX_UPLOADER = VX_UPLOADER || {
         // 从候选列表中排除当前失败的服务器
         const candidates = this.servers.filter(s => s.url !== failedServerUrl);
         if (candidates.length === 0) {
-            console.warn('[VX_UPLOADER] No alternative servers available');
+            console.warn('[VX_UPLOADER] No alternative servers available in current round, will trigger re-probe cycle');
             return null;
         }
         
@@ -2055,6 +2123,118 @@ var VX_UPLOADER = VX_UPLOADER || {
     },
 
     /**
+     * 统一的错误处理：重试 + 服务器切换 + 循环探测
+     * 每个服务器先本地重试最多3次（间隔3秒），达到上限后切换服务器
+     * 所有服务器都失败后，重置计数重新探测，持续循环不放弃
+     *
+     * @param {Object} task - 上传任务对象
+     * @param {string} failedServer - 当前失败的服务器 URL
+     * @param {Function} retryCallback - 重试回调函数，使用新服务器重新发起请求
+     */
+    handleUploadError(task, failedServer, retryCallback) {
+        if (task.status === 'cancelled') return;
+
+        // 初始化任务级别的重试计数（_retryCount 表示"已经重试的次数"）
+        if (task._retryCount === undefined) {
+            task._retryCount = 0;
+        }
+        if (task._serverRetryRound === undefined) {
+            task._serverRetryRound = 0;
+        }
+
+        task._retryCount++;
+        const maxRetry = this.serverMaxFailBeforeSwitch; // 3次
+
+        console.log(`[VX_UPLOADER] Upload error for ${task.filename}: server=${failedServer}, retry=${task._retryCount}/${maxRetry}, round=${task._serverRetryRound}`);
+
+        // 更新任务状态显示为重试中（保持此状态直到重试成功）
+        task._isRetrying = true;
+        task._retryStatusText = `重试 ${task._retryCount}/${maxRetry}`;
+        this.updateUploadRow(task);
+
+        if (task._retryCount <= maxRetry) {
+            // 未达阈值（重试次数 <= 3），在当前服务器上重试（间隔3秒）
+            // 注意：不重置 _isRetrying，保持重试状态直到成功
+            setTimeout(() => {
+                if (task.status === 'cancelled') return;
+                retryCallback();
+            }, 3000);
+            return;
+        }
+
+        // 超过重试上限（_retryCount > 3），重置计数，尝试切换服务器
+        task._retryCount = 0;
+        task._serverSwitched = true;
+        task._retryStatusText = '切换服务器中...';
+        this.updateUploadRow(task);
+
+        const newServer = this.switchToNextServer(failedServer);
+        if (newServer) {
+            // 切换成功，使用新服务器重试
+            task._currentServer = newServer;
+            console.log(`[VX_UPLOADER] Switched to server: ${newServer}, retrying...`);
+            setTimeout(() => {
+                if (task.status === 'cancelled') return;
+                retryCallback();
+            }, 1000);
+        } else {
+            // 所有服务器都已尝试过一轮，重置并重新探测
+            task._serverRetryRound++;
+            task._retryStatusText = '探测服务器中...';
+            console.log(`[VX_UPLOADER] All servers exhausted (round ${task._serverRetryRound}), re-probing all servers...`);
+            this.updateUploadRow(task);
+
+            this.resetAndReProbeAllServers().then((bestServer) => {
+                if (task.status === 'cancelled') return;
+
+                if (bestServer) {
+                    task._currentServer = bestServer;
+                    task._serverSwitched = true;
+                    task._retryStatusText = '切换服务器中...';
+                    console.log(`[VX_UPLOADER] Re-probe found server: ${bestServer}, retrying...`);
+                } else {
+                    // 全部不可达，保持当前服务器，等待后继续循环
+                    task._retryStatusText = '等待服务器恢复...';
+                    console.warn(`[VX_UPLOADER] All servers still unreachable, will retry after 5s...`);
+                    task._currentServer = failedServer;
+                }
+                this.updateUploadRow(task);
+                setTimeout(() => {
+                    if (task.status === 'cancelled') return;
+                    retryCallback();
+                }, 5000);
+            });
+        }
+    },
+
+    /**
+     * 重置所有服务器的失败计数并重新探测延迟
+     * 用于所有服务器都失败一轮后，重新开始循环
+     * @returns {Promise<string|null>} 最优可达服务器 URL，全部不可达则返回 null
+     */
+    resetAndReProbeAllServers() {
+        if (!this.servers || this.servers.length === 0) {
+            return Promise.resolve(null);
+        }
+
+        // 重置所有服务器的失败计数
+        for (const s of this.servers) {
+            this.serverFailCount[s.url] = 0;
+            // 清除超时标记，以便重新探测
+            if (this.serverLatency[s.url] && this.serverLatency[s.url] >= 999999) {
+                delete this.serverLatency[s.url];
+            }
+        }
+
+        // 异步探测所有服务器
+        const probes = this.servers.map(s => this.probeUploadEndpoint(s.url));
+        return Promise.all(probes).then(() => {
+            // 选择最优可达服务器
+            return this.selectBestServer();
+        });
+    },
+
+    /**
      * 启动长时上传健康检查
      * 在上传过程中定期检查当前服务器是否仍然健康
      */
@@ -2075,15 +2255,29 @@ var VX_UPLOADER = VX_UPLOADER || {
                     const newServer = this.switchToNextServer(currentServer);
                     if (newServer) {
                         // 标记所有正在上传任务，使其在下次 prepareSlice 时使用新服务器
+                        // 同时重置任务级别的重试计数（因为换了新服务器）
                         for (const id in this.uploading) {
                             const task = this.uploading[id];
                             if (task && task.status === 'uploading') {
                                 task._serverSwitched = true;
+                                task._retryCount = 0;
                             }
                         }
                     } else {
-                        // 所有服务器都不可用，取消全部上传
-                        this.cancelAllUploads('所有上传服务器当前不可用，请刷新页面后再试。');
+                        // 所有服务器都不可达，触发重新探测循环（不取消上传）
+                        console.warn('[VX_UPLOADER] Health check: all servers unreachable, triggering re-probe cycle...');
+                        this.resetAndReProbeAllServers().then((bestServer) => {
+                            if (bestServer && this.hasActiveUploads()) {
+                                for (const id in this.uploading) {
+                                    const task = this.uploading[id];
+                                    if (task && task.status === 'uploading') {
+                                        task._currentServer = bestServer;
+                                        task._serverSwitched = true;
+                                        task._retryCount = 0;
+                                    }
+                                }
+                            }
+                        });
                     }
                 }
             });
