@@ -3856,15 +3856,36 @@ var VX_FILELIST = VX_FILELIST || {
     /**
      * 增量更新文件列表
      * 请求服务器获取最新文件列表，然后与当前列表对比，只更新差异部分
+     * 支持自动重试：网络请求失败或服务器返回错误时，持续重试直到成功
+     * 重试策略：前3次间隔3秒，之后间隔递增（6s/12s/30s），最多30秒间隔
+     * @param {number} [retryCount] - 内部使用：当前已重试次数
      */
-    incrementalUpdate() {
+    incrementalUpdate(retryCount) {
         const token = this.getToken();
         if (!token) return;
-        
+
+        const attempt = retryCount || 0;
+
         const sortBy = localStorage.getItem(`vx_room_sort_by_${this.mrid}`) || this.room.sort_by || 0;
         const sortType = localStorage.getItem(`vx_room_sort_type_${this.mrid}`) || this.room.sort_type || 0;
         const apiUrl = (typeof TL !== 'undefined' && TL.api_mr) ? TL.api_mr : '/api_v2/meetingroom';
-        
+
+        // 重试间隔：前3次3秒，之后逐步递增到最大30秒
+        const getRetryDelay = (n) => {
+            if (n <= 2) return 3000;      // 第1-3次: 3秒
+            if (n <= 4) return 6000;      // 第4-5次: 6秒
+            if (n <= 7) return 12000;     // 第6-8次: 12秒
+            return 30000;                  // 第9次及以后: 30秒
+        };
+
+        const doRetry = () => {
+            const delay = getRetryDelay(attempt);
+            console.warn(`[VX_FILELIST] incrementalUpdate failed (attempt ${attempt + 1}), retrying in ${delay}ms...`);
+            setTimeout(() => {
+                this.incrementalUpdate(attempt + 1);
+            }, delay);
+        };
+
         $.post(apiUrl, {
             action: 'file_list_page',
             mr_id: this.mrid,
@@ -3874,53 +3895,56 @@ var VX_FILELIST = VX_FILELIST || {
             token: token
         }, (rsp) => {
             if (rsp.status !== 1 || !rsp.data) {
+                doRetry();
                 return;
             }
-            
+
             const newFiles = rsp.data || [];
             const oldUkeys = new Set(this.fileList.map(f => f.ukey));
             const newUkeys = new Set(newFiles.map(f => f.ukey));
-            
+
             // 找出新增的文件
             const addedFiles = newFiles.filter(f => !oldUkeys.has(f.ukey));
-            
+
             // 找出被删除的文件（当前有但新列表没有）
             const removedUkeys = this.fileList.filter(f => !newUkeys.has(f.ukey)).map(f => f.ukey);
-            
+
             // 如果没有变化，不做任何操作
             if (addedFiles.length === 0 && removedUkeys.length === 0) {
                 return;
             }
-            
+
             // 更新内部数据
             // 移除已删除的文件
             if (removedUkeys.length > 0) {
                 this.fileList = this.fileList.filter(f => !removedUkeys.includes(f.ukey));
             }
-            
+
             // 添加新文件（按照服务器返回的顺序插入到开头）
             if (addedFiles.length > 0) {
                 // 新文件应该在列表开头（最新上传的在前面）
                 this.fileList = addedFiles.concat(this.fileList);
             }
-            
+
             // 更新图片列表
             this.photoList = this.fileList.filter(file => this.isImageFile(file.ftype));
-            
+
             // 局部更新 DOM
             if (this.viewMode === 'list') {
                 this.incrementalUpdateListView(addedFiles, removedUkeys);
             } else {
                 this.incrementalUpdateAlbumView(addedFiles, removedUkeys);
             }
-            
+
             // 更新项目数量
             this.updateItemCount();
 
             // 回写缓存，供其它标签页和再次访问直接命中
             this.persistCurrentSnapshot();
-            
-        }, 'json');
+
+        }, 'json').fail(() => {
+            doRetry();
+        });
     },
     
     /**

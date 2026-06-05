@@ -453,11 +453,21 @@
            But based on previous CSS, it seems actions are in the row.
            We position them absolutely to the right or let them flow.
         */
-        display: flex !important;
         gap: 8px !important;
         width: auto !important;
         margin-left: auto !important; /* Push to right */
         flex-shrink: 0 !important;
+    }
+
+    /* Default: show actions as flex, but allow JS to toggle vx-file-ok / vx-file-sync via inline style */
+    .vx-list-actions:not(.vx-file-ok):not(.vx-file-sync) {
+        display: flex !important;
+    }
+
+    /* vx-file-ok and vx-file-sync are toggled by JS inline style; do not force display here */
+    .vx-list-actions.vx-file-ok,
+    .vx-list-actions.vx-file-sync {
+        /* display is controlled by JS inline style */
     }
     
     /* Ensure only relevant buttons are shown if not handled by JS */
